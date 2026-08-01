@@ -463,6 +463,81 @@ function createAdminEndpoints(app) {
       adminCount: adminConfig.getAdminList().length
     });
   });
+
+  // Admin: Get all users' credit balances
+  app.get('/admin/users/credits', (req, res) => {
+    const email = req.headers['x-user-id'] || '';
+    
+    if (!adminConfig.isAdmin(email)) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    // In production, fetch from database
+    const users = Array.from(creditSystem.userTiers.keys()).map(userId => ({
+      userId,
+      tier: creditSystem.userTiers.get(userId) || 'free',
+      balance: creditSystem.getBalance(userId),
+      hasApiKey: apiKeyControl.hasAnyAPIKey(userId)
+    }));
+
+    res.json({ users, total: users.length });
+  });
+
+  // Admin: Reset user credits
+  app.post('/admin/users/reset-credits', (req, res) => {
+    const email = req.headers['x-user-id'] || '';
+    
+    if (!adminConfig.isAdmin(email)) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { userId, amount } = req.body;
+    
+    creditSystem.addCredits(userId, amount);
+    
+    res.json({
+      success: true,
+      message: `Added ${amount} credits to ${userId}`,
+      newBalance: creditSystem.getBalance(userId)
+    });
+  });
+
+  // Admin: Set user tier
+  app.post('/admin/users/set-tier', (req, res) => {
+    const email = req.headers['x-user-id'] || '';
+    
+    if (!adminConfig.isAdmin(email)) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { userId, tier } = req.body;
+    
+    if (!['free', 'premium', 'enterprise'].includes(tier)) {
+      return res.status(400).json({ error: 'Invalid tier' });
+    }
+    
+    creditSystem.userTiers.set(userId, tier);
+    
+    res.json({
+      success: true,
+      message: `Set ${userId} to ${tier} tier`,
+      tier
+    });
+  });
+
+  // Admin: Get upgrade paths
+  app.get('/admin/upgrade-paths', (req, res) => {
+    const email = req.headers['x-user-id'] || '';
+    
+    if (!adminConfig.isAdmin(email)) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    res.json({
+      upgradePaths: UPGRADE_PATHS,
+      paywallConfig: PAYWALL_CONFIG
+    });
+  });
 }
 
 // ============================================

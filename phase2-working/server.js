@@ -15,6 +15,7 @@ const { accessControl, llmRouter, apiKeyManager, securityManager } = require('./
 const { ttsManager, channelFormatter, audioEncoder, voiceOutputEngine } = require('./tts-engine');
 const { adminConfig, freeTTSManager, createAdminEndpoints } = require('./admin-dashboard');
 const { liveInfoSystem, createAgentReachEndpoints } = require('./agent-reach-integration');
+const { PAYWALL_CONFIG, creditSystem, apiKeyControl, UPGRADE_PATHS, paymentProcessor } = require('./paywall-system');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -153,7 +154,33 @@ function canEnableVoiceOutput(userId) {
 }
 
 // ============================================
-// 5. LLM ROUTER (Intelligent Fallback Chain)
+// 5. PAYWALL INTEGRATION
+// ============================================
+
+// Check credit balance before processing request
+function checkCreditBalance(userId) {
+  const tier = accessControl.userTiers.get(userId) || 'free';
+  
+  // Free tier doesn't use credits, just daily limit
+  if (tier === 'free') {
+    return { canProcess: true, creditMessage: null };
+  }
+  
+  // Premium/Enterprise check credits
+  const balance = creditSystem.getBalance(userId);
+  const canProcess = balance > 0;
+  const creditMessage = creditSystem.getCreditMessage(userId);
+  
+  return { canProcess, creditMessage };
+}
+
+// Deduct credit after successful processing
+function deductCredit(userId) {
+  return creditSystem.deductCredit(userId);
+}
+
+// ============================================
+// 6. LLM ROUTER (Intelligent Fallback Chain)
 // ============================================
 
 async function processWithLLMRouter(request) {
@@ -226,11 +253,103 @@ async function generateEmbeddings(text, userId) {
 }
 
 // ============================================
-// 7. API ENDPOINTS
+// 7. PAYWALL API ENDPOINTS
 // ============================================
 
-app.use(cors());
-app.use(express.json());
+// Get user's access status with paywall info
+app.get('/api/access/status', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  const access = accessControl.checkAccess(userId);
+  const creditMessage = creditSystem.getCreditMessage(userId);
+
+  res.json({
+    success: true,
+    tier: access.tier,
+    dailyLimit: access.tier === 'free' ? 3 : access.tier === 'premium' ? 100 : 'unlimited',
+    monthlyLimit: access.tier === 'free' ? 30 : access.tier === 'premium' ? 1000 : 'unlimited',
+    dailyUsage: access.daily,
+    monthlyUsage: access.monthly,
+    remaining: access.remaining,
+    canConfigureAPIKeys: apiKeyControl.canConfigure(userId),
+    creditBalance: creditSystem.getBalance(userId),
+    creditMessage: creditMessage,
+    hasUserApiKey: accessControl.hasUserApiKey(userId, 'openai') || accessControl.hasUserApiKey(userId, 'anthropic'),
+    upgradePaths: UPGRADE_PATHS
+  });
+});
+
+// Purchase credits
+app.post('/api/credits/purchase', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  const { amountInDollars } = req.body;
+
+  if (!amountInDollars || amountInDollars <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  const result = paymentProcessor.purchaseCredits(userId, amountInDollars);
+  
+  if (result.success) {
+    res.json({
+      success: true,
+      message: result.message,
+      newBalance: result.newBalance
+    });
+  } else {
+    res.status(400).json({ success: false, error: result.error });
+  }
+});
+
+// Add API key (only for premium users)
+app.post('/api/keys/add', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  const { service, apiKey } = req.body;
+
+  if (!service || !apiKey) {
+    return res.status(400).json({ error: 'Service and API key required' });
+  }
+
+  const result = apiKeyControl.addAPIKey(userId, service, apiKey);
+  
+  if (result.success) {
+    accessControl.setUserTier(userId, 'premium');
+    accessControl.setUserApiKey(userId, service, apiKey);
+    
+    // Add premium credits
+    creditSystem.addCredits(userId, PAYWALL_CONFIG.premium.initialCredits);
+    
+    res.json({
+      success: true,
+      message: result.message,
+      tier: 'premium',
+      dailyLimit: 100,
+      monthlyLimit: 1000,
+      creditBalance: creditSystem.getBalance(userId)
+    });
+  } else {
+    res.status(403).json({
+      success: false,
+      error: result.error,
+      canConfigure: false,
+      upgradePrompt: 'Upgrade to premium to configure your own API keys'
+    });
+  }
+});
+
+// Get credit balance
+app.get('/api/credits/balance', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  
+  res.json({
+    success: true,
+    tier: accessControl.userTiers.get(userId) || 'free',
+    balance: creditSystem.getBalance(userId),
+    runsPerDollar: creditSystem.getRunsPerDollar(userId),
+    nextPromptAt: PAYWALL_CONFIG[accessControl.userTiers.get(userId) || 'free']?.maxRunsBeforePrompt || 3,
+    canAffordRun: creditSystem.canAffordRun(userId),
+    isPremiumOrHigher: creditSystem.isPremiumOrHigher(userId)
+  });
+});
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -343,6 +462,15 @@ app.post('/api/process/message', async (req, res) => {
     });
   }
 
+  // Check credit balance (premium/enterprise only)
+  const creditCheck = checkCreditBalance(userId);
+  if (!creditCheck.canProcess) {
+    return res.status(402).json({
+      error: 'Out of credits. Purchase more to continue using the service.',
+      creditMessage: creditCheck.creditMessage
+    });
+  }
+
   // Process based on type
   let result;
   if (type === 'voice') {
@@ -352,6 +480,9 @@ app.post('/api/process/message', async (req, res) => {
   } else {
     result = { text, type: 'text', provider: 'llm-router' };
   }
+
+  // Deduct credit after successful processing
+  deductCredit(userId);
 
   // Generate embeddings
   const embeddings = await generateEmbeddings(text || result.text, userId);
@@ -455,43 +586,10 @@ app.post('/api/embeddings/generate', async (req, res) => {
 // ============================================
 
 // API Key Management
-app.post('/api/keys/add', async (req, res) => {
-  const userId = req.headers['x-user-id'] || 'anonymous';
-  const { service, apiKey } = req.body;
-
-  if (!service || !apiKey) {
-    return res.status(400).json({ error: 'Service and API key required' });
-  }
-
-  const encryptedKey = apiKeyManager.encrypt(apiKey, userId);
-  accessControl.setUserApiKey(userId, service, encryptedKey);
-  accessControl.setUserTier(userId, 'premium');
-
-  res.json({
-    success: true,
-    message: `API key added for ${service}`,
-    tier: 'premium',
-    dailyLimit: 100,
-    monthlyLimit: 1000
-  });
-});
+// Already handled above with paywall integration
 
 // Get current tier and usage
-app.get('/api/access/status', async (req, res) => {
-  const userId = req.headers['x-user-id'] || 'anonymous';
-  const access = accessControl.checkAccess(userId);
-
-  res.json({
-    success: true,
-    tier: access.tier,
-    dailyLimit: access.tier === 'free' ? 3 : access.tier === 'premium' ? 100 : 'unlimited',
-    monthlyLimit: access.tier === 'free' ? 30 : access.tier === 'premium' ? 1000 : 'unlimited',
-    dailyUsage: access.daily,
-    monthlyUsage: access.monthly,
-    remaining: access.remaining,
-    hasUserApiKey: accessControl.hasUserApiKey(userId, 'openai') || accessControl.hasUserApiKey(userId, 'anthropic')
-  });
-});
+// Already handled above with paywall integration
 
 // Check if email is disposable
 app.post('/api/security/check-email', async (req, res) => {
