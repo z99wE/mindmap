@@ -9,6 +9,7 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const { accessControl, llmRouter, apiKeyManager, securityManager } = require('./llm-router');
+const { ttsManager, channelFormatter, audioEncoder, voiceOutputEngine } = require('./tts-engine');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -522,5 +523,70 @@ app.listen(PORT, () => {
   console.log(`📊 Features: Voice, Image, Memory, Thought Graph, LLM Router`);
   console.log(`🔒 Access: 3 tiers - Free(3/day), Premium(100/day), Enterprise(unlimited)`);
   console.log(`💰 Cost: Free tier with rate limits | Premium with your API keys`);
+  console.log(`🛡️ Security: LLM jumping prevention, disposable email blocking`);
+});
+// ============================================
+// 11. PHASE 4 - VOICE OUTPUT ENDPOINTS
+// ============================================
+
+// Text-to-Speech
+app.post('/api/tts/synthesize', async (req, res) => {
+  const { text, language = 'en', voice = 'auto' } = req.body;
+
+  if (!text) {
+    return res.status(400).json({ error: 'Text is required' });
+  }
+
+  const result = await ttsManager.synthesize(text, {
+    language,
+    provider: voice !== 'auto' ? voice : undefined
+  });
+
+  res.json({
+    success: true,
+    audio: result.audio,
+    format: result.format,
+    duration_ms: result.duration_ms,
+    provider: result.provider,
+    cost: result.cost,
+    freeCharsRemaining: result.freeCharsRemaining
+  });
+});
+
+// Voice output for channel
+app.post('/api/tts/channel', async (req, res) => {
+  const { text, channel, language = 'en', voice = 'auto', userId } = req.body;
+
+  if (!text || !channel) {
+    return res.status(400).json({ error: 'Text and channel are required' });
+  }
+
+  const result = await voiceOutputEngine.createVoiceOutput(text, {
+    channel,
+    language,
+    voice,
+    userId
+  });
+
+  res.json(result);
+});
+
+// Get voice options
+app.get('/api/tts/options', async (req, res) => {
+  const options = await voiceOutputEngine.getVoiceOptions();
+  res.json(options);
+});
+
+// ============================================
+// 12. START SERVER
+// ============================================
+
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, () => {
+  console.log(`✅ Phase 2+3+4 Server running on port ${PORT}`);
+  console.log(`📊 Features: Voice, Image, Memory, Thought Graph, LLM Router, TTS`);
+  console.log(`🔒 Access: 3 tiers - Free(3/day), Premium(100/day), Enterprise(unlimited)`);
+  console.log(`💰 Cost: Free tier with rate limits | Premium with your API keys`);
+  console.log(`🎙️ TTS: Google Cloud, ElevenLabs, Amazon Polly, Piper (local)`);
   console.log(`🛡️ Security: LLM jumping prevention, disposable email blocking`);
 });
