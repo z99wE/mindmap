@@ -30,11 +30,14 @@ export const Dashboard = () => {
             <div style="color: #888;">500 runs/day + API keys</div>
             <button class="btn btn-primary" style="margin-top: 1rem;" onclick="showPage('credits')">UPGRADE</button>
           </div>
-          <div class="tier-card enterprise ${currentTier === 'enterprise' ? 'selected' : ''}" onclick="setTier('enterprise')">
-            <div style="font-family: 'Orbitron', sans-serif; color: #39ff14; font-size: 1.5rem;">ENTERPRISE</div>
+          <div class="tier-card enterprise ${currentTier === 'enterprise' ? 'selected' : ''}" style="opacity: 0.5; cursor: not-allowed;">
+            <div style="font-family: 'Orbitron', sans-serif; color: #888; font-size: 1.5rem; position: relative;">
+              ENTERPRISE
+              <span style="position: absolute; top: -15px; right: -15px; background: #39ff14; color: #000; padding: 0.2rem 0.6rem; font-size: 0.7rem; border-radius: 4px;">COMING SOON</span>
+            </div>
             <div style="color: #39ff14; font-size: 2rem; font-weight: bold;">${usage.price}</div>
             <div style="color: #888;">Unlimited + Custom</div>
-            <button class="btn btn-success" style="margin-top: 1rem;" onclick="showPage('contact')">CONTACT SALES</button>
+            <button class="btn" style="margin-top: 1rem; background: #555; border-color: #888; color: #888; cursor: not-allowed;" disabled>COMING SOON</button>
           </div>
         </div>
       </div>
@@ -74,25 +77,25 @@ export const Dashboard = () => {
             <td style="color: #fff;">API Key Configuration</td>
             <td style="color: #ff3366;">❌ Not Available</td>
             <td style="color: #39ff14;">✅ Available</td>
-            <td style="color: #39ff14;">✅ Available</td>
+            <td style="color: #39ff14;">✅ Available (Coming Soon)</td>
           </tr>
           <tr>
             <td style="color: #fff;">Voice Output</td>
             <td style="color: #ff3366;">❌ Disabled</td>
             <td style="color: #39ff14;">✅ Enabled</td>
-            <td style="color: #39ff14;">✅ Enabled</td>
+            <td style="color: #39ff14;">✅ Enabled (Coming Soon)</td>
           </tr>
           <tr>
             <td style="color: #fff;">Memory Storage</td>
             <td style="color: #888;">1 GB</td>
             <td style="color: #888;">10 GB</td>
-            <td style="color: #888;">Unlimited</td>
+            <td style="color: #39ff14;">Unlimited (Coming Soon)</td>
           </tr>
           <tr>
             <td style="color: #fff;">Priority Support</td>
             <td style="color: #ff3366;">❌ No</td>
             <td style="color: #39ff14;">✅ Yes</td>
-            <td style="color: #39ff14;">✅ Yes</td>
+            <td style="color: #39ff14;">✅ Yes (Coming Soon)</td>
           </tr>
         </tbody>
       </table>
