@@ -20,8 +20,37 @@ CREATE TABLE IF NOT EXISTS memory_graph (
   category VARCHAR(100) DEFAULT 'general',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   embedding vector(1536),
+  
+  -- Phase 8: Neuro-diverse productivity features
+  requested_by VARCHAR(255),                -- Who asked for this (relationship context)
+  context_note TEXT,                        -- Why this matters (context)
+  emotional_weight_score INTEGER CHECK (emotional_weight_score BETWEEN 1 AND 5),  -- Priority weight
+  trigger_type VARCHAR(50),                 -- 'time', 'location', 'time_location'
+  trigger_value TEXT,                       -- Time or location trigger
+  destination_coords POINT,                 -- Destination for travel time calculation
+  deadline_epoch BIGINT,                    -- Unix timestamp deadline
+  travel_duration_minutes INTEGER,          -- Cached travel time from OSRM
+  
   UNIQUE(user_id, attribute, value)
 );
+`;
+
+
+// Phase 8 schema migrations
+const PHASE_8_MIGRATIONS = `
+-- Add relationship context columns
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS requested_by VARCHAR(255);
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS context_note TEXT;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS emotional_weight_score INTEGER CHECK (emotional_weight_score BETWEEN 1 AND 5);
+
+-- Add trigger columns for location/time-based actions
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS trigger_type VARCHAR(50);
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS trigger_value TEXT;
+
+-- Add time blindess columns
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS destination_coords POINT;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS deadline_epoch BIGINT;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS travel_duration_minutes INTEGER;
 `;
 
 // Create index for semantic search

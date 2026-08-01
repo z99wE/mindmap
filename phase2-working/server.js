@@ -18,6 +18,37 @@ const { liveInfoSystem, createAgentReachEndpoints } = require('./agent-reach-int
 const { PAYWALL_CONFIG, creditSystem, apiKeyControl, UPGRADE_PATHS, paymentProcessor } = require('./paywall-system');
 const { knowledgeExtractor, MemoryGraphManager } = require('./memory-graph');
 const { orchestratorManager } = require('./orchestrator');
+
+// Phase 8 Features
+const {
+  detectIntent,
+  setupRevivalCron,
+  createThoughtInterceptorEndpoints
+} = require('./features/thought-interceptor');
+
+const {
+  checkAndAlertDeparture,
+  setupTimeBlindnessWorker
+} = require('./features/time-blindness');
+
+const {
+  createInvisibleChecklistEndpoints,
+  handleGeofenceEntry
+} = require('./features/invisible-checklist');
+
+const {
+  processDriftAlert,
+  setupDriftDetectorWorker,
+  createDriftDetectorEndpoints
+} = require('./features/drift-detector');
+
+const {
+  createRelationshipAnchorEndpoints
+} = require('./features/relationship-anchor');
+
+const {
+  createDoorRuleEndpoints
+} = require('./features/door-rule');
 const { webScraper, LiveInfoSystem } = require('./web-scraper');
 const { omnirouteClient, autoFailoverRouter } = require('./omni-route-integration');
 
@@ -905,4 +936,69 @@ app.get('/api/web/search', async (req, res) => {
 app.use('/agent-reach', (req, res, next) => {
   // Proxy to liveInfoSystem
   next();
+});
+// ============================================
+// 10. PHASE 8: NEURO-DIVERSE PRODUCTIVITY FEATURES
+// ============================================
+
+// Create endpoints for Phase 8 features
+app.use('/api/thought', (req, res, next) => {
+  // Proxy to thought interceptor
+  next();
+});
+
+app.use('/api/geofence', (req, res, next) => {
+  // Proxy to invisible checklist
+  next();
+});
+
+app.use('/api/drift', (req, res, next) => {
+  // Proxy to drift detector
+  next();
+});
+
+app.use('/api/door', (req, res, next) => {
+  // Proxy to door rule
+  next();
+});
+
+// Worker initialization for Phase 8 features
+pool.on('connect', () => {
+  // Start Time Blindness worker (checks travel time and departure alerts)
+  setupTimeBlindnessWorker(pool, caspianClient, tile38Client, 15);
+  
+  // Start Drift Detector worker (monitors location stagnation)
+  setupDriftDetectorWorker(pool, caspianClient, llmRouter, tile38Client, 15);
+  
+  // Start Door Rule worker (checks for home exits)
+  setupDoorRuleWorker(pool, caspianClient, tile38Client, 5);
+});
+
+// Redis connection for revival queue
+let redisClient = null;
+if (process.env.REDIS_URL) {
+  const redis = require('redis');
+  redisClient = redis.createClient({ url: process.env.REDIS_URL });
+  
+  redisClient.on('connect', () => {
+    console.log('✅ Connected to Redis');
+    // Start revival cron job
+    setupRevivalCron(redisClient, caspianClient, 300000);
+  });
+  
+  redisClient.on('error', (err) => {
+    console.log('⚠️ Redis connection error:', err.message);
+  });
+}
+
+// Start the server
+app.listen(PORT, async () => {
+  console.log(`✅ Thought GPS Phase 8 running on port ${PORT}`);
+  console.log('✅ Phase 8 Features enabled:');
+  console.log('  - Thought Interceptor');
+  console.log('  - Time Blindness Compensation');
+  console.log('  - Invisible Checklist');
+  console.log('  - Drift Detector');
+  console.log('  - Relationship Memory Anchor');
+  console.log('  - Door Rule');
 });
