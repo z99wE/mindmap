@@ -18,6 +18,8 @@ const { liveInfoSystem, createAgentReachEndpoints } = require('./agent-reach-int
 const { PAYWALL_CONFIG, creditSystem, apiKeyControl, UPGRADE_PATHS, paymentProcessor } = require('./paywall-system');
 const { knowledgeExtractor, MemoryGraphManager } = require('./memory-graph');
 const { orchestratorManager } = require('./orchestrator');
+const { webScraper, LiveInfoSystem } = require('./web-scraper');
+const { omnirouteClient, autoFailoverRouter } = require('./omni-route-integration');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -878,4 +880,29 @@ app.get('/api/notifications/tasks/:userId', (req, res) => {
     tasks,
     count: tasks.length
   });
+});
+// Web search endpoint
+app.get('/api/web/search', async (req, res) => {
+  const { query } = req.query;
+  
+  if (!query) {
+    return res.status(400).json({ error: 'Query required' });
+  }
+  
+  try {
+    const results = await webScraper.search(query, 10);
+    res.json({
+      success: true,
+      results,
+      count: results.length
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Live info endpoints (Agent-Reach)
+app.use('/agent-reach', (req, res, next) => {
+  // Proxy to liveInfoSystem
+  next();
 });
