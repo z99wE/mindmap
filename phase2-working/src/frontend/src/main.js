@@ -6,6 +6,7 @@ import { Dashboard } from './pages/Dashboard.js';
 import { APIKeys } from './pages/APIKeys.js';
 import { Credits } from './pages/Credits.js';
 import { Memory } from './pages/Memory.js';
+import { MissionControl } from './pages/MissionControl.js';
 
 // Page state
 let currentPage = 'home';
@@ -16,6 +17,12 @@ window.showPage = (page) => {
   updateActiveButton(page);
   renderPage(page);
 };
+
+// Mission Control page check
+const isMissionControl = window.location.pathname === '/mission-control';
+if (isMissionControl) {
+  currentPage = 'mission-control';
+}
 
 // Update active button
 function updateActiveButton(activePage) {
@@ -47,6 +54,9 @@ function renderPage(page) {
       break;
     case 'memory':
       main.appendChild(Memory());
+      break;
+    case 'mission-control':
+      main.appendChild(MissionControl());
       break;
     default:
       main.innerHTML = '<div style="color: #ff3366; padding: 2rem;">PAGE NOT FOUND</div>';

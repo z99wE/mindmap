@@ -16,12 +16,61 @@ const { ttsManager, channelFormatter, audioEncoder, voiceOutputEngine } = requir
 const { adminConfig, freeTTSManager, createAdminEndpoints } = require('./admin-dashboard');
 const { liveInfoSystem, createAgentReachEndpoints } = require('./agent-reach-integration');
 const { PAYWALL_CONFIG, creditSystem, apiKeyControl, UPGRADE_PATHS, paymentProcessor } = require('./paywall-system');
+const { knowledgeExtractor, MemoryGraphManager } = require('./memory-graph');
+const { orchestratorManager } = require('./orchestrator');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // ============================================
-// 1. MEMORY SYSTEM (User Isolated)
+// 1. DATABASE CONNECTION (PostgreSQL + pgvector)
+// ============================================
+
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/mindmap',
+  max: 10,
+  idleTimeoutMillis: 30000
+});
+
+// Initialize memory graph table
+let memoryGraphManager = null;
+pool.on('connect', () => {
+  console.log('✅ Connected to PostgreSQL');
+  
+  // Create memory graph table
+  pool.query(`
+    CREATE TABLE IF NOT EXISTS memory_graph (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR(255) NOT NULL,
+      entity VARCHAR(255) NOT NULL DEFAULT 'user',
+      attribute VARCHAR(255) NOT NULL,
+      value TEXT NOT NULL,
+      category VARCHAR(100) DEFAULT 'general',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      embedding vector(1536),
+      UNIQUE(user_id, attribute, value)
+    )
+  `).then(() => {
+    console.log('✅ Memory graph table created');
+    
+    // Create index for semantic search
+    return pool.query(`
+      CREATE INDEX IF NOT EXISTS memory_graph_user_idx ON memory_graph (user_id);
+      CREATE INDEX IF NOT EXISTS memory_graph_embedding_idx ON memory_graph 
+        USING ivfflat (embedding vector_cosine_ops)
+        WITH (lists = 100);
+    `);
+  }).then(() => {
+    console.log('✅ Memory graph indexes created');
+    memoryGraphManager = new MemoryGraphManager(pool);
+  }).catch(err => {
+    console.log('⚠️ Memory graph setup failed:', err.message);
+  });
+});
+
+// ============================================
+// 2. MEMORY SYSTEM (User Isolated)
 // ============================================
 
 class MemoryManager {
@@ -43,6 +92,15 @@ class MemoryManager {
     };
     this.memories.push(memory);
     console.log(`✅ Memory added for ${this.userId}: ${text.substring(0, 50)}...`);
+    
+    // Also store in knowledge graph
+    if (memoryGraphManager) {
+      memoryGraphManager.addFact(this.userId, text).then(facts => {
+        console.log(`📊 Added ${facts.length} facts to knowledge graph`);
+      }).catch(err => {
+        console.log('⚠️ Failed to add to knowledge graph:', err.message);
+      });
+    }
     
     // Send to Agent-Reach for live processing
     liveInfoSystem.sendUserThoughtToAgentReach(userId, text, metadata);
@@ -434,7 +492,7 @@ app.get('/api/memory/graph/:userId', (req, res) => {
   });
 });
 
-// Process Message (Main Pipeline)
+// Process Message (Main Pipeline) - Now uses Orchestrator
 app.post('/api/process/message', async (req, res) => {
   const userId = req.headers['x-user-id'] || 'anonymous';
   const { text, type = 'text', includeVoiceResponse = false } = req.body;
@@ -471,21 +529,14 @@ app.post('/api/process/message', async (req, res) => {
     });
   }
 
-  // Process based on type
-  let result;
-  if (type === 'voice') {
-    result = await processVoice(Buffer.alloc(0), userId);
-  } else if (type === 'image') {
-    result = await processImage(Buffer.alloc(0), userId);
-  } else {
-    result = { text, type: 'text', provider: 'llm-router' };
-  }
+  // Run through orchestrator
+  const orchestratorResult = await orchestratorManager.runWorkflow(userId, text || '');
 
   // Deduct credit after successful processing
   deductCredit(userId);
 
   // Generate embeddings
-  const embeddings = await generateEmbeddings(text || result.text, userId);
+  const embeddings = await generateEmbeddings(text || orchestratorResult.finalResponse, userId);
 
   // Create memory
   const manager = getUserManager(userId);
@@ -705,4 +756,126 @@ app.listen(PORT, async () => {
   // Initialize Agent-Reach
   const agentReachConnected = await liveInfoSystem.initialize();
   console.log(`🌍 Agent-Reach: ${agentReachConnected ? 'Connected' : 'Not connected (optional)'}`);
+});
+// Get Knowledge Graph (new - with pgvector)
+app.get('/api/memory/knowledge-graph/:userId', async (req, res) => {
+  const { userId } = req.params;
+  
+  if (!memoryGraphManager) {
+    return res.status(503).json({ error: 'Memory graph not available' });
+  }
+  
+  const facts = await memoryGraphManager.getGraph(userId);
+  
+  res.json({
+    success: true,
+    facts,
+    count: facts.length
+  });
+});
+
+// Search Knowledge Graph
+app.post('/api/memory/search-graph', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  const { query, limit = 10 } = req.body;
+  
+  if (!memoryGraphManager) {
+    return res.status(503).json({ error: 'Memory graph not available' });
+  }
+  
+  const results = await memoryGraphManager.searchMemories(userId, query, limit);
+  
+  res.json({
+    success: true,
+    results,
+    count: results.length
+  });
+});
+
+// Export Memory to JSON-LD
+app.get('/api/memory/export/:userId', async (req, res) => {
+  const { userId } = req.params;
+  
+  if (!memoryGraphManager) {
+    return res.status(503).json({ error: 'Memory graph not available' });
+  }
+  
+  const jsonld = await memoryGraphManager.exportJSONLD(userId);
+  
+  res.json({
+    success: true,
+    format: 'json-ld',
+    data: jsonld
+  });
+});
+// ============================================
+// 7. PUSH NOTIFICATION SYSTEM
+// ============================================
+
+// Simple in-memory task scheduler for demo
+const pendingTasks = new Map();
+
+// Check for geofence triggers every 30 seconds
+setInterval(async () => {
+  const now = new Date();
+  
+  // Check each pending task
+  for (const [taskId, task] of pendingTasks) {
+    if (task.type === 'geofence' && task.triggerTime <= now) {
+      // Send notification
+      await sendNotification(task.userId, task.message, task.channel);
+      
+      // Remove task
+      pendingTasks.delete(taskId);
+    }
+  }
+}, 30000);
+
+// Send notification via WhatsApp/Email/Phone
+async function sendNotification(userId, message, channel = 'whatsapp') {
+  console.log(`🔔 Notification to ${userId} via ${channel}: ${message}`);
+  
+  // In production, use Caspian SDK to send actual message
+  // For now, just log
+  
+  return { success: true };
+}
+
+// Add geofence task (demo)
+app.post('/api/notifications/geofence', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  const { location, radiusMeters = 300, triggerTime, message, channel = 'whatsapp' } = req.body;
+  
+  const taskId = `task_${Date.now()}`;
+  
+  pendingTasks.set(taskId, {
+    userId,
+    type: 'geofence',
+    location,
+    radiusMeters,
+    triggerTime: new Date(triggerTime),
+    message,
+    channel,
+    taskId
+  });
+  
+  res.json({
+    success: true,
+    taskId,
+    message: 'Geofence task scheduled'
+  });
+});
+
+// Get pending tasks
+app.get('/api/notifications/tasks/:userId', (req, res) => {
+  const { userId } = req.params;
+  
+  const tasks = Array.from(pendingTasks.values())
+    .filter(t => t.userId === userId);
+  
+  res.json({
+    success: true,
+    tasks,
+    count: tasks.length
+  });
 });

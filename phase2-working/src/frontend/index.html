@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thought GPS // Sci-Fi Interface // 2100 AD</title>
+  <title>Thought GPS // Mission Control // 2100 AD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Courier+New:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
     
     body {
       font-family: 'Courier New', Courier, monospace;
-      background: #000510;
+      background: #0a0f1a;
       color: #fff;
       overflow-x: hidden;
       min-height: 100vh;
@@ -64,36 +64,36 @@
       padding: 2rem;
     }
     
-    /* Header */
+    /* Header - Carbon Design Inspired */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 2rem;
-      background: rgba(0, 10, 20, 0.8);
-      border: 2px solid #ff3366;
-      border-radius: 4px;
-      box-shadow: 0 0 30px #ff336633;
+      background: linear-gradient(135deg, #1a1f2e 0%, #0a0f1a 100%);
+      border: 2px solid #f08c29;
+      border-radius: 8px;
+      box-shadow: 0 0 30px #f08c2933;
       margin-bottom: 2rem;
     }
     
     .header h1 {
       font-family: 'Orbitron', sans-serif;
-      color: #ff3366;
-      text-shadow: 0 0 20px #ff3366;
+      color: #f08c29;
+      text-shadow: 0 0 20px #f08c29;
       font-size: 2.5rem;
     }
     
     .status-badge {
       padding: 0.5rem 1rem;
-      background: rgba(57, 255, 20, 0.2);
-      border: 1px solid #39ff14;
-      color: #39ff14;
+      background: rgba(239, 231, 205, 0.15);
+      border: 1px solid #f08c29;
+      color: #f08c29;
       border-radius: 4px;
       font-family: 'Orbitron', sans-serif;
     }
     
-    /* Navigation */
+    /* Navigation - Carbon Design */
     .nav {
       display: flex;
       gap: 1rem;
@@ -102,10 +102,10 @@
     }
     
     .nav-btn {
-      padding: 1rem 2rem;
-      background: rgba(0, 210, 255, 0.1);
-      border: 1px solid #00d2ff;
-      color: #00d2ff;
+      padding: 0.75rem 1.5rem;
+      background: #1a1f2e;
+      border: 1px solid #f08c29;
+      color: #f08c29;
       border-radius: 4px;
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
@@ -113,31 +113,31 @@
     }
     
     .nav-btn:hover, .nav-btn.active {
-      background: #00d2ff;
-      color: #000;
-      box-shadow: 0 0 20px #00d2ff55;
+      background: #f08c29;
+      color: #0a0f1a;
+      box-shadow: 0 0 20px #f08c2955;
     }
     
-    /* Content cards */
+    /* Content cards - Carbon Design */
     .card {
-      background: rgba(0, 10, 20, 0.8);
-      border: 1px solid #00d2ff33;
+      background: #1a1f2e;
+      border: 1px solid #f08c2933;
       border-radius: 8px;
       padding: 2rem;
       margin-bottom: 2rem;
-      box-shadow: 0 0 30px #00d2ff11;
+      box-shadow: 0 0 30px #f08c2911;
     }
     
     .card h2 {
       font-family: 'Orbitron', sans-serif;
-      color: #00d2ff;
-      text-shadow: 0 0 10px #00d2ff;
+      color: #f08c29;
+      text-shadow: 0 0 10px #f08c29;
       margin-bottom: 2rem;
     }
     
     /* Buttons */
     .btn {
-      padding: 0.8rem 1.5rem;
+      padding: 0.75rem 1.5rem;
       border-radius: 4px;
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
@@ -146,21 +146,21 @@
     }
     
     .btn-primary {
-      background: #00d2ff;
-      color: #000;
-      box-shadow: 0 0 20px #00d2ff55;
+      background: #0066cc;
+      color: #fff;
+      box-shadow: 0 0 20px #0066cc55;
     }
     
     .btn-accent {
-      background: #ff3366;
-      color: #fff;
-      box-shadow: 0 0 20px #ff336655;
+      background: #f08c29;
+      color: #0a0f1a;
+      box-shadow: 0 0 20px #f08c2955;
     }
     
     .btn-success {
-      background: #39ff14;
-      color: #000;
-      box-shadow: 0 0 20px #39ff1455;
+      background: #198038;
+      color: #fff;
+      box-shadow: 0 0 20px #19803855;
     }
     
     .btn:hover {
@@ -169,8 +169,8 @@
     
     /* Form inputs */
     input, select {
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.5);
+      padding: 0.75rem;
+      background: #0a0f1a;
       border: 2px solid #555;
       border-radius: 4px;
       color: #fff;
@@ -181,27 +181,8 @@
     
     input:focus, select:focus {
       outline: none;
-      border-color: #00d2ff;
+      border-color: #f08c29;
     }
-    
-    /* Tier cards */
-    .tier-card {
-      padding: 1.5rem;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      border: 2px solid #555;
-      transition: all 0.3s ease;
-    }
-    
-    .tier-card.selected {
-      border-color: #00d2ff;
-      box-shadow: 0 0 20px #00d2ff33;
-    }
-    
-    .tier-card.free { background: rgba(0, 210, 255, 0.1); }
-    .tier-card.premium { background: rgba(255, 51, 102, 0.1); }
-    .tier-card.enterprise { background: rgba(57, 255, 20, 0.1); }
     
     /* Stats grid */
     .stats-grid {
@@ -212,11 +193,11 @@
     }
     
     .stat-box {
-      background: rgba(0, 0, 0, 0.5);
+      background: #0a0f1a;
       padding: 1.5rem;
       border-radius: 8px;
       text-align: center;
-      border-left: 3px solid #00d2ff;
+      border-left: 3px solid #f08c29;
     }
     
     .stat-value {
@@ -246,7 +227,7 @@
     }
     
     .keys-table th {
-      color: #00d2ff;
+      color: #f08c29;
       font-family: 'Orbitron', sans-serif;
     }
     
@@ -255,22 +236,22 @@
     }
     
     .key-service {
-      color: #ff3366;
+      color: #f08c29;
       font-weight: bold;
     }
     
     .key-value {
       font-family: 'Courier New', monospace;
-      color: #39ff14;
+      color: #198038;
     }
     
     /* Warning banner */
     .warning {
-      background: rgba(255, 51, 102, 0.2);
-      border: 1px solid #ff3366;
+      background: rgba(239, 231, 205, 0.15);
+      border: 1px solid #f08c29;
       padding: 1rem;
       border-radius: 4px;
-      color: #ff3366;
+      color: #f08c29;
       margin-bottom: 1rem;
       font-family: 'Orbitron', sans-serif;
     }
@@ -292,25 +273,34 @@
       z-index: 0;
       opacity: 0.2;
     }
+    
+    /* Color palette note */
+    /* Carbon Design-inspired colors:
+       - Primary: #f08c29 (orange - not tacky, carbon-inspired)
+       - Success: #198038 (green - not bright, muted)
+       - Warning: #3e2723 (dark red - not tacky)
+       - Accent: #0066cc (blue - muted)
+    */
   </style>
 </head>
 <body>
   <div class="scanlines"></div>
   <div class="parallax">
-    <div style="position: absolute; top: 10%; left: 10%; width: 100px; height: 100px; background: #00d2ff; border-radius: 50%; filter: blur(50px);"></div>
-    <div style="position: absolute; top: 30%; right: 10%; width: 150px; height: 150px; background: #ff3366; border-radius: 50%; filter: blur(60px);"></div>
-    <div style="position: absolute; bottom: 20%; left: 20%; width: 200px; height: 200px; background: #39ff14; border-radius: 50%; filter: blur(70px);"></div>
+    <div style="position: absolute; top: 10%; left: 10%; width: 100px; height: 100px; background: #f08c29; border-radius: 50%; filter: blur(50px);"></div>
+    <div style="position: absolute; top: 30%; right: 10%; width: 150px; height: 150px; background: #198038; border-radius: 50%; filter: blur(60px);"></div>
+    <div style="position: absolute; bottom: 20%; left: 20%; width: 200px; height: 200px; background: #0066cc; border-radius: 50%; filter: blur(70px);"></div>
   </div>
   
   <div class="container">
     <header class="header">
       <h1>THOUGHT GPS</h1>
-      <div class="status-badge">SYSTEM ONLINE // V1.1.0 // 2100 AD</div>
+      <div class="status-badge">MISSION CONTROL // V1.2.2 // 2100 AD</div>
     </header>
     
     <nav class="nav">
       <button class="nav-btn active" onclick="showPage('home')">HOME</button>
       <button class="nav-btn" onclick="showPage('dashboard')">DASHBOARD</button>
+      <button class="nav-btn" onclick="showPage('mission-control')">MISSION CONTROL</button>
       <button class="nav-btn" onclick="showPage('api-keys')">API KEYS</button>
       <button class="nav-btn" onclick="showPage('credits')">CREDITS</button>
       <button class="nav-btn" onclick="showPage('memory')">MEMORY</button>
@@ -319,7 +309,7 @@
     <main id="main-content"></main>
     
     <footer class="footer">
-      <p>Thought GPS v1.1.0 | AI Agent Platform | Sci-Fi Interface | 2100 AD</p>
+      <p>Thought GPS v1.2.2 | AI Agent Platform | Mission Control | 2100 AD</p>
     </footer>
   </div>
   
