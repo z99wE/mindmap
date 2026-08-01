@@ -1,0 +1,35 @@
+{
+  "name": "@thought-gps/caspian-handler",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest --coverage",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "caspian-sdk": "latest",
+    "express": "^4.18.2",
+    "zod": "^3.22.4",
+    "jsonwebtoken": "^9.0.2",
+    "bcrypt": "^5.1.1",
+    "uuid": "^9.0.0",
+    "nodemailer": "^6.9.7",
+    "@thought-gps/core": "*",
+    "@thought-gps/database": "*"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.20",
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/bcrypt": "^5.0.1",
+    "@types/uuid": "^9.0.0",
+    "@types/nodemailer": "^6.4.14",
+    "typescript": "^5.2.2",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.5",
+    "supertest": "^6.3.3",
+    "@types/supertest": "^2.0.15"
+  }
+}

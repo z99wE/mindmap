@@ -26,12 +26,14 @@ export interface Attachment {
 }
 
 export interface MessageMetadata {
-  timestamp: Date;
+  timestamp?: Date;
   timezone?: string;
   is_awake_hours?: boolean;
   device_type?: string;
   ip_address?: string;
   user_agent?: string;
+  inputType?: 'voice' | 'text' | 'image';
+  [key: string]: any;
 }
 
 export interface User {

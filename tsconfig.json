@@ -6,17 +6,11 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["packages/*/src/*"],
-      "@core/*": ["packages/core/src/*"],
-      "@security/*": ["packages/security/src/*"],
-      "@voice/*": ["packages/voice/src/*"],
-      "@memory/*": ["packages/memory/src/*"],
-      "@router/*": ["packages/router/src/*"],
-      "@api/*": ["packages/api-gateway/src/*"]
+      "@thought-gps/core": ["packages/core/src/index.ts"],
+      "@thought-gps/database": ["services/db/src/index.ts"],
+      "@thought-gps/caspian-handler": ["packages/caspian-handler/src/index.ts"]
     },
 
     "strict": true,
