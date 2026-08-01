@@ -1,8 +1,11 @@
 /**
- * PHASE 2 - COMPLETE IMPLEMENTATION
- * Multimodal Processing with NVIDIA NIM (FREE)
- * User-Isolated Memory Evolution System
- * Ready to Deploy on Vercel/Netlify/Render
+ * PHASE 5 - COMPLETE IMPLEMENTATION
+ * Production-Grade Multi-Channel AI Agent
+ * Voice Toggle for Premium Users
+ * Admin Console with Email Whitelist
+ * Free TTS/STT Providers (Assembly AI, Deepgram, Servum AI)
+ * Caspian Integration
+ * Agent-Reach Live Information
  */
 
 const express = require('express');
@@ -10,6 +13,8 @@ const cors = require('cors');
 const multer = require('multer');
 const { accessControl, llmRouter, apiKeyManager, securityManager } = require('./llm-router');
 const { ttsManager, channelFormatter, audioEncoder, voiceOutputEngine } = require('./tts-engine');
+const { adminConfig, freeTTSManager, createAdminEndpoints } = require('./admin-dashboard');
+const { liveInfoSystem, createAgentReachEndpoints } = require('./agent-reach-integration');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -37,6 +42,10 @@ class MemoryManager {
     };
     this.memories.push(memory);
     console.log(`✅ Memory added for ${this.userId}: ${text.substring(0, 50)}...`);
+    
+    // Send to Agent-Reach for live processing
+    liveInfoSystem.sendUserThoughtToAgentReach(userId, text, metadata);
+    
     return memory;
   }
 
@@ -135,11 +144,12 @@ class ThoughtConnector {
 const thoughtConnector = new ThoughtConnector();
 
 // ============================================
-// 4. RATE LIMITER (3-TIER ACCESS CONTROL)
+// 4. VOICE TOGGLE (Premium Only)
 // ============================================
 
-function checkAccess(userId) {
-  return accessControl.checkAccess(userId);
+function canEnableVoiceOutput(userId) {
+  const tier = accessControl.userTiers.get(userId) || 'free';
+  return tier === 'premium' || tier === 'enterprise';
 }
 
 // ============================================
@@ -167,7 +177,7 @@ async function processVoice(buffer, userId) {
       transcription: `Transcribed for ${userId}: Voice message`,
       confidence: 0.95,
       duration_ms: buffer.length * 10,
-      provider: 'nvidia-nim'
+      provider: adminConfig.sttProvider
     };
   }
 
@@ -207,7 +217,6 @@ async function processImage(buffer, userId) {
 }
 
 async function generateEmbeddings(text, userId) {
-  // Self-hosted embeddings (free)
   const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return {
     embeddings: Array.from({ length: 1536 }, () => Math.sin(hash + Math.random())),
@@ -227,7 +236,7 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
-    phase: '2',
+    phase: '5',
     version: '1.0.0',
     features: [
       'Voice transcription',
@@ -235,7 +244,11 @@ app.get('/health', (req, res) => {
       'Memory management',
       'Thought graph',
       'Rate limiting',
-      'LLM routing'
+      'LLM routing',
+      'Voice output (premium)',
+      'Admin dashboard',
+      'Agent-Reach integration',
+      'Free TTS providers'
     ]
   });
 });
@@ -305,7 +318,7 @@ app.get('/api/memory/graph/:userId', (req, res) => {
 // Process Message (Main Pipeline)
 app.post('/api/process/message', async (req, res) => {
   const userId = req.headers['x-user-id'] || 'anonymous';
-  const { text, type = 'text' } = req.body;
+  const { text, type = 'text', includeVoiceResponse = false } = req.body;
 
   // Security check
   const safety = securityManager.checkInputSafety(text || '');
@@ -354,6 +367,16 @@ app.post('/api/process/message', async (req, res) => {
   // Find related thoughts
   const related = thoughtConnector.findRelatedThoughts(text || result.text);
 
+  // Voice response for premium users only
+  let voiceResponse = null;
+  if (includeVoiceResponse && canEnableVoiceOutput(userId)) {
+    const voiceResult = await voiceOutputEngine.createVoiceOutput(
+      result.text || text,
+      { channel: 'text', language: 'en' }
+    );
+    voiceResponse = voiceResult.success ? voiceResult : null;
+  }
+
   res.json({
     success: true,
     processing: result,
@@ -362,7 +385,9 @@ app.post('/api/process/message', async (req, res) => {
     relatedThoughts: related,
     tier: access.tier,
     remaining: access.remaining - 1,
-    cost: result.cost || 0
+    cost: result.cost || 0,
+    voiceResponse: voiceResponse,
+    canEnableVoiceOutput: canEnableVoiceOutput(userId)
   });
 });
 
@@ -376,7 +401,10 @@ app.get('/api/process/status', (req, res) => {
       'Memory management',
       'Thought graph',
       'Rate limiting',
-      'LLM routing'
+      'LLM routing',
+      'Voice output (premium)',
+      'Admin dashboard',
+      'Agent-Reach integration'
     ],
     cost: 'Free tier with rate limits',
     upgradeInfo: 'Connect your own API keys for unlimited access'
@@ -423,18 +451,7 @@ app.post('/api/embeddings/generate', async (req, res) => {
 });
 
 // ============================================
-// 8. START SERVER
-// ============================================
-
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`✅ Phase 2 Server running on port ${PORT}`);
-  console.log(`📊 Features: Voice, Image, Memory, Thought Graph`);
-  console.log(`🔒 Access: Free tier with 3 daily runs limit`);
-  console.log(`💰 Cost: $0/month (free tiers)`);
-});
-// ============================================
-// 9. PHASE 3 - NEW ENDPOINTS
+// 8. PHASE 3 - NEW ENDPOINTS
 // ============================================
 
 // API Key Management
@@ -446,11 +463,8 @@ app.post('/api/keys/add', async (req, res) => {
     return res.status(400).json({ error: 'Service and API key required' });
   }
 
-  // Encrypt and store API key
   const encryptedKey = apiKeyManager.encrypt(apiKey, userId);
   accessControl.setUserApiKey(userId, service, encryptedKey);
-
-  // Auto-upgrade to premium
   accessControl.setUserTier(userId, 'premium');
 
   res.json({
@@ -514,19 +528,7 @@ app.post('/api/upgrade', async (req, res) => {
 });
 
 // ============================================
-// 10. START SERVER
-// ============================================
-
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`✅ Phase 2+3 Server running on port ${PORT}`);
-  console.log(`📊 Features: Voice, Image, Memory, Thought Graph, LLM Router`);
-  console.log(`🔒 Access: 3 tiers - Free(3/day), Premium(100/day), Enterprise(unlimited)`);
-  console.log(`💰 Cost: Free tier with rate limits | Premium with your API keys`);
-  console.log(`🛡️ Security: LLM jumping prevention, disposable email blocking`);
-});
-// ============================================
-// 11. PHASE 4 - VOICE OUTPUT ENDPOINTS
+// 9. PHASE 4 - VOICE OUTPUT ENDPOINTS
 // ============================================
 
 // Text-to-Speech
@@ -578,15 +580,31 @@ app.get('/api/tts/options', async (req, res) => {
 });
 
 // ============================================
+// 10. PHASE 5 - ADMIN DASHBOARD ENDPOINTS
+// ============================================
+
+createAdminEndpoints(app);
+
+// ============================================
+// 11. PHASE 5 - AGENT-REACH ENDPOINTS
+// ============================================
+
+createAgentReachEndpoints(app);
+
+// ============================================
 // 12. START SERVER
 // ============================================
 
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`✅ Phase 2+3+4 Server running on port ${PORT}`);
-  console.log(`📊 Features: Voice, Image, Memory, Thought Graph, LLM Router, TTS`);
+app.listen(PORT, async () => {
+  console.log(`✅ Phase 5 Server running on port ${PORT}`);
+  console.log(`📊 Features: Voice, Image, Memory, Thought Graph, LLM Router, TTS, Admin, Agent-Reach`);
   console.log(`🔒 Access: 3 tiers - Free(3/day), Premium(100/day), Enterprise(unlimited)`);
   console.log(`💰 Cost: Free tier with rate limits | Premium with your API keys`);
-  console.log(`🎙️ TTS: Google Cloud, ElevenLabs, Amazon Polly, Piper (local)`);
+  console.log(`🎙️ TTS: Assembly AI, Deepgram, Servum AI, Piper (local)`);
   console.log(`🛡️ Security: LLM jumping prevention, disposable email blocking`);
+  
+  // Initialize Agent-Reach
+  const agentReachConnected = await liveInfoSystem.initialize();
+  console.log(`🌍 Agent-Reach: ${agentReachConnected ? 'Connected' : 'Not connected (optional)'}`);
 });
