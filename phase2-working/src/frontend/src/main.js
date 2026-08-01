@@ -1,12 +1,16 @@
 // Thought GPS - Sci-Fi Interface
-// Iron Man / Jarvis style console
+// Carbon Design System inspired - Mission Control
 
 import { Home } from './pages/Home.js';
 import { Dashboard } from './pages/Dashboard.js';
+import { MissionControl } from './pages/MissionControl.js';
+import { AdminDashboard } from './pages/AdminDashboard.js';
+import { CognitiveLoad } from './pages/CognitiveLoad.js';
+import { MemorySegments } from './pages/MemorySegments.js';
+import { InteractiveSpace } from './pages/InteractiveSpace.js';
 import { APIKeys } from './pages/APIKeys.js';
 import { Credits } from './pages/Credits.js';
 import { Memory } from './pages/Memory.js';
-import { MissionControl } from './pages/MissionControl.js';
 
 // Page state
 let currentPage = 'home';
@@ -46,6 +50,21 @@ function renderPage(page) {
     case 'dashboard':
       main.appendChild(Dashboard());
       break;
+    case 'cognitive-load':
+      main.appendChild(CognitiveLoad());
+      break;
+    case 'memory-segments':
+      main.appendChild(MemorySegments());
+      break;
+    case 'interactive-space':
+      main.appendChild(InteractiveSpace());
+      break;
+    case 'mission-control':
+      main.appendChild(MissionControl());
+      break;
+    case 'admin':
+      main.appendChild(AdminDashboard());
+      break;
     case 'api-keys':
       main.appendChild(APIKeys());
       break;
@@ -55,11 +74,8 @@ function renderPage(page) {
     case 'memory':
       main.appendChild(Memory());
       break;
-    case 'mission-control':
-      main.appendChild(MissionControl());
-      break;
     default:
-      main.innerHTML = '<div style="color: #ff3366; padding: 2rem;">PAGE NOT FOUND</div>';
+      main.innerHTML = '<div style="color: #f08c29; padding: 2rem;">PAGE NOT FOUND</div>';
   }
 }
 
