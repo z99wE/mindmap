@@ -1,0 +1,13 @@
+{
+  "name": "thought-gps-frontend",
+  "version": "1.0.0",
+  "description": "Iron Man / Jarvis style sci-fi UI for Thought GPS",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

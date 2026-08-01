@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thought GPS // Sci-Fi Interface // 2100 AD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Courier+New:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background: #000510;
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    
+    /* Scanline effect */
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.15));
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+    }
+    
+    /* CRT glow effect */
+    .crt {
+      animation: flicker 0.15s infinite;
+    }
+    
+    @keyframes flicker {
+      0% { opacity: 0.97; }
+      50% { opacity: 1; }
+      100% { opacity: 0.98; }
+    }
+    
+    /* Glitch text effect */
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+    
+    .glitch {
+      animation: glitch 0.3s infinite;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      background: rgba(0, 10, 20, 0.8);
+      border: 2px solid #ff3366;
+      border-radius: 4px;
+      box-shadow: 0 0 30px #ff336633;
+      margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      color: #ff3366;
+      text-shadow: 0 0 20px #ff3366;
+      font-size: 2.5rem;
+    }
+    
+    .status-badge {
+      padding: 0.5rem 1rem;
+      background: rgba(57, 255, 20, 0.2);
+      border: 1px solid #39ff14;
+      color: #39ff14;
+      border-radius: 4px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    /* Navigation */
+    .nav {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .nav-btn {
+      padding: 1rem 2rem;
+      background: rgba(0, 210, 255, 0.1);
+      border: 1px solid #00d2ff;
+      color: #00d2ff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-btn:hover, .nav-btn.active {
+      background: #00d2ff;
+      color: #000;
+      box-shadow: 0 0 20px #00d2ff55;
+    }
+    
+    /* Content cards */
+    .card {
+      background: rgba(0, 10, 20, 0.8);
+      border: 1px solid #00d2ff33;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 30px #00d2ff11;
+    }
+    
+    .card h2 {
+      font-family: 'Orbitron', sans-serif;
+      color: #00d2ff;
+      text-shadow: 0 0 10px #00d2ff;
+      margin-bottom: 2rem;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .btn-primary {
+      background: #00d2ff;
+      color: #000;
+      box-shadow: 0 0 20px #00d2ff55;
+    }
+    
+    .btn-accent {
+      background: #ff3366;
+      color: #fff;
+      box-shadow: 0 0 20px #ff336655;
+    }
+    
+    .btn-success {
+      background: #39ff14;
+      color: #000;
+      box-shadow: 0 0 20px #39ff1455;
+    }
+    
+    .btn:hover {
+      transform: scale(1.05);
+    }
+    
+    /* Form inputs */
+    input, select {
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #555;
+      border-radius: 4px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #00d2ff;
+    }
+    
+    /* Tier cards */
+    .tier-card {
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid #555;
+      transition: all 0.3s ease;
+    }
+    
+    .tier-card.selected {
+      border-color: #00d2ff;
+      box-shadow: 0 0 20px #00d2ff33;
+    }
+    
+    .tier-card.free { background: rgba(0, 210, 255, 0.1); }
+    .tier-card.premium { background: rgba(255, 51, 102, 0.1); }
+    .tier-card.enterprise { background: rgba(57, 255, 20, 0.1); }
+    
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-box {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      border-left: 3px solid #00d2ff;
+    }
+    
+    .stat-value {
+      font-size: 3rem;
+      font-family: 'Courier New', monospace;
+      color: #fff;
+      font-weight: bold;
+    }
+    
+    .stat-label {
+      color: #888;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    /* API keys table */
+    .keys-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    .keys-table th, .keys-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #555;
+    }
+    
+    .keys-table th {
+      color: #00d2ff;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .keys-table td {
+      color: #aaa;
+    }
+    
+    .key-service {
+      color: #ff3366;
+      font-weight: bold;
+    }
+    
+    .key-value {
+      font-family: 'Courier New', monospace;
+      color: #39ff14;
+    }
+    
+    /* Warning banner */
+    .warning {
+      background: rgba(255, 51, 102, 0.2);
+      border: 1px solid #ff3366;
+      padding: 1rem;
+      border-radius: 4px;
+      color: #ff3366;
+      margin-bottom: 1rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 3rem;
+      padding: 2rem;
+      text-align: center;
+      color: #888;
+      border-top: 1px solid #333;
+    }
+    
+    /* Parallax effect */
+    .parallax {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.2;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="parallax">
+    <div style="position: absolute; top: 10%; left: 10%; width: 100px; height: 100px; background: #00d2ff; border-radius: 50%; filter: blur(50px);"></div>
+    <div style="position: absolute; top: 30%; right: 10%; width: 150px; height: 150px; background: #ff3366; border-radius: 50%; filter: blur(60px);"></div>
+    <div style="position: absolute; bottom: 20%; left: 20%; width: 200px; height: 200px; background: #39ff14; border-radius: 50%; filter: blur(70px);"></div>
+  </div>
+  
+  <div class="container">
+    <header class="header">
+      <h1>THOUGHT GPS</h1>
+      <div class="status-badge">SYSTEM ONLINE // V1.1.0 // 2100 AD</div>
+    </header>
+    
+    <nav class="nav">
+      <button class="nav-btn active" onclick="showPage('home')">HOME</button>
+      <button class="nav-btn" onclick="showPage('dashboard')">DASHBOARD</button>
+      <button class="nav-btn" onclick="showPage('api-keys')">API KEYS</button>
+      <button class="nav-btn" onclick="showPage('credits')">CREDITS</button>
+      <button class="nav-btn" onclick="showPage('memory')">MEMORY</button>
+    </nav>
+    
+    <main id="main-content"></main>
+    
+    <footer class="footer">
+      <p>Thought GPS v1.1.0 | AI Agent Platform | Sci-Fi Interface | 2100 AD</p>
+    </footer>
+  </div>
+  
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
