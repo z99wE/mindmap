@@ -34,8 +34,11 @@
 ### 💻 Workflows & Examples (45 minutes)
 12. **[WORKFLOWS_DEERFLOW.md](./WORKFLOWS_DEERFLOW.md)** - 5 complete workflow examples, Deerflow 2.0 orchestration
 
+### 💰 Monetization & Paywall (30 minutes)
+13. **[PAYWALL_SYSTEM.md](./PAYWALL_SYSTEM.md)** - 3-tier access control, credit system, API key configuration
+
 ### 🎨 Design
-13. **[UI_DESIGN.html](./UI_DESIGN.html)** - Interactive UI mockup, open in browser
+14. **[UI_DESIGN.html](./UI_DESIGN.html)** - Interactive UI mockup, open in browser
 
 ---
 
@@ -129,10 +132,11 @@ Reference specific docs as needed:
 ```
 1. README_HACKATHON.md
 2. THOUGHT_GPS_SPEC.md - Features + Architecture sections
-3. PRODUCTION_READY_GUIDE.md - Skimming only
+3. PAYWALL_SYSTEM.md - Monetization model
+4. PRODUCTION_READY_GUIDE.md - Skimming only
 ```
 
-**Business Model**: $0 to run, premium features later (team access, specific verticals)
+**Business Model**: $0 to run with free tiers, monetize via integration services (premium features, API key configuration, voice output)
 
 ---
 
@@ -323,7 +327,7 @@ THOUGHT_GPS_SPEC (Deep dive on vision)
 | STARTUP_CHECKLIST.md | 35KB | 30 min | 15-day plan |
 | IMPLEMENTATION_PLAN.md | 25KB | 15 min | Overview |
 | UI_DESIGN.html | 40KB | 10 min | Visual design |
-| **TOTAL** | **378KB** | **2.5-3 hours** | Complete guide |
+| **TOTAL** | **410KB** | **2.5-3.5 hours** | Complete guide |
 
 ---
 
