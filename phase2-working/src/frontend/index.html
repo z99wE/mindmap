@@ -297,16 +297,16 @@
       <div class="status-badge">MISSION CONTROL // V1.2.2 // 2100 AD</div>
     </header>
     
-    <nav class="nav">
-      <button class="nav-btn active" onclick="showPage('home')">HOME</button>
-      <button class="nav-btn" onclick="showPage('dashboard')">DASHBOARD</button>
-      <button class="nav-btn" onclick="showPage('mission-control')">MISSION CONTROL</button>
-      <button class="nav-btn" onclick="showPage('brain-fragments')">BRAIN FRAGMENTS</button>
-      <button class="nav-btn" onclick="showPage('cognitive-load')">COGNITIVE LOAD</button>
-      <button class="nav-btn" onclick="showPage('api-keys')">API KEYS</button>
-      <button class="nav-btn" onclick="showPage('credits')">CREDITS</button>
-      <button class="nav-btn" onclick="showPage('memory')">MEMORY</button>
-      <button class="nav-btn" onclick="showPage('legal')">DISCLAIMERS</button>
+    <nav class="nav" role="navigation" aria-label="Main Menu">
+      <button class="nav-btn active" onclick="showPage('home')" aria-label="Navigate to Home Page">HOME</button>
+      <button class="nav-btn" onclick="showPage('dashboard')" aria-label="View System Dashboard">DASHBOARD</button>
+      <button class="nav-btn" onclick="showPage('mission-control')" aria-label="Access Mission Control Details">MISSION CONTROL</button>
+      <button class="nav-btn" onclick="showPage('brain-fragments')" aria-label="Analyze Brain Fragments and thinking lobes">BRAIN FRAGMENTS</button>
+      <button class="nav-btn" onclick="showPage('cognitive-load')" aria-label="Inspect Seesaw Cognitive Load Level">COGNITIVE LOAD</button>
+      <button class="nav-btn" onclick="showPage('api-keys')" aria-label="Configure third party API Keys">API KEYS</button>
+      <button class="nav-btn" onclick="showPage('credits')" aria-label="Manage Account Tier Credits">CREDITS</button>
+      <button class="nav-btn" onclick="showPage('memory')" aria-label="Open Memory Archive and Export Settings">MEMORY</button>
+      <button class="nav-btn" onclick="showPage('legal')" aria-label="Read legal notice and AI hallucinations disclaimers">DISCLAIMERS</button>
     </nav>
     
     <main id="main-content"></main>
