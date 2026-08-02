@@ -989,7 +989,7 @@ if (process.env.REDIS_URL) {
 }
 
 // Start the server
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3333;
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, async () => {
     console.log(`Thought GPS Phase 8 running on port ${PORT}`);

@@ -202,8 +202,8 @@ cd phase2-working/src/frontend
 npm install
 npm run dev
 
-# Access UI: http://localhost:3001
-# API: http://localhost:3002
+# Access UI: http://localhost:3331
+# API: http://localhost:3333
 ```
 
 ---
