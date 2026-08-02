@@ -1,4 +1,3 @@
-// Thought GPS - M3 App Shell with Auth Guard
 import api from './lib/api.js';
 import { Home } from './pages/Home.js';
 import { Auth } from './pages/Auth.js';
@@ -19,31 +18,42 @@ import { HowItWorks } from './pages/HowItWorks.js';
 import { NotificationsLog } from './pages/NotificationsLog.js';
 import { AdminDashboard } from './pages/AdminDashboard.js';
 import { Legal } from './pages/Legal.js';
+import { MapMyMind } from './pages/MapMyMind.js';
 
 let currentPage = 'home';
 let user = null;
 
-// Page registry with metadata
+// Page registry with metadata — grouped by section
 const pageRegistry = {
+  // Primary nav
   home:                { title: 'Home',            icon: 'home',           auth: false, section: 'main' },
   dashboard:           { title: 'Dashboard',       icon: 'dashboard',      auth: true,  section: 'main' },
   'interactive-space': { title: 'Chat',            icon: 'psychology',     auth: true,  section: 'main' },
-  memory:              { title: 'Memory',          icon: 'memory',         auth: true,  section: 'analytics' },
-  'brain-fragments':   { title: 'Brain Fragments', icon: 'neurology',      auth: true,  section: 'analytics' },
-  'cognitive-load':    { title: 'Cognitive Load',  icon: 'monitoring',     auth: true,  section: 'analytics' },
-  'memory-segments':   { title: 'Memory Segments', icon: 'scatter_plot',   auth: true,  section: 'analytics' },
+  'map-my-mind':       { title: 'Map My Mind',     icon: 'explore',        auth: true,  section: 'main' },
+  'mission-control':   { title: 'Mission Control', icon: 'settings_suggest',auth: true, section: 'main' },
+
+  // Secondary (Cognitive Features)
   'thought-afterlife': { title: 'Thought Afterlife',icon: 'hourglass_empty',auth: true, section: 'analytics' },
   commitments:         { title: 'Commitments',     icon: 'task_alt',       auth: true,  section: 'analytics' },
+  'brain-fragments':   { title: 'Brain Fragments', icon: 'neurology',      auth: true,  section: 'analytics' },
+  'cognitive-load':    { title: 'Cognitive Load',  icon: 'monitoring',     auth: true,  section: 'analytics' },
   archaeology:         { title: 'Archaeology',     icon: 'history_edu',    auth: true,  section: 'analytics' },
+  'memory-segments':   { title: 'Memory Segments', icon: 'scatter_plot',   auth: true,  section: 'analytics' },
+
+  // Utility
+  memory:              { title: 'Memory',          icon: 'memory',         auth: true,  section: 'setup' },
   'thought-export':    { title: 'Export',          icon: 'download',       auth: true,  section: 'setup' },
-  'how-it-works':      { title: 'How It Works',    icon: 'play_circle',    auth: false, section: 'main' },
-  'mission-control':   { title: 'Mission Control', icon: 'settings_suggest',auth: true, section: 'setup' },
   'api-keys':          { title: 'API Vault',       icon: 'key',            auth: true,  section: 'setup' },
   credits:             { title: 'Credits & Tiers', icon: 'payments',       auth: true,  section: 'setup' },
   notifications:       { title: 'Notifications',   icon: 'notifications',  auth: true,  section: 'setup' },
-  admin:               { title: 'Admin',           icon: 'admin_panel_settings', auth: true, section: 'admin', adminOnly: true },
+
+  // Public / Other
+  'how-it-works':      { title: 'How It Works',    icon: 'play_circle',    auth: false, section: 'main' },
   legal:               { title: 'Legal',           icon: 'gavel',          auth: false, section: 'other' },
   auth:                { title: 'Sign In',         icon: 'login',          auth: false, section: 'hidden' },
+
+  // Admin
+  admin:               { title: 'Admin',           icon: 'admin_panel_settings', auth: true, section: 'admin', adminOnly: true },
 };
 
 const pageFactories = {
@@ -55,6 +65,7 @@ const pageFactories = {
   'thought-export': ThoughtExport, 'how-it-works': HowItWorks,
   notifications: NotificationsLog,
   admin: AdminDashboard, legal: Legal,
+  'map-my-mind': MapMyMind,
 };
 
 // ── Navigation Rendering ─────────────────────────────────────────────────────
@@ -77,7 +88,7 @@ function renderNavRail() {
 
   const sections = [
     { key: 'main', label: '' },
-    { key: 'analytics', label: 'Analytics' },
+    { key: 'analytics', label: 'Cognitive Features' },
     { key: 'setup', label: 'Configuration' },
   ];
 
@@ -114,7 +125,7 @@ function renderNavRail() {
 function renderBottomNav() {
   const container = document.getElementById('bottom-nav-items');
   if (!container) return;
-  const bottomItems = ['home', 'dashboard', 'interactive-space', 'memory', 'mission-control'];
+  const bottomItems = ['home', 'dashboard', 'interactive-space', 'map-my-mind', 'mission-control'];
   const isLoggedIn = api.isLoggedIn();
   container.innerHTML = bottomItems
     .filter(k => pageRegistry[k] && (!pageRegistry[k].auth || isLoggedIn))
@@ -131,10 +142,8 @@ function renderBottomNav() {
 function renderMobileDrawer() {
   const content = document.getElementById('drawer-content');
   if (!content) return;
-  // Clone nav rail content
   const rail = document.getElementById('nav-rail');
   content.innerHTML = rail ? rail.innerHTML : '';
-  // Bind clicks
   content.querySelectorAll('[onclick]').forEach(el => {
     el.addEventListener('click', () => {
       document.getElementById('mobile-drawer').classList.remove('open');

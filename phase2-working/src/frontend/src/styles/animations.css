@@ -1,4 +1,4 @@
-/* ── GSAP + CSS Animations ── */
+/* ── Animations (Orange-Red Theme) ── */
 
 /* Page transition */
 .page-enter {
@@ -24,10 +24,10 @@
               transform 400ms cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
-/* Pulse glow for processing */
+/* Pulse glow for processing (orange-red) */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(208,188,255,0); }
-  50% { box-shadow: 0 0 24px 8px rgba(208,188,255,.25); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 69, 0, 0); }
+  50% { box-shadow: 0 0 24px 8px rgba(255, 69, 0, 0.25); }
 }
 .anim-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 
@@ -55,27 +55,28 @@
 }
 .anim-shimmer {
   background: linear-gradient(90deg,
-    var(--md-sys-color-surface-container) 25%,
-    var(--md-sys-color-surface-container-highest) 50%,
-    var(--md-sys-color-surface-container) 75%
+    rgba(255, 255, 255, 0.02) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: var(--md-sys-shape-small);
+  border-radius: 1rem;
 }
 
 /* Decay timer color transitions */
-.decay-active { color: var(--md-sys-color-secondary); }
+.decay-active { color: var(--md-sys-color-tertiary); }
 .decay-expiring { color: var(--color-analytical); }
 .decay-expired { color: var(--color-urgency); }
 .decay-escalated { color: var(--md-sys-color-error); animation: pulse-glow 1.5s ease-in-out infinite; }
 
-/* Float */
+/* Float (gentle hover) */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
 }
-.anim-float { animation: float 4s ease-in-out infinite; }
+.anim-float { animation: float 6s ease-in-out infinite; }
+.float-anim { animation: float 6s ease-in-out infinite; }
 
 /* Fade in */
 @keyframes fade-in {
@@ -91,7 +92,7 @@
 }
 .anim-slide-up { animation: slide-up 500ms cubic-bezier(0.05, 0.7, 0.1, 1) forwards; }
 
-/* Ambient orb drift */
+/* Ambient orb drift (obsidian glow) */
 @keyframes orb-drift {
   from { transform: translate3d(0, 0, 0) scale(1); }
   to { transform: translate3d(28px, -22px, 0) scale(1.08); }
@@ -101,15 +102,15 @@
   width: 32rem;
   height: 32rem;
   border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.3;
+  filter: blur(120px);
+  opacity: 0.2;
   pointer-events: none;
   z-index: 0;
   animation: orb-drift 22s ease-in-out infinite alternate;
 }
-.orb-primary { left: -10rem; top: -9rem; background: rgba(208,188,255,.15); }
-.orb-secondary { right: -12rem; top: 14rem; background: rgba(128,203,196,.1); animation-duration: 28s; }
-.orb-tertiary { left: 20%; bottom: -12rem; background: rgba(255,184,108,.1); animation-duration: 26s; }
+.orb-primary { left: -10rem; top: -9rem; background: rgba(255, 69, 0, 0.12); }
+.orb-secondary { right: -12rem; top: 14rem; background: rgba(255, 107, 53, 0.08); animation-duration: 28s; }
+.orb-tertiary { left: 20%; bottom: -12rem; background: rgba(16, 185, 129, 0.06); animation-duration: 26s; }
 
 /* Spinner */
 @keyframes spin {
@@ -118,8 +119,8 @@
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid var(--md-sys-color-outline-variant);
-  border-top-color: var(--md-sys-color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #ff4500;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

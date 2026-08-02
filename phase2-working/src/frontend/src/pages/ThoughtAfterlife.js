@@ -84,8 +84,8 @@ export function ThoughtAfterlife() {
     allThoughts = data.thoughts || [];
     const archived = allThoughts.filter(t => t.archived || t.status === 'expired');
     const active = allThoughts.filter(t => !t.archived && t.status !== 'expired');
-    const expiring = active.filter(t => (t.hours_remaining || 999) < 24);
-    const escalated = active.filter(t => (t.notified_tier || 0) >= 2);
+    const expiring = active.filter(t => (t.hoursRemaining || 999) < 24);
+    const escalated = active.filter(t => (t.notifiedTier || 0) >= 2);
 
     container.querySelector('#stat-active').textContent = active.length;
     container.querySelector('#stat-expiring').textContent = expiring.length;
@@ -100,10 +100,10 @@ export function ThoughtAfterlife() {
     const list = container.querySelector('#thoughts-list');
     let filtered = thoughts;
 
-    if (currentFilter === 'critical') filtered = thoughts.filter(t => t.urgency_tier === 'critical' || (t.hours_remaining || 999) < 2);
-    else if (currentFilter === 'high') filtered = thoughts.filter(t => t.urgency_tier === 'high' || ((t.hours_remaining || 999) >= 2 && (t.hours_remaining || 999) < 24));
-    else if (currentFilter === 'medium') filtered = thoughts.filter(t => t.urgency_tier === 'medium');
-    else if (currentFilter === 'low') filtered = thoughts.filter(t => t.urgency_tier === 'low');
+    if (currentFilter === 'critical') filtered = thoughts.filter(t => t.urgencyTier === 'critical' || (t.hoursRemaining || 999) < 2);
+    else if (currentFilter === 'high') filtered = thoughts.filter(t => t.urgencyTier === 'high' || ((t.hoursRemaining || 999) >= 2 && (t.hoursRemaining || 999) < 24));
+    else if (currentFilter === 'medium') filtered = thoughts.filter(t => t.urgencyTier === 'medium');
+    else if (currentFilter === 'low') filtered = thoughts.filter(t => t.urgencyTier === 'low');
 
     if (filtered.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:2rem;text-align:center;">
@@ -114,12 +114,12 @@ export function ThoughtAfterlife() {
     }
 
     list.innerHTML = filtered.map(t => {
-      const hrs = t.hours_remaining ?? 999;
-      const pct = t.half_life_hours ? Math.max(0, Math.min(100, (hrs / t.half_life_hours) * 100)) : 100;
+      const hrs = t.hoursRemaining ?? 999;
+      const pct = t.halfLifeHours ? Math.max(0, Math.min(100, (hrs / t.halfLifeHours) * 100)) : 100;
       const tierColor = hrs < 2 ? 'var(--md-sys-color-error)' : hrs < 24 ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-secondary)';
       const tierLabel = hrs < 2 ? 'CRITICAL' : hrs < 24 ? 'URGENT' : 'STABLE';
       const tierIcon = hrs < 2 ? 'warning' : hrs < 24 ? 'schedule' : 'hourglass_full';
-      const escLevel = t.notified_tier || 0;
+      const escLevel = t.notifiedTier || 0;
 
       return `<div class="surface-card card-reveal" style="padding:1.25rem;border-left:3px solid ${tierColor};">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
@@ -128,19 +128,19 @@ export function ThoughtAfterlife() {
               <span class="material-symbols-rounded" style="font-size:18px;color:${tierColor};">${tierIcon}</span>
               <span style="font:var(--md-sys-typescale-label-small);color:${tierColor};background:${tierColor}15;padding:2px 8px;border-radius:var(--md-sys-shape-full);">${tierLabel}</span>
               ${escLevel >= 2 ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-error);background:rgba(255,138,158,.1);padding:2px 8px;border-radius:var(--md-sys-shape-full);">ESCALATED x${escLevel}</span>` : ''}
-              ${t.urgency_tier ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${t.urgency_tier}</span>` : ''}
+              ${t.urgencyTier ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${t.urgencyTier}</span>` : ''}
             </div>
-            <p style="font:var(--md-sys-typescale-body-large);margin:0 0 0.5rem;">${t.value || t.attribute || 'Untitled thought'}</p>
+            <p style="font:var(--md-sys-typescale-body-large);margin:0 0 0.5rem;">${t.content || 'Untitled thought'}</p>
             <div style="display:flex;gap:1rem;font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">
               ${t.category ? `<span>${t.category}</span>` : ''}
-              ${t.action_verb ? `<span>Action: ${t.action_verb}</span>` : ''}
-              ${t.half_life_hours ? `<span>Half-life: ${t.half_life_hours}h</span>` : ''}
+              ${t.actionVerb ? `<span>Action: ${t.actionVerb}</span>` : ''}
+              ${t.halfLifeHours ? `<span>Half-life: ${t.halfLifeHours}h</span>` : ''}
             </div>
           </div>
           <div style="text-align:right;min-width:100px;">
             <div style="font:var(--md-sys-typescale-title-small);color:${tierColor};">${hrs < 1 ? '< 1h' : `${Math.round(hrs)}h`}</div>
             <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">remaining</div>
-            ${t.expires_at ? `<div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);margin-top:2px;" title="Expires: ${new Date(t.expires_at).toLocaleString()}">⏱ ${formatCountdown(t.expires_at)}</div>` : ''}
+            ${t.expiresAt ? `<div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);margin-top:2px;" title="Expires: ${new Date(t.expiresAt).toLocaleString()}">⏱ ${formatCountdown(t.expiresAt)}</div>` : ''}
           </div>
         </div>
         <!-- Decay bar -->
@@ -174,7 +174,7 @@ export function ThoughtAfterlife() {
     list.innerHTML = archived.slice(0, 20).map(t =>
       `<div class="surface-card" style="padding:0.75rem 1rem;opacity:0.7;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font:var(--md-sys-typescale-body-medium);">${t.value || t.attribute || 'Untitled'}</span>
+          <span style="font:var(--md-sys-typescale-body-medium);">${t.content || 'Untitled'}</span>
           <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${t.category || ''}</span>
         </div>
       </div>`

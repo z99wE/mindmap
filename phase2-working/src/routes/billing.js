@@ -12,9 +12,28 @@ const REVENUECAT_WEBHOOK_SECRET = process.env.REVENUECAT_WEBHOOK_SECRET;
 
 // Tier configurations
 const TIERS = {
-  free: { name: 'Free', dailyRuns: 10, price: 0, features: ['Basic memory', 'Shared LLM pool', '10 runs/day'] },
-  premium: { name: 'Premium', dailyRuns: 500, price: 5, features: ['Full memory graph', 'BYO API keys', '500 runs/day', 'All cognitive features', 'Priority support'] },
-  enterprise: { name: 'Enterprise', dailyRuns: -1, price: 0, features: ['Unlimited runs', 'Custom LLM routing', 'Dedicated support', 'SLA guarantee', 'Coming Soon'] },
+  free: {
+    name: 'Free',
+    dailyRuns: 10,
+    price: 0,
+    features: ['10 runs/day', 'Your own API keys (required)', 'Basic memory graph', 'All cognitive features', 'Push notifications'],
+    description: 'Get started with your own API keys'
+  },
+  pro: {
+    name: 'Pro',
+    dailyRuns: 500,
+    price: 5,
+    features: ['500 runs/day', 'Your own API keys', 'Full memory graph', 'Live web search (Tavily/Firecrawl)', 'All cognitive features', 'Priority support'],
+    description: 'Power users who need more runs'
+  },
+  managed: {
+    name: 'Managed',
+    dailyRuns: -1,
+    price: 0,
+    features: ['Unlimited runs', 'No API keys needed', 'Managed LLM infrastructure', 'Custom routing', 'SLA guarantee'],
+    description: 'Coming Soon',
+    comingSoon: true
+  },
 };
 
 // GET /api/billing/tiers - get tier info
@@ -133,7 +152,7 @@ router.post('/verify-payment', authMiddleware, async (req, res) => {
 
     if (transaction.type === 'subscription') {
       await pool.query(
-        "UPDATE users SET tier = 'premium', daily_runs_limit = 500, subscription_status = 'active', updated_at = NOW() WHERE id = $1",
+        "UPDATE users SET tier = 'pro', daily_runs_limit = 500, subscription_status = 'active', updated_at = NOW() WHERE id = $1",
         [req.user.userId]
       );
     }
@@ -146,7 +165,7 @@ router.post('/verify-payment', authMiddleware, async (req, res) => {
     res.json({
       success: true,
       runsCredited: transaction.runs_credited,
-      newTier: transaction.type === 'subscription' ? 'premium' : undefined,
+      newTier: transaction.type === 'subscription' ? 'pro' : undefined,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -233,6 +252,22 @@ router.get('/history', authMiddleware, async (req, res) => {
       [req.user.userId]
     );
     res.json({ transactions: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/billing/waitlist - join managed tier waitlist
+router.post('/waitlist', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+    // Store in a simple waitlist (using audit_log for zero extra infra)
+    await pool.query(
+      "INSERT INTO audit_log (action, resource_type, resource_id, ip_address) VALUES ('WAITLIST_SIGNUP', 'managed_tier', $1, $2)",
+      [email.toLowerCase(), req.ip || 'unknown']
+    );
+    res.json({ success: true, message: 'You\'re on the waitlist! We\'ll notify you when Managed tier launches.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

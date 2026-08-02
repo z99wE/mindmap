@@ -26,7 +26,7 @@ class LiveInfoSystem {
 
   async initialize() {
     this.connected = true;
-    console.log('✅ Agent-Reach initialized (DuckDuckGo + Wikipedia + Open-Meteo)');
+    console.log('\u2705 Agent-Reach initialized (DuckDuckGo + Wikipedia + Open-Meteo + Tavily/Firecrawl/SearXNG)');
     return true;
   }
 
@@ -47,6 +47,82 @@ class LiveInfoSystem {
    */
   resetDailyCounter() {
     this.rateLimiter.callsToday = 0;
+  }
+
+  // ── Tavily API Search (BYO key) ──────────────────────────────────────────
+  async searchTavily(query, apiKey) {
+    if (!this._canMakeCall() || !apiKey) return { query, results: [], rateLimited: true };
+    try {
+      const resp = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: apiKey, query, max_results: 5, include_answer: true }),
+      });
+      if (!resp.ok) return { query, results: [], error: `Tavily ${resp.status}` };
+      const data = await resp.json();
+      const results = (data.results || []).map(r => ({
+        title: r.title || query, url: r.url || '', content: (r.content || '').slice(0, 500),
+        source: 'Tavily', timestamp: new Date().toISOString(),
+      }));
+      if (data.answer) results.unshift({ title: `Answer: ${query}`, url: '', content: data.answer.slice(0, 600), source: 'Tavily AI', timestamp: new Date().toISOString() });
+      return { query, results };
+    } catch (error) { return { query, results: [], error: error.message }; }
+  }
+
+  // ── Firecrawl Web Scraping (BYO key) ─────────────────────────────────────
+  async searchFirecrawl(query, apiKey) {
+    if (!this._canMakeCall() || !apiKey) return { query, results: [], rateLimited: true };
+    try {
+      const resp = await fetch('https://api.firecrawl.dev/v1/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({ query, limit: 5 }),
+      });
+      if (!resp.ok) return { query, results: [], error: `Firecrawl ${resp.status}` };
+      const data = await resp.json();
+      const results = (data.data || []).map(r => ({
+        title: r.title || r.metadata?.title || query, url: r.url || '',
+        content: (r.markdown || r.content || '').slice(0, 500), source: 'Firecrawl', timestamp: new Date().toISOString(),
+      }));
+      return { query, results };
+    } catch (error) { return { query, results: [], error: error.message }; }
+  }
+
+  // ── SearXNG Self-hosted Instance ──────────────────────────────────────────
+  async searchSearXNG(query, instanceUrl) {
+    if (!this._canMakeCall() || !instanceUrl) return { query, results: [], rateLimited: true };
+    try {
+      const url = `${instanceUrl.replace(/\/$/, '')}/search?q=${encodeURIComponent(query)}&format=json`;
+      const result = await this._httpsGet(url, 8000);
+      if (!result) return { query, results: [] };
+      const parsed = JSON.parse(result);
+      const results = (parsed.results || []).slice(0, 5).map(r => ({
+        title: r.title || query, url: r.url || '', content: (r.content || '').slice(0, 500),
+        source: 'SearXNG', timestamp: new Date().toISOString(),
+      }));
+      return { query, results };
+    } catch (error) { return { query, results: [], error: error.message }; }
+  }
+
+  // ── Priority Search (uses best available source) ──────────────────────────
+  async searchPriority(query, userKeys = {}) {
+    if (userKeys.tavily) {
+      const r = await this.searchTavily(query, userKeys.tavily);
+      if (r.results?.length > 0) return r;
+    }
+    if (userKeys.firecrawl) {
+      const r = await this.searchFirecrawl(query, userKeys.firecrawl);
+      if (r.results?.length > 0) return r;
+    }
+    if (userKeys.searxng_url) {
+      const r = await this.searchSearXNG(query, userKeys.searxng_url);
+      if (r.results?.length > 0) return r;
+    }
+    const [ddgResult, wikiResult] = await Promise.all([
+      this.searchWeb(query),
+      this.searchWikipedia(this._extractKeyTerms(query)),
+    ]);
+    return { query, results: [...(ddgResult.results || []).slice(0, 3), ...(wikiResult.results || []).slice(0, 2)] };
   }
 
   // ── Web Search via DuckDuckGo Instant Answer API ──────────────────────────

@@ -57,9 +57,9 @@ router.get('/users', async (req, res) => {
 router.put('/users/:id/tier', async (req, res) => {
   try {
     const { tier } = req.body;
-    const validTiers = ['free', 'premium', 'enterprise', 'admin'];
+    const validTiers = ['free', 'pro', 'managed', 'premium', 'enterprise', 'admin'];
     if (!validTiers.includes(tier)) return res.status(400).json({ error: 'Invalid tier' });
-    const dailyLimit = tier === 'free' ? 10 : tier === 'premium' ? 500 : 999999;
+    const dailyLimit = tier === 'free' ? 10 : tier === 'pro' ? 500 : 999999;
     await pool.query(
       "UPDATE users SET tier = $1, daily_runs_limit = $2, updated_at = NOW() WHERE id = $3",
       [tier, dailyLimit, req.params.id]

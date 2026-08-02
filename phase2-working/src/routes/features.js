@@ -316,16 +316,25 @@ router.get('/brain', authMiddleware, async (req, res) => {
 // GET /api/features/cognitive-load - cognitive load distribution
 router.get('/cognitive-load', authMiddleware, async (req, res) => {
   try {
-    const loadRes = await pool.query(
-      'SELECT urgency_tier as cognitive_load, COUNT(*) as count FROM memory_graph WHERE user_id = $1 AND urgency_tier IS NOT NULL GROUP BY urgency_tier ORDER BY count DESC',
-      [req.user.userId]
-    );
+    const [loadRes, toneRes, trendRes] = await Promise.all([
+      pool.query('SELECT urgency_tier as cognitive_load, COUNT(*) as count FROM memory_graph WHERE user_id = $1 AND urgency_tier IS NOT NULL GROUP BY urgency_tier ORDER BY count DESC', [req.user.userId]),
+      pool.query('SELECT emotional_tone, COUNT(*) as count FROM memory_graph WHERE user_id = $1 AND emotional_tone IS NOT NULL GROUP BY emotional_tone ORDER BY count DESC LIMIT 10', [req.user.userId]),
+      pool.query("SELECT DATE(created_at) as date, COUNT(*) as count FROM memory_graph WHERE user_id = $1 AND created_at > NOW() - INTERVAL '14 days' GROUP BY DATE(created_at) ORDER BY date ASC", [req.user.userId]),
+    ]);
     const total = loadRes.rows.reduce((sum, r) => sum + parseInt(r.count), 0);
     res.json({
       distribution: loadRes.rows.map(r => ({
         type: r.cognitive_load,
         count: parseInt(r.count),
         percentage: total > 0 ? Math.round(parseInt(r.count) / total * 100) : 0,
+      })),
+      emotionalTones: toneRes.rows.map(r => ({
+        tone: r.emotional_tone,
+        count: parseInt(r.count),
+      })),
+      trend: trendRes.rows.map(r => ({
+        date: r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date).split('T')[0],
+        count: parseInt(r.count),
       })),
       total,
     });
@@ -465,6 +474,100 @@ router.get('/relationships', authMiddleware, async (req, res) => {
         items,
         pendingCount: items.filter(i => i.status === 'pending').length,
       })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/features/mind-map - thoughts grouped by theme with connections
+router.get('/mind-map', authMiddleware, async (req, res) => {
+  try {
+    const { period, category, status } = req.query;
+    let whereClause = 'WHERE user_id = $1';
+    const params = [req.user.userId];
+    let paramIdx = 2;
+
+    if (period === 'today') {
+      whereClause += ` AND created_at > NOW() - INTERVAL '1 day'`;
+    } else if (period === 'week') {
+      whereClause += ` AND created_at > NOW() - INTERVAL '7 days'`;
+    } else if (period === 'month') {
+      whereClause += ` AND created_at > NOW() - INTERVAL '30 days'`;
+    }
+    if (category) {
+      whereClause += ` AND category = $${paramIdx}`;
+      params.push(category);
+      paramIdx++;
+    }
+    if (status === 'active') {
+      whereClause += ` AND archived = false AND (expires_at IS NULL OR expires_at > NOW())`;
+    } else if (status === 'expired') {
+      whereClause += ` AND expires_at < NOW() AND archived = false`;
+    }
+
+    const result = await pool.query(
+      `SELECT id, content, value, attribute, category, theme, urgency_tier,
+              half_life_hours, expires_at, status, created_at, related_person,
+              emotional_tone, brain_area
+       FROM memory_graph
+       ${whereClause}
+       ORDER BY created_at DESC LIMIT 200`,
+      params
+    );
+
+    const thoughts = result.rows.map(r => ({
+      id: r.id,
+      content: r.content || r.value || r.attribute,
+      category: r.category || 'general',
+      theme: r.theme || r.category || 'general',
+      urgencyTier: r.urgency_tier,
+      halfLifeHours: r.half_life_hours,
+      expiresAt: r.expires_at,
+      status: r.status,
+      relatedPerson: r.related_person,
+      emotionalTone: r.emotional_tone,
+      brainArea: r.brain_area,
+      createdAt: r.created_at,
+    }));
+
+    // Group by theme
+    const themes = {};
+    thoughts.forEach(t => {
+      const key = t.theme || t.category;
+      if (!themes[key]) themes[key] = { theme: key, thoughts: [], count: 0 };
+      themes[key].thoughts.push(t);
+      themes[key].count++;
+    });
+
+    // Build connections (thoughts sharing theme, person, or category)
+    const connections = [];
+    const themeKeys = Object.keys(themes);
+    themeKeys.forEach(theme => {
+      const group = themes[theme];
+      if (group.thoughts.length > 1) {
+        for (let i = 0; i < Math.min(group.thoughts.length, 5); i++) {
+          for (let j = i + 1; j < Math.min(group.thoughts.length, 5); j++) {
+            connections.push({ from: group.thoughts[i].id, to: group.thoughts[j].id, type: 'theme', label: theme });
+          }
+        }
+      }
+    });
+
+    // Summary stats
+    const urgent = thoughts.filter(t => t.urgencyTier === 'critical' || t.urgencyTier === 'high').length;
+    const commitments = thoughts.filter(t => t.category === 'commitment').length;
+
+    res.json({
+      thoughts,
+      themes: Object.values(themes),
+      connections: connections.slice(0, 50),
+      stats: {
+        total: thoughts.length,
+        themes: themeKeys.length,
+        urgent,
+        commitments,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

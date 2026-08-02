@@ -27,15 +27,12 @@ router.get('/', authMiddleware, async (req, res) => {
 // POST /api/keys - add an API key
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    // Premium only for BYO keys
-    if (req.user.tier === 'free') {
-      return res.status(403).json({ error: 'BYO API keys require Premium tier' });
-    }
+    // BYO keys available for all tiers
 
     const { provider, key } = req.body;
     if (!provider || !key) return res.status(400).json({ error: 'Provider and key are required' });
 
-    const validProviders = ['groq', 'openai', 'anthropic', 'nvidia', 'ollama'];
+    const validProviders = ['groq', 'openai', 'anthropic', 'nvidia', 'ollama', 'tavily', 'firecrawl', 'searxng_url'];
     if (!validProviders.includes(provider.toLowerCase())) {
       return res.status(400).json({ error: `Invalid provider. Use: ${validProviders.join(', ')}` });
     }

@@ -14,6 +14,20 @@ const { checkCommitmentWitnesses } = require('./features/commitment-witness');
 const { setupRevivalCron } = require('./features/thought-interceptor');
 const { auditMiddleware, sanitizeBody } = require('./src/middleware');
 
+// ── Web Push (VAPID) Setup ────────────────────────────────────────────────
+const webpush = require('web-push');
+const vapidKeys = process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY
+  ? { publicKey: process.env.VAPID_PUBLIC_KEY, privateKey: process.env.VAPID_PRIVATE_KEY }
+  : webpush.generateVAPIDKeys();
+webpush.setVapidDetails(
+  process.env.VAPID_EMAIL || 'mailto:admin@thoughtgps.local',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
+// Export for use in notification delivery
+module.exports.vapidKeys = vapidKeys;
+module.exports.webpush = webpush;
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -55,6 +69,8 @@ const channelsRoutes = require('./src/routes/channels');
 const notificationsRoutes = require('./src/routes/notifications');
 const locationRoutes = require('./src/routes/location');
 const adminRoutes = require('./src/routes/admin');
+const geofencesRoutes = require('./src/routes/geofences');
+const { createAgentReachEndpoints } = require('./agent-reach-integration');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/memory', memoryRoutes);
@@ -66,9 +82,15 @@ app.use('/api/channels', channelsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/geofences', geofencesRoutes);
+
+// Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
+createAgentReachEndpoints(app);
 
 // ── Static Frontend (dev: Vite serves from src/frontend) ────────────────────
 const frontendDist = path.join(__dirname, 'src/frontend/dist');
+const frontendPublic = path.join(__dirname, 'src/frontend/public');
+app.use(express.static(frontendPublic)); // sw.js at root
 app.use(express.static(frontendDist));
 app.get('*', (req, res) => {
   // SPA fallback: serve index.html for non-API routes
@@ -99,6 +121,7 @@ async function start() {
     // Start cognitive cron jobs
     const { pool } = require('./src/db');
     // Caspian stub: queries user's connected channels, delivers via all active ones
+    const { sendWebPush } = require('./src/routes/notifications');
     const caspian = {
       send: async ({ channel, to, message }) => {
         // Query user's active channels
@@ -125,6 +148,14 @@ async function start() {
               [to, 'Cognitive Nudge', message, 'browser']
             ).catch(() => {});
           }
+          // Send web push notification
+          await sendWebPush(to, {
+            title: 'Thought GPS',
+            body: message?.slice(0, 200) || 'New cognitive nudge',
+            tag: 'cognitive-nudge',
+            data: { url: '/' },
+            vibrate: [100, 50, 100],
+          }).catch(() => {});
         } catch {
           // DB may not be ready
           console.log(`[Caspian] ${channel} -> ${to}: ${message?.slice(0, 80)}`);

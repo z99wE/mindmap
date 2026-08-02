@@ -8,6 +8,8 @@ const { createTrace, createSpan, endSpan } = require('../langfuse');
 const { classifyHalfLife } = require('../../features/thought-half-life');
 const { detectCommitment } = require('../../features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('../../features/thought-interceptor');
+const { liveInfoSystem } = require('../../agent-reach-integration');
+const { getDecryptedKey } = require('./keys');
 
 // POST /api/process/message - main thought processing endpoint
 router.post('/message', authMiddleware, async (req, res) => {
@@ -54,19 +56,38 @@ router.post('/message', authMiddleware, async (req, res) => {
     const relatedMemories = await searchRelatedMemories(userId, message);
     endSpan(memSpan, { count: relatedMemories.length });
 
-    // 3. Process with LLM (only if data_sharing is enabled)
-    const llmSpan = createSpan(trace, 'process_llm', { message, intent });
+    // 3. Enrich with live data (if web search enabled)
+    let liveContext = [];
+    let sources = [];
+    try {
+      const userKeys = {};
+      const byoKeys = user.api_keys || {};
+      if (byoKeys.tavily?.key) userKeys.tavily = require('./keys').getDecryptedKey ? await getDecryptedKey(userId, 'tavily') : null;
+      if (byoKeys.firecrawl?.key) userKeys.firecrawl = require('./keys').getDecryptedKey ? await getDecryptedKey(userId, 'firecrawl') : null;
+      if (byoKeys.searxng_url?.key) userKeys.searxng_url = require('./keys').getDecryptedKey ? await getDecryptedKey(userId, 'searxng_url') : null;
+
+      if (liveInfoSystem.needsWebSearch(message)) {
+        const searchResult = await liveInfoSystem.searchPriority(message, userKeys);
+        liveContext = searchResult.results || [];
+        sources = liveContext.map(r => ({ title: r.title, url: r.url, source: r.source }));
+      }
+    } catch (e) {
+      console.log('[Process] Live data enrichment failed:', e.message);
+    }
+
+    // 4. Process with LLM (only if data_sharing is enabled)
+    const llmSpan = createSpan(trace, 'process_llm', { message, intent, liveContextCount: liveContext.length });
     let llmResponse = null;
     if (user.data_sharing !== false) {
-      llmResponse = await callLLM(user, message, relatedMemories, intent);
+      llmResponse = await callLLM(user, message, relatedMemories, intent, liveContext);
     } else {
       llmResponse = 'Your thought has been saved. LLM enrichment is disabled in your privacy settings.';
     }
     endSpan(llmSpan, { response: llmResponse?.substring(0, 200), dataSharing: user.data_sharing !== false });
 
-    // 4. Run cognitive classifiers + store enriched memory
+    // 5. Run cognitive classifiers + store enriched memory
     const storeSpan = createSpan(trace, 'update_memory', { message });
-    const classification = await storeMemoryEnriched(userId, message, intent, llmResponse, unanchoredResult);
+    const classification = await storeMemoryEnriched(userId, message, intent, llmResponse, unanchoredResult, liveContext);
     endSpan(storeSpan, { stored: true, category: classification.category, halfLifeHours: classification.halfLifeHours });
 
     // Increment run counter
@@ -96,6 +117,8 @@ router.post('/message', authMiddleware, async (req, res) => {
       commitment: classification.commitment || null,
       // Unanchored intention result
       unanchored: unanchoredResult?.is_unanchored ? unanchoredResult : null,
+      // Live data sources used
+      sources: sources.length > 0 ? sources.slice(0, 5) : undefined,
     });
   } catch (err) {
     console.error('[Process] Error:', err.message);
@@ -104,7 +127,7 @@ router.post('/message', authMiddleware, async (req, res) => {
 });
 
 // Run all classifiers and store enriched memory
-async function storeMemoryEnriched(userId, message, intent, llmResponse, unanchoredResult) {
+async function storeMemoryEnriched(userId, message, intent, llmResponse, unanchoredResult, liveContext = []) {
   // Half-life classifier
   const halfLife = classifyHalfLife(message);
 
@@ -129,12 +152,12 @@ async function storeMemoryEnriched(userId, message, intent, llmResponse, unancho
         user_id, content, category, source,
         intent, llm_response, importance,
         half_life_hours, urgency_tier, action_verb, is_actionable, expires_at, status,
-        witness_contact
+        witness_contact, metadata
        ) VALUES (
         $1, $2, $3, 'user',
         $4, $5, $6,
         $7, $8, $9, $10, $11, $12,
-        $13
+        $13, $14
        )
        RETURNING id`,
       [
@@ -151,6 +174,7 @@ async function storeMemoryEnriched(userId, message, intent, llmResponse, unancho
         expiresAt,
         status,
         commitment?.ask_for_witness ? null : null, // witness set later via endpoint
+        liveContext.length > 0 ? JSON.stringify({ sources: liveContext.slice(0, 3).map(r => ({ title: r.title, url: r.url, source: r.source })) }) : '{}',
       ]
     );
 
@@ -209,17 +233,20 @@ async function searchRelatedMemories(userId, message) {
 }
 
 // Call LLM using key pool
-async function callLLM(user, message, relatedMemories, intent) {
+async function callLLM(user, message, relatedMemories, intent, liveContext = []) {
   const contextStr = relatedMemories.length > 0
     ? `\n\nRelated memories:\n${relatedMemories.map(m => `- ${m.content}`).join('\n')}`
+    : '';
+  const liveStr = liveContext.length > 0
+    ? `\n\nLive web context:\n${liveContext.slice(0, 3).map(r => `- [${r.source}] ${r.content}`).join('\n')}`
     : '';
 
   const systemPrompt = `You are Thought GPS, a cognitive coprocessor for ADHD/neurodiverse users.
 You help organize thoughts, track commitments, detect patterns, and navigate cognitive load.
-Current intent: ${intent}.${contextStr}
+Current intent: ${intent}.${contextStr}${liveStr}
 Be concise, empathetic, and action-oriented. Format key items as bullet points.`;
 
-  // Try BYO keys first (premium users)
+  // Try BYO keys first (all tiers)
   const byoKeys = user.api_keys || {};
   for (const [provider, keyData] of Object.entries(byoKeys)) {
     if (keyData?.key) {
@@ -231,10 +258,15 @@ Be concise, empathetic, and action-oriented. Format key items as bullet points.`
     }
   }
 
-  // Fall back to shared pool
+  // Free tier: require BYO keys, no shared pool
+  if (user.tier === 'free') {
+    return 'Your thought has been saved! To get AI-powered responses, add your API key (Groq is free) in Mission Control > API Keys. Your message is stored and will be enriched once a key is configured.';
+  }
+
+  // Pro/Managed: Fall back to shared pool as emergency backup
   const sharedKey = keyPool.getNextKey('groq') || keyPool.getNextKey('openai');
   if (!sharedKey) {
-    return 'I processed your thought but LLM services are temporarily unavailable. Your message has been stored in memory.';
+    return 'Your thought has been saved. LLM services are temporarily unavailable. Your message has been stored for later enrichment.';
   }
 
   try {

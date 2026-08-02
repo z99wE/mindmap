@@ -1,9 +1,57 @@
-// Notification Routes - History + preferences
+// Notification Routes - History + preferences + push subscriptions
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db');
 const { authMiddleware } = require('../auth');
 const { getNotifications, markRead, markAllRead } = require('../notifications');
+
+// Lazy-load webpush (set up in server.js)
+function getWebpush() {
+  try {
+    const serverModule = require('../../server');
+    return { webpush: serverModule.webpush, vapidKeys: serverModule.vapidKeys };
+  } catch { return { webpush: null, vapidKeys: null }; }
+}
+
+// GET /api/notifications/vapid-public-key - returns VAPID public key (no auth needed)
+router.get('/vapid-public-key', (req, res) => {
+  const { vapidKeys } = getWebpush();
+  if (!vapidKeys) return res.status(500).json({ error: 'VAPID not configured' });
+  res.json({ publicKey: vapidKeys.publicKey });
+});
+
+// POST /api/notifications/subscribe - store push subscription
+router.post('/subscribe', authMiddleware, async (req, res) => {
+  try {
+    const { subscription } = req.body;
+    if (!subscription?.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
+    // Store in users.notification_prefs JSONB
+    await pool.query(
+      `UPDATE users SET notification_prefs = jsonb_set(
+        COALESCE(notification_prefs, '{}'::jsonb),
+        '{pushSubscription}',
+        $2::jsonb
+      ) WHERE id = $1`,
+      [req.user.userId, JSON.stringify(subscription)]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/notifications/unsubscribe - remove push subscription
+router.delete('/unsubscribe', authMiddleware, async (req, res) => {
+  try {
+    await pool.query(
+      `UPDATE users SET notification_prefs = (COALESCE(notification_prefs, '{}'::jsonb) - 'pushSubscription') WHERE id = $1`,
+      [req.user.userId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // GET /api/notifications - list notifications
 router.get('/', authMiddleware, async (req, res) => {
@@ -50,3 +98,27 @@ router.get('/unread-count', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+// ── Helper: Send web push to a user ────────────────────────────────────
+async function sendWebPush(userId, payload) {
+  try {
+    const { webpush } = getWebpush();
+    if (!webpush) return;
+    const result = await pool.query(
+      "SELECT notification_prefs->'pushSubscription' as sub FROM users WHERE id = $1",
+      [userId]
+    );
+    const sub = result.rows[0]?.sub;
+    if (!sub?.endpoint) return;
+    await webpush.sendNotification(sub, JSON.stringify(payload)).catch(async (err) => {
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        // Subscription expired/gone — clean up
+        await pool.query(
+          `UPDATE users SET notification_prefs = (COALESCE(notification_prefs, '{}'::jsonb) - 'pushSubscription') WHERE id = $1`,
+          [userId]
+        );
+      }
+    });
+  } catch { /* push failure is non-fatal */ }
+}
+module.exports.sendWebPush = sendWebPush;

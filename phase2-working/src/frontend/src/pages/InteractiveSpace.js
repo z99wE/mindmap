@@ -90,11 +90,19 @@ export function InteractiveSpace() {
     } else {
       // AI response bubble
       const classStrip = buildClassificationStrip(result);
+      const sourcesHtml = result.sources?.length > 0 ? `
+        <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div class="mono-label" style="font-size:9px;color:var(--md-sys-color-outline);text-transform:uppercase;margin-bottom:4px;">SOURCES</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            ${result.sources.slice(0, 4).map(s => `<a href="${escHtml(s.url || '#')}" target="_blank" rel="noopener" style="font:10px/1.3 system-ui;color:var(--md-sys-color-primary);text-decoration:none;background:rgba(255,69,0,0.06);padding:2px 8px;border-radius:var(--md-sys-shape-full);border:1px solid rgba(255,69,0,0.15);">${escHtml(s.title || s.url || 'source').slice(0, 40)}</a>`).join('')}
+          </div>
+        </div>` : '';
       chatArea.innerHTML += `
         <div style="display:flex;margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
           <div style="max-width:85%;">
             <div style="padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small);background:var(--md-sys-color-surface-container-high);font:var(--md-sys-typescale-body-medium);">
               ${formatResponse(result.response)}
+              ${sourcesHtml}
             </div>
             ${classStrip}
           </div>

@@ -4,9 +4,10 @@ export function HowItWorks() {
   container.innerHTML = `
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;text-align:center;">
-        <h1 style="font:var(--md-sys-typescale-headline-large);margin:0 0 0.5rem;">See Thought GPS in Action</h1>
+        <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">DEMO</div>
+        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0 0 0.5rem;">See Thought GPS in Action</h1>
         <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin:0;max-width:600px;margin:0 auto;">
-          Your cognitive features deliver through the apps you already use. Watch how nudges, briefs, and reviews arrive in real-time.
+          Your cognitive navigator delivers through the apps you already use. Watch how nudges, briefs, and route updates arrive in real-time.
         </p>
       </div>
 
@@ -65,16 +66,50 @@ export function HowItWorks() {
           <div class="phone-body" id="phone-3" style="background:#fff;min-height:340px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
           </div>
         </div>
+
+        <!-- Phone 4: Map My Mind - Navigation Mode -->
+        <div class="phone-mockup card-reveal">
+          <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#ff4500;display:grid;place-items:center;">
+                <span class="material-symbols-rounded" style="color:#fff;font-size:18px;">route</span>
+              </div>
+              <div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Map My Mind</div>
+                <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Navigate</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-body" id="phone-4" style="background:#0a0a0a;min-height:340px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
+          </div>
+        </div>
+
+        <!-- Phone 5: Geo-fence Departure Alert -->
+        <div class="phone-mockup card-reveal">
+          <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#10b981;display:grid;place-items:center;">
+                <span class="material-symbols-rounded" style="color:#fff;font-size:18px;">location_away</span>
+              </div>
+              <div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Geo-fence Alert</div>
+                <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Push</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-body" id="phone-5" style="background:#0a0a0a;min-height:340px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
+          </div>
+        </div>
       </div>
 
       <!-- CTA -->
-      <div class="card-reveal" style="margin-top:2.5rem;text-align:center;padding:2rem;">
-        <h2 style="font:var(--md-sys-typescale-headline-small);margin:0 0 0.5rem;">Try it yourself</h2>
+      <div class="card-reveal surface-card" style="margin-top:2.5rem;text-align:center;padding:2rem;">
+        <h2 style="font:700 1.5rem/1.2 'Space Grotesk',system-ui;letter-spacing:-0.04em;margin:0 0 0.5rem;">Start navigating your thoughts</h2>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1.5rem;">
           Connect your channels in Mission Control and start receiving cognitive nudges where you already are.
         </p>
         <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-          <button class="btn-m3 btn-filled" onclick="showPage('interactive-space')">
+          <button class="btn-neon" onclick="showPage('interactive-space')">
             <span class="material-symbols-rounded" style="font-size:18px;">chat</span> Open Chat
           </button>
           <button class="btn-m3 btn-tonal" onclick="showPage('mission-control')">
@@ -101,6 +136,20 @@ export function HowItWorks() {
     { text: '<strong>Commitment detected:</strong> "I\'ll finish the report by Friday 5pm"<br>Want me to quietly let someone know?', time: '9:00 AM', isBot: true },
     { text: 'Yes, tell Priya', time: '9:02 AM', isUser: true },
     { text: '<strong>Your week in thoughts:</strong><br>🏥 Health: 2 thoughts didn\'t move<br>💰 Finance: 1 thought didn\'t move<br><br>The one worth revisiting: <em>Call Dr. Mehta about blood test</em><br><br>Reply \'show me\' or \'clear\'.', time: 'Sun 8:00 PM', isBot: true },
+  ];
+
+  const phone4Messages = [
+    { type: 'route-summary', text: "Today's route: 8 thoughts, 3 themes, 2 urgent", time: '9:00 AM' },
+    { type: 'thought-node', theme: 'Health', color: '#ff4500', text: 'Call Dr. Mehta about blood test', urgency: 'critical', halfLife: '4h' },
+    { type: 'thought-node', theme: 'Health', color: '#ff4500', text: 'Schedule annual checkup', urgency: 'normal', halfLife: '72h' },
+    { type: 'thought-node', theme: 'Finance', color: '#10b981', text: 'Pay electricity bill — due today', urgency: 'high', halfLife: '2h' },
+    { type: 'navigate', text: 'Navigating: 3 themes to review. Swipe through your route.', step: '1 / 8' },
+  ];
+
+  const phone5Messages = [
+    { type: 'geo-alert', icon: 'location_away', color: '#10b981', title: 'Leaving Home Zone', text: 'Departure detected at 8:42 AM', time: '8:42 AM' },
+    { type: 'brief', items: ['Eggs — wife asked yesterday', 'Pay electricity bill — due today', 'Call Dr. Mehta — 3 days overdue'], heading: 'Departure Brief' },
+    { type: 'nearby', icon: 'near_me', text: "You're near D-Mart", items: ['Eggs (wife asked)', 'Toothpaste', 'Birthday candles — Saurav\'s bday Fri'], time: '11:20 AM' },
   ];
 
   function renderBubble(msg, style) {
@@ -145,6 +194,74 @@ export function HowItWorks() {
     return '';
   }
 
+  function renderMapMindMsg(msg) {
+    if (msg.type === 'route-summary') {
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,69,0,0.1);border:1px solid rgba(255,69,0,0.2);">
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <span class="material-symbols-rounded" style="font-size:16px;color:#ff4500;">route</span>
+          <span style="font:600 12px/1.3 'Space Grotesk',system-ui;color:#ebebeb;">${msg.text}</span>
+        </div>
+        <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.4);display:block;margin-top:4px;">${msg.time}</span>
+      </div>`;
+    }
+    if (msg.type === 'thought-node') {
+      const urgColor = msg.urgency === 'critical' ? '#f44336' : msg.urgency === 'high' ? '#ff9800' : 'rgba(235,235,235,.4)';
+      return `<div style="padding:0.5rem 0.65rem;border-radius:10px;background:rgba(255,255,255,0.03);border-left:3px solid ${urgColor};">
+        <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:3px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:${msg.color};"></div>
+          <span style="font:8px/1 var(--font-mono),monospace;color:${msg.color};text-transform:uppercase;">${msg.theme}</span>
+        </div>
+        <div style="font:12px/1.4 system-ui;color:#ebebeb;">${msg.text}</div>
+        <div style="display:flex;gap:0.35rem;margin-top:4px;">
+          <span style="font:8px/1 var(--font-mono),monospace;color:${urgColor};text-transform:uppercase;">${msg.urgency}</span>
+          <span style="font:8px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);">${msg.halfLife}</span>
+        </div>
+      </div>`;
+    }
+    if (msg.type === 'navigate') {
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,69,0,0.15);border:1px solid rgba(255,69,0,0.3);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font:600 11px/1.3 system-ui;color:#ff4500;">${msg.text}</span>
+          <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.4);">${msg.step}</span>
+        </div>
+      </div>`;
+    }
+    return '';
+  }
+
+  function renderGeoFenceMsg(msg) {
+    if (msg.type === 'geo-alert') {
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);">
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:4px;">
+          <span class="material-symbols-rounded" style="font-size:16px;color:${msg.color};">${msg.icon}</span>
+          <span style="font:600 12px/1.3 'Space Grotesk',system-ui;color:#ebebeb;">${msg.title}</span>
+        </div>
+        <div style="font:11px/1.4 system-ui;color:rgba(235,235,235,.6);">${msg.text}</div>
+        <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);display:block;margin-top:4px;">${msg.time}</span>
+      </div>`;
+    }
+    if (msg.type === 'brief') {
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+        <div class="mono-label" style="color:#ff4500;font-size:9px;margin-bottom:6px;text-transform:uppercase;">${msg.heading}</div>
+        ${msg.items.map((item, i) => `<div style="display:flex;gap:0.35rem;align-items:baseline;margin-bottom:3px;">
+          <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);">${i + 1}.</span>
+          <span style="font:11px/1.4 system-ui;color:#ebebeb;">${item}</span>
+        </div>`).join('')}
+      </div>`;
+    }
+    if (msg.type === 'nearby') {
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,69,0,0.08);border:1px solid rgba(255,69,0,0.2);">
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:6px;">
+          <span class="material-symbols-rounded" style="font-size:14px;color:#ff4500;">${msg.icon}</span>
+          <span style="font:600 11px/1.3 system-ui;color:#ff6b35;">${msg.text}</span>
+        </div>
+        ${msg.items.map((item, i) => `<div style="font:11px/1.5 system-ui;color:rgba(235,235,235,.7);padding-left:0.5rem;border-left:2px solid rgba(255,69,0,0.2);margin-bottom:3px;">${item}</div>`).join('')}
+        <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);display:block;margin-top:4px;">${msg.time}</span>
+      </div>`;
+    }
+    return '';
+  }
+
   function renderTyping() {
     return `<div class="phone-bubble incoming typing-indicator" style="max-width:60px;padding:8px 12px;">
       <div class="typing-dots"><span></span><span></span><span></span></div>
@@ -156,6 +273,8 @@ export function HowItWorks() {
     { el: container.querySelector('#phone-1'), msgs: phone1Messages, style: 'whatsapp' },
     { el: container.querySelector('#phone-2'), msgs: phone2Messages, style: 'telegram' },
     { el: container.querySelector('#phone-3'), msgs: phone3Messages, style: 'slack' },
+    { el: container.querySelector('#phone-4'), msgs: phone4Messages, style: 'mapmind' },
+    { el: container.querySelector('#phone-5'), msgs: phone5Messages, style: 'geofence' },
   ];
 
   let animTimer = null;
@@ -175,7 +294,11 @@ export function HowItWorks() {
         phone.el.querySelector('.typing-indicator')?.remove();
         const msg = phone.msgs[phone.index];
         const bubble = document.createElement('div');
-        bubble.innerHTML = renderBubble(msg, phone.style);
+        let html = '';
+        if (phone.style === 'mapmind') html = renderMapMindMsg(msg);
+        else if (phone.style === 'geofence') html = renderGeoFenceMsg(msg);
+        else html = renderBubble(msg, phone.style);
+        bubble.innerHTML = html;
         const el = bubble.firstElementChild;
         el.style.opacity = '0';
         el.style.transform = 'translateY(8px)';

@@ -26,7 +26,7 @@ async function runMigrations() {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        tier VARCHAR(20) DEFAULT 'free' CHECK (tier IN ('free', 'premium', 'enterprise', 'admin')),
+        tier VARCHAR(20) DEFAULT 'free' CHECK (tier IN ('free', 'pro', 'managed', 'premium', 'enterprise', 'admin')),
         daily_runs_used INT DEFAULT 0,
         daily_runs_limit INT DEFAULT 10,
         total_credits INT DEFAULT 0,
@@ -154,6 +154,10 @@ async function runMigrations() {
       )
     `);
 
+    // ── Migrate old tier names to new ones ──────────────────────────────────────
+    await client.query("UPDATE users SET tier = 'pro' WHERE tier = 'premium'").catch(() => {});
+    await client.query("UPDATE users SET tier = 'managed' WHERE tier = 'enterprise'").catch(() => {});
+
     // ── Phase 8 feature columns (ALTER TABLE for existing installs) ─────────────
     const alterCols = [
       // Columns referenced by process.js / memory.js that must exist
@@ -176,6 +180,8 @@ async function runMigrations() {
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS is_actionable BOOLEAN DEFAULT false',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS requested_by VARCHAR(255)',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS context_note TEXT',
+      // Geofences support
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS geofences JSONB DEFAULT \'[]\'',
     ];
     for (const sql of alterCols) {
       await client.query(sql).catch(() => {});

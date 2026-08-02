@@ -96,7 +96,7 @@ export function Commitments() {
 
     const commitments = data.commitments || [];
     const active = commitments.filter(c => c.status !== 'completed');
-    const overdue = active.filter(c => c.overdue || (c.days_until != null && c.days_until < 0));
+    const overdue = active.filter(c => c.isOverdue || (c.daysUntil != null && c.daysUntil < 0));
     const withWitness = active.filter(c => c.witness_contact);
     const completed = commitments.filter(c => c.status === 'completed');
 
@@ -121,9 +121,9 @@ export function Commitments() {
     }
 
     list.innerHTML = commitments.map(c => {
-      const isOverdue = c.overdue || (c.days_until != null && c.days_until < 0);
+      const isOverdue = c.isOverdue || (c.daysUntil != null && c.daysUntil < 0);
       const isCompleted = c.status === 'completed';
-      const daysUntil = c.days_until;
+      const daysUntil = c.daysUntil;
       const borderColor = isCompleted ? 'var(--color-success)' : isOverdue ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-secondary)';
 
       let timeLabel = '';
@@ -142,11 +142,9 @@ export function Commitments() {
       const witnessColor = witnessNotified ? 'var(--color-success)' : hasWitness ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-outline)';
 
       // Deadline display
-      const deadlineDisplay = c.expires_at
-        ? new Date(c.expires_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : c.deadline_epoch
-          ? new Date(c.deadline_epoch).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-          : 'No deadline';
+      const deadlineDisplay = c.deadline
+        ? new Date(c.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : 'No deadline';
 
       return `<div class="surface-card card-reveal" style="padding:1.25rem;border-left:3px solid ${borderColor};${isCompleted ? 'opacity:0.6;' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
