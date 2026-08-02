@@ -1,173 +1,268 @@
-// Home Page Component - Overhauled to match Astrix high-end monospace layout specifications
-export const Home = () => {
+// Home Page - Hero with real stats + Quick Capture + Marketing
+import api from '../lib/api.js';
+
+export function Home() {
+  const isLoggedIn = api.isLoggedIn();
+  const user = api.getUser();
   const container = document.createElement('div');
-  container.className = 'w-full';
 
-  container.innerHTML = `
-    <!-- Astrix-Style Hero Section -->
-    <div id="varda-hero" class="relative h-[90vh] w-full bg-black overflow-hidden flex flex-col justify-between pt-16">
-      
-      <!-- Background Image & Gradient -->
-      <div class="hero-image-bg"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-0"></div>
-
-      <!-- Grid Overlay -->
-      <div class="absolute inset-0 pt-16 z-10 pointer-events-none">
-         <div class="w-full h-full grid grid-cols-7 grid-rows-6" style="background-size: calc(100% / 7) calc(100% / 6); 
-                    background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), 
-                                      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
-                    background-position: -1px -1px;">
-         </div>
-      </div>
-
-      <!-- Title Area / Context -->
-      <div class="relative z-20 w-full h-full grid grid-cols-7 grid-rows-6 pointer-events-none">
-        
-        <!-- Headline -->
-        <div class="col-span-7 lg:col-span-4 row-span-2 lg:row-span-3 p-6 lg:p-10 flex flex-col justify-start pointer-events-auto">
-          <span class="text-[9px] uppercase tracking-[0.4em] text-white/50 mb-3 font-bold">Cognitive Coprocessor</span>
-          <h1 class="text-[42px] leading-[0.9] lg:text-[72px] font-black text-white tracking-tighter uppercase font-primary">
-            Thought<br><span class="text-white/20">GPS</span>
+  if (isLoggedIn) {
+    // Authenticated home
+    container.innerHTML = `
+      <div class="page-container">
+        <section style="margin-bottom:2rem;">
+          <h1 class="card-reveal" style="font:var(--md-sys-typescale-display-small);margin-bottom:0.5rem;">
+            Good ${getGreeting()}, ${user?.email?.split('@')[0] || 'Explorer'}
           </h1>
-          <p class="text-xs uppercase tracking-widest text-white/60 mt-4 max-w-sm">
-            Your Mind Was Never Meant to Remember Everything. Navigate ideas like Google Maps navigates roads.
+          <p class="card-reveal" style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);max-width:600px;">
+            Your cognitive coprocessor is ready. Capture thoughts, track commitments, and navigate your mind.
           </p>
-        </div>
+        </section>
 
-        <div class="hidden lg:block col-span-1 row-span-3"></div>
-
-        <!-- Subheadline -->
-        <div class="col-span-7 lg:col-span-2 row-span-2 lg:row-span-3 p-6 lg:p-10 flex flex-col justify-start pointer-events-auto">
-           <p class="text-[12px] leading-normal text-white/80 font-bold uppercase tracking-widest text-left">
-              Thought GPS maps your ideas, remembers context, researches the web, coordinates AI agents, and guides you from scattered thoughts to finished work.
-           </p>
-           
-           <!-- Telemetry message indicator -->
-           <div class="mt-8 flex items-center gap-3 text-green-500 font-mono text-[10px] uppercase tracking-widest">
-             <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#00e676]"></span>
-             <span id="telemetry-feed">Thinking...</span>
-           </div>
-        </div>
-
-        <!-- Bottom Call To Actions (Row 6) -->
-        <div class="hidden lg:block col-span-5 row-span-1"></div>
-
-        <a onclick="showPage('interactive-space')" class="pointer-events-auto col-span-3 md:col-span-2 lg:col-span-1 row-span-1 p-6 flex flex-col justify-end border-t border-r border-white/10 hover:bg-white group transition-all duration-500 no-underline cursor-pointer">
-          <span class="text-white font-black uppercase text-[10px] tracking-widest group-hover:text-black transition-colors duration-500 block">
-            Start Navigating &rarr;
-          </span>
-        </a>
-
-        <a onclick="showPage('dashboard')" class="pointer-events-auto col-span-4 md:col-span-2 lg:col-span-1 row-span-1 p-6 flex flex-col justify-end border-t border-white/10 hover:bg-white group transition-all duration-500 no-underline cursor-pointer">
-          <span class="text-white font-black uppercase text-[10px] tracking-widest group-hover:text-black transition-colors duration-500 block">
-            Mission Control
-          </span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Monospace Ticker Marquee -->
-    <div class="w-full py-6 bg-black overflow-hidden whitespace-nowrap border-y border-white/10">
-      <div class="flex gap-6 animate-marquee items-center text-[10px] uppercase tracking-[0.5em] text-white font-black">
-        <span>AI That Understands Where Your Thinking Is Going</span> <div class="w-12 h-px bg-white/20"></div>
-        <span>Stop Searching. Start Navigating.</span> <div class="w-12 h-px bg-white/20"></div>
-        <span>The operating system for human thought</span> <div class="w-12 h-px bg-white/20"></div>
-        <span>Zero-friction cognitive memory graph</span> <div class="w-12 h-px bg-white/20"></div>
-        <span>AI That Understands Where Your Thinking Is Going</span> <div class="w-12 h-px bg-white/20"></div>
-        <span>Stop Searching. Start Navigating.</span>
-      </div>
-    </div>
-
-    <!-- Astrix Bento Grid for Platform Features -->
-    <section class="bg-black py-16 px-4">
-      <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[400px]">
-        
-        <!-- Platform Pitch Cell -->
-        <div class="lg:col-span-2 lg:row-span-2 group relative overflow-hidden flex flex-col justify-between p-8 lg:p-12 bg-transparent text-white border border-white/10 hover:bg-white hover:text-black transition-all duration-500">
-          <div class="flex justify-between items-start w-full relative z-10">
-            <div class="text-white/40 group-hover:text-black/40 font-black uppercase tracking-[0.3em] text-[10px]">The Problem</div>
+        <!-- Quick Capture -->
+        <div class="surface-card card-reveal" style="margin-bottom:1.5rem;border-left:3px solid var(--md-sys-color-primary);">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.75rem;">Quick Capture</h2>
+          <textarea id="quick-capture" class="capture-box" placeholder="Drop a thought, commitment, or question here..."></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:0.75rem;">
+            <button class="btn-m3 btn-filled" id="quick-send-btn">
+              <span class="material-symbols-rounded" style="font-size:18px;">send</span> Process
+            </button>
           </div>
-          <div class="relative z-10">
-            <h2 class="text-[36px] lg:text-[54px] leading-[0.9] font-black tracking-tighter text-white group-hover:text-black uppercase transition-colors">
-              Your Brain Isn't<br>The Bottleneck.<br><span class="text-white/30 group-hover:text-black/30">Navigation Is.</span>
-            </h2>
-            <p class="text-xs uppercase tracking-widest opacity-60 mt-4 max-w-md">
-              Most AI forgets. Most note-taking apps just collect. Most productivity tools make you organize everything yourself. Your brain ends up doing all the navigation.
+          <div id="quick-result" style="margin-top:0.75rem;display:none;"></div>
+        </div>
+
+        <!-- Cognitive Snapshot -->
+        <div class="grid-stats card-reveal" id="home-stats">
+          <div class="stat-card"><div class="anim-shimmer" style="height:60px;"></div></div>
+          <div class="stat-card"><div class="anim-shimmer" style="height:60px;"></div></div>
+          <div class="stat-card"><div class="anim-shimmer" style="height:60px;"></div></div>
+          <div class="stat-card"><div class="anim-shimmer" style="height:60px;"></div></div>
+        </div>
+
+        <div class="grid-cards" style="margin-top:1.5rem;">
+          <div class="surface-card glass-glow card-reveal" style="cursor:pointer;" onclick="showPage('interactive-space')">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-primary);">psychology</span>
+              <h2 style="font:var(--md-sys-typescale-title-medium);">Full Chat</h2>
+            </div>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Rich cognitive conversation with classification chips, commitment detection, and clarification prompts.
+            </p>
+          </div>
+          <div class="surface-card glass-glow card-reveal" style="cursor:pointer;" onclick="showPage('thought-afterlife')">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-error);">hourglass_empty</span>
+              <h2 style="font:var(--md-sys-typescale-title-medium);">Thought Afterlife</h2>
+            </div>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Watch thoughts decay. Urgent bills escalate in 48h. Someday dreams fade over 30 days.
+            </p>
+          </div>
+          <div class="surface-card glass-glow card-reveal" style="cursor:pointer;" onclick="showPage('commitments')">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-secondary);">task_alt</span>
+              <h2 style="font:var(--md-sys-typescale-title-medium);">Commitments</h2>
+            </div>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Track promises with witness accountability. Get nudged before deadlines, not after.
             </p>
           </div>
         </div>
 
-        <!-- Metric Card -->
-        <div class="flex flex-col justify-between p-10 bg-white border border-white/10 text-black hover:bg-black hover:text-white transition-colors duration-500 group">
-          <div class="text-[10px] uppercase tracking-[0.3em] font-black text-black/40 group-hover:text-white/40">Performance</div>
-          <div>
-            <div class="text-[54px] font-black tracking-tighter leading-none mb-4">0.0$</div>
-            <p class="text-[10px] uppercase tracking-widest font-black leading-tight">SearXNG-based reality search. Real intelligence at a zero-cost budget.</p>
+        <section class="card-reveal" style="margin-top:2rem;">
+          <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Recent Activity</h2>
+          <div id="recent-thoughts" class="surface-card" style="padding:0;">
+            <div style="padding:2rem;text-align:center;color:var(--md-sys-color-outline);">
+              <div class="spinner-m3" style="margin:0 auto;"></div>
+            </div>
           </div>
-        </div>
+        </section>
+      </div>`;
 
-        <!-- ADHD Benefits Lobe -->
-        <div class="flex flex-col justify-between p-10 bg-[#141414] border border-white/10 group hover:bg-white transition-all duration-500">
-          <div class="text-white/40 font-black uppercase tracking-[0.3em] text-[10px] group-hover:text-black/40">ADHD Mode</div>
-          <h3 class="text-[28px] leading-[0.9] font-black text-white group-hover:text-black uppercase tracking-tighter">Designed for<br>Brains That Don't<br>Think In Straight Lines</h3>
-        </div>
+    loadHomeStats(container);
+    setupQuickCapture(container);
+  } else {
+    // Public landing page with 7 feature panels
+    container.innerHTML = `
+      <div class="page-container">
+        <section style="text-align:center;padding:4rem 1rem 3rem;">
+          <div class="card-reveal" style="margin-bottom:1.5rem;">
+            <span class="chip chip-primary" style="margin-bottom:1rem;">Cognitive Coprocessor</span>
+          </div>
+          <h1 class="card-reveal" style="font:var(--md-sys-typescale-display-large);margin-bottom:1rem;text-wrap:balance;">
+            Your thoughts have a half-life.<br>Let the best ones survive.
+          </h1>
+          <p class="card-reveal" style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);max-width:620px;margin:0 auto 2rem;">
+            Thought GPS uses Thought Half-Life, Invisible Checklists, Commitment Witnesses, Departure Briefs, Thought Archaeology, and Thought Interceptors to help ADHD/neurodiverse minds thrive.
+          </p>
+          <div class="card-reveal" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <button class="btn-m3 btn-filled" onclick="showPage('auth')">Get Started Free</button>
+            <button class="btn-m3 btn-outlined" onclick="showPage('how-it-works')">See How It Works</button>
+          </div>
+        </section>
 
-        <!-- Step-by-Step Pipeline -->
-        <div class="md:col-span-2 p-10 bg-black border border-white/10 text-white flex flex-col md:flex-row gap-8 items-center overflow-hidden hover:bg-white hover:text-black transition-all duration-500 group">
-          <div class="space-y-4">
-            <span class="text-[9px] uppercase tracking-[0.4em] bg-white text-black group-hover:bg-black group-hover:text-white px-3 py-1 font-black">Memory Pipeline</span>
-            <h3 class="text-[36px] leading-[0.9] font-black uppercase tracking-tighter">From Thought &rarr; Direction</h3>
-            <p class="text-xs uppercase tracking-widest opacity-60 group-hover:opacity-100 max-w-sm">
-              Capture (type or speak), Understand (extract context), Research (web search verify), Remember (relationship graph), and Execute tasks in real-time.
+        <section class="grid-panels card-reveal" style="margin-top:2rem;">
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-error);margin-bottom:0.75rem;">hourglass_empty</span>
+            <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Thought Half-Life</h2>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Every thought has an expiry. Urgent bills escalate in 48h. Someday dreams fade over 30 days. Your mind, prioritized by decay.
             </p>
           </div>
-        </div>
-
-        <!-- Architecture Bulletin -->
-        <div class="p-10 bg-white border border-white/10 flex flex-col justify-between text-black group hover:bg-black hover:text-white transition-all duration-500">
-          <div class="text-[10px] uppercase tracking-[0.3em] text-black/40 group-hover:text-white/40 font-black">Storage</div>
-          <div class="space-y-4">
-            <h4 class="text-lg font-black uppercase tracking-tight">Connected Memory</h4>
-            <p class="text-[10px] text-black/60 group-hover:text-white/60 leading-relaxed font-bold uppercase tracking-widest">Thought GPS doesn't save conversations—it builds semantic knowledge graph relationships.</p>
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--color-emotional);margin-bottom:0.75rem;">store</span>
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Invisible Checklist</h3>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Walk into a supermarket, get a gentle nudge with 3 things your family asked for. Location-aware, zero effort.
+            </p>
           </div>
-        </div>
-
-        <!-- Multi-Agent Lobe -->
-        <div class="p-10 bg-[#141414] border border-white/10 flex flex-col justify-center gap-6 text-left group hover:bg-white transition-colors duration-500">
-          <p class="text-3xl font-black uppercase tracking-tighter text-white group-hover:text-black">Multi-Agent<br>Specialists</p>
-          <div class="w-full h-1 bg-white/10">
-            <div class="w-full h-full bg-white group-hover:bg-black"></div>
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-secondary);margin-bottom:0.75rem;">person</span>
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Commitment Witness</h3>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Say "I'll finish by Friday" and Thought GPS quietly offers accountability. Share with a trusted person, no guilt.
+            </p>
           </div>
-          <p class="text-[9px] uppercase tracking-[0.4em] text-white/40 font-black group-hover:text-black/40">Coordinating Research, Writing, Coding & Planning</p>
-        </div>
-
-      </div>
-    </section>
-  `;
-
-  // Telemetry loop for status ticker
-  const telemetryMsgs = [
-    "Thinking...",
-    "Connecting ideas...",
-    "Searching reality...",
-    "Finding patterns...",
-    "Updating memory...",
-    "Calculating next step...",
-    "Memory linked.",
-    "Thought mapped.",
-    "Research complete.",
-    "Connection discovered."
-  ];
-  let telemetryIndex = 0;
-  const intervalId = setInterval(() => {
-    const feed = container.querySelector('#telemetry-feed');
-    if (feed) {
-      telemetryIndex = (telemetryIndex + 1) % telemetryMsgs.length;
-      feed.textContent = telemetryMsgs[telemetryIndex];
-    } else {
-      clearInterval(intervalId);
-    }
-  }, 3000);
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--color-analytical);margin-bottom:0.75rem;">door_front</span>
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Departure Brief</h3>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Leave home and get a calm 3-line brief: your top tasks, weather check, and deadlines. Like a personal assistant at the door.
+            </p>
+          </div>
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--color-creative);margin-bottom:0.75rem;">history_edu</span>
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Thought Archaeology</h3>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Every Sunday, a zero-judgment review of what didn't move. Not a failure log — a gentle mirror for your week.
+            </p>
+          </div>
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-tertiary);margin-bottom:0.75rem;">psychology</span>
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Thought Interceptor</h3>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              "I need to call the doctor" gets caught, classified, and asked: "When?" Before it slips away.
+            </p>
+          </div>
+          <div class="surface-card">
+            <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-primary);margin-bottom:0.75rem;">cell_tower</span>
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;">Multi-Channel Delivery</h3>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">
+              Connect WhatsApp, Telegram, Slack, or Discord. Your thought nudges, departure briefs, and weekly reviews arrive where you already are.
+            </p>
+          </div>
+        </section>
+      </div>`;
+  }
 
   return container;
-};
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
+}
+
+function setupQuickCapture(container) {
+  const btn = container.querySelector('#quick-send-btn');
+  const textarea = container.querySelector('#quick-capture');
+  const resultEl = container.querySelector('#quick-result');
+
+  btn?.addEventListener('click', async () => {
+    const msg = textarea?.value?.trim();
+    if (!msg) return;
+    btn.disabled = true;
+    const result = await api.post('/process/message', { message: msg });
+    btn.disabled = false;
+    textarea.value = '';
+    resultEl.style.display = 'block';
+
+    if (result.error) {
+      resultEl.innerHTML = `<div style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-medium);">${escHtml(result.error)}</div>`;
+    } else {
+      const c = result.classification || {};
+      resultEl.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+          <span class="material-symbols-rounded" style="font-size:20px;color:var(--color-success);">check_circle</span>
+          <div style="flex:1;">
+            <div style="font:var(--md-sys-typescale-body-medium);margin-bottom:0.5rem;">${formatResponse(result.response)}</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              ${c.urgencyTier ? `<span class="classification-chip ${c.urgencyTier}">${c.urgencyTier}</span>` : ''}
+              ${c.category && c.category !== 'other' ? `<span class="classification-chip low">${c.category}</span>` : ''}
+              ${c.halfLifeHours ? `<span class="classification-chip low">${c.halfLifeHours}h half-life</span>` : ''}
+              ${result.commitment?.is_commitment ? '<span class="classification-chip high">Commitment</span>' : ''}
+              ${result.unanchored?.is_unanchored ? `<span class="classification-chip medium">Needs ${result.unanchored.missing}</span>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }
+  });
+}
+
+async function loadHomeStats(container) {
+  const [memStats, billing, recent] = await Promise.all([
+    api.get('/memory/stats'),
+    api.get('/billing/status'),
+    api.get('/memory?limit=5'),
+  ]);
+
+  const statsEl = container.querySelector('#home-stats');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="stat-card">
+        <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:0.08em;">Memories</div>
+        <div style="font:var(--md-sys-typescale-headline-medium);color:var(--md-sys-color-primary);" class="anim-count">${memStats.total || 0}</div>
+        <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${memStats.active || 0} active</div>
+      </div>
+      <div class="stat-card">
+        <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:0.08em;">Runs Today</div>
+        <div style="font:var(--md-sys-typescale-headline-medium);color:var(--md-sys-color-secondary);" class="anim-count">${billing.dailyRunsRemaining ?? '?'}</div>
+        <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">of ${billing.dailyRunsLimit || 10} daily</div>
+      </div>
+      <div class="stat-card">
+        <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:0.08em;">Tier</div>
+        <div style="font:var(--md-sys-typescale-headline-medium);color:var(--md-sys-color-tertiary);" class="anim-count">${billing.tier || 'free'}</div>
+        <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${billing.totalCredits || 0} credits</div>
+      </div>
+      <div class="stat-card">
+        <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:0.08em;">Categories</div>
+        <div style="font:var(--md-sys-typescale-headline-medium);color:var(--color-emotional);" class="anim-count">${memStats.byCategory?.length || 0}</div>
+        <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">unique topics</div>
+      </div>`;
+  }
+
+  const thoughtsEl = container.querySelector('#recent-thoughts');
+  if (thoughtsEl && recent.memories?.length > 0) {
+    thoughtsEl.innerHTML = recent.memories.map(m => `
+      <div style="padding:0.875rem 1rem;border-bottom:1px solid var(--md-sys-color-outline-variant);display:flex;align-items:center;gap:0.75rem;">
+        <span class="material-symbols-rounded" style="font-size:20px;color:${m.urgencyTier === 'critical' ? 'var(--md-sys-color-error)' : m.urgencyTier === 'high' ? 'var(--color-analytical)' : 'var(--md-sys-color-outline)'};">
+          ${m.urgencyTier === 'critical' ? 'warning' : m.urgencyTier === 'high' ? 'schedule' : 'chat_bubble'}
+        </span>
+        <div style="flex:1;min-width:0;">
+          <div style="font:var(--md-sys-typescale-body-medium);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(m.content)}</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">
+            ${m.category || 'general'} · ${timeAgo(m.createdAt)}
+            ${m.urgencyTier ? ` · <span class="classification-chip ${m.urgencyTier}" style="font-size:9px;padding:1px 5px;">${m.urgencyTier}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } else if (thoughtsEl) {
+    thoughtsEl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-medium);">No thoughts captured yet. Start with Quick Capture above or open the Full Chat.</div>';
+  }
+}
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function formatResponse(text) {
+  if (!text) return '';
+  return escHtml(text).replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/- (.*?)(<br>|$)/g, '• $1$2');
+}
+function timeAgo(dateStr) {
+  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}

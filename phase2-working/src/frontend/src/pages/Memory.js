@@ -1,146 +1,56 @@
-// Memory Archive Page Component - Redesigned to strictly follow Carbon design specs without blue or purple gradients
-export const Memory = () => {
-  const memories = [
-    { id: 'mem_001', text: 'Project launch timeline planning', timestamp: '2026-08-02 00:15:32', tags: ['planning'] },
-    { id: 'mem_002', text: 'API key configuration for OpenAI', timestamp: '2026-08-02 00:14:18', tags: ['setup'] },
-    { id: 'mem_003', text: 'User feedback on voice output feature', timestamp: '2026-08-02 00:12:45', tags: ['feedback'] },
-    { id: 'mem_004', text: 'Premium tier upgrade request', timestamp: '2026-08-02 00:10:22', tags: ['billing'] }
-  ];
+// Memory - Real memories from DB with search and export
+import api from '../lib/api.js';
 
-  // Set up global hooks for exports
-  window.downloadJSONLD = () => {
-    const userId = localStorage.getItem('userId') || 'demo';
-    fetch('/api/memory/export/' + userId)
-      .then(res => res.json())
-      .then(data => {
-        const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/ld+json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `thoughts-export-${userId}.jsonld`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      })
-      .catch(err => {
-        console.error('Export failed, downloading local fallback memories:', err);
-        const fallbackStr = JSON.stringify(memories, null, 2);
-        const blob = new Blob([fallbackStr], { type: 'application/ld+json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `thoughts-export-${userId}.jsonld`;
-        a.click();
-      });
-  };
-
-  window.downloadMarkdown = () => {
-    const userId = localStorage.getItem('userId') || 'demo';
-    let mdContent = `# Thought GPS Memory Export\n\n`;
-    mdContent += `User: ${userId}\nExported: ${new Date().toLocaleString()}\n\n`;
-    memories.forEach(m => {
-      mdContent += `### ${m.id} (${m.timestamp})\n${m.text}\n*Tags: ${m.tags.join(', ')}*\n\n---\n\n`;
-    });
-    
-    const blob = new Blob([mdContent], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `thoughts-export-${userId}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
+export function Memory() {
   const container = document.createElement('div');
-  container.className = 'card';
   container.innerHTML = `
-    <h2>MEMORY ARCHIVE</h2>
-    
-    <!-- Memory Stats -->
-    <div class="stats-grid">
-      <div class="stat-box" style="border-left: 4px solid #198038;">
-        <div style="font-family: 'Orbitron', sans-serif; color: #198038;">TOTAL MEMORIES</div>
-        <div class="stat-value" style="color: #fff;">${memories.length}</div>
-        <div class="stat-label">Stored Memories</div>
+    <div class="page-container">
+      <div class="section-header card-reveal"><span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);">memory</span>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);">Memory Archive</h1>
       </div>
-      <div class="stat-box" style="border-left: 4px solid #f08c29;">
-        <div style="font-family: 'Orbitron', sans-serif; color: #f08c29;">STORAGE USED</div>
-        <div class="stat-value" style="color: #fff;">4.2 KB</div>
-        <div class="stat-label">Current Usage</div>
+      <div class="card-reveal" style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <input type="text" id="mem-search" class="input-m3" placeholder="Search memories..." style="flex:1;min-width:200px;">
+        <button class="btn-m3 btn-outlined" id="search-btn"><span class="material-symbols-rounded" style="font-size:18px;">search</span></button>
+        <button class="btn-m3 btn-tonal" id="export-btn"><span class="material-symbols-rounded" style="font-size:18px;">download</span> Export</button>
       </div>
-      <div class="stat-box" style="border-left: 4px solid #f08c29;">
-        <div style="font-family: 'Orbitron', sans-serif; color: #f08c29;">AVG RETENTION</div>
-        <div class="stat-value" style="color: #fff;">24H</div>
-        <div class="stat-label">Average Time</div>
-      </div>
-    </div>
-    
-    <!-- Memory Table -->
-    <h3 style="font-family: 'Orbitron', sans-serif; color: #fff; margin-bottom: 1rem;">
-      MEMORY LOG
-    </h3>
-    <table class="keys-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Memory Text</th>
-          <th>Timestamp</th>
-          <th>Tags</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${memories.map(memory => `
-          <tr>
-            <td>
-              <span style="font-family: 'Courier New', monospace; color: #198038;">
-                ${memory.id}
-              </span>
-            </td>
-            <td style="color: #fff;">${memory.text}</td>
-            <td>
-              <span style="font-family: 'Courier New', monospace; color: #888;">
-                ${memory.timestamp}
-              </span>
-            </td>
-            <td>
-              ${memory.tags.map(tag => `
-                <span style="display: inline-block; background: rgba(25, 128, 56, 0.15); color: #198038; 
-                            padding: 0.2rem 0.6rem; border-radius: 4px; margin-right: 0.5rem; 
-                            font-family: 'Courier New', monospace; font-size: 0.8rem; border: 1px solid rgba(25, 128, 56, 0.3);">
-                  ${tag}
-                </span>
-              `).join('')}
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-    
-    <!-- Memory Actions -->
-    <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-      <button class="btn btn-success" onclick="downloadJSONLD()">
-        Export JSON-LD
-      </button>
-      <button class="btn btn-primary" onclick="downloadMarkdown()">
-        Download Markdown
-      </button>
-    </div>
-    
-    <div style="margin-top: 2rem; background: #111625; padding: 1.5rem; border-radius: 8px; border: 1px solid #333;">
-      <div style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">
-        MEMORY ARCHITECTURE
-      </div>
-      <div style="color: #ccc; line-height: 1.6; font-family: 'Courier New', monospace;">
-        <p><strong style="color: #fff;">Layer 1:</strong> Redis (Fast access, 1-day retention)</p>
-        <p><strong style="color: #fff;">Layer 2:</strong> PostgreSQL (Persistent storage)</p>
-        <p><strong style="color: #fff;">Layer 3:</strong> Vector Database (Semantic search)</p>
-        <p><strong style="color: #fff;">Layer 4:</strong> IPFS/Arweave (Permanent backup)</p>
-      </div>
-    </div>
-  `;
+      <div id="mem-list" class="card-reveal"><div class="anim-shimmer" style="height:200px;"></div></div>
+    </div>`;
+
+  async function loadMems(q) {
+    const data = q ? await api.get(`/memory/search?q=${encodeURIComponent(q)}`) : await api.get('/memory?limit=50');
+    const items = data.memories || data.results || [];
+    const el = container.querySelector('#mem-list');
+    if (items.length === 0) { el.innerHTML = '<div class="surface-card" style="text-align:center;padding:2rem;color:var(--md-sys-color-outline);">No memories found.</div>'; return; }
+    el.innerHTML = items.map(m => `
+      <div class="surface-card" style="margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+          <div style="flex:1;">
+            <p style="font:var(--md-sys-typescale-body-medium);margin-bottom:0.5rem;">${escHtml(m.content)}</p>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+              ${m.category ? `<span class="chip">${m.category}</span>` : ''}
+              ${m.cognitiveLoad || m.cognitive_load ? `<span class="chip chip-primary">${m.cognitiveLoad || m.cognitive_load}</span>` : ''}
+              ${m.brainArea || m.brain_area ? `<span class="chip">${m.brainArea || m.brain_area}</span>` : ''}
+            </div>
+          </div>
+          <button class="icon-btn" onclick="deleteMem('${m.id}')" title="Delete">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+          </button>
+        </div>
+        <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;">${new Date(m.createdAt || m.created_at).toLocaleDateString()}</div>
+      </div>`).join('');
+  }
+
+  container.querySelector('#search-btn').addEventListener('click', () => loadMems(container.querySelector('#mem-search').value));
+  container.querySelector('#mem-search').addEventListener('keydown', e => { if (e.key === 'Enter') loadMems(e.target.value); });
+  container.querySelector('#export-btn').addEventListener('click', async () => {
+    const data = await api.get('/memory/export?format=json');
+    if (!data.error) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'thought-gps-memories.json'; a.click();
+    }
+  });
+  loadMems();
   return container;
-};
+}
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+window.deleteMem = async (id) => { if (confirm('Delete this memory?')) { await api.del(`/memory/${id}`); window.showPage('memory'); } };

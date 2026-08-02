@@ -1,176 +1,227 @@
-// Admin Dashboard - Local Only (Not in Cloud Deployments)
-// Only visible when deployed locally (not in production/Render/Docker)
+// Admin Dashboard - OmniRoute + Langfuse + System Health (admin only)
+import api from '../lib/api.js';
 
-export const AdminDashboard = () => {
-  const isAdmin = process.env.NODE_ENV === 'development' || process.env.LOCAL_ADMIN === 'true';
-  
-  if (!isAdmin) {
-    return `
-      <div class="card">
-        <h2>ADMIN ACCESS REQUIRED</h2>
-        <p style="color: #f08c29; margin-top: 1rem;">
-          This dashboard is only available in local development mode.
-          <br>Set <code>NODE_ENV=development</code> to enable.
-        </p>
-      </div>
-    `;
+export function AdminDashboard() {
+  const container = document.createElement('div');
+  const user = api.getUser() || {};
+
+  if (!user.isAdmin) {
+    container.innerHTML = `
+      <div class="page-shell">
+        <div class="surface-card" style="padding:3rem;text-align:center;">
+          <span class="material-symbols-rounded" style="font-size:56px;color:var(--md-sys-color-error);">admin_panel_settings</span>
+          <h2 style="font:var(--md-sys-typescale-headline-small);margin-top:1rem;">Access Restricted</h2>
+          <p style="color:var(--md-sys-color-on-surface-variant);">This dashboard is only available to admin users.</p>
+        </div>
+      </div>`;
+    return container;
   }
 
-  return `
-    <div class="card">
-      <h2>ADMIN DASHBOARD</h2>
-      
-      <!-- Admin Status -->
-      <div style="background: rgba(240, 140, 41, 0.15); padding: 1rem; border-radius: 8px; border-left: 3px solid #f08c29; margin-bottom: 2rem;">
-        <div style="font-family: 'Orbitron', sans-serif; color: #f08c29;">
-          ADMIN MODE ACTIVE (LOCAL DEPLOYMENT)
+  container.innerHTML = `
+    <div class="page-shell">
+      <div class="surface-card card-reveal" style="padding:2rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--md-sys-color-error);font-size:28px;">admin_panel_settings</span>
+          <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Admin Console</h1>
         </div>
-        <p style="color: #aaa; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
-          Full system control available. All features accessible.
+        <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+          System health, key pool, OmniRoute status, user management, and Langfuse observability.
         </p>
       </div>
 
-      <!-- System Status -->
-      <h3 style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">SYSTEM STATUS</h3>
-      <div class="stats-grid">
-        <div class="stat-box" style="border-color: #f08c29;">
-          <div style="font-family: 'Orbitron', sans-serif; color: #f08c29;">MEMORY NODES</div>
-          <div class="stat-value">1,247</div>
-          <div class="stat-label">Total Memory Items</div>
-        </div>
-        <div class="stat-box" style="border-color: #198038;">
-          <div style="font-family: 'Orbitron', sans-serif; color: #198038;">ACTIVE AGENTS</div>
-          <div class="stat-value">8</div>
-          <div class="stat-label">Running Agents</div>
-        </div>
-        <div class="stat-box" style="border-color: #0066cc;">
-          <div style="font-family: 'Orbitron', sans-serif; color: #0066cc;">LIVE CHANNELS</div>
-          <div class="stat-value">6</div>
-          <div class="stat-label">Connected</div>
-        </div>
-        <div class="stat-box" style="border-color: #2070b0;">
-          <div style="font-family: 'Orbitron', sans-serif; color: #2070b0;">API KEYS</div>
-          <div class="stat-value">24</div>
-          <div class="stat-label">Configured</div>
-        </div>
-      </div>
-
-      <!-- Memory Segregation -->
-      <h3 style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">MEMORY SEGMENTATION</h3>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-        ${['Health', 'Finance', 'Personal', 'Work', 'Relationships', 'Goals', 'Ideas', 'Tasks'].map(cat => `
-          <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border-left: 3px solid #f08c29;">
-            <div style="font-weight: bold; color: #f08c29;">${cat}</div>
-            <div style="color: #198038; font-size: 1.5rem; margin-top: 0.5rem;">${Math.floor(Math.random() * 50 + 10)}</div>
-            <div style="color: #888; font-size: 0.8rem;">memories</div>
+      <!-- Health Stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1.5rem;">
+        <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
+          <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Server Status</div>
+          <div id="health-status" style="font:var(--md-sys-typescale-headline-small);margin-top:0.25rem;">
+            <div class="spinner-m3" style="margin:0 auto;width:20px;height:20px;"></div>
           </div>
-        `).join('')}
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
+          <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Total Users</div>
+          <div id="stat-users" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-primary);">—</div>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
+          <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Memory Nodes</div>
+          <div id="stat-memory" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-secondary);">—</div>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
+          <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">API Keys Active</div>
+          <div id="stat-keys" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-tertiary);">—</div>
+        </div>
       </div>
 
-      <!-- Brain Fragments Visualization -->
-      <h3 style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">BRAIN FRAGMENTS</h3>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
-        <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
-          <div style="color: #0066cc; font-weight: bold;">FRONTAL LOBE</div>
-          <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Planning, Decision Making</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
+      <!-- Key Pool Status -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
+          <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">key</span>
+          Shared Key Pool
+        </h2>
+        <div id="key-pool-status">
+          <div class="spinner-m3" style="margin:1rem auto;"></div>
         </div>
-        <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
-          <div style="color: #0066cc; font-weight: bold;">PARIETAL LOBE</div>
-          <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Sensory Processing</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
+      </div>
+
+      <!-- OmniRoute (Admin Only) -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <h2 style="font:var(--md-sys-typescale-title-large);margin:0;">
+            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">route</span>
+            OmniRoute (Personal)
+          </h2>
+          <span class="chip-m3 active" style="pointer-events:none;background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);">ADMIN ONLY</span>
         </div>
-        <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
-          <div style="color: #0066cc; font-weight: bold;">TEMPORAL LOBE</div>
-          <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Memory, Language</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
+        <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1rem;">
+          Your personal Grok + NVIDIA routing layer. Not accessible to other users.
+        </p>
+        <div id="omniroute-status">
+          <div class="spinner-m3" style="margin:1rem auto;"></div>
         </div>
-        <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
-          <div style="color: #0066cc; font-weight: bold;">OCCIPITAL LOBE</div>
-          <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Visual Processing</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
+      </div>
+
+      <!-- Langfuse Observability -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
+          <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">analytics</span>
+          Langfuse Observability
+        </h2>
+        <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1rem;">
+          Agent tracing, LLM call monitoring, and prompt performance metrics.
+        </p>
+        <div id="langfuse-status">
+          <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">
+            Langfuse dashboard available at your configured URL. Traces are automatically captured for all LLM calls.
+          </p>
         </div>
-        <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
-          <div style="color: #0066cc; font-weight: bold;">COGNITIVE LOAD</div>
-          <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Memory Utilization</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">32% Loaded</div>
-        </div>
-        <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
-          <div style="color: #0066cc; font-weight: bold;">NEURAL PATHWAYS</div>
-          <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Active Connections</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">1,247 Links</div>
-        </div>
+        <button class="btn-m3 btn-outlined" style="margin-top:1rem;" onclick="window.open(import.meta.env.VITE_LANGFUSE_URL || 'https://cloud.langfuse.com', '_blank')">
+          <span class="material-symbols-rounded" style="font-size:18px;">open_in_new</span>
+          Open Langfuse Dashboard
+        </button>
       </div>
 
       <!-- User Management -->
-      <h3 style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">USER MANAGEMENT</h3>
-      <table class="keys-table">
-        <thead>
-          <tr>
-            <th>User ID</th>
-            <th>Tier</th>
-            <th>Daily Usage</th>
-            <th>API Keys</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>user_001</td>
-            <td style="color: #f08c29;">Free</td>
-            <td>3/10</td>
-            <td>0</td>
-            <td>
-              <button class="btn" onclick="alert('Reset user credits')" style="background: #f08c29; color: #0a0f1a; padding: 0.3rem 0.8rem; font-size: 0.8rem;">RESET</button>
-            </td>
-          </tr>
-          <tr>
-            <td>user_002</td>
-            <td style="color: #198038;">Premium</td>
-            <td>45/500</td>
-            <td>2</td>
-            <td>
-              <button class="btn" onclick="alert('Upgrade user')" style="background: #f08c29; color: #0a0f1a; padding: 0.3rem 0.8rem; font-size: 0.8rem;">UPGRADE</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- System Configuration -->
-      <h3 style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">SYSTEM CONFIGURATION</h3>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-        <div>
-          <div style="color: #aaa; margin-bottom: 0.5rem;">LLM Provider Priority</div>
-          <select style="width: 100%; padding: 0.75rem; background: #0a0f1a; border: 1px solid #555; color: #fff; border-radius: 4px;">
-            <option>OmniRoute (Free) → OpenAI → Anthropic</option>
-            <option>OpenAI → OmniRoute (Free) → Anthropic</option>
-            <option>Anthropic → OmniRoute (Free) → OpenAI</option>
-          </select>
-        </div>
-        <div>
-          <div style="color: #aaa; margin-bottom: 0.5rem;">Default TTS Provider</div>
-          <select style="width: 100%; padding: 0.75rem; background: #0a0f1a; border: 1px solid #555; color: #fff; border-radius: 4px;">
-            <option>Piper (Local, Free)</option>
-            <option>Assembly AI (Free Tier)</option>
-            <option>Deepgram (Free Credits)</option>
-          </select>
-        </div>
-        <div>
-          <div style="color: #aaa; margin-bottom: 0.5rem;">Default STT Provider</div>
-          <select style="width: 100%; padding: 0.75rem; background: #0a0f1a; border: 1px solid #555; color: #fff; border-radius: 4px;">
-            <option>NVIDIA NIM (Free)</option>
-            <option>Assembly AI (Free Tier)</option>
-            <option>Deepgram (Free Credits)</option>
-          </select>
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
+          <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">group</span>
+          User Management
+        </h2>
+        <div id="users-list">
+          <div class="spinner-m3" style="margin:1rem auto;"></div>
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="alert('Export all data')" style="padding: 1rem 2rem;">EXPORT ALL DATA</button>
-        <button class="btn btn-success" onclick="alert('Reset system')" style="padding: 1rem 2rem; background: #198038; color: #fff;">RESET SYSTEM</button>
-        <button class="btn btn-accent" onclick="alert('Backup database')" style="padding: 1rem 2rem; background: #f08c29; color: #0a0f1a;">BACKUP DATABASE</button>
+      <!-- System Actions -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">System Actions</h2>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button class="btn-m3 btn-outlined" onclick="alert('Export functionality coming soon')">
+            <span class="material-symbols-rounded" style="font-size:18px;">download</span>Export All Data
+          </button>
+          <button class="btn-m3 btn-outlined" onclick="alert('Backup functionality coming soon')">
+            <span class="material-symbols-rounded" style="font-size:18px;">backup</span>Backup Database
+          </button>
+          <button class="btn-m3 btn-outlined" style="border-color:var(--md-sys-color-error);color:var(--md-sys-color-error);" onclick="alert('Reset not available in production')">
+            <span class="material-symbols-rounded" style="font-size:18px;">restart_alt</span>Reset System
+          </button>
+        </div>
       </div>
-    </div>
-  `;
-};
+    </div>`;
+
+  async function loadData() {
+    // Health check
+    const health = await api.get('/admin/health');
+    const healthEl = container.querySelector('#health-status');
+    if (health.error) {
+      healthEl.innerHTML = `<span style="color:var(--md-sys-color-error);">Offline</span>`;
+    } else {
+      healthEl.innerHTML = `<span style="color:var(--color-success);">Healthy</span>`;
+      if (health.stats) {
+        container.querySelector('#stat-users').textContent = health.stats.totalUsers || 0;
+        container.querySelector('#stat-memory').textContent = health.stats.totalMemories || 0;
+      }
+    }
+
+    // Key pool status
+    const keyPool = await api.get('/admin/key-pool');
+    const poolEl = container.querySelector('#key-pool-status');
+    if (keyPool.error) {
+      poolEl.innerHTML = `<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Unable to load key pool status.</p>`;
+    } else {
+      const providers = keyPool.providers || {};
+      const totalKeys = Object.values(providers).reduce((sum, p) => sum + (p.keys?.length || 0), 0);
+      container.querySelector('#stat-keys').textContent = totalKeys;
+
+      poolEl.innerHTML = Object.entries(providers).map(([name, provider]) => `
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <span style="font:var(--md-sys-typescale-title-small);text-transform:capitalize;">${name}</span>
+            <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${provider.keys?.length || 0} keys</span>
+          </div>
+          ${(provider.keys || []).map(k => `
+            <div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;font:var(--md-sys-typescale-body-small);">
+              <span style="width:8px;height:8px;border-radius:50%;background:${k.coolingDown ? 'var(--md-sys-color-error)' : 'var(--color-success)'};"></span>
+              <span style="color:var(--md-sys-color-on-surface-variant);">${k.id}</span>
+              ${k.coolingDown ? '<span style="color:var(--md-sys-color-error);font-size:11px;">COOLING DOWN</span>' : ''}
+              <span style="margin-left:auto;color:var(--md-sys-color-outline);">${k.usageThisHour || 0} req/hr</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('') || '<p style="color:var(--md-sys-color-outline);">No API keys configured in pool. Add GROQ_KEY_1, OPENAI_KEY_1, etc. to env vars.</p>';
+    }
+
+    // OmniRoute status
+    const omniEl = container.querySelector('#omniroute-status');
+    omniEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+        <div class="surface-card" style="padding:1rem;background:var(--md-sys-color-surface-container);">
+          <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Grok (xAI)</div>
+          <div style="font:var(--md-sys-typescale-body-large);color:var(--color-success);margin-top:0.25rem;">Configured</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Personal key active</div>
+        </div>
+        <div class="surface-card" style="padding:1rem;background:var(--md-sys-color-surface-container);">
+          <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">NVIDIA</div>
+          <div style="font:var(--md-sys-typescale-body-large);color:var(--color-success);margin-top:0.25rem;">Configured</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">NIM endpoints available</div>
+        </div>
+      </div>
+      <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.75rem;">
+        OmniRoute uses your personal API keys for Grok and NVIDIA. Non-admin users never see or access this.
+      </p>`;
+
+    // Users list
+    const users = await api.get('/admin/users');
+    const usersEl = container.querySelector('#users-list');
+    if (users.error || !users.users?.length) {
+      usersEl.innerHTML = `<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No users registered yet.</p>`;
+    } else {
+      usersEl.innerHTML = `
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font:var(--md-sys-typescale-body-small);">
+            <thead>
+              <tr style="border-bottom:1px solid var(--md-sys-color-outline-variant);">
+                <th style="text-align:left;padding:0.5rem;color:var(--md-sys-color-outline);font-weight:500;">Email</th>
+                <th style="text-align:left;padding:0.5rem;color:var(--md-sys-color-outline);font-weight:500;">Tier</th>
+                <th style="text-align:left;padding:0.5rem;color:var(--md-sys-color-outline);font-weight:500;">Runs Today</th>
+                <th style="text-align:left;padding:0.5rem;color:var(--md-sys-color-outline);font-weight:500;">Credits</th>
+                <th style="text-align:left;padding:0.5rem;color:var(--md-sys-color-outline);font-weight:500;">Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.users.map(u => `
+                <tr style="border-bottom:1px solid var(--md-sys-color-outline-variant);">
+                  <td style="padding:0.5rem;">${u.email}${u.is_admin ? ' <span style="color:var(--md-sys-color-error);font-size:11px;">ADMIN</span>' : ''}</td>
+                  <td style="padding:0.5rem;"><span style="background:var(--md-sys-color-surface-container);padding:2px 8px;border-radius:var(--md-sys-shape-full);font-size:11px;">${u.tier || 'free'}</span></td>
+                  <td style="padding:0.5rem;">${u.daily_runs_used || 0}</td>
+                  <td style="padding:0.5rem;">${u.total_credits || 0}</td>
+                  <td style="padding:0.5rem;color:var(--md-sys-color-outline);">${u.created_at ? new Date(u.created_at).toLocaleDateString() : ''}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+  }
+
+  loadData();
+  return container;
+}

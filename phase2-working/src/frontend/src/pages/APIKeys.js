@@ -1,147 +1,60 @@
-// API Keys Page Component - Redesigned to strictly follow Carbon design specs without blue or purple gradients
-let selectedService = 'OpenAI';
-let configuredKeys = [];
-const services = ['OpenAI', 'Anthropic', 'Groq', 'NVIDIA NIM', 'Ollama'];
+// API Keys - Server-side vault with AES-256 encryption
+import api from '../lib/api.js';
 
-export const APIKeys = () => {
-  const tier = 'premium'; // Simulated - in real app, get from API
-
-  // Global hooks
-  window.selectService = (service) => {
-    selectedService = service;
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(APIKeys());
-    }
-  };
-
-  window.addApiKey = () => {
-    const input = document.getElementById('apiKeyInput');
-    if (!input) return;
-    const key = input.value.trim();
-    if (key) {
-      const maskedKey = key.length > 8 ? '****' + key.slice(-8) : '********';
-      configuredKeys.push({
-        service: selectedService,
-        key: maskedKey
-      });
-      input.value = '';
-      const main = document.getElementById('main-content');
-      if (main) {
-        main.innerHTML = '';
-        main.appendChild(APIKeys());
-      }
-    }
-  };
-
-  window.removeApiKey = (index) => {
-    configuredKeys.splice(index, 1);
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(APIKeys());
-    }
-  };
-
+export function APIKeys() {
   const container = document.createElement('div');
-  container.className = 'card';
-
-  if (tier === 'free') {
-    container.innerHTML = `
-      <h2>API KEY MANAGEMENT</h2>
-      <div class="warning" style="background: rgba(240, 140, 41, 0.15); border: 1px solid #f08c29; padding: 1.2rem; border-radius: 4px; color: #f08c29; margin-bottom: 1.5rem; font-family: 'Orbitron', sans-serif;">
-        UPGRADE REQUIRED: API key configuration is only available for Premium and Enterprise tiers.
-      </div>
-      <p style="color: #aaa; margin: 2rem 0; font-family: 'Courier New', monospace; line-height: 1.6;">
-        Free tier users are limited to using our free infrastructure (NVIDIA NIM, Groq, Ollama).
-        To configure your own API keys and unlock 500+ daily runs, upgrade to Premium.
-      </p>
-      <div style="text-align: center;">
-        <button class="btn btn-accent btn-lg" onclick="showPage('credits')">
-          UPGRADE TO PREMIUM
-        </button>
-      </div>
-    `;
-    return container;
-  }
-  
+  const user = api.getUser();
+  const isPremium = user?.tier === 'premium' || user?.isAdmin;
   container.innerHTML = `
-    <h2>API KEY MANAGEMENT</h2>
-    
-    <!-- Service Selection -->
-    <div style="margin-bottom: 2rem;">
-      <div style="color: #888; font-family: 'Orbitron', sans-serif; margin-bottom: 1rem;">SELECT PROVIDER</div>
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-        ${services.map(service => `
-          <button class="btn ${selectedService === service ? 'btn-primary' : 'btn-secondary'}" 
-                  onclick="selectService('${service}')"
-                  style="padding: 0.8rem 1.5rem; border-radius: 4px;">
-            ${service}
-          </button>
-        `).join('')}
+    <div class="page-container">
+      <div class="section-header card-reveal"><span class="material-symbols-rounded" style="color:var(--md-sys-color-tertiary);">key</span>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);">API Vault</h1>
       </div>
-    </div>
-    
-    <!-- Add Key Form -->
-    <div style="margin-bottom: 2rem;">
-      <div style="color: #888; font-family: 'Orbitron', sans-serif; margin-bottom: 1rem;">
-        ADD API KEY FOR ${selectedService.toUpperCase()}
-      </div>
-      <div style="display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;">
-        <input type="password" id="apiKeyInput" placeholder="Paste your API key here..." 
-               style="flex: 1; min-width: 300px; padding: 0.75rem; background: #0a0f1a; border: 2px solid #555; border-radius: 4px; color: #fff;">
-        <button class="btn btn-success" onclick="addApiKey()">
-          ADD KEY
-        </button>
-      </div>
-      <p style="color: #888; margin-top: 0.5rem; font-size: 0.9rem;">
-        Your API key will be encrypted and stored securely. Only you can see the last 8 characters.
-      </p>
-    </div>
-    
-    <!-- Configured Keys -->
-    ${configuredKeys.length > 0 ? `
-      <div style="margin-bottom: 2rem;">
-        <div style="font-family: 'Orbitron', sans-serif; color: #198038; margin-bottom: 1rem;">
-          CONFIGURED KEYS (${configuredKeys.length})
+      ${!isPremium ? '<div class="card-reveal" style="padding:1rem;border-radius:var(--md-sys-shape-medium);background:rgba(255,184,108,.08);border:1px solid rgba(255,184,108,.2);color:var(--color-analytical);margin-bottom:1rem;font:var(--md-sys-typescale-body-medium);"><span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">lock</span> BYO API keys require Premium tier. <a href="#" onclick="showPage(\'credits\')" style="text-decoration:underline;">Upgrade now</a></div>' : ''}
+      <div class="surface-card card-reveal" style="margin-bottom:1rem;">
+        <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Add API Key</h3>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <select id="key-provider" class="input-m3" style="width:160px;">
+            <option value="groq">Groq</option><option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option><option value="nvidia">NVIDIA NIM</option>
+          </select>
+          <input type="password" id="key-value" class="input-m3" placeholder="Your API key" style="flex:1;min-width:200px;" ${!isPremium ? 'disabled' : ''}>
+          <button class="btn-m3 btn-filled" id="add-key-btn" ${!isPremium ? 'disabled' : ''}>Add Key</button>
         </div>
-        <table class="keys-table">
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>API Key</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${configuredKeys.map((key, index) => `
-              <tr>
-                <td class="key-service">${key.service}</td>
-                <td class="key-value">${key.key}</td>
-                <td>
-                  <button class="btn btn-accent" onclick="removeApiKey(${index})" style="padding: 0.5rem 1rem;">
-                    REMOVE
-                  </button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
       </div>
-    ` : '<p style="color: #888; font-family: \'Courier New\', monospace;">No API keys configured yet. Add one above.</p>'}
-    
-    <!-- Instructions -->
-    <div style="background: rgba(240, 140, 41, 0.08); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #f08c29; margin-top: 2rem;">
-      <h3 style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">
-        HOW TO GET YOUR API KEYS
-      </h3>
-      <ul style="color: #ccc; font-family: 'Courier New', monospace; line-height: 1.6; padding-left: 1.5rem;">
-        <li><strong>OpenAI</strong>: Visit the OpenAI Developer platform dashboard to create a key.</li>
-        <li><strong>Anthropic</strong>: Navigate to the Anthropic Console Settings menu.</li>
-        <li><strong>Groq</strong>: Get free, low-latency keys directly via Groq Cloud dashboard.</li>
-      </ul>
-    </div>
-  `;
+      <div id="keys-list" class="card-reveal"><div class="anim-shimmer" style="height:100px;"></div></div>
+    </div>`;
+
+  api.get('/keys').then(data => {
+    const el = container.querySelector('#keys-list');
+    const keys = data.keys || {};
+    const entries = Object.entries(keys);
+    if (entries.length === 0) {
+      el.innerHTML = '<div class="surface-card" style="text-align:center;padding:2rem;color:var(--md-sys-color-outline);">No API keys configured. Free tier uses shared pool keys.</div>';
+      return;
+    }
+    el.innerHTML = `<div class="surface-card" style="padding:0;">` + entries.map(([provider, info]) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1rem;border-bottom:1px solid var(--md-sys-color-outline-variant);">
+        <div>
+          <span class="chip chip-primary" style="margin-right:0.5rem;">${provider}</span>
+          <span style="font:var(--md-sys-typescale-body-medium);font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;">${info.masked}</span>
+        </div>
+        <button class="icon-btn" onclick="deleteKey('${provider}')" title="Remove">
+          <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+        </button>
+      </div>`).join('') + '</div>';
+  });
+
+  container.querySelector('#add-key-btn')?.addEventListener('click', async () => {
+    const provider = container.querySelector('#key-provider').value;
+    const key = container.querySelector('#key-value').value.trim();
+    if (!key) return;
+    const result = await api.post('/keys', { provider, key });
+    if (result.error) { alert(result.error); return; }
+    container.querySelector('#key-value').value = '';
+    window.showPage('api-keys');
+  });
+
   return container;
-};
+}
+window.deleteKey = async (provider) => { if (confirm(`Remove ${provider} key?`)) { await api.del(`/keys/${provider}`); window.showPage('api-keys'); } };

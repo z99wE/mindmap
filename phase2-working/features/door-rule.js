@@ -89,32 +89,36 @@ async function getHomeLocation(db, userId) {
  * @returns {string} - Formatted message
  */
 function formatDepartureBrief(tasks, weather) {
-  const parts = ['🚪 Door Rule Check'];
-  
-  // Add weather if relevant (if there are outdoor tasks)
-  if (weather) {
-    const temp = weather.temperature;
-    parts.push(`📍 Weather: ${temp}°F`);
-    if (weather.isRaining) {
-      parts.push('⚠️ Rain expected');
-    }
-    parts.push('');
+  const parts = [];
+
+  // Time-based greeting (only before 10am)
+  const hour = new Date().getHours();
+  if (hour < 10) parts.push('Good morning');
+
+  // Weather: add umbrella line if rain likely
+  if (weather && (weather.isRaining || weather.rainProbability > 60)) {
+    parts.push(`Carry an umbrella — ${weather.rainProbability || 'high'}% rain today`);
   }
-  
-  // Add tasks
+
+  // Tasks
   if (tasks.length === 0) {
-    parts.push('All clear. Have a great day!');
+    parts.push('All clear. Have a good one.');
   } else {
-    parts.push('📋 Tasks to handle:');
     tasks.forEach((task, i) => {
       let line = `${i + 1}. ${task.content}`;
-      if (task.emotional_weight_score >= 4) {
-        line += ' ⚠️';
-      }
+      if (task.trigger_value) line += ` — ${task.trigger_value}`;
       parts.push(line);
     });
   }
-  
+
+  // Hard deadline today
+  const today = new Date();
+  const todayTask = tasks.find(t => t.deadline_epoch && new Date(t.deadline_epoch * 1000).toDateString() === today.toDateString());
+  if (todayTask && todayTask.deadline_epoch) {
+    const dlTime = new Date(todayTask.deadline_epoch * 1000);
+    parts.push(`${todayTask.content} by ${dlTime.getHours()}:${String(dlTime.getMinutes()).padStart(2,'0')}`);
+  }
+
   return parts.join('\n');
 }
 
@@ -127,28 +131,54 @@ function formatDepartureBrief(tasks, weather) {
  * @returns {Promise<void>}
  */
 async function handleHomeExit(db, caspian, userId, locationName) {
+  // Dedup: check if last brief was sent within 6 hours
+  try {
+    const lastRes = await db.query(
+      `SELECT last_departure_brief_sent_at FROM users WHERE id = $1`,
+      [userId]
+    );
+    const lastSent = lastRes.rows[0]?.last_departure_brief_sent_at;
+    if (lastSent) {
+      const hoursSince = (Date.now() - new Date(lastSent).getTime()) / (1000 * 60 * 60);
+      if (hoursSince < 6) {
+        console.log(`[Door Rule] Skipping — last brief sent ${hoursSince.toFixed(1)}h ago for ${userId}`);
+        return;
+      }
+    }
+  } catch { /* column may not exist yet, continue */ }
+
   // Get departure items
   const tasks = await getDepartureItems(db, userId, 3);
-  
+
   // Get home location for weather
   const homeLocation = await getHomeLocation(db, userId);
-  
+
   // Get weather if home location exists
   let weather = null;
   if (homeLocation) {
     weather = await getWeatherFree(homeLocation.lat, homeLocation.lng);
   }
-  
+
   // Format and send message
   const message = formatDepartureBrief(tasks, weather);
-  
-  await caspian.send({
-    channel: 'whatsapp',
-    to: userId,
-    message
-  });
-  
-  console.log(`Door Rule brief sent to ${userId} (location: ${locationName})`);
+
+  if (caspian) {
+    await caspian.send({
+      channel: 'whatsapp',
+      to: userId,
+      message
+    });
+  }
+
+  // Update last departure brief timestamp
+  try {
+    await db.query(
+      `UPDATE users SET last_departure_brief_sent_at = NOW() WHERE id = $1`,
+      [userId]
+    );
+  } catch { /* column may not exist */ }
+
+  console.log(`[Door Rule] Brief sent to ${userId} (location: ${locationName})`);
 }
 
 /**

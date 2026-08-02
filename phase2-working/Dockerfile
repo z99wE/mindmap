@@ -1,4 +1,4 @@
-# Production Dockerfile for Phase 2-5 Application
+# Production Dockerfile for Thought GPS
 # Optimized for Render/Vercel/Netlify deployment
 
 FROM node:18-alpine
@@ -6,7 +6,7 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Install dependencies (avoid node_modules in COPY)
+# Install dependencies
 COPY package*.json ./
 
 # Install production dependencies only
@@ -14,8 +14,8 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Copy application code
 COPY server.js ./
-COPY llm-router.js ./
-COPY tts-engine.js ./
+COPY src/ ./src/
+COPY features/ ./features/
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -25,16 +25,16 @@ RUN addgroup -g 1001 -S nodejs && \
 # Switch to non-root user
 USER nodejs
 
-# Expose port
-EXPOSE 3002
+# Expose port (matches server.js default)
+EXPOSE 3001
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3002
+ENV PORT=3001
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3002/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
 
 # Start server
 CMD ["node", "server.js"]

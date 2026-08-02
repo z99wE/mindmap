@@ -1,0 +1,101 @@
+/* ── Material Design 3 Design Tokens ── */
+/* Dark theme with cognitive state accent colors */
+
+:root {
+  /* ── Surface Colors (M3 Dark) ── */
+  --md-sys-color-background: #0f0d13;
+  --md-sys-color-surface: #141218;
+  --md-sys-color-surface-dim: #141218;
+  --md-sys-color-surface-bright: #3b383e;
+  --md-sys-color-surface-container: #1e1c22;
+  --md-sys-color-surface-container-low: #1c1b20;
+  --md-sys-color-surface-container-high: #25232a;
+  --md-sys-color-surface-container-highest: #302e35;
+  --md-sys-color-on-surface: #e6e0e9;
+  --md-sys-color-on-surface-variant: #c9c3d0;
+  --md-sys-color-outline: #938d99;
+  --md-sys-color-outline-variant: #49454e;
+
+  /* ── Primary (Violet - Creative/Cognitive) ── */
+  --md-sys-color-primary: #d0bcff;
+  --md-sys-color-on-primary: #381e72;
+  --md-sys-color-primary-container: #4f378b;
+  --md-sys-color-on-primary-container: #eaddff;
+
+  /* ── Secondary (Teal - Emotional) ── */
+  --md-sys-color-secondary: #80cbc4;
+  --md-sys-color-on-secondary: #00332e;
+  --md-sys-color-secondary-container: #004d45;
+  --md-sys-color-on-secondary-container: #a7f3ec;
+
+  /* ── Tertiary (Amber - Analytical) ── */
+  --md-sys-color-tertiary: #ffb86c;
+  --md-sys-color-on-tertiary: #4a2800;
+  --md-sys-color-tertiary-container: #6a3c00;
+  --md-sys-color-on-tertiary-container: #ffddb3;
+
+  /* ── Error (Coral - Urgency) ── */
+  --md-sys-color-error: #ff8a9e;
+  --md-sys-color-on-error: #690024;
+  --md-sys-color-error-container: #930036;
+  --md-sys-color-on-error-container: #ffdadb;
+
+  /* ── Cognitive State Colors ── */
+  --color-analytical: #ffb86c;
+  --color-creative: #d0bcff;
+  --color-emotional: #80cbc4;
+  --color-urgency: #ff8a9e;
+  --color-success: #69f0ae;
+  --color-muted: #938d99;
+  --color-faint: #49454e;
+
+  /* ── Typography (M3 Scale) ── */
+  --md-sys-typescale-display-large: 700 57px/64px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-display-medium: 700 45px/52px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-display-small: 700 36px/44px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-headline-large: 600 32px/40px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-headline-medium: 600 28px/36px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-headline-small: 600 24px/32px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-title-large: 600 22px/28px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-title-medium: 500 16px/24px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-title-small: 500 14px/20px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-body-large: 400 16px/24px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-body-medium: 400 14px/20px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-body-small: 400 12px/16px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-label-large: 500 14px/20px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-label-medium: 500 12px/16px 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --md-sys-typescale-label-small: 500 11px/16px 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  /* ── Shape (M3 Corner Radii) ── */
+  --md-sys-shape-none: 0;
+  --md-sys-shape-extra-small: 4px;
+  --md-sys-shape-small: 8px;
+  --md-sys-shape-medium: 12px;
+  --md-sys-shape-large: 16px;
+  --md-sys-shape-extra-large: 28px;
+  --md-sys-shape-full: 9999px;
+
+  /* ── Elevation (M3 Shadows) ── */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 3px 1px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.3);
+  --md-sys-elevation-2: 0 2px 6px 2px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.3);
+  --md-sys-elevation-3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.3);
+  --md-sys-elevation-4: 0 6px 10px 4px rgba(0,0,0,.15), 0 2px 3px rgba(0,0,0,.3);
+  --md-sys-elevation-5: 0 8px 12px 6px rgba(0,0,0,.15), 0 4px 4px rgba(0,0,0,.3);
+
+  /* ── Motion ── */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+}

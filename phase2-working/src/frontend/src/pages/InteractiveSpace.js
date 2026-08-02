@@ -1,97 +1,209 @@
-// Interactive Communication Space Component
-let messages = [];
-let selectedAgent = 'Research';
-const connectedAgents = ['Research', 'Writing', 'Planning', 'Analysis', 'Coding'];
+// Interactive Space - Rich Cognitive Chat with classification chips
+import api from '../lib/api.js';
 
-export const InteractiveSpace = () => {
-  // Global hooks
-  window.sendMessage = () => {
-    const input = document.getElementById('chatInput');
-    if (!input) return;
-    const text = input.value.trim();
-    
-    if (text) {
-      messages.push({
-        sender: 'user',
-        text,
-        time: new Date().toLocaleTimeString()
-      });
-      
-      input.value = '';
-      const main = document.getElementById('main-content');
-      if (main) {
-        main.innerHTML = '';
-        main.appendChild(InteractiveSpace());
-      }
-      
-      // Simulate agent response
-      setTimeout(() => {
-        messages.push({
-          sender: selectedAgent,
-          text: `Processing request for task: "${text}". Querying vector memory graph and initiating SearXNG reality verification.`,
-          time: new Date().toLocaleTimeString()
-        });
-        if (main) {
-          main.innerHTML = '';
-          main.appendChild(InteractiveSpace());
-        }
-      }, 1000);
-    }
-  };
-
-  window.selectAgent = (agentName) => {
-    selectedAgent = agentName;
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(InteractiveSpace());
-    }
-  };
-
+export function InteractiveSpace() {
   const container = document.createElement('div');
-  container.className = 'card';
   container.innerHTML = `
-    <h2>INTERACTIVE COMMUNICATION SPACE</h2>
-    
-    <!-- Agent Selector -->
-    <div style="margin-bottom: 2rem;">
-      <div style="font-family: 'Orbitron', sans-serif; color: #f08c29; margin-bottom: 1rem;">SELECT SPECIALIST AGENT</div>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        ${connectedAgents.map(agentName => `
-          <button class="btn ${selectedAgent === agentName ? 'btn-primary' : 'btn-secondary'}" 
-                  onclick="selectAgent('${agentName}')" 
-                  style="padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer;">
-            ${agentName}
-          </button>
-        `).join('')}
+    <div class="page-container" style="max-width:900px;">
+      <div class="section-header card-reveal">
+        <span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);">psychology</span>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);">Thought GPS</h1>
       </div>
-    </div>
+      <p class="card-reveal" style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin-bottom:1rem;">
+        Process thoughts, ask questions, or capture commitments. Every message is classified for half-life, urgency, and commitment detection.
+      </p>
 
-    <!-- Chat Area -->
-    <div style="background: #0a0f1a; border-radius: 8px; border: 1px solid #555; margin-bottom: 1rem; padding: 1.5rem; min-height: 300px; max-height: 500px; overflow-y: auto;">
-      ${messages.length === 0 ? `
-        <div style="text-align: center; color: #888; padding: 3rem;">
-          <div>Start a conversation with your agents</div>
-          <div style="font-size: 0.9rem; margin-top: 0.5rem;">Agents will help you research, write, plan, and analyze</div>
+      <!-- Status bar -->
+      <div id="status-bar" class="card-reveal" style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+        <span id="runs-info" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Loading...</span>
+      </div>
+
+      <!-- Chat area -->
+      <div id="chat-area" class="surface-card card-reveal" style="padding:1rem;min-height:400px;max-height:600px;overflow-y:auto;margin-bottom:1rem;">
+        <div style="text-align:center;padding:2rem;color:var(--md-sys-color-outline);">
+          <span class="material-symbols-rounded" style="font-size:48px;opacity:0.3;">forum</span>
+          <p style="margin-top:0.5rem;">Start a conversation. Your thoughts will be classified and stored in memory.</p>
         </div>
-      ` : messages.map((msg) => `
-        <div style="margin-bottom: 1.5rem; padding: 1.2rem; background: ${msg.sender === 'user' ? '#111625' : 'rgba(25, 128, 56, 0.15)'}; border-left: 3px solid ${msg.sender === 'user' ? '#f08c29' : '#198038'}; border-radius: 4px;">
-          <div style="font-family: 'Orbitron', sans-serif; color: ${msg.sender === 'user' ? '#f08c29' : '#198038'}; font-size: 0.85rem; margin-bottom: 0.5rem;">
-            ${msg.sender === 'user' ? 'YOU // USER_NODE' : msg.sender.toUpperCase() + ' // AGENT_NODE'}
+      </div>
+
+      <!-- Input form -->
+      <form id="chat-form" class="card-reveal" style="display:flex;gap:0.75rem;align-items:flex-end;">
+        <div style="flex:1;">
+          <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." style="resize:vertical;min-height:48px;"></textarea>
+        </div>
+        <button type="submit" class="btn-m3 btn-filled" id="send-btn" style="height:48px;">
+          <span class="material-symbols-rounded">send</span>
+        </button>
+      </form>
+    </div>`;
+
+  const form = container.querySelector('#chat-form');
+  const input = container.querySelector('#chat-input');
+  const chatArea = container.querySelector('#chat-area');
+  const runsInfo = container.querySelector('#runs-info');
+  let firstMessage = true;
+
+  // Load conversation history + run status
+  loadHistory(chatArea, runsInfo);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    if (firstMessage) { chatArea.innerHTML = ''; firstMessage = false; }
+
+    // User bubble
+    chatArea.innerHTML += `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
+        <div style="max-width:80%;padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small) var(--md-sys-shape-large);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font:var(--md-sys-typescale-body-medium);">
+          ${escHtml(msg)}
+        </div>
+      </div>`;
+
+    input.value = '';
+    const btn = container.querySelector('#send-btn');
+    btn.disabled = true;
+
+    // Typing indicator
+    const loadingId = 'loading-' + Date.now();
+    chatArea.innerHTML += `
+      <div id="${loadingId}" style="display:flex;margin-bottom:0.75rem;">
+        <div style="padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large);background:var(--md-sys-color-surface-container-high);">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>`;
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    const result = await api.post('/process/message', { message: msg });
+
+    document.getElementById(loadingId)?.remove();
+    btn.disabled = false;
+
+    // Update status bar
+    if (result.runsRemaining != null) {
+      runsInfo.textContent = `${result.runsRemaining} runs remaining · ${result.latency || 0}ms`;
+    }
+
+    if (result.error) {
+      chatArea.innerHTML += `<div style="padding:0.75rem;border-radius:var(--md-sys-shape-small);background:rgba(255,138,158,.1);color:var(--md-sys-color-error);margin-bottom:0.75rem;">${escHtml(result.error)}</div>`;
+    } else {
+      // AI response bubble
+      const classStrip = buildClassificationStrip(result);
+      chatArea.innerHTML += `
+        <div style="display:flex;margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
+          <div style="max-width:85%;">
+            <div style="padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small);background:var(--md-sys-color-surface-container-high);font:var(--md-sys-typescale-body-medium);">
+              ${formatResponse(result.response)}
+            </div>
+            ${classStrip}
           </div>
-          <div style="color: #fff; font-family: 'Courier New', monospace; line-height: 1.5;">${msg.text}</div>
-          <div style="color: #888; font-size: 0.75rem; margin-top: 0.5rem; text-align: right;">${msg.time}</div>
-        </div>
-      `).join('')}
-    </div>
+        </div>`;
 
-    <!-- Input Area -->
-    <div style="display: flex; gap: 0.5rem;">
-      <input type="text" id="chatInput" placeholder="What are you thinking? Start with anything..." style="flex: 1; padding: 1rem; background: #0a0f1a; border: 1px solid #555; border-radius: 4px; color: #fff; font-family: 'Courier New', monospace;">
-      <button class="btn btn-primary" onclick="sendMessage()" style="padding: 1rem 2rem; font-size: 1.1rem; flex-shrink: 0;">
-        SEND
-      </button>
-    </div>
-  `;
+      // Clarification prompt card
+      if (result.unanchored?.is_unanchored) {
+        chatArea.innerHTML += `
+          <div style="margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
+            <div class="surface-card" style="padding:1rem;border-left:3px solid var(--md-sys-color-tertiary);max-width:400px;">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">help</span>
+                <span style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-tertiary);">Needs anchoring</span>
+              </div>
+              <p style="font:var(--md-sys-typescale-body-medium);margin:0 0 0.5rem;">${escHtml(result.unanchored.clarification_question)}</p>
+              <div style="display:flex;gap:0.5rem;">
+                <input type="text" class="input-m3" placeholder="Your answer..." style="flex:1;padding:0.5rem 0.75rem;font-size:14px;" id="clarify-input-${Date.now()}">
+                <button class="btn-m3 btn-tonal" style="height:36px;font-size:12px;" onclick="sendClarification(this)">Reply</button>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      // Witness prompt card
+      if (result.commitment?.ask_for_witness) {
+        chatArea.innerHTML += `
+          <div style="margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
+            <div class="surface-card" style="padding:1rem;border-left:3px solid var(--md-sys-color-secondary);max-width:400px;">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary);">person</span>
+                <span style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-secondary);">Commitment detected</span>
+              </div>
+              <p style="font:var(--md-sys-typescale-body-medium);margin:0 0 0.5rem;">${escHtml(result.commitment.witness_ask_message)}</p>
+              <div style="display:flex;gap:0.5rem;">
+                <input type="text" class="input-m3" placeholder="Witness name or email..." style="flex:1;padding:0.5rem 0.75rem;font-size:14px;">
+                <button class="btn-m3 btn-tonal" style="height:36px;font-size:12px;">Add Witness</button>
+              </div>
+            </div>
+          </div>`;
+      }
+    }
+    chatArea.scrollTop = chatArea.scrollHeight;
+  });
+
+  // Enter to send (shift+enter for newline)
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.dispatchEvent(new Event('submit')); }
+  });
+
   return container;
+}
+
+async function loadHistory(chatArea, runsInfo) {
+  const [memData, billData] = await Promise.all([
+    api.get('/memory?limit=10'),
+    api.get('/billing/status'),
+  ]);
+
+  if (billData.dailyRunsRemaining != null) {
+    runsInfo.textContent = `${billData.dailyRunsRemaining} runs remaining · ${billData.tier || 'free'} tier`;
+  }
+
+  if (memData.memories?.length > 0) {
+    chatArea.innerHTML = '';
+    memData.memories.reverse().forEach(m => {
+      const isUser = true; // All stored memories are user messages
+      chatArea.innerHTML += `
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem;">
+          <div style="max-width:75%;padding:0.5rem 0.75rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small) var(--md-sys-shape-large);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font:var(--md-sys-typescale-body-small);opacity:0.7;">
+            ${escHtml(m.content)}
+            ${m.urgencyTier ? `<div style="margin-top:4px;"><span class="classification-chip ${m.urgencyTier}" style="font-size:9px;padding:1px 6px;">${m.urgencyTier}</span></div>` : ''}
+          </div>
+        </div>`;
+    });
+    chatArea.innerHTML += `<div style="text-align:center;padding:0.5rem;color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">── Recent history above ──</div>`;
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+}
+
+function buildClassificationStrip(result) {
+  const chips = [];
+  const c = result.classification;
+  if (c) {
+    if (c.urgencyTier) chips.push(`<span class="classification-chip ${c.urgencyTier}">${c.urgencyTier}</span>`);
+    if (c.category && c.category !== 'other') chips.push(`<span class="classification-chip low">${c.category}</span>`);
+    if (c.halfLifeHours) chips.push(`<span class="classification-chip low">${c.halfLifeHours}h half-life</span>`);
+    if (c.actionVerb && c.actionVerb !== 'other') chips.push(`<span class="classification-chip low">${c.actionVerb}</span>`);
+  }
+  if (result.commitment?.is_commitment) {
+    chips.push(`<span class="classification-chip high">Commitment</span>`);
+  }
+  if (result.unanchored?.is_unanchored) {
+    chips.push(`<span class="classification-chip medium">Unanchored</span>`);
+  }
+  if (chips.length === 0) return '';
+  return `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;padding-left:4px;">${chips.join('')}</div>`;
+}
+
+window.sendClarification = async (btn) => {
+  const input = btn.previousElementSibling;
+  const text = input?.value?.trim();
+  if (!text) return;
+  btn.disabled = true;
+  input.disabled = true;
+  input.value = text + ' (sent)';
 };
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function formatResponse(text) {
+  if (!text) return '';
+  return escHtml(text).replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/- (.*?)(<br>|$)/g, '• $1$2');
+}

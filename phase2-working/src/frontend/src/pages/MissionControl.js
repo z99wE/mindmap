@@ -1,221 +1,246 @@
-// Mission Control Component - Monospace Grid Aesthetics
-let connectedChannels = [];
-let configuredKeys = [];
-let omnirouteConnected = false;
+// Mission Control - Channel configuration, witness contacts, notification prefs
+import api from '../lib/api.js';
 
-export const MissionControl = () => {
-  // Global hooks attached to window for event listeners
-  window.connectChannel = (channel) => {
-    if (!connectedChannels.includes(channel)) {
-      connectedChannels.push(channel);
-    }
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(MissionControl());
-    }
-  };
-  
-  window.removeChannel = (channel) => {
-    connectedChannels = connectedChannels.filter(c => c !== channel);
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(MissionControl());
-    }
-  };
-  
-  window.addApiKey = () => {
-    const provider = document.getElementById('keyProvider').value;
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
-    
-    if (apiKey) {
-      const masked = apiKey.length > 8 ? '****' + apiKey.slice(-8) : '********';
-      configuredKeys.push({ provider, key: masked });
-      if (apiKeyInput) apiKeyInput.value = '';
-      const main = document.getElementById('main-content');
-      if (main) {
-        main.innerHTML = '';
-        main.appendChild(MissionControl());
-      }
-      alert('API key added and encrypted securely!');
-    }
-  };
-  
-  window.removeApiKey = (index) => {
-    configuredKeys.splice(index, 1);
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(MissionControl());
-    }
-  };
-  
-  window.toggleOmniRoute = () => {
-    omnirouteConnected = !omnirouteConnected;
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.innerHTML = '';
-      main.appendChild(MissionControl());
-    }
-    alert('OmniRoute ' + (omnirouteConnected ? 'started' : 'stopped'));
-  };
-  
-  window.testOmniRoute = async () => {
-    alert('Testing OmniRoute connection...');
-    await new Promise(r => setTimeout(r, 1000));
-    alert('OmniRoute connection test passed - 90+ free providers available');
-  };
-
+export function MissionControl() {
   const container = document.createElement('div');
-  container.className = 'w-full max-w-[1600px] mx-auto p-6 lg:p-10 bg-black text-white';
-
   container.innerHTML = `
-    <!-- Astrix Grid Title -->
-    <div class="border-b border-white/10 pb-8 mb-10">
-      <span class="text-[9px] uppercase tracking-[0.4em] text-white/50 mb-3 block">System Registry</span>
-      <h1 class="text-[36px] lg:text-[54px] font-black uppercase tracking-tighter text-white font-primary">
-        Mission<br><span class="text-white/20">Control</span>
-      </h1>
-      <p class="text-xs uppercase tracking-widest text-white/60 mt-2">
-        Manage secure API keys, connected messaging channels, and routing logic from one central console.
+    <div class="page-container">
+      <div class="section-header card-reveal"><span class="material-symbols-rounded" style="color:var(--md-sys-color-secondary);">settings_suggest</span>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);">Mission Control</h1>
+      </div>
+      <p class="card-reveal" style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin-bottom:1.5rem;">
+        Connect messaging platforms, configure notification preferences, and manage witness contacts.
       </p>
-    </div>
 
-    <!-- Main Two-Column Panel -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      
-      <!-- Left Column: LLM API Keys -->
-      <div class="border border-white/10 p-8 space-y-6 bg-black">
-        <h2 class="text-lg font-black uppercase tracking-widest border-b border-white/10 pb-4 text-white">
-          API Key Registries
-        </h2>
-        <p class="text-[11px] uppercase tracking-widest text-white/60 leading-relaxed">
-          Keys are stored using AES-256-GCM encryption. You can connect custom instances directly to the Thought GPS pipeline.
-        </p>
-
-        <!-- Configured Keys List -->
-        ${configuredKeys.length > 0 ? `
-          <div class="space-y-3">
-            <div class="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Active Keys (${configuredKeys.length})</div>
-            <div class="border border-white/10 rounded overflow-hidden">
-              <table class="w-full text-left border-collapse text-xs font-mono">
-                <thead>
-                  <tr class="border-b border-white/10 bg-white/5 uppercase tracking-wider text-[10px]">
-                    <th class="p-3">Provider</th>
-                    <th class="p-3">Key Reference</th>
-                    <th class="p-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${configuredKeys.map((key, i) => `
-                    <tr class="border-b border-white/5">
-                      <td class="p-3 uppercase text-white font-bold">${key.provider}</td>
-                      <td class="p-3 text-white/60">${key.key}</td>
-                      <td class="p-3 text-right">
-                        <button onclick="removeApiKey(${i})" class="text-red-500 hover:text-red-400 uppercase tracking-widest text-[9px] font-bold">
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Add New Key Form -->
-        <div class="space-y-4 pt-4 border-t border-white/10">
-          <div class="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Add New Key</div>
-          <div class="flex flex-col md:flex-row gap-3">
-            <select id="keyProvider" class="bg-black border border-white/10 text-xs uppercase tracking-widest text-white p-3 font-mono outline-none min-w-[150px]">
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="groq">Groq</option>
-              <option value="nvidia">NVIDIA NIM</option>
-              <option value="ollama">Ollama</option>
-            </select>
-            <input type="password" id="apiKeyInput" placeholder="PASTE API KEY HERE..." class="bg-black border border-white/10 text-xs text-white p-3 font-mono outline-none flex-1">
-            <button onclick="addApiKey()" class="bg-white hover:bg-neutral-200 text-black px-6 py-3 font-black uppercase text-[10px] tracking-widest transition-colors duration-300">
-              Save Key
-            </button>
-          </div>
+      <div class="grid-panels">
+        <!-- Channels -->
+        <div class="surface-card card-reveal">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Connected Channels</h2>
+          <div id="channels-list"><div class="anim-shimmer" style="height:100px;"></div></div>
+          <button class="btn-m3 btn-tonal" style="margin-top:1rem;width:100%;" onclick="document.getElementById('add-channel-dialog').style.display='flex';">
+            <span class="material-symbols-rounded" style="font-size:18px;">add</span> Connect Channel
+          </button>
         </div>
-      </div>
 
-      <!-- Right Column: Messaging Channels -->
-      <div class="border border-white/10 p-8 space-y-6 bg-black">
-        <h2 class="text-lg font-black uppercase tracking-widest border-b border-white/10 pb-4 text-white">
-          Messaging Channels
-        </h2>
-        <p class="text-[11px] uppercase tracking-widest text-white/60 leading-relaxed">
-          Enable Caspian messaging sync hooks. Once verified, you can query your Memory Graph and execute prompts directly from your messaging apps.
-        </p>
-
-        <!-- Connected Channels List -->
-        ${connectedChannels.length > 0 ? `
-          <div class="space-y-3">
-            <div class="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Active Sync Channels (${connectedChannels.length})</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              ${connectedChannels.map(channel => `
-                <div class="border border-white/10 bg-white/5 p-4 flex flex-col justify-between items-start">
-                  <div class="flex justify-between items-center w-full">
-                    <span class="text-xs uppercase font-bold text-white tracking-widest">${channel}</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#00e676]"></span>
-                  </div>
-                  <div class="text-[9px] uppercase tracking-widest text-white/50 mt-2 font-mono">Status: Connected</div>
-                  <button onclick="removeChannel('${channel}')" class="text-red-500 hover:text-red-400 uppercase tracking-widest text-[9px] font-bold mt-4">
-                    Disconnect
-                  </button>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Connection Options -->
-        <div class="space-y-4 pt-4 border-t border-white/10">
-          <div class="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Add Channel Hook</div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            ${['whatsapp', 'telegram', 'slack', 'discord', 'signal', 'email'].map(ch => `
-              <button onclick="connectChannel('${ch}')" class="border border-white/10 hover:border-white text-xs uppercase tracking-widest font-mono p-3 text-white transition-all duration-300">
-                ${ch}
-              </button>
-            `).join('')}
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Bottom OmniRoute System Panel -->
-    <div class="border border-white/10 p-8 mt-8 bg-black">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h3 class="text-sm font-black uppercase tracking-widest text-white">OmniRoute Protocol Status</h3>
-          <p class="text-[11px] uppercase tracking-widest text-white/60 mt-1 max-w-xl">
-            OmniRoute routes prompts through 90+ public LLMs automatically, serving as a zero-cost intelligence fallback layer.
+        <!-- Witness Contacts -->
+        <div class="surface-card card-reveal">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Witness Contacts</h2>
+          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">
+            People who get notified when you commit to something.
           </p>
+          <div id="witness-list"></div>
+          <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+            <input type="email" id="witness-email" class="input-m3" placeholder="witness@email.com" style="flex:1;">
+            <button class="btn-m3 btn-outlined" id="add-witness-btn">Add</button>
+          </div>
         </div>
-        <div class="flex gap-3">
-          <button onclick="testOmniRoute()" class="border border-white/20 hover:border-white text-white px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors">
-            Test Route
-          </button>
-          <button onclick="toggleOmniRoute()" class="bg-white hover:bg-neutral-200 text-black px-4 py-2 font-black text-[10px] uppercase tracking-widest transition-colors">
-            ${omnirouteConnected ? 'Disable' : 'Enable'}
-          </button>
-        </div>
-      </div>
-      <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-3 text-xs font-mono uppercase tracking-widest">
-        <span class="w-2 h-2 rounded-full ${omnirouteConnected ? 'bg-green-500 shadow-[0_0_8px_#00e676]' : 'bg-red-500'}"></span>
-        <span class="${omnirouteConnected ? 'text-green-500 font-bold' : 'text-red-500'}">
-          ${omnirouteConnected ? 'Active: Fallback Layer Registered' : 'Inactive: Custom Keys Only'}
-        </span>
-      </div>
-    </div>
-  `;
 
+        <!-- Notification Preferences -->
+        <div class="surface-card card-reveal">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Notification Preferences</h2>
+          <div id="notif-prefs">
+            <label style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;cursor:pointer;">
+              <input type="checkbox" id="pref-half-life" checked style="accent-color:var(--md-sys-color-primary);">
+              <span style="font:var(--md-sys-typescale-body-medium);">Thought decay nudges</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;cursor:pointer;">
+              <input type="checkbox" id="pref-commitment" checked style="accent-color:var(--md-sys-color-primary);">
+              <span style="font:var(--md-sys-typescale-body-medium);">Commitment witnesses</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;cursor:pointer;">
+              <input type="checkbox" id="pref-departure" checked style="accent-color:var(--md-sys-color-primary);">
+              <span style="font:var(--md-sys-typescale-body-medium);">Departure alerts</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;cursor:pointer;">
+              <input type="checkbox" id="pref-drift" checked style="accent-color:var(--md-sys-color-primary);">
+              <span style="font:var(--md-sys-typescale-body-medium);">Drift detection</span>
+            </label>
+          </div>
+          <button class="btn-m3 btn-tonal" style="margin-top:1rem;width:100%;" id="save-prefs-btn">Save Preferences</button>
+        </div>
+      </div>
+
+      <!-- Delivery Routes -->
+      <div class="surface-card card-reveal" style="margin-top:1.5rem;padding:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Delivery Routes</h2>
+          <button class="btn-m3 btn-outlined" id="test-all-channels">
+            <span class="material-symbols-rounded" style="font-size:18px;">cell_tower</span>
+            Test All Channels
+          </button>
+        </div>
+        <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">
+          Connect a channel = receive cognitive features there.
+        </p>
+        <div id="delivery-routes" style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div class="anim-shimmer" style="height:120px;"></div>
+        </div>
+        <div id="test-results" style="margin-top:1rem;display:none;"></div>
+      </div>
+
+      <!-- Add Channel Dialog -->
+      <div id="add-channel-dialog" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+        <div class="glass-strong" style="width:100%;max-width:440px;border-radius:var(--md-sys-shape-extra-large);padding:2rem;">
+          <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Connect Channel</h2>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+              <label style="font:var(--md-sys-typescale-label-medium);display:block;margin-bottom:0.35rem;">Platform</label>
+              <select id="channel-platform" class="input-m3">
+                <option value="slack">Slack</option><option value="telegram">Telegram</option>
+                <option value="whatsapp">WhatsApp</option><option value="discord">Discord</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+            <div>
+              <label style="font:var(--md-sys-typescale-label-medium);display:block;margin-bottom:0.35rem;">Token / API Key</label>
+              <input type="password" id="channel-token" class="input-m3" placeholder="Your bot token or API key">
+            </div>
+            <div>
+              <label style="font:var(--md-sys-typescale-label-medium);display:block;margin-bottom:0.35rem;">Channel / Chat ID</label>
+              <input type="text" id="channel-id" class="input-m3" placeholder="Channel or chat identifier">
+            </div>
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
+              <button class="btn-m3 btn-text" onclick="document.getElementById('add-channel-dialog').style.display='none';">Cancel</button>
+              <button class="btn-m3 btn-filled" id="save-channel-btn">Connect</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  loadChannels(container);
+  loadWitnessContacts(container);
+  loadDeliveryRoutes(container);
+  setupSaveHandlers(container);
   return container;
-};
+}
+
+const FEATURE_ROUTES = [
+  { name: 'Thought Half-Life Nudges', icon: 'hourglass_empty', prefKey: 'halfLifeNudge' },
+  { name: 'Commitment Witness', icon: 'task_alt', prefKey: 'commitmentWitness' },
+  { name: 'Departure Brief', icon: 'directions_walk', prefKey: 'departureAlert' },
+  { name: 'Weekly Archaeology', icon: 'history_edu', prefKey: 'archaeology' },
+  { name: 'Thought Revival', icon: 'autorenew', prefKey: 'thoughtRevival' },
+];
+
+async function loadDeliveryRoutes(c) {
+  const data = await api.get('/channels');
+  const channels = data.channels || [];
+  const el = c.querySelector('#delivery-routes');
+
+  if (channels.length === 0) {
+    el.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-medium);">No channels connected. Connect a channel above to start receiving cognitive nudges.</p>';
+    return;
+  }
+
+  el.innerHTML = FEATURE_ROUTES.map(route => {
+    const channelChips = channels.map(ch =>
+      `<span class="chip ${ch.is_active ? 'chip-success' : 'chip-error'}" style="font-size:11px;">${ch.platform}</span>`
+    ).join(' ');
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-primary);">${route.icon}</span>
+        <span style="font:var(--md-sys-typescale-body-medium);">${route.name}</span>
+      </div>
+      <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">${channelChips}</div>
+    </div>`;
+  }).join('');
+
+  // Test all channels handler
+  c.querySelector('#test-all-channels')?.addEventListener('click', async () => {
+    const resultsEl = c.querySelector('#test-results');
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = '<div class="spinner-m3" style="margin:0 auto;"></div><p style="text-align:center;color:var(--md-sys-color-outline);margin-top:0.5rem;">Testing channels...</p>';
+    const results = [];
+    for (const ch of channels) {
+      try {
+        const r = await api.post(`/channels/${ch.id}/test`, {});
+        results.push({ platform: ch.platform, success: !r.error, message: r.message || r.error });
+      } catch (e) {
+        results.push({ platform: ch.platform, success: false, message: e.message });
+      }
+    }
+    resultsEl.innerHTML = results.map(r =>
+      `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;">
+        <span class="material-symbols-rounded" style="font-size:18px;color:${r.success ? 'var(--color-success)' : 'var(--md-sys-color-error)'};">${r.success ? 'check_circle' : 'error'}</span>
+        <span style="font:var(--md-sys-typescale-body-small);">${r.platform}: ${r.message}</span>
+      </div>`
+    ).join('');
+  });
+}
+
+async function loadChannels(c) {
+  const data = await api.get('/channels');
+  const el = c.querySelector('#channels-list');
+  if (data.error || !data.channels?.length) {
+    el.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-medium);">No channels connected yet.</p>';
+    return;
+  }
+  el.innerHTML = data.channels.map(ch => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="chip ${ch.is_active ? 'chip-success' : 'chip-error'}">${ch.platform}</span>
+        <span style="font:var(--md-sys-typescale-body-small);">${ch.display_name || ch.platform}</span>
+      </div>
+      <button class="icon-btn" onclick="deleteChannel('${ch.id}')" title="Disconnect">
+        <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+      </button>
+    </div>`).join('');
+}
+
+async function loadWitnessContacts(c) {
+  const me = await api.get('/auth/me');
+  const el = c.querySelector('#witness-list');
+  const contacts = me.witnessContacts || [];
+  if (contacts.length === 0) {
+    el.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No witness contacts added.</p>';
+    return;
+  }
+  el.innerHTML = contacts.map(w => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;">
+      <span style="font:var(--md-sys-typescale-body-medium);">${w.email || w.name || w}</span>
+      <button class="icon-btn" style="width:28px;height:28px;" onclick="removeWitness('${w.email || w}')">
+        <span class="material-symbols-rounded" style="font-size:16px;">close</span>
+      </button>
+    </div>`).join('');
+}
+
+function setupSaveHandlers(c) {
+  c.querySelector('#save-channel-btn')?.addEventListener('click', async () => {
+    const platform = c.querySelector('#channel-platform').value;
+    const token = c.querySelector('#channel-token').value;
+    const channelId = c.querySelector('#channel-id').value;
+    if (!token) return;
+    const result = await api.post('/channels/connect', {
+      platform, credentials: { token, chat_id: channelId }, displayName: platform,
+    });
+    if (!result.error) {
+      c.querySelector('#add-channel-dialog').style.display = 'none';
+      loadChannels(c);
+    }
+  });
+
+  c.querySelector('#add-witness-btn')?.addEventListener('click', async () => {
+    const email = c.querySelector('#witness-email').value.trim();
+    if (!email) return;
+    const me = await api.get('/auth/me');
+    const contacts = [...(me.witnessContacts || []), { email }];
+    await api.put('/auth/witness-contacts', { contacts });
+    c.querySelector('#witness-email').value = '';
+    loadWitnessContacts(c);
+  });
+
+  c.querySelector('#save-prefs-btn')?.addEventListener('click', async () => {
+    const prefs = {
+      halfLifeNudge: c.querySelector('#pref-half-life').checked,
+      commitmentWitness: c.querySelector('#pref-commitment').checked,
+      departureAlert: c.querySelector('#pref-departure').checked,
+      driftDetection: c.querySelector('#pref-drift').checked,
+    };
+    await api.put('/auth/notification-prefs', { prefs });
+    alert('Preferences saved!');
+  });
+}
+
+window.deleteChannel = async (id) => { if (confirm('Disconnect this channel?')) { await api.del(`/channels/${id}`); window.showPage('mission-control'); } };
+window.removeWitness = async (email) => { const me = await api.get('/auth/me'); const contacts = (me.witnessContacts || []).filter(w => (w.email || w) !== email); await api.put('/auth/witness-contacts', { contacts }); window.showPage('mission-control'); };
