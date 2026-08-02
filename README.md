@@ -131,24 +131,29 @@ npm run dev
 
 ---
 
-## 📊 Features
+## 💰 Cognitive Tiers & Navigation Boosters
 
 ### Free Tier (10 runs/day)
-- OmniRoute LLM routing (90+ free providers)
-- No API keys needed
-- Basic memory storage
-- Standard response time
+- **Runs limit**: 10 daily runs
+- **Channels**: Restricted to **Telegram** and **Email** only (Maximum 2 connected channels)
+- **Data storage**: 15-day server storage purge (automatic database pruning)
+- **Features**: Basic chat & local memory search (Advanced cognitive tabs are locked)
 
-### Premium Tier (500 runs/day)
-- Connect your own API keys
-- 20x more runs
-- Priority routing
-- Advanced memory features
+### Explorer Plus Tier ($15/month)
+- **Runs limit**: 500 daily runs
+- **Channels**: All integration channels enabled (WhatsApp, Slack, Discord, Twitter, Bluesky, Telegram, Email)
+- **Data storage**: Infinite server storage (never purged)
+- **Features**: Advanced cognitive features unlocked (Mind Map, Commitments, Afterlife, Cognitive Load, Archaeology, Brain Fragments, Memory Segments)
+- **Synchronization**: Seamless cross-device synchronization (laptop & phone)
+- **Keys**: Fallback system keys pool (no keys needed)
 
-### Enterprise Tier
-- Unlimited runs
-- Custom infrastructure
-- Dedicated support
+### Cognitive Navigation Boosters (Thoughtfulness Top-ups)
+- Expiring in **15 days** from purchase
+- Limited to **maximum 3 booster activations in a 30-day window**
+- Available only to Explorer Plus users who have consumed at least 50% of daily runs
+  1. **Compass Booster**: 50 runs - **$2.00**
+  2. **Radar Booster**: 100 runs - **$4.00**
+  3. **Sextant Booster**: 200 runs - **$7.00**
 
 ---
 
