@@ -19,6 +19,7 @@ import { NotificationsLog } from './pages/NotificationsLog.js';
 import { AdminDashboard } from './pages/AdminDashboard.js';
 import { Legal } from './pages/Legal.js';
 import { MapMyMind } from './pages/MapMyMind.js';
+import { initBorderGlow } from './components/borderGlow.js';
 
 let currentPage = 'home';
 let user = null;
@@ -234,6 +235,8 @@ function renderPage(page) {
       renderMobileDrawer();
       setTimeout(() => {
         document.querySelectorAll('.card-reveal').forEach((el) => el.classList.add('revealed'));
+        const mainEl = document.getElementById('main-content');
+        if (mainEl) initBorderGlow(mainEl);
       }, 50);
       return;
     }
@@ -270,11 +273,14 @@ function renderPage(page) {
   renderBottomNav();
   renderMobileDrawer();
 
-  // Reveal cards with stagger
+  // Reveal cards with stagger + apply border glow
   setTimeout(() => {
     document.querySelectorAll('.card-reveal').forEach((el, i) => {
       setTimeout(() => el.classList.add('revealed'), i * 80);
     });
+    // Apply interactive edge-glow to all surface cards on this page
+    const mainEl = document.getElementById('main-content');
+    if (mainEl) initBorderGlow(mainEl);
   }, 100);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
