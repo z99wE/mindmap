@@ -1009,18 +1009,22 @@ if (process.env.REDIS_URL) {
 
 // Start the server
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, async () => {
-  console.log(`✅ Thought GPS Phase 8 running on port ${PORT}`);
-  console.log('✅ Phase 8 Features enabled:');
-  console.log('  - Thought Interceptor');
-  console.log('  - Time Blindness Compensation');
-  console.log('  - Invisible Checklist');
-  console.log('  - Drift Detector');
-  console.log('  - Relationship Memory Anchor');
-  console.log('  - Door Rule');
-  console.log('  - Thought Classification (Creative/Analytical/Brain Fragments/Themes)');
-  
-  // Initialize Agent-Reach
-  const agentReachConnected = await liveInfoSystem.initialize();
-  console.log(`🌍 Agent-Reach: ${agentReachConnected ? 'Connected' : 'Not connected (optional)'}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, async () => {
+    console.log(`Thought GPS Phase 8 running on port ${PORT}`);
+    console.log('Phase 8 Features enabled:');
+    console.log('  - Thought Interceptor');
+    console.log('  - Time Blindness Compensation');
+    console.log('  - Invisible Checklist');
+    console.log('  - Drift Detector');
+    console.log('  - Relationship Memory Anchor');
+    console.log('  - Door Rule');
+    console.log('  - Thought Classification (Creative/Analytical/Brain Fragments/Themes)');
+    
+    // Initialize Agent-Reach
+    const agentReachConnected = await liveInfoSystem.initialize();
+    console.log(`Agent-Reach: ${agentReachConnected ? 'Connected' : 'Not connected (optional)'}`);
+  });
+}
+
+module.exports = app;

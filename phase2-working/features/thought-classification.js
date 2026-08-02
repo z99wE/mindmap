@@ -15,7 +15,7 @@
 
 const COGNITIVE_LOAD_PROMPT = `Classify this thought by cognitive load:
 
-"${THOUGHT}"
+"\${THOUGHT}"
 
 Return JSON with:
 - load_type: "creative" or "analytical"
@@ -27,7 +27,7 @@ Return ONLY valid JSON.`;
 
 const THEME_PROMPT = `Classify this thought by theme and relationship:
 
-"${THOUGHT}"
+"\${THOUGHT}"
 
 Return JSON with:
 - primary_theme: "work", "finance", "health", "relationships", "ideas", "tasks", "personal", "goals"
