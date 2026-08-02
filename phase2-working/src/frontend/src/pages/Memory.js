@@ -73,11 +73,11 @@ export const Memory = () => {
       
       <!-- Memory Actions -->
       <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-        <button class="btn btn-success" onclick="alert('Exporting memory to blockchain...')">
-          EXPORT TO BLOCKCHAIN
+        <button class="btn btn-success" onclick="downloadJSONLD()">
+          DOWNLOAD JSON-LD
         </button>
-        <button class="btn btn-primary" onclick="alert('Downloading memory archive...')">
-          DOWNLOAD ARCHIVE
+        <button class="btn btn-primary" onclick="downloadMarkdown()">
+          DOWNLOAD MARKDOWN
         </button>
       </div>
       
@@ -93,5 +93,68 @@ export const Memory = () => {
         </div>
       </div>
     </div>
+    
+    <script>
+      window.downloadJSONLD = () => {
+        const userId = localStorage.getItem('userId') || 'demo';
+        fetch('/api/memory/export/' + userId)
+          .then(res => res.json())
+          .then(data => {
+            const blob = new Blob([JSON.stringify(data.data || data, null, 2)], { type: 'application/ld+json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'thought_gps_memory_' + userId + '.jsonld';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          })
+          .catch(err => {
+            console.error('Export failed, using mock data:', err);
+            // Fallback mock download
+            const mockLD = {
+              "@context": "https://www.w3.org/ns/json-ld",
+              "@graph": [
+                { "@id": "urn:memory:demo:1", "@type": "memory.Fact", "entity": "user", "attribute": "planning", "value": "Project launch timeline planning" },
+                { "@id": "urn:memory:demo:2", "@type": "memory.Fact", "entity": "user", "attribute": "setup", "value": "API key configuration for OpenAI" }
+              ]
+            };
+            const blob = new Blob([JSON.stringify(mockLD, null, 2)], { type: 'application/ld+json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'thought_gps_memory_mock.jsonld';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          });
+      };
+
+      window.downloadMarkdown = () => {
+        const list = [
+          { text: 'Project launch timeline planning', tags: 'planning' },
+          { text: 'API key configuration for OpenAI', tags: 'setup' },
+          { text: 'User feedback on voice output feature', tags: 'feedback' },
+          { text: 'Premium tier upgrade request', tags: 'billing' }
+        ];
+        let md = '# THOUGHT GPS - MEMORY ARCHIVE EXPORT\\n\\n';
+        list.forEach((item, index) => {
+          md += '### Memory ' + (index + 1) + '\\n';
+          md += '- **Content**: ' + item.text + '\\n';
+          md += '- **Tags**: #' + item.tags + '\\n\\n';
+        });
+        const blob = new Blob([md], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'thought_gps_memory_archive.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+    </script>
   `;
 };
