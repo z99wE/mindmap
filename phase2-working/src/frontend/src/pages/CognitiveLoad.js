@@ -1,6 +1,96 @@
 // Cognitive Load Visualizer - Seesaw/Weighing Machine
-let cognitiveLoad = 32; // Percentage
-let memoryDumped = 68; // Percentage
+// Connected to backend API for real-time data
+
+const API_BASE = '/api/classify';
+
+// State for real-time data
+let cognitiveStats = null;
+let brainData = null;
+let cognitiveDistribution = null;
+let loading = true;
+
+// Fetch data from backend
+async function fetchClassificationData() {
+  try {
+    const userId = localStorage.getItem('userId') || 'demo';
+    
+    // Fetch all classification data in parallel
+    const [statsRes, brainRes, cognitiveRes] = await Promise.all([
+      fetch(`${API_BASE}/stats/${userId}`),
+      fetch(`${API_BASE}/brain/${userId}`),
+      fetch(`${API_BASE}/cognitive/${userId}`)
+    ]);
+    
+    const statsData = await statsRes.json();
+    const brainData = await brainRes.json();
+    const cognitiveData = await cognitiveRes.json();
+    
+    if (statsData.success) {
+      cognitiveStats = statsData.stats;
+    }
+    
+    if (brainData.success) {
+      brainData = brainData.brainData;
+    }
+    
+    if (cognitiveData.success) {
+      cognitiveDistribution = cognitiveData.cognitiveData;
+    }
+    
+    loading = false;
+    updateVisualizations();
+  } catch (error) {
+    console.error('Error fetching classification data:', error);
+    loading = false;
+    // Use mock data if API fails
+    loadMockData();
+  }
+}
+
+// Load mock data for demo
+function loadMockData() {
+  cognitiveStats = {
+    total_thoughts: 1247,
+    theme_distribution: [
+      { theme: 'work', count: 512 },
+      { theme: 'personal', count: 347 },
+      { theme: 'finance', count: 284 },
+      { theme: 'health', count: 156 },
+      { theme: 'ideas', count: 148 }
+    ],
+    load_distribution: [
+      { load_type: 'analytical', count: 723 },
+      { load_type: 'creative', count: 524 }
+    ],
+    brain_distribution: [
+      { brain_area: 'frontal', count: 489 },
+      { brain_area: 'parietal', count: 367 },
+      { brain_area: 'temporal', count: 301 },
+      { brain_area: 'occipital', count: 90 }
+    ]
+  };
+  
+  brainData = {
+    frontal: { name: 'Frontal Lobe', function: 'Planning & Decision Making', value: 489, percentage: 39, color: '#f08c29' },
+    parietal: { name: 'Parietal Lobe', function: 'Sensory Processing', value: 367, percentage: 30, color: '#198038' },
+    temporal: { name: 'Temporal Lobe', function: 'Memory & Language', value: 301, percentage: 24, color: '#0066cc' },
+    occipital: { name: 'Occipital Lobe', function: 'Visual Processing', value: 90, percentage: 7, color: '#ff6b6b' }
+  };
+  
+  cognitiveDistribution = {
+    creative: { name: 'Creative Thinking', value: 524, percentage: 49, color: '#f08c29' },
+    analytical: { name: 'Analytical Thinking', value: 723, percentage: 51, color: '#198038' },
+    emotional: { name: 'Emotional Processing', value: 0, percentage: 0, color: '#0066cc' }
+  };
+}
+
+// Update visualizations
+function updateVisualizations() {
+  const main = document.getElementById('main-content');
+  if (main) {
+    main.innerHTML = CognitiveLoad();
+  }
+}
 
 export const CognitiveLoad = () => {
   return `
@@ -120,11 +210,18 @@ export const CognitiveLoad = () => {
       </div>
 
       <script>
+        // Initialize data fetching when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+          fetchClassificationData();
+        });
+        
         // Seesaw animation when memory is exported
         window.exportMemory = () => {
-          cognitiveLoad = Math.max(0, cognitiveLoad - 10);
-          memoryDumped = Math.min(100, memoryDumped + 10);
-          document.querySelector('#main-content').innerHTML = CognitiveLoad();
+          if (cognitiveStats && cognitiveStats.total_thoughts) {
+            cognitiveStats.total_thoughts -= 100;
+            if (cognitiveStats.total_thoughts < 0) cognitiveStats.total_thoughts = 0;
+          }
+          updateVisualizations();
         };
       </script>
     </div>

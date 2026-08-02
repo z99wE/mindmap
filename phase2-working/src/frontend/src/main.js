@@ -7,6 +7,7 @@ import { MissionControl } from './pages/MissionControl.js';
 import { AdminDashboard } from './pages/AdminDashboard.js';
 import { CognitiveLoad } from './pages/CognitiveLoad.js';
 import { MemorySegments } from './pages/MemorySegments.js';
+import { BrainFragments } from './pages/BrainFragments.js';
 import { InteractiveSpace } from './pages/InteractiveSpace.js';
 import { APIKeys } from './pages/APIKeys.js';
 import { Credits } from './pages/Credits.js';
@@ -26,6 +27,12 @@ window.showPage = (page) => {
 const isMissionControl = window.location.pathname === '/mission-control';
 if (isMissionControl) {
   currentPage = 'mission-control';
+}
+
+// Brain Fragments page check
+const isBrainFragments = window.location.pathname === '/brain-fragments';
+if (isBrainFragments) {
+  currentPage = 'brain-fragments';
 }
 
 // Update active button
@@ -55,6 +62,9 @@ function renderPage(page) {
       break;
     case 'memory-segments':
       main.appendChild(MemorySegments());
+      break;
+    case 'brain-fragments':
+      main.appendChild(BrainFragments());
       break;
     case 'interactive-space':
       main.appendChild(InteractiveSpace());

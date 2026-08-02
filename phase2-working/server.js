@@ -49,6 +49,15 @@ const {
 const {
   createDoorRuleEndpoints
 } = require('./features/door-rule');
+
+const {
+  createClassificationEndpoints,
+  classifyThought,
+  inferClassification,
+  getBrainFragments,
+  getCognitiveDistribution
+} = require('./features/thought-classification');
+
 const { webScraper, LiveInfoSystem } = require('./web-scraper');
 const { omnirouteClient, autoFailoverRouter } = require('./omni-route-integration');
 
@@ -962,6 +971,12 @@ app.use('/api/door', (req, res, next) => {
   next();
 });
 
+// Classification endpoints
+app.use('/api/classify', (req, res, next) => {
+  // Proxy to thought classification
+  next();
+});
+
 // Worker initialization for Phase 8 features
 pool.on('connect', () => {
   // Start Time Blindness worker (checks travel time and departure alerts)
@@ -991,6 +1006,9 @@ if (process.env.REDIS_URL) {
   });
 }
 
+// Initialize classification endpoints
+createClassificationEndpoints(app, pool, llmRouter);
+
 // Start the server
 app.listen(PORT, async () => {
   console.log(`✅ Thought GPS Phase 8 running on port ${PORT}`);
@@ -1001,4 +1019,5 @@ app.listen(PORT, async () => {
   console.log('  - Drift Detector');
   console.log('  - Relationship Memory Anchor');
   console.log('  - Door Rule');
+  console.log('  - Thought Classification (Creative/Analytical/Brain Fragments/Themes)');
 });
