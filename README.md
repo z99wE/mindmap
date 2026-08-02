@@ -1,47 +1,44 @@
-# Thought GPS
-
-**Multi-channel AI agent with Mission Control, Sci-Fi UI, and Real Web Scraping.**
+# Thought GPS (Cognitive Coprocessor)
+**A Multi-Channel Autonomous Memory Graph & Behavioral Coprocessor for ADHD & Neuro-Diverse Minds.**
 
 ---
 
-## 🚀 Current Status
+## 💡 The Problem Statement (Why We Exist)
+Traditional productivity platforms (Todoist, Notion, calendars) assume a **neurotypical baseline** of executive function. For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms fail due to:
+1. **The ADHD Tax & Out-of-Sight, Out-of-Mind**: Once a thought is written down in a closed app, it disappears from short-term working memory, leading to immediate task abandonment.
+2. **Cognitive Stagnation & Time Blindness**: Estimating travel times, transition overheads, or recognizing when one is stuck in a dopamine loop (stagnant in a single location) is a severe bottleneck.
+3. **Accountability Erosion**: Personal commitments fail when there is no social enforcement mechanism or "witness" to check in when a deadline passes.
 
-**Phase 8**: Mission Control + Real Web Scraping + Thought Classification - Brain Fragments ✅ COMPLETE
+**Thought GPS is a Cognitive Coprocessor.** It operates as an invisible, zero-friction layer that captures, classifies, updates, and escalates thoughts across real-world messaging channels (WhatsApp, Signal, Telegram) using vector memory, OSRM routing, and autonomous agent loops.
 
-### What's Implemented
+---
 
-- ✅ **Thought Half-Life Classifier**: Automates message categorization, decay rate tracking, and 3-tiered WhatsApp nudges.
-- ✅ **Commitment Witness**: Parses time-bound personal commitments and notifies witnesses upon failure to comply.
-- ✅ **Thought Archaeology**: Weekly zero-judgment regret ledger reports summarizing unacted expired thoughts.
-- ✅ **Free Web Scraping**: SearXNG/DuckDuckGo integration - NO API costs
-- ✅ **Real Agent-Reach**: Live thought processing with web context
-- ✅ **Mission Control**: Carbon Design UI for channel/API key management
-- ✅ **OmniRoute**: 90+ free LLM providers with auto-fallback
-- ✅ **Memory Graph**: PostgreSQL/pgvector (no Pinecone - saves $50/month)
-- ✅ **JSON-LD Export**: Portable memory for ChatGPT/GPTs
-- ✅ **Push Notifications**: Geofence-based alerts
-- ✅ **Sci-Fi UI**: Iron Man/Jarvis style with parallax, glitch effects
+## 🦄 Novel Features & Innovation Modes
 
-### What's Working
+### 1. The Thought Half-Life Engine (Decay Mode)
+Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an active **Half-Life Decay Rate** based on their category (Health, Finance, Work).
+* **The Innovation**: Thoughts are parsed and classified by an autonomous LLM router. If a thought is classified as *Actionable*, it is assigned an expiration threshold (e.g., 24 hours for chores). 
+* **The Mode**: Uses a 3-tiered notification escalation system via **Caspian SDK**. It shifts from silent inbox indexing to direct WhatsApp reminders, and finally to active channel nudges as the thought reaches its decay horizon.
 
-| Feature | Status | Cost |
-|---------|--------|------|
-| Web Scraping | ✅ Free (SearXNG) | $0 |
-| Agent-Reach | ✅ Real (no stub) | $0 |
-| OmniRoute | ✅ Real (90+ providers) | $0 |
-| Memory Graph | ✅ PostgreSQL/pgvector | $0 (free tier) |
-| JSON-LD Export | ✅ Working | $0 |
-| Sci-Fi UI | ✅ Carbon Design | $0 |
-| Push Notifications | ✅ Geofence | $0 |
+### 2. Commitment Witness (Accountability Mode)
+A novel social-proofing system built directly into the pgvector memory graph to prevent self-sabotage.
+* **The Innovation**: Parses commitments containing explicit time-bounds (e.g., "I will finish this deck by 5 PM"). The user defines a "Witness Contact" (WhatsApp/Email).
+* **The Mode**: If the deadline passes without the user marking the memory as `completed`, the system automatically alerts the designated accountability contact via Caspian, removing the internal cognitive friction of reporting failure.
 
-### What's NOT Yet Implemented
+### 3. Thought Archaeology (Regret Ledger Mode)
+Weekly zero-judgment cognitive ledgers sent every Sunday at 8 PM.
+* **The Innovation**: Instead of permanently deleting uncompleted or expired thoughts, the database logs them into an archive.
+* **The Mode**: Generates a weekly "Regret Ledger" report that compiles forgotten intentions, groups them by cognitive areas, and helps the user re-evaluate which thoughts should be resurrected or permanently discarded, reducing guilt and cognitive clutter.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| DuckDuckGo Search | ⏳ Stub | Need to add actual scraping |
-| SearXNG Search | ⏳ Working | Uses free public instances |
-| Mem0 Integration | ⏳ Not started | Could replace custom graph |
-| Real Agent-Reach | ✅ Implemented | Uses free web scraping |
+### 4. Zero-Cost Intelligence (OmniRoute & SearXNG Mode)
+Enterprise-grade operations running at a **$0 operational budget**.
+* **The Innovation**: Uses a 5-level routing fallback chain (**OmniRoute**) that maps queries across 90+ free LLM providers.
+* **The Mode**: Incorporates an anonymous, rate-limit-resilient local web scraping search engine powered by public **SearXNG** instances, retrieving live web context for thoughts without expensive API scraper keys.
+
+### 5. Time-Blindness & Location Drift Compensation
+Active location-aware assistance using geofencing.
+* **The Innovation**: Monitors user geolocations, mapping home-exit triggers (Door Rule) and destination coordinates (Time Blindness).
+* **The Mode**: Automatically calls routing engines (OSRM) to calculate traffic transition times and dynamically pushes departure alerts to WhatsApp *before* the user is late. Tracks location stagnation to prevent hyper-fixation drift.
 
 ---
 
