@@ -47,8 +47,24 @@ const {
 } = require('./features/relationship-anchor');
 
 const {
-  createDoorRuleEndpoints
+  createDoorRuleEndpoints,
+  setupDoorRuleWorker
 } = require('./features/door-rule');
+
+const {
+  classifyHalfLife,
+  setupHalfLifeCron
+} = require('./features/thought-half-life');
+
+const {
+  detectCommitment,
+  checkCommitmentWitnesses
+} = require('./features/commitment-witness');
+
+const {
+  generateArchaeologyReport,
+  setupArchaeologyCron
+} = require('./features/thought-archaeology');
 
 const {
   createClassificationEndpoints,
@@ -77,38 +93,14 @@ const pool = new Pool({
 
 // Initialize memory graph table
 let memoryGraphManager = null;
-pool.on('connect', () => {
+pool.on('connect', async () => {
   console.log('✅ Connected to PostgreSQL');
-  
-  // Create memory graph table
-  pool.query(`
-    CREATE TABLE IF NOT EXISTS memory_graph (
-      id SERIAL PRIMARY KEY,
-      user_id VARCHAR(255) NOT NULL,
-      entity VARCHAR(255) NOT NULL DEFAULT 'user',
-      attribute VARCHAR(255) NOT NULL,
-      value TEXT NOT NULL,
-      category VARCHAR(100) DEFAULT 'general',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      embedding vector(1536),
-      UNIQUE(user_id, attribute, value)
-    )
-  `).then(() => {
-    console.log('✅ Memory graph table created');
-    
-    // Create index for semantic search
-    return pool.query(`
-      CREATE INDEX IF NOT EXISTS memory_graph_user_idx ON memory_graph (user_id);
-      CREATE INDEX IF NOT EXISTS memory_graph_embedding_idx ON memory_graph 
-        USING ivfflat (embedding vector_cosine_ops)
-        WITH (lists = 100);
-    `);
-  }).then(() => {
-    console.log('✅ Memory graph indexes created');
+  try {
     memoryGraphManager = new MemoryGraphManager(pool);
-  }).catch(err => {
+    await memoryGraphManager.createTable();
+  } catch (err) {
     console.log('⚠️ Memory graph setup failed:', err.message);
-  });
+  }
 });
 
 // ============================================
@@ -783,22 +775,7 @@ createAdminEndpoints(app);
 createAgentReachEndpoints(app);
 
 // ============================================
-// 12. START SERVER
-// ============================================
-
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, async () => {
-  console.log(`✅ Phase 5 Server running on port ${PORT}`);
-  console.log(`📊 Features: Voice, Image, Memory, Thought Graph, LLM Router, TTS, Admin, Agent-Reach`);
-  console.log(`🔒 Access: 3 tiers - Free(3/day), Premium(100/day), Enterprise(unlimited)`);
-  console.log(`💰 Cost: Free tier with rate limits | Premium with your API keys`);
-  console.log(`🎙️ TTS: Assembly AI, Deepgram, Servum AI, Piper (local)`);
-  console.log(`🛡️ Security: LLM jumping prevention, disposable email blocking`);
-  
-  // Initialize Agent-Reach
-  const agentReachConnected = await liveInfoSystem.initialize();
-  console.log(`🌍 Agent-Reach: ${agentReachConnected ? 'Connected' : 'Not connected (optional)'}`);
-});
+// Startup initializations will run in the main server listener at the end of the file.
 // Get Knowledge Graph (new - with pgvector)
 app.get('/api/memory/knowledge-graph/:userId', async (req, res) => {
   const { userId } = req.params;
@@ -977,6 +954,19 @@ app.use('/api/classify', (req, res, next) => {
   next();
 });
 
+// Initialize Caspian client
+const { CommClient } = require('caspian-sdk');
+const caspianClient = new CommClient({
+  apiKey: process.env.CASPIAN_API_KEY || 'mock_key'
+});
+
+// Mock Tile38 client for local standalone support
+const tile38Client = {
+  set: async (key, id, val) => console.log(`[Tile38 SET] ${key}:${id}`, val),
+  get: async (key, id) => ({ object: null }),
+  sethook: async (name, options) => console.log(`[Tile38 hook] ${name}`, options)
+};
+
 // Worker initialization for Phase 8 features
 pool.on('connect', () => {
   // Start Time Blindness worker (checks travel time and departure alerts)
@@ -987,6 +977,17 @@ pool.on('connect', () => {
   
   // Start Door Rule worker (checks for home exits)
   setupDoorRuleWorker(pool, caspianClient, tile38Client, 5);
+
+  // Start Thought Half-Life escalation worker
+  setupHalfLifeCron(pool, caspianClient);
+
+  // Start Thought Archaeology weekly report cron
+  setupArchaeologyCron(pool, caspianClient);
+
+  // Start Commitment Witness check interval (every 10 minutes)
+  setInterval(() => {
+    checkCommitmentWitnesses(pool, caspianClient);
+  }, 10 * 60 * 1000);
 });
 
 // Redis connection for revival queue
@@ -1006,10 +1007,8 @@ if (process.env.REDIS_URL) {
   });
 }
 
-// Initialize classification endpoints
-createClassificationEndpoints(app, pool, llmRouter);
-
 // Start the server
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, async () => {
   console.log(`✅ Thought GPS Phase 8 running on port ${PORT}`);
   console.log('✅ Phase 8 Features enabled:');
@@ -1020,4 +1019,8 @@ app.listen(PORT, async () => {
   console.log('  - Relationship Memory Anchor');
   console.log('  - Door Rule');
   console.log('  - Thought Classification (Creative/Analytical/Brain Fragments/Themes)');
+  
+  // Initialize Agent-Reach
+  const agentReachConnected = await liveInfoSystem.initialize();
+  console.log(`🌍 Agent-Reach: ${agentReachConnected ? 'Connected' : 'Not connected (optional)'}`);
 });

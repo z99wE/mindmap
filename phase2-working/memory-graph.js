@@ -31,6 +31,20 @@ CREATE TABLE IF NOT EXISTS memory_graph (
   deadline_epoch BIGINT,                    -- Unix timestamp deadline
   travel_duration_minutes INTEGER,          -- Cached travel time from OSRM
   
+  -- Thought Half-Life Classifier
+  half_life_hours INTEGER,
+  urgency_tier VARCHAR(50),
+  action_verb VARCHAR(50),
+  is_actionable BOOLEAN,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  notified_tier INTEGER DEFAULT 0,
+  status VARCHAR(50) DEFAULT 'pending',
+  archived BOOLEAN DEFAULT false,
+
+  -- Commitment Witness
+  witness_contact TEXT,
+  witness_notified BOOLEAN DEFAULT false,
+  
   UNIQUE(user_id, attribute, value)
 );
 `;
@@ -51,6 +65,20 @@ ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS trigger_value TEXT;
 ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS destination_coords POINT;
 ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS deadline_epoch BIGINT;
 ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS travel_duration_minutes INTEGER;
+
+-- Thought Half-Life Columns
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS half_life_hours INTEGER;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS urgency_tier VARCHAR(50);
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS action_verb VARCHAR(50);
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS is_actionable BOOLEAN;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS notified_tier INTEGER DEFAULT 0;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending';
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT false;
+
+-- Commitment Witness Columns
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS witness_contact TEXT;
+ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS witness_notified BOOLEAN DEFAULT false;
 `;
 
 // Create index for semantic search
@@ -166,8 +194,9 @@ class MemoryGraphManager {
     const client = await this.pool.connect();
     try {
       await client.query(MEMORY_GRAPH_TABLE);
+      await client.query(PHASE_8_MIGRATIONS);
       await client.query(CREATE_INDEX);
-      console.log('✅ Memory graph table created');
+      console.log('✅ Memory graph table created and migrated');
     } finally {
       client.release();
     }

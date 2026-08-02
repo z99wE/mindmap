@@ -6,10 +6,13 @@
 
 ## 🚀 Current Status
 
-**Phase 7**: Mission Control + Real Web Scraping ✅ COMPLETE
+**Phase 8**: Mission Control + Real Web Scraping + Thought Classification - Brain Fragments ✅ COMPLETE
 
 ### What's Implemented
 
+- ✅ **Thought Half-Life Classifier**: Automates message categorization, decay rate tracking, and 3-tiered WhatsApp nudges.
+- ✅ **Commitment Witness**: Parses time-bound personal commitments and notifies witnesses upon failure to comply.
+- ✅ **Thought Archaeology**: Weekly zero-judgment regret ledger reports summarizing unacted expired thoughts.
 - ✅ **Free Web Scraping**: SearXNG/DuckDuckGo integration - NO API costs
 - ✅ **Real Agent-Reach**: Live thought processing with web context
 - ✅ **Mission Control**: Carbon Design UI for channel/API key management
@@ -197,4 +200,4 @@ MIT
 
 ---
 
-**Status**: ✅ Phase 7 Complete - Mission Control + Real Web Scraping
+**Status**: ✅ Phase 8 Complete - Mission Control + Real Web Scraping + Thought Classification - Brain Fragments

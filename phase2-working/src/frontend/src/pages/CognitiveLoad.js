@@ -8,6 +8,8 @@ let cognitiveStats = null;
 let brainData = null;
 let cognitiveDistribution = null;
 let loading = true;
+let cognitiveLoad = 65; // Default value
+let memoryDumped = 35;  // Default value
 
 // Fetch data from backend
 async function fetchClassificationData() {
@@ -22,15 +24,15 @@ async function fetchClassificationData() {
     ]);
     
     const statsData = await statsRes.json();
-    const brainData = await brainRes.json();
+    const brainDataRes = await brainRes.json();
     const cognitiveData = await cognitiveRes.json();
     
     if (statsData.success) {
       cognitiveStats = statsData.stats;
     }
     
-    if (brainData.success) {
-      brainData = brainData.brainData;
+    if (brainDataRes.success) {
+      brainData = brainDataRes.brainData;
     }
     
     if (cognitiveData.success) {
