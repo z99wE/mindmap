@@ -75,15 +75,15 @@ export const Dashboard = () => {
         <tbody>
           <tr>
             <td style="color: #fff;">API Key Configuration</td>
-            <td style="color: #ff3366;">❌ Not Available</td>
-            <td style="color: #39ff14;">✅ Available</td>
-            <td style="color: #39ff14;">✅ Available (Coming Soon)</td>
+            <td style="color: #ff3366;">Not Available</td>
+            <td style="color: #39ff14;">Available</td>
+            <td style="color: #39ff14;">Available (Coming Soon)</td>
           </tr>
           <tr>
             <td style="color: #fff;">Voice Output</td>
-            <td style="color: #ff3366;">❌ Disabled</td>
-            <td style="color: #39ff14;">✅ Enabled</td>
-            <td style="color: #39ff14;">✅ Enabled (Coming Soon)</td>
+            <td style="color: #ff3366;">Disabled</td>
+            <td style="color: #39ff14;">Enabled</td>
+            <td style="color: #39ff14;">Enabled (Coming Soon)</td>
           </tr>
           <tr>
             <td style="color: #fff;">Memory Storage</td>
@@ -93,9 +93,9 @@ export const Dashboard = () => {
           </tr>
           <tr>
             <td style="color: #fff;">Priority Support</td>
-            <td style="color: #ff3366;">❌ No</td>
-            <td style="color: #39ff14;">✅ Yes</td>
-            <td style="color: #39ff14;">✅ Yes (Coming Soon)</td>
+            <td style="color: #ff3366;">No</td>
+            <td style="color: #39ff14;">Yes</td>
+            <td style="color: #39ff14;">Yes (Coming Soon)</td>
           </tr>
         </tbody>
       </table>

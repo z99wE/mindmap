@@ -44,12 +44,12 @@ export const Home = () => {
       <div style="margin-top: 3rem; background: rgba(0, 210, 255, 0.1); padding: 1.5rem; border-radius: 8px; border-left: 3px solid #00d2ff;">
         <h3 style="font-family: 'Orbitron', sans-serif; color: #00d2ff; margin-bottom: 1rem;">FEATURE HIGHLIGHTS</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
-          <div>✅ <strong style="color: #fff;">6-Channel Support</strong>: WhatsApp, Telegram, Slack, Discord, Signal, Email</div>
-          <div>✅ <strong style="color: #fff;">Multimodal Processing</strong>: Voice, Image, Text inputs</div>
-          <div>✅ <strong style="color: #fff;">Intelligent LLM Router</strong>: 5-level fallback chain</div>
-          <div>✅ <strong style="color: #fff;">3-Tier Access Control</strong>: Free, Premium, Enterprise</div>
-          <div>✅ <strong style="color: #fff;">Voice Output Engine</strong>: TTS support for premium users</div>
-          <div>✅ <strong style="color: #fff;">Memory Management</strong>: 4-layer memory architecture</div>
+          <div><strong style="color: #fff;">6-Channel Support</strong>: WhatsApp, Telegram, Slack, Discord, Signal, Email</div>
+          <div><strong style="color: #fff;">Multimodal Processing</strong>: Voice, Image, Text inputs</div>
+          <div><strong style="color: #fff;">Intelligent LLM Router</strong>: 5-level fallback chain</div>
+          <div><strong style="color: #fff;">3-Tier Access Control</strong>: Free, Premium, Enterprise</div>
+          <div><strong style="color: #fff;">Voice Output Engine</strong>: TTS support for premium users</div>
+          <div><strong style="color: #fff;">Memory Management</strong>: 4-layer memory architecture</div>
         </div>
       </div>
     </div>

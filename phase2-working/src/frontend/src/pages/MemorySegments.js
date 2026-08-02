@@ -3,28 +3,28 @@ let currentSegment = 'health';
 
 export const MemorySegments = () => {
   const segments = [
-    { id: 'health', name: 'Health', color: '#f08c29', icon: '❤️' },
-    { id: 'finance', name: 'Finance', color: '#198038', icon: '💰' },
-    { id: 'work', name: 'Work', color: '#0066cc', icon: '💼' },
-    { id: 'personal', name: 'Personal', color: '#2070b0', icon: '👥' },
-    { id: 'ideas', name: 'Ideas', color: '#3e2723', icon: '💡' },
-    { id: 'tasks', name: 'Tasks', color: '#f08c29', icon: '📝' },
-    { id: 'relationships', name: 'Relationships', color: '#0066cc', icon: '🤝' },
-    { id: 'goals', name: 'Goals', color: '#198038', icon: '🎯' }
+    { id: 'health', name: 'Health', color: '#f08c29', icon: '' },
+    { id: 'finance', name: 'Finance', color: '#198038', icon: '' },
+    { id: 'work', name: 'Work', color: '#0066cc', icon: '' },
+    { id: 'personal', name: 'Personal', color: '#2070b0', icon: '' },
+    { id: 'ideas', name: 'Ideas', color: '#3e2723', icon: '' },
+    { id: 'tasks', name: 'Tasks', color: '#f08c29', icon: '' },
+    { id: 'relationships', name: 'Relationships', color: '#0066cc', icon: '' },
+    { id: 'goals', name: 'Goals', color: '#198038', icon: '' }
   ];
 
   const getSegmentData = (segment) => {
     const data = {
-      health: { count: 347, connections: 89, last: 'Yesterday' },
-      finance: { count: 284, connections: 67, last: '2 days ago' },
-      work: { count: 512, connections: 156, last: 'Today' },
-      personal: { count: 678, connections: 234, last: 'Yesterday' },
-      ideas: { count: 234, connections: 128, last: '3 days ago' },
-      tasks: { count: 456, connections: 189, last: 'Today' },
-      relationships: { count: 198, connections: 156, last: 'Yesterday' },
-      goals: { count: 145, connections: 67, last: '5 days ago' }
+      health: { count: 347, connections: 89, last: 'Yesterday', color: '#f08c29' },
+      finance: { count: 284, connections: 67, last: '2 days ago', color: '#198038' },
+      work: { count: 512, connections: 156, last: 'Today', color: '#0066cc' },
+      personal: { count: 678, connections: 234, last: 'Yesterday', color: '#2070b0' },
+      ideas: { count: 234, connections: 128, last: '3 days ago', color: '#3e2723' },
+      tasks: { count: 456, connections: 189, last: 'Today', color: '#f08c29' },
+      relationships: { count: 198, connections: 156, last: 'Yesterday', color: '#0066cc' },
+      goals: { count: 145, connections: 67, last: '5 days ago', color: '#198038' }
     };
-    return data[segment] || { count: 0, connections: 0, last: 'Never' };
+    return data[segment] || { count: 0, connections: 0, last: 'Never', color: '#fff' };
   };
 
   const data = getSegmentData(currentSegment);
@@ -41,7 +41,7 @@ export const MemorySegments = () => {
                     style="padding: 0.75rem 1.5rem; background: ${currentSegment === seg.id ? seg.color : '#0a0f1a'}; 
                            color: ${currentSegment === seg.id ? '#0a0f1a' : '#fff'}; 
                            border-color: ${seg.color}">
-              ${seg.icon} ${seg.name}
+              ${seg.name}
             </button>
           `).join('')}
         </div>
@@ -72,7 +72,6 @@ export const MemorySegments = () => {
       </h3>
       <div style="background: #0a0f1a; padding: 2rem; border-radius: 8px; border: 1px solid ${data.color}33; margin-bottom: 2rem;">
         <div style="text-align: center; margin-bottom: 2rem;">
-          <div style="font-size: 4rem; color: ${data.color}; margin-bottom: 1rem;">🧠</div>
           <div style="font-family: 'Orbitron', sans-serif; color: #fff; font-size: 1.5rem;">
             ${currentSegment.charAt(0).toUpperCase() + currentSegment.slice(1)} Brain Area
           </div>
@@ -122,7 +121,7 @@ export const MemorySegments = () => {
         ${segments.filter(s => s.id !== currentSegment).map(seg => `
           <button class="btn" onclick="setSegment('${seg.id}')" 
                   style="padding: 0.75rem 1.5rem; background: #0a0f1a; border: 1px solid ${seg.color}; color: ${seg.color};">
-            ${seg.icon} ${seg.name}
+            ${seg.name}
           </button>
         `).join('')}
       </div>

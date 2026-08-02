@@ -43,28 +43,24 @@ function showBrainAreaDetails(area) {
     frontal: {
       name: 'Frontal Lobe',
       function: 'Planning & Decision Making',
-      emoji: '🧠',
       description: 'Responsible for executive functions, decision making, and problem solving.',
       color: '#f08c29'
     },
     parietal: {
       name: 'Parietal Lobe',
       function: 'Sensory Processing',
-      emoji: '✋',
       description: 'Processes sensory information from your body and environment.',
       color: '#198038'
     },
     temporal: {
       name: 'Temporal Lobe',
       function: 'Memory & Language',
-      emoji: '👂',
       description: 'Handles memory formation and language comprehension.',
       color: '#0066cc'
     },
     occipital: {
       name: 'Occipital Lobe',
       function: 'Visual Processing',
-      emoji: '👁️',
       description: 'Processes visual information from your eyes.',
       color: '#ff6b6b'
     }
@@ -105,7 +101,6 @@ export const BrainFragments = () => {
         ${Object.entries(data).map(([area, frag]) => `
           <div class="brain-fragment-btn" data-area="${area}" 
                style="background: #0a0f1a; border: 2px solid ${frag.color}; border-radius: 8px; padding: 1.5rem; cursor: pointer; transition: all 0.3s;">
-            <div style="font-size: 3rem; text-align: center; margin-bottom: 0.5rem;">🧠</div>
             <div style="font-family: 'Orbitron', sans-serif; color: ${frag.color}; font-size: 1.1rem; margin-bottom: 0.5rem;">
               ${frag.name}
             </div>
@@ -128,7 +123,6 @@ export const BrainFragments = () => {
           <!-- Creative Thinking -->
           <div>
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-              <div style="font-size: 2rem;">🎨</div>
               <div style="font-family: 'Orbitron', sans-serif; color: #f08c29;">Creative Thinking</div>
             </div>
             <div style="background: #000; height: 30px; border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
@@ -142,7 +136,6 @@ export const BrainFragments = () => {
           <!-- Analytical Thinking -->
           <div>
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-              <div style="font-size: 2rem;">📊</div>
               <div style="font-family: 'Orbitron', sans-serif; color: #198038;">Analytical Thinking</div>
             </div>
             <div style="background: #000; height: 30px; border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
@@ -163,36 +156,36 @@ export const BrainFragments = () => {
           <div>
             <div style="color: #f08c29; font-family: 'Orbitron', sans-serif; margin-bottom: 0.5rem;">Frontal Lobe</div>
             <div style="color: #888; font-size: 0.8rem;">
-              🎯 Planning & Goals<br>
-              🤔 Decision Making<br>
-              🚀 New Ideas
+              Planning & Goals<br>
+              Decision Making<br>
+              New Ideas
             </div>
           </div>
           
           <div>
             <div style="color: #198038; font-family: 'Orbitron', sans-serif; margin-bottom: 0.5rem;">Parietal Lobe</div>
             <div style="color: #888; font-size: 0.8rem;">
-              📊 Numbers & Finance<br>
-              📝 Work Tasks<br>
-              ⚙️ Logistics
+              Numbers & Finance<br>
+              Work Tasks<br>
+              Logistics
             </div>
           </div>
           
           <div>
             <div style="color: #0066cc; font-family: 'Orbitron', sans-serif; margin-bottom: 0.5rem;">Temporal Lobe</div>
             <div style="color: #888; font-size: 0.8rem;">
-              💬 Relationships<br>
-              📖 Memories<br>
-              🎵 Music & Art
+              Relationships<br>
+              Memories<br>
+              Music & Art
             </div>
           </div>
           
           <div>
             <div style="color: #ff6b6b; font-family: 'Orbitron', sans-serif; margin-bottom: 0.5rem;">Occipital Lobe</div>
             <div style="color: #888; font-size: 0.8rem;">
-              👀 Visualizing<br>
-              📷 Images<br>
-              🗺️ Spatial
+              Visualizing<br>
+              Images<br>
+              Spatial
             </div>
           </div>
         </div>

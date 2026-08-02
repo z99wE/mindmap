@@ -93,7 +93,7 @@ export const Credits = () => {
       
       <div style="margin-top: 2rem; background: rgba(57, 255, 20, 0.1); padding: 1rem; border-radius: 4px; border-left: 3px solid #39ff14;">
         <p style="color: #39ff14; font-family: 'Orbitron', sans-serif;">
-          💡 Tip: Bring your own API keys for 500+ daily runs with no additional cost!
+          Tip: Bring your own API keys for 500+ daily runs with no additional cost!
         </p>
       </div>
     </div>

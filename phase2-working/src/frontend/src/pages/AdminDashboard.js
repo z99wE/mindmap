@@ -23,7 +23,7 @@ export const AdminDashboard = () => {
       <!-- Admin Status -->
       <div style="background: rgba(240, 140, 41, 0.15); padding: 1rem; border-radius: 8px; border-left: 3px solid #f08c29; margin-bottom: 2rem;">
         <div style="font-family: 'Orbitron', sans-serif; color: #f08c29;">
-          ⚙️ ADMIN MODE ACTIVE (LOCAL DEPLOYMENT)
+          ADMIN MODE ACTIVE (LOCAL DEPLOYMENT)
         </div>
         <p style="color: #aaa; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
           Full system control available. All features accessible.
@@ -73,22 +73,22 @@ export const AdminDashboard = () => {
         <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
           <div style="color: #0066cc; font-weight: bold;">FRONTAL LOBE</div>
           <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Planning, Decision Making</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">✅ ACTIVE</div>
+          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
         </div>
         <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
           <div style="color: #0066cc; font-weight: bold;">PARIETAL LOBE</div>
           <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Sensory Processing</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">✅ ACTIVE</div>
+          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
         </div>
         <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
           <div style="color: #0066cc; font-weight: bold;">TEMPORAL LOBE</div>
           <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Memory, Language</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">✅ ACTIVE</div>
+          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
         </div>
         <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
           <div style="color: #0066cc; font-weight: bold;">OCCIPITAL LOBE</div>
           <div style="color: #aaa; font-size: 0.8rem; margin-top: 0.5rem;">Visual Processing</div>
-          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">✅ ACTIVE</div>
+          <div style="color: #f08c29; font-size: 1.2rem; margin-top: 0.5rem;">ACTIVE</div>
         </div>
         <div style="background: #0a0f1a; padding: 1rem; border-radius: 4px; border: 1px solid #333;">
           <div style="color: #0066cc; font-weight: bold;">COGNITIVE LOAD</div>

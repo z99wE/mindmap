@@ -102,7 +102,7 @@ export const MissionControl = () => {
       
       <!-- Security Notice -->
       <div style="background: rgba(255, 51, 102, 0.1); padding: 1rem; border-radius: 4px; border-left: 3px solid #ff3366;">
-        <div style="font-family: 'Orbitron', sans-serif; color: #ff3366;">🔒 SECURITY NOTICE</div>
+        <div style="font-family: 'Orbitron', sans-serif; color: #ff3366;">SECURITY NOTICE</div>
         <p style="color: #aaa; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
           All API keys are encrypted at rest with AES-256-GCM. Keys are isolated per user and NEVER shared between tenants.
           <br><strong>Admin can only see encrypted key metadata (provider, last 8 chars).</strong>

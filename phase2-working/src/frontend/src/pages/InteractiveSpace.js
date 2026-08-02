@@ -25,14 +25,13 @@ export const InteractiveSpace = () => {
       <div style="background: #0a0f1a; border-radius: 8px; border: 1px solid #333; margin-bottom: 1rem; padding: 1rem; min-height: 300px; max-height: 500px; overflow-y: auto;">
         ${messages.length === 0 ? `
           <div style="text-align: center; color: #888; padding: 2rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
             <div>Start a conversation with your agents</div>
             <div style="font-size: 0.9rem; margin-top: 0.5rem;">Agents will help you research, write, plan, and analyze</div>
           </div>
         ` : messages.map((msg, i) => `
           <div style="margin-bottom: 1rem; padding: 1rem; background: ${msg.sender === 'user' ? '#0a0f1a' : '#f08c2911'}; border-left: 3px solid ${msg.sender === 'user' ? '#f08c29' : '#198038'}; border-radius: 4px;">
             <div style="font-family: 'Orbitron', sans-serif; color: ${msg.sender === 'user' ? '#f08c29' : '#198038'}; font-size: 0.8rem; margin-bottom: 0.5rem;">
-              ${msg.sender === 'user' ? '👤 YOU' : `🤖 ${msg.sender}`}
+              ${msg.sender === 'user' ? 'YOU' : msg.sender}
             </div>
             <div style="color: #fff;">${msg.text}</div>
             <div style="color: #888; font-size: 0.7rem; margin-top: 0.5rem; text-align: right;">${msg.time}</div>

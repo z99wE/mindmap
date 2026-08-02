@@ -12,7 +12,7 @@ export const APIKeys = () => {
       <div class="card">
         <h2>API KEY MANAGEMENT</h2>
         <div class="warning">
-          ⚠️ UPGRADE REQUIRED: API key configuration is only available for Premium and Enterprise tiers.
+          UPGRADE REQUIRED: API key configuration is only available for Premium and Enterprise tiers.
         </div>
         <p style="color: #aaa; margin: 2rem 0;">
           Free tier users are limited to using our free infrastructure (NVIDIA NIM, Groq, Ollama).

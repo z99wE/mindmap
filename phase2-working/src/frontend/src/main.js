@@ -12,6 +12,7 @@ import { InteractiveSpace } from './pages/InteractiveSpace.js';
 import { APIKeys } from './pages/APIKeys.js';
 import { Credits } from './pages/Credits.js';
 import { Memory } from './pages/Memory.js';
+import { Legal } from './pages/Legal.js';
 
 // Page state
 let currentPage = 'home';
@@ -83,6 +84,9 @@ function renderPage(page) {
       break;
     case 'memory':
       main.appendChild(Memory());
+      break;
+    case 'legal':
+      main.appendChild(Legal());
       break;
     default:
       main.innerHTML = '<div style="color: #f08c29; padding: 2rem;">PAGE NOT FOUND</div>';
