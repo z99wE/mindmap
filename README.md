@@ -175,6 +175,20 @@ npm run dev
 
 ---
 
+## 📡 Caspian SDK Integration (Communication Core)
+
+Caspian is the backbone of the platform's multi-channel alert delivery. It functions as the secure outbound gateway to bridge local automated triggers with real-world notifications:
+* **How It Is Used**:
+  * **Thought Half-Life nudges**: Escalates alerts (e.g., from silent queue to direct WhatsApp notifications) when actionable thoughts approach their expiration threshold.
+  * **Commitment Witness alerts**: Automatically checks active database deadlines, triggers notifications to designated witness contacts when commitment time limits expire, and prompts accountability updates.
+  * **Geofence & Departure rules**: Integrates with local geo-monitoring (monitored by background check loops) to send real-time warnings to WhatsApp and email.
+* **Why It Helps**:
+  * **Zero Infrastructure Overhead**: Replaces heavy, paid third-party notification servers (like Twilio, SendGrid, or custom SMS relays) with a unified, lightweight SDK client.
+  * **Multi-Channel Delivery**: Allows the backend to swap between WhatsApp, Telegram, and Email destinations without changing the underlying business logic.
+  * **Secure Outbound Relays**: Isolates communication parameters to keep credentials encrypted server-side, preventing direct client exposure.
+
+---
+
 ## 🚀 Quick Deploy
 
 ```bash
