@@ -6,7 +6,7 @@ export function Legal() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--md-sys-color-on-surface-variant);font-size:28px;">gavel</span>
+          <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-on-surface-variant);box-shadow:0 0 12px rgba(204,255,0,0.2);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Legal Notice</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -15,22 +15,22 @@ export function Legal() {
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-top:1.5rem;">
-        <!-- Disclaimer -->
-        <div class="surface-card card-reveal" style="padding:1.5rem;">
-          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--md-sys-color-tertiary);">warning</span>
-            General Disclaimer
+        <!-- Medical & Legal Disclaimer -->
+        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid var(--md-sys-color-error) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--md-sys-color-error);">
+            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-error);box-shadow:0 0 8px rgba(239,68,68,0.3);vertical-align:middle;"></span>
+            Medical &amp; Legal Disclaimer
           </h2>
-          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
-            The service is provided on an "as-is" and "as-available" basis without warranties of any kind, either express or implied.
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7; font-weight: 500;">
+            This is NOT a medical, legal, psychiatric, or mental wellness tool. It is provided strictly for educational, productivity, and entertainment purposes. Thought GPS does not diagnose, treat, or prevent ADHD, anxiety, depression, or any other cognitive condition. Consult a licensed professional for medical or psychiatric advice.
           </p>
         </div>
 
         <!-- AI Usage -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--md-sys-color-primary);">psychology</span>
-            AI & Automation
+            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-primary);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
+            AI &amp; Automation
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
             The platform uses third-party LLM models, routing layers, memory graphs, and automated workflows to classify and organize thoughts.
@@ -43,8 +43,8 @@ export function Legal() {
         <!-- Privacy -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--md-sys-color-secondary);">shield</span>
-            Privacy & Key Storage
+            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
+            Privacy &amp; Key Storage
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
             API keys are stored with AES-256 encryption and used only for provider communication on your behalf. Your thoughts and memories are isolated per-user with JWT-verified queries.
@@ -54,7 +54,7 @@ export function Legal() {
         <!-- User Responsibility -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--md-sys-color-on-surface);">person</span>
+            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-on-surface);box-shadow:0 0 8px rgba(235,235,235,0.2);vertical-align:middle;"></span>
             User Responsibility
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
@@ -65,7 +65,7 @@ export function Legal() {
         <!-- Liability -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--md-sys-color-error);">balance</span>
+            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-error);box-shadow:0 0 8px rgba(239,68,68,0.3);vertical-align:middle;"></span>
             Limitation of Liability
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
@@ -76,25 +76,24 @@ export function Legal() {
         <!-- Practical Notes -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--color-success);">info</span>
+            <span class="dot" style="width:8px;height:8px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);vertical-align:middle;"></span>
             Practical Notes
           </h2>
           <div style="display:flex;flex-direction:column;gap:0.75rem;">
             <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);margin-top:2px;">check_circle</span>
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 6px rgba(16,185,129,0.3);margin-top:6px;flex-shrink:0;"></span>
               <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">Treat generated results as assistance, not authority.</span>
             </div>
             <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);margin-top:2px;">check_circle</span>
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 6px rgba(16,185,129,0.3);margin-top:6px;flex-shrink:0;"></span>
               <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">Only add keys you are authorized to use.</span>
             </div>
             <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);margin-top:2px;">check_circle</span>
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 6px rgba(16,185,129,0.3);margin-top:6px;flex-shrink:0;"></span>
               <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">Human judgment remains the final decision maker.</span>
             </div>
           </div>
           <button class="btn-m3 btn-text" style="margin-top:1rem;width:100%;" onclick="showPage('home')">
-            <span class="material-symbols-rounded" style="font-size:18px;">home</span>
             Return Home
           </button>
         </div>

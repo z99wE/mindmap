@@ -16,7 +16,7 @@ export function MapMyMind() {
       <!-- Summary Card -->
       <div id="route-summary" class="card-reveal surface-card" style="padding:1.25rem 1.5rem;margin-top:1.5rem;border-left:3px solid var(--md-sys-color-primary);">
         <div style="display:flex;align-items:center;gap:0.75rem;">
-          <span class="material-symbols-rounded" style="font-size:24px;color:var(--md-sys-color-primary);">route</span>
+          <span class="dot" style="width:12px;height:12px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 10px rgba(204,255,0,0.4);"></span>
           <div>
             <div style="font:var(--md-sys-typescale-title-small);">Today's route</div>
             <div id="route-stats" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Loading...</div>
@@ -46,8 +46,8 @@ export function MapMyMind() {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Thought Map</h2>
           <div style="display:flex;gap:0.5rem;">
-            <button class="btn-m3 btn-icon" id="btn-zoom-in" title="Zoom in"><span class="material-symbols-rounded">zoom_in</span></button>
-            <button class="btn-m3 btn-icon" id="btn-zoom-out" title="Zoom out"><span class="material-symbols-rounded">zoom_out</span></button>
+            <button class="btn-m3 btn-icon" id="btn-zoom-in" title="Zoom in"><span style="font:700 14px/1 'Space Grotesk';">+</span></button>
+            <button class="btn-m3 btn-icon" id="btn-zoom-out" title="Zoom out"><span style="font:700 14px/1 'Space Grotesk';">-</span></button>
           </div>
         </div>
         <div id="mind-map-canvas" style="position:relative;overflow:auto;min-height:350px;">
@@ -59,7 +59,7 @@ export function MapMyMind() {
       <div id="navigate-section" class="surface-card card-reveal" style="padding:1.5rem;margin-top:1rem;display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;color:var(--md-sys-color-primary);">navigation</span>
+            <span class="mono-label" style="color:var(--md-sys-color-primary);font-size:10px;vertical-align:middle;">NAVIGATE</span>
             Navigate Mode
           </h2>
           <span id="nav-counter" class="mono-label" style="color:var(--md-sys-color-outline);">0 / 0</span>
@@ -68,9 +68,9 @@ export function MapMyMind() {
           <p style="color:var(--md-sys-color-outline);">Press "Start Route" to step through your thoughts one by one.</p>
         </div>
         <div style="display:flex;gap:0.75rem;margin-top:1rem;justify-content:center;">
-          <button class="btn-m3 btn-outlined" id="nav-prev"><span class="material-symbols-rounded" style="font-size:18px;">arrow_back</span> Previous</button>
+          <button class="btn-m3 btn-outlined" id="nav-prev">&lt; Previous</button>
           <button class="btn-m3 btn-filled" id="nav-start">Start Route</button>
-          <button class="btn-m3 btn-outlined" id="nav-next">Next <span class="material-symbols-rounded" style="font-size:18px;">arrow_forward</span></button>
+          <button class="btn-m3 btn-outlined" id="nav-next">Next &gt;</button>
         </div>
       </div>
 
@@ -127,12 +127,12 @@ export function MapMyMind() {
   function renderMindMap(themes, connections) {
     const canvas = container.querySelector('#mind-map-canvas');
     if (allThoughts.length === 0) {
-      canvas.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--md-sys-color-outline);"><span class="material-symbols-rounded" style="font-size:48px;">explore</span><p style="margin-top:0.5rem;">No thoughts to map. Start capturing!</p></div>';
+      canvas.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--md-sys-color-outline);"><p style="font:700 24px/1 \'Space Grotesk\';opacity:0.2;margin-bottom:0.5rem;">NO THOUGHTS</p><p style="margin-top:0.5rem;">No thoughts to map. Start capturing!</p></div>';
       return;
     }
 
     const themeColors = {};
-    const colorPalette = ['#ff4500', '#ff6b35', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4', '#84cc16', '#f97316'];
+    const colorPalette = ['#ccff00', '#a3e635', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4', '#84cc16', '#f97316'];
     themes.forEach((t, i) => { themeColors[t.theme] = colorPalette[i % colorPalette.length]; });
 
     // Simple node-based layout

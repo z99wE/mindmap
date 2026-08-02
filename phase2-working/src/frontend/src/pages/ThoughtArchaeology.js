@@ -7,7 +7,7 @@ export function ThoughtArchaeology() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--color-creative);font-size:28px;">history_edu</span>
+          <span class="dot" style="width:10px;height:10px;background:var(--color-creative);box-shadow:0 0 12px rgba(204,255,0,0.3);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Thought Archaeology</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -35,7 +35,7 @@ export function ThoughtArchaeology() {
       <div id="top-thought" class="card-reveal" style="margin-top:1.5rem;display:none;">
         <div class="surface-card" style="padding:1.5rem;border-left:3px solid var(--color-creative);">
           <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
-            <span class="material-symbols-rounded" style="font-size:20px;color:var(--color-creative);">auto_awesome</span>
+            <span class="dot" style="width:8px;height:8px;background:var(--color-creative);box-shadow:0 0 10px rgba(204,255,0,0.3);"></span>
             <span style="font:var(--md-sys-typescale-label-medium);color:var(--color-creative);">The one worth revisiting</span>
           </div>
           <p id="top-thought-text" style="font:var(--md-sys-typescale-body-large);margin:0;"></p>
@@ -53,7 +53,6 @@ export function ThoughtArchaeology() {
       <div class="card-reveal" style="margin-top:1.5rem;">
         <details>
           <summary style="font:var(--md-sys-typescale-title-medium);color:var(--md-sys-color-on-surface-variant);cursor:pointer;padding:0.5rem 0;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:18px;">expand_more</span>
             Show All Expired Thoughts
           </summary>
           <div id="all-expired" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;">
@@ -65,11 +64,9 @@ export function ThoughtArchaeology() {
       <!-- Action buttons -->
       <div class="card-reveal" style="display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;">
         <button class="btn-m3 btn-tonal" id="btn-archive">
-          <span class="material-symbols-rounded" style="font-size:18px;">archive</span>
           Archive All Expired
         </button>
         <button class="btn-m3 btn-outlined" id="btn-refresh">
-          <span class="material-symbols-rounded" style="font-size:18px;">refresh</span>
           Refresh
         </button>
       </div>

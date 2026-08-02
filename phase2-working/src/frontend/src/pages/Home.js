@@ -26,7 +26,7 @@ export function Home() {
           <textarea id="quick-capture" class="input-m3" rows="2" placeholder="Drop a thought, commitment, or question here..." style="resize:vertical;min-height:48px;width:100%;"></textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:0.75rem;">
             <button class="btn-m3 btn-filled" id="quick-send-btn">
-              <span class="material-symbols-rounded" style="font-size:18px;">send</span> Process
+              <span style="font:700 13px/1 'Space Grotesk';">PROCESS</span>
             </button>
           </div>
           <div id="quick-result" style="margin-top:0.75rem;display:none;"></div>
@@ -44,7 +44,7 @@ export function Home() {
         <div class="bento-grid card-reveal" style="margin-top:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;">
           <div class="surface-card" style="padding:1.5rem;cursor:pointer;" onclick="showPage('interactive-space')">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-primary);">psychology</span>
+              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 8px rgba(204,255,0,0.3);"></span>
               <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Full Chat</h2>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -53,7 +53,7 @@ export function Home() {
           </div>
           <div class="surface-card" style="padding:1.5rem;cursor:pointer;" onclick="showPage('map-my-mind')">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-secondary);">explore</span>
+              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);"></span>
               <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Map My Mind</h2>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -62,7 +62,7 @@ export function Home() {
           </div>
           <div class="surface-card" style="padding:1.5rem;cursor:pointer;" onclick="showPage('thought-afterlife')">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-error);">hourglass_empty</span>
+              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-error);box-shadow:0 0 8px rgba(239,68,68,0.3);"></span>
               <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Thought Afterlife</h2>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -71,7 +71,7 @@ export function Home() {
           </div>
           <div class="surface-card" style="padding:1.5rem;cursor:pointer;" onclick="showPage('commitments')">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-              <span class="material-symbols-rounded" style="font-size:28px;color:var(--md-sys-color-tertiary);">task_alt</span>
+              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);"></span>
               <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Commitments</h2>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -93,125 +93,23 @@ export function Home() {
     loadHomeStats(container);
     setupQuickCapture(container);
   } else {
-    // Public landing page — Obsidian/Orange-Red bento design
-    container.innerHTML = `
-      <div class="page-shell">
-        <!-- Hero -->
-        <section style="text-align:center;padding:3rem 1rem 2rem;">
-          <div class="card-reveal status-tag" style="display:inline-flex;margin-bottom:1.5rem;">
-            <span class="dot-pulse"></span>
-            <span>COGNITIVE COPROCESSOR</span>
-          </div>
-          <h1 class="card-reveal" style="font:var(--md-sys-typescale-display-large);margin-bottom:1rem;text-wrap:balance;letter-spacing:-0.06em;">
-            Your thoughts have a<br><span style="color:var(--md-sys-color-primary);">half-life.</span><br>Let the best ones survive.
-          </h1>
-          <p class="card-reveal" style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);max-width:600px;margin:0 auto 2rem;">
-            Thought GPS uses half-life decay, commitment witnesses, departure briefs, geo-fencing, and thought interceptors to help ADHD/neurodiverse minds thrive.
-          </p>
-          <div class="card-reveal" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-            <button class="btn-m3 btn-filled" style="box-shadow:0 0 30px rgba(255,69,0,0.3);" onclick="showPage('auth')">Start Navigating</button>
-            <button class="btn-m3 btn-outlined" onclick="showPage('how-it-works')">See How It Works</button>
-          </div>
-        </section>
-
-        <!-- Use Cases Bento Grid -->
-        <section class="card-reveal" style="margin-top:3rem;">
-          <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:1rem;">USE CASES</div>
-          <div class="bento-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-error);margin-bottom:0.75rem;display:block;">hourglass_empty</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Thought Half-Life</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Every thought has an expiry. Urgent bills escalate in 48h. Someday dreams fade over 30 days. Your mind, prioritized by decay.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">near_me</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Geo-fencing</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Walk into a store, get a gentle nudge with 3 things your family asked for. Leave home, get a departure brief. Location-aware, zero effort.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-secondary);margin-bottom:0.75rem;display:block;">notifications_active</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Push Notifications</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Browser push, WhatsApp, Telegram, Slack, Discord — your thought nudges and departure briefs arrive where you already are.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-tertiary);margin-bottom:0.75rem;display:block;">explore</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Map My Mind</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Navigate your mental landscape. See thoughts grouped by theme, connected by person, filtered by urgency.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--color-analytical);margin-bottom:0.75rem;display:block;">task_alt</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Commitment Witness</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Say "I'll finish by Friday" and Thought GPS quietly offers accountability. Share with a trusted person, no guilt.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--color-creative);margin-bottom:0.75rem;display:block;">history_edu</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Thought Archaeology</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Every Sunday, a zero-judgment review of what didn't move. Not a failure log — a gentle mirror for your week.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">psychology</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Thought Interceptor</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                "I need to call the doctor" gets caught, classified, and asked: "When?" Before it slips away.
-              </p>
-            </div>
-            <div class="surface-card" style="padding:1.5rem;">
-              <span class="material-symbols-rounded" style="font-size:36px;color:var(--md-sys-color-secondary);margin-bottom:0.75rem;display:block;">travel_explore</span>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Live Web Search</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Enrich thoughts with live data from Tavily, Firecrawl, DuckDuckGo, or your own SearXNG instance.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- How It Works -->
-        <section class="card-reveal" style="margin-top:3rem;padding:2rem;">
-          <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:1rem;">HOW IT WORKS</div>
-          <div style="display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;">
-            <div style="text-align:center;flex:1;min-width:200px;">
-              <div style="width:48px;height:48px;border-radius:50%;background:var(--md-sys-color-primary);color:#fff;display:grid;place-items:center;margin:0 auto 0.75rem;font:var(--font-mono);font-size:18px;font-weight:700;">01</div>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Connect</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Add your API keys (Groq is free), connect messaging channels, and set up geo-fences.
-              </p>
-            </div>
-            <div style="text-align:center;flex:1;min-width:200px;">
-              <div style="width:48px;height:48px;border-radius:50%;background:var(--md-sys-color-secondary);color:#fff;display:grid;place-items:center;margin:0 auto 0.75rem;font:var(--font-mono);font-size:18px;font-weight:700;">02</div>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Capture</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Drop thoughts via chat, quick capture, or connected channels. Every thought is classified and stored.
-              </p>
-            </div>
-            <div style="text-align:center;flex:1;min-width:200px;">
-              <div style="width:48px;height:48px;border-radius:50%;background:var(--md-sys-color-tertiary);color:#fff;display:grid;place-items:center;margin:0 auto 0.75rem;font:var(--font-mono);font-size:18px;font-weight:700;">03</div>
-              <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Navigate</h3>
-              <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-                Map your mind, review commitments, and let the important thoughts rise to the top.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- CTA -->
-        <section class="card-reveal" style="text-align:center;margin-top:3rem;padding:2rem;">
-          <h2 style="font:var(--md-sys-typescale-headline-medium);margin:0 0 1rem;letter-spacing:-0.06em;">Ready to navigate your mind?</h2>
-          <button class="btn-m3 btn-filled" style="box-shadow:0 0 30px rgba(255,69,0,0.3);font-size:16px;padding:0.75rem 2rem;" onclick="showPage('auth')">Start Navigating — Free</button>
-          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.75rem;">10 runs/day with your own API keys. No credit card required.</p>
-        </section>
-      </div>`;
+    // Render the React-based cinematic landing page
+    setTimeout(() => {
+      import('react').then((React) => {
+        import('react-dom/client').then((ReactDOM) => {
+          import('../components/LandingPage.jsx').then((module) => {
+            const LandingPage = module.default;
+            const root = ReactDOM.createRoot(container);
+            root.render(
+              React.createElement(LandingPage, {
+                onNavigate: (page) => window.showPage(page),
+                isLoggedIn: isLoggedIn
+              })
+            );
+          });
+        });
+      });
+    }, 0);
   }
 
   return container;
@@ -244,7 +142,7 @@ function setupQuickCapture(container) {
       const c = result.classification || {};
       resultEl.innerHTML = `
         <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-          <span class="material-symbols-rounded" style="font-size:20px;color:var(--color-success);">check_circle</span>
+          <span class="mono-label" style="color:var(--color-success);font-size:10px;">DONE</span>
           <div style="flex:1;">
             <div style="font:var(--md-sys-typescale-body-medium);margin-bottom:0.5rem;">${formatResponse(result.response)}</div>
             <div style="display:flex;gap:4px;flex-wrap:wrap;">
@@ -297,9 +195,7 @@ async function loadHomeStats(container) {
   if (thoughtsEl && recent.memories?.length > 0) {
     thoughtsEl.innerHTML = recent.memories.map(m => `
       <div style="padding:0.875rem 1rem;border-bottom:1px solid var(--md-sys-color-outline-variant);display:flex;align-items:center;gap:0.75rem;">
-        <span class="material-symbols-rounded" style="font-size:20px;color:${m.urgencyTier === 'critical' ? 'var(--md-sys-color-error)' : m.urgencyTier === 'high' ? 'var(--color-analytical)' : 'var(--md-sys-color-outline)'};">
-          ${m.urgencyTier === 'critical' ? 'warning' : m.urgencyTier === 'high' ? 'schedule' : 'chat_bubble'}
-        </span>
+        <span class="mono-label" style="font-size:10px;color:${m.urgencyTier === 'critical' ? 'var(--md-sys-color-error)' : m.urgencyTier === 'high' ? 'var(--color-analytical)' : 'var(--md-sys-color-outline)'};">${m.urgencyTier === 'critical' ? 'CRIT' : m.urgencyTier === 'high' ? 'HIGH' : 'NOTE'}</span>
         <div style="flex:1;min-width:0;">
           <div style="font:var(--md-sys-typescale-body-medium);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(m.content)}</div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">

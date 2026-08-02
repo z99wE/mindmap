@@ -5,7 +5,7 @@ export function CognitiveLoad() {
   const container = document.createElement('div');
   container.innerHTML = `
     <div class="page-container">
-      <div class="section-header card-reveal"><span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);">monitoring</span>
+      <div class="section-header card-reveal"><span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-primary);box-shadow:0 0 12px rgba(204,255,0,0.3);"></span>
         <h1 style="font:var(--md-sys-typescale-headline-medium);">Cognitive Load</h1>
       </div>
       <p class="card-reveal" style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin-bottom:1.5rem;">

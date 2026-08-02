@@ -16,15 +16,15 @@ const TIERS = {
     name: 'Free',
     dailyRuns: 10,
     price: 0,
-    features: ['10 runs/day', 'Your own API keys (required)', 'Basic memory graph', 'All cognitive features', 'Push notifications'],
-    description: 'Get started with your own API keys'
+    features: ['10 runs/day', 'Your own API keys (required)', 'Basic memory graph', '15-day server storage vault', 'Local IndexedDB backup and import', 'Max 2 communication channels (Telegram + Email/Slack)'],
+    description: 'Get started with local-first storage'
   },
   pro: {
-    name: 'Pro',
+    name: 'Explorer Plus',
     dailyRuns: 500,
-    price: 5,
-    features: ['500 runs/day', 'Your own API keys', 'Full memory graph', 'Live web search (Tavily/Firecrawl)', 'All cognitive features', 'Priority support'],
-    description: 'Power users who need more runs'
+    price: 15,
+    features: ['500 runs/day', 'Fallback system keys pool (no keys needed)', 'Unlimited server storage (never purged)', 'Seamless laptop and phone synchronization', 'All communication channels (WhatsApp, Slack, Discord, Twitter, Bluesky)', 'Live web search', 'Priority support'],
+    description: 'Cross-device cognitive co-processing'
   },
   managed: {
     name: 'Managed',
@@ -238,6 +238,89 @@ router.post('/revenuecat-webhook', async (req, res) => {
     res.json({ status: 'ok' });
   } catch (err) {
     console.error('[RevenueCat] Webhook error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const BOOSTERS = {
+  compass: { name: 'Compass Booster', runs: 50, price: 2 },
+  radar: { name: 'Radar Booster', runs: 100, price: 4 },
+  sextant: { name: 'Sextant Booster', runs: 200, price: 7 }
+};
+
+// GET /api/billing/boosters - active boosters status
+router.get('/boosters', authMiddleware, async (req, res) => {
+  try {
+    const activeResult = await pool.query(
+      `SELECT id, bundle_name, total_runs, runs_used, expires_at, created_at
+       FROM user_boosters 
+       WHERE user_id = $1 AND expires_at > NOW() AND runs_used < total_runs
+       ORDER BY expires_at`,
+      [req.user.userId]
+    );
+
+    const count30d = await pool.query(
+      `SELECT COUNT(*) FROM billing_transactions 
+       WHERE user_id = $1 AND type = 'booster_purchase' AND status = 'completed' AND created_at > NOW() - INTERVAL '30 days'`,
+      [req.user.userId]
+    );
+
+    res.json({
+      boostersList: activeResult.rows,
+      countLast30Days: parseInt(count30d.rows[0]?.count || '0'),
+      config: BOOSTERS
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/billing/buy-booster - buy a booster pack
+router.post('/buy-booster', authMiddleware, async (req, res) => {
+  try {
+    const { bundleId } = req.body;
+    const booster = BOOSTERS[bundleId];
+    if (!booster) return res.status(400).json({ error: 'Invalid booster bundle ID' });
+
+    const userRes = await pool.query('SELECT tier, daily_runs_used, daily_runs_limit FROM users WHERE id = $1', [req.user.userId]);
+    const user = userRes.rows[0];
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.tier === 'free') {
+      return res.status(403).json({ error: 'Only paid Explorer Plus subscribers can activate Cognitive Navigation Boosters.' });
+    }
+
+    if (user.daily_runs_used < user.daily_runs_limit * 0.5) {
+      return res.status(403).json({ error: 'You can only purchase a booster pack once you have consumed at least 50% of your daily Explorer Plus runs.' });
+    }
+
+    const count30d = await pool.query(
+      `SELECT COUNT(*) FROM billing_transactions 
+       WHERE user_id = $1 AND type = 'booster_purchase' AND status = 'completed' AND created_at > NOW() - INTERVAL '30 days'`,
+      [req.user.userId]
+    );
+    const count = parseInt(count30d.rows[0]?.count || '0');
+    if (count >= 3) {
+      return res.status(403).json({ error: 'You have reached the maximum of 3 top-ups in any 30-day window. Please wait for the window to reset or contact support.' });
+    }
+
+    await pool.query(
+      `INSERT INTO user_boosters (user_id, bundle_name, total_runs, expires_at)
+       VALUES ($1, $2, $3, NOW() + INTERVAL '15 days')`,
+      [req.user.userId, booster.name, booster.runs]
+    );
+
+    await pool.query(
+      `INSERT INTO billing_transactions (user_id, type, amount, runs_credited, status, metadata)
+       VALUES ($1, 'booster_purchase', $2, $3, 'completed', $4)`,
+      [req.user.userId, booster.price, booster.runs, JSON.stringify({ bundleId, expires_at: new Date(Date.now() + 15*24*60*60*1000).toISOString() })]
+    );
+
+    res.json({
+      success: true,
+      message: `${booster.name} successfully activated! ${booster.runs} runs added, expiring in 15 days.`,
+      bundle: booster
+    });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

@@ -10,7 +10,7 @@ export function NotificationsLog() {
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
           <div>
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-              <span class="material-symbols-rounded" style="color:var(--md-sys-color-tertiary);font-size:28px;">notifications</span>
+              <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-tertiary);box-shadow:0 0 12px rgba(16,185,129,0.3);"></span>
               <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Notifications</h1>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -19,7 +19,6 @@ export function NotificationsLog() {
           </div>
           <div style="display:flex;gap:0.5rem;">
             <button class="btn-m3 btn-outlined" id="btn-mark-all-read">
-              <span class="material-symbols-rounded" style="font-size:18px;">done_all</span>
               Mark All Read
             </button>
           </div>
@@ -73,33 +72,32 @@ export function NotificationsLog() {
 
     if (filtered.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:3rem;text-align:center;">
-        <span class="material-symbols-rounded" style="font-size:56px;color:var(--md-sys-color-outline);">notifications_none</span>
-        <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin-top:1rem;">No notifications</p>
-        <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">
+        <p class="mono-label" style="font-size:14px;color:var(--md-sys-color-outline);">NO NOTIFICATIONS</p>
+        <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;">
           ${currentFilter === 'all' ? 'Auto-signaled alerts will appear here.' : `No ${currentFilter} notifications.`}
         </p>
       </div>`;
       return;
     }
 
-    const typeIcons = {
-      half_life_nudge: { icon: 'hourglass_empty', color: 'var(--md-sys-color-tertiary)' },
-      departure_alert: { icon: 'directions_walk', color: 'var(--md-sys-color-error)' },
-      drift_nudge: { icon: 'my_location', color: 'var(--md-sys-color-primary)' },
-      commitment_witness: { icon: 'task_alt', color: 'var(--md-sys-color-secondary)' },
-      door_rule: { icon: 'door_front', color: 'var(--md-sys-color-tertiary)' },
-      thought_revival: { icon: 'autorenew', color: 'var(--md-sys-color-primary)' },
+    const typeMeta = {
+      half_life_nudge: { color: 'var(--md-sys-color-tertiary)', label: 'HALF-LIFE' },
+      departure_alert: { color: 'var(--md-sys-color-error)', label: 'DEPARTURE' },
+      drift_nudge: { color: 'var(--md-sys-color-primary)', label: 'DRIFT' },
+      commitment_witness: { color: 'var(--md-sys-color-secondary)', label: 'WITNESS' },
+      door_rule: { color: 'var(--md-sys-color-tertiary)', label: 'DOOR' },
+      thought_revival: { color: 'var(--md-sys-color-primary)', label: 'REVIVAL' },
     };
 
     list.innerHTML = filtered.map(n => {
-      const typeInfo = typeIcons[n.type] || { icon: 'notifications', color: 'var(--md-sys-color-outline)' };
+      const typeInfo = typeMeta[n.type] || { color: 'var(--md-sys-color-outline)', label: 'NOTIF' };
       const isUnread = !n.read;
       const timeAgo = getTimeAgo(n.sent_at || n.created_at);
 
       return `<div class="surface-card card-reveal" style="padding:1rem 1.25rem;${isUnread ? '' : 'opacity:0.65;'}cursor:pointer;" data-id="${n.id}" onclick="markRead(${n.id})">
         <div style="display:flex;align-items:flex-start;gap:0.75rem;">
           <div style="width:40px;height:40px;border-radius:var(--md-sys-shape-medium);background:${typeInfo.color}15;display:grid;place-items:center;flex-shrink:0;">
-            <span class="material-symbols-rounded" style="font-size:20px;color:${typeInfo.color};">${typeInfo.icon}</span>
+            <span class="mono-label" style="color:${typeInfo.color};font-size:8px;">${typeInfo.label}</span>
           </div>
           <div style="flex:1;min-width:0;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
@@ -110,8 +108,8 @@ export function NotificationsLog() {
             <div style="display:flex;gap:0.5rem;margin-top:0.5rem;align-items:center;">
               ${n.channel ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);background:var(--md-sys-color-surface-container);padding:1px 6px;border-radius:var(--md-sys-shape-extra-small);">${n.channel}</span>` : ''}
               ${n.delivered
-                ? `<span class="material-symbols-rounded" style="font-size:14px;color:var(--color-success);">check_circle</span>`
-                : `<span class="material-symbols-rounded" style="font-size:14px;color:var(--md-sys-color-outline);">pending</span>`
+                ? `<span class="mono-label" style="color:var(--color-success);font-size:9px;">SENT</span>`
+                : `<span class="mono-label" style="color:var(--md-sys-color-outline);font-size:9px;">PENDING</span>`
               }
               ${isUnread ? `<span style="width:8px;height:8px;border-radius:50%;background:var(--md-sys-color-primary);"></span>` : ''}
             </div>

@@ -10,7 +10,7 @@ export function Commitments() {
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
           <div>
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-              <span class="material-symbols-rounded" style="color:var(--md-sys-color-secondary);font-size:28px;">task_alt</span>
+              <span class="dot" style="width:12px;height:12px;border-radius:50%;background:var(--md-sys-color-secondary);box-shadow:0 0 10px rgba(163,230,53,0.4);"></span>
               <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Commitments</h1>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -18,7 +18,7 @@ export function Commitments() {
             </p>
           </div>
           <button class="btn-m3 btn-filled" id="btn-add-commitment">
-            <span class="material-symbols-rounded" style="font-size:18px;">add</span>
+            <span style="font:700 14px/1 'Space Grotesk';">+ NEW</span>
             New Commitment
           </button>
         </div>
@@ -113,7 +113,7 @@ export function Commitments() {
 
     if (commitments.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:3rem;text-align:center;">
-        <span class="material-symbols-rounded" style="font-size:56px;color:var(--md-sys-color-outline);">task_alt</span>
+        <p style="font:700 28px/1 'Space Grotesk';opacity:0.2;margin-bottom:0.5rem;">NO COMMITMENTS</p>
         <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin-top:1rem;">No commitments yet</p>
         <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Add your first commitment to start tracking accountability.</p>
       </div>`;
@@ -151,10 +151,10 @@ export function Commitments() {
           <div style="flex:1;">
             <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap;">
               ${isCompleted
-                ? `<span class="material-symbols-rounded" style="font-size:20px;color:var(--color-success);">check_circle</span>`
+                ? `<span class="mono-label" style="color:var(--color-success);font-size:10px;">DONE</span>`
                 : isOverdue
-                  ? `<span class="material-symbols-rounded" style="font-size:20px;color:var(--md-sys-color-error);">error</span>`
-                  : `<span class="material-symbols-rounded" style="font-size:20px;color:var(--md-sys-color-secondary);">schedule</span>`
+                  ? `<span class="mono-label" style="color:var(--md-sys-color-error);font-size:10px;">OVERDUE</span>`
+                  : `<span class="mono-label" style="color:var(--md-sys-color-secondary);font-size:10px;">PENDING</span>`
               }
               <span style="font:var(--md-sys-typescale-label-small);color:${borderColor};background:${borderColor}15;padding:2px 8px;border-radius:var(--md-sys-shape-full);">${timeLabel}</span>
               ${c.category ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);background:var(--md-sys-color-surface-container);padding:2px 8px;border-radius:var(--md-sys-shape-full);">${c.category}</span>` : ''}
@@ -162,21 +162,21 @@ export function Commitments() {
             <p style="font:var(--md-sys-typescale-body-large);margin:0 0 0.5rem;${isCompleted ? 'text-decoration:line-through;' : ''}">${c.value || 'Untitled commitment'}</p>
             <div style="display:flex;align-items:center;gap:0.75rem;font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);flex-wrap:wrap;">
               <span style="display:flex;align-items:center;gap:0.25rem;">
-                <span class="material-symbols-rounded" style="font-size:14px;">calendar_today</span>
+                <span class="mono-label" style="font-size:9px;">DUE</span>
                 ${deadlineDisplay}
               </span>
               <span style="display:flex;align-items:center;gap:0.25rem;color:${witnessColor};">
-                <span class="material-symbols-rounded" style="font-size:14px;">${witnessNotified ? 'verified_user' : hasWitness ? 'person' : 'person_off'}</span>
+                <span class="mono-label" style="font-size:9px;color:${witnessColor};">${witnessNotified ? 'VERIFIED' : hasWitness ? 'WITNESS' : 'NONE'}</span>
                 ${witnessStatus}${hasWitness ? `: ${c.witness_contact}` : ''}
               </span>
             </div>
           </div>
           <div style="display:flex;gap:0.5rem;">
             ${!isCompleted && !hasWitness ? `<button class="btn-m3 btn-icon" title="Add witness" onclick="addWitness(${c.id})">
-              <span class="material-symbols-rounded" style="font-size:20px;color:var(--md-sys-color-tertiary);">person_add</span>
+              <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-tertiary);">+W</span>
             </button>` : ''}
             ${!isCompleted ? `<button class="btn-m3 btn-icon" title="Mark complete" onclick="completeCommitment(${c.id})">
-              <span class="material-symbols-rounded" style="font-size:20px;color:var(--color-success);">check_circle</span>
+              <span style="font:600 11px/1 'Space Grotesk';color:var(--color-success);">DONE</span>
             </button>` : ''}
           </div>
         </div>

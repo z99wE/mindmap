@@ -8,7 +8,7 @@ export function ThoughtAfterlife() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);font-size:28px;">hourglass_empty</span>
+          <span class="dot" style="width:12px;height:12px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 10px rgba(204,255,0,0.4);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Thought Afterlife</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -58,7 +58,6 @@ export function ThoughtAfterlife() {
       <div class="card-reveal" style="margin-top:2rem;">
         <details>
           <summary style="font:var(--md-sys-typescale-title-medium);color:var(--md-sys-color-on-surface-variant);cursor:pointer;padding:0.5rem 0;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:18px;">archive</span>
             Expired Thoughts Archive
           </summary>
           <div id="archived-list" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;">
@@ -107,7 +106,7 @@ export function ThoughtAfterlife() {
 
     if (filtered.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:2rem;text-align:center;">
-        <span class="material-symbols-rounded" style="font-size:48px;color:var(--md-sys-color-outline);">check_circle</span>
+        <p style="font:700 24px/1 'Space Grotesk';opacity:0.2;margin-bottom:0.5rem;">ALL CLEAR</p>
         <p style="color:var(--md-sys-color-outline);margin-top:0.5rem;">No thoughts in this category</p>
       </div>`;
       return;
@@ -118,14 +117,14 @@ export function ThoughtAfterlife() {
       const pct = t.halfLifeHours ? Math.max(0, Math.min(100, (hrs / t.halfLifeHours) * 100)) : 100;
       const tierColor = hrs < 2 ? 'var(--md-sys-color-error)' : hrs < 24 ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-secondary)';
       const tierLabel = hrs < 2 ? 'CRITICAL' : hrs < 24 ? 'URGENT' : 'STABLE';
-      const tierIcon = hrs < 2 ? 'warning' : hrs < 24 ? 'schedule' : 'hourglass_full';
+      const tierIcon = hrs < 2 ? 'warning' : hrs < 24 ? 'urgent' : 'stable';
       const escLevel = t.notifiedTier || 0;
 
       return `<div class="surface-card card-reveal" style="padding:1.25rem;border-left:3px solid ${tierColor};">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
           <div style="flex:1;">
             <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
-              <span class="material-symbols-rounded" style="font-size:18px;color:${tierColor};">${tierIcon}</span>
+              <span class="mono-label" style="font-size:10px;color:${tierColor};">${tierIcon.toUpperCase()}</span>
               <span style="font:var(--md-sys-typescale-label-small);color:${tierColor};background:${tierColor}15;padding:2px 8px;border-radius:var(--md-sys-shape-full);">${tierLabel}</span>
               ${escLevel >= 2 ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-error);background:rgba(255,138,158,.1);padding:2px 8px;border-radius:var(--md-sys-shape-full);">ESCALATED x${escLevel}</span>` : ''}
               ${t.urgencyTier ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${t.urgencyTier}</span>` : ''}

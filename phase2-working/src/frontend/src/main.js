@@ -77,9 +77,7 @@ function renderNavRail() {
 
   let html = `
     <div class="nav-logo">
-      <div class="nav-logo-icon">
-        <span class="material-symbols-rounded" style="color:#fff;font-size:24px;">explore</span>
-      </div>
+      <div class="nav-logo-icon">T</div>
       <div>
         <div class="nav-logo-text">Thought GPS</div>
         <div class="nav-logo-sub">Cognitive Coprocessor</div>
@@ -101,7 +99,7 @@ function renderNavRail() {
     for (const [key, page] of items) {
       const active = key === currentPage ? 'active' : '';
       html += `<div class="nav-item ${active}" data-page="${key}" onclick="showPage('${key}')">
-        <span class="material-symbols-rounded">${page.icon}</span>
+        <span class="nav-dot"></span>
         <span>${page.title}</span>
       </div>`;
     }
@@ -111,15 +109,39 @@ function renderNavRail() {
   if (isAdmin) {
     html += `<div class="nav-section-label">Admin</div>`;
     html += `<div class="nav-item ${currentPage === 'admin' ? 'active' : ''}" onclick="showPage('admin')">
-      <span class="material-symbols-rounded">admin_panel_settings</span><span>Admin</span></div>`;
+      <span class="nav-dot"></span><span>Admin</span></div>`;
   }
 
   // Legal always visible
   html += `<div style="flex:1;"></div>`;
   html += `<div class="nav-item ${currentPage === 'legal' ? 'active' : ''}" onclick="showPage('legal')">
-    <span class="material-symbols-rounded">gavel</span><span>Legal</span></div>`;
+    <span class="nav-dot"></span><span>Legal</span></div>`;
 
   rail.innerHTML = html;
+
+  // Render logo with React DecryptedText
+  setTimeout(() => {
+    const logoEl = rail.querySelector('.nav-logo-text');
+    if (logoEl) {
+      import('react').then((React) => {
+        import('react-dom/client').then((ReactDOM) => {
+          import('./components/DecryptedText.jsx').then((module) => {
+            const DecryptedText = module.default;
+            const root = ReactDOM.createRoot(logoEl);
+            root.render(
+              React.createElement(DecryptedText, {
+                text: "Thought GPS",
+                speed: 60,
+                maxIterations: 12,
+                characters: "01X[]{}?*&%$#@!+=",
+                className: "neon-cyan font-heading italic text-lg"
+              })
+            );
+          });
+        });
+      });
+    }
+  }, 0);
 }
 
 function renderBottomNav() {
@@ -133,7 +155,7 @@ function renderBottomNav() {
       const p = pageRegistry[k];
       const active = k === currentPage ? 'active' : '';
       return `<div class="bottom-nav-item ${active}" onclick="showPage('${k}')">
-        <span class="material-symbols-rounded">${p.icon}</span>
+        <span class="bottom-nav-dot"></span>
         <span>${p.title.split(' ')[0]}</span>
       </div>`;
     }).join('');
@@ -185,6 +207,36 @@ function renderPage(page) {
   // Admin guard
   if (info?.adminOnly && !user?.isAdmin) {
     page = 'home';
+  }
+
+  // Premium guard (Explorer Plus only)
+  const premiumPages = ['map-my-mind', 'commitments', 'thought-afterlife', 'cognitive-load', 'archaeology', 'brain-fragments', 'memory-segments'];
+  const userTier = user?.tier || 'free';
+  if (premiumPages.includes(page) && userTier === 'free') {
+    currentPage = page;
+    const main = document.getElementById('main-content');
+    if (main) {
+      main.innerHTML = `
+        <div class="page-shell">
+          <div class="surface-card card-reveal liquid-glass" style="padding:3rem;text-align:center;max-width:600px;margin:2rem auto;border: 1px solid var(--md-sys-color-primary) !important;">
+            <div class="mono-label" style="color:var(--md-sys-color-primary);font-size:14px;margin-bottom:0.5rem;">EXPLORER PLUS FEATURE</div>
+            <h2 style="font:var(--md-sys-typescale-headline-small);margin:0 0 1rem;">Unlock Advanced Co-Processing</h2>
+            <p style="color:var(--md-sys-color-on-surface-variant);line-height:1.6;margin-bottom:2rem;">
+              The <strong>${info?.title || page}</strong> features are exclusive to the <strong>Explorer Plus</strong> tier. Upgrade to unlock seamless cross-device synchronization, infinite memory storage, and all cognitive visualizations.
+            </p>
+            <button class="btn-m3 btn-filled" onclick="showPage('credits')" style="width:100%;height:48px;font-weight:bold;">
+              Upgrade to Explorer Plus ($15/mo)
+            </button>
+          </div>
+        </div>`;
+      renderNavRail();
+      renderBottomNav();
+      renderMobileDrawer();
+      setTimeout(() => {
+        document.querySelectorAll('.card-reveal').forEach((el) => el.classList.add('revealed'));
+      }, 50);
+      return;
+    }
   }
 
   currentPage = page;
@@ -273,6 +325,34 @@ async function init() {
   const path = window.location.pathname;
   const pageFromPath = Object.entries(pageRegistry).find(([k]) => path.includes(k))?.[0];
   renderPage(pageFromPath || 'home');
+
+  // Mount ambient Strands globally at footer
+  setTimeout(() => {
+    const footerEl = document.getElementById('strands-footer');
+    if (footerEl) {
+      import('react').then((React) => {
+        import('react-dom/client').then((ReactDOM) => {
+          import('./components/Strands.jsx').then((module) => {
+            const Strands = module.default;
+            const root = ReactDOM.createRoot(footerEl);
+            root.render(
+              React.createElement(Strands, {
+                colors: ["#00f3ff", "#ff0055", "#39ff14", "#8b00ff"],
+                count: 3,
+                speed: 0.4,
+                amplitude: 1.0,
+                waviness: 2.0,
+                thickness: 0.6,
+                glow: 2.0,
+                scale: 1.5,
+                opacity: 0.6
+              })
+            );
+          });
+        });
+      });
+    }
+  }, 0);
 }
 
 init();

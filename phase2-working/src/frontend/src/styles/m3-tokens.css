@@ -1,4 +1,4 @@
-/* ── Obsidian & Orange-Red Design Tokens ── */
+/* ── Obsidian & Lime Design Tokens ── */
 /* Futuristic glassmorphism: high contrast, blurred transparency, tech-industrial */
 
 :root {
@@ -16,17 +16,17 @@
   --md-sys-color-outline: rgba(235, 235, 235, 0.2);
   --md-sys-color-outline-variant: rgba(255, 255, 255, 0.1);
 
-  /* ── Primary (Orange-Red — the hero accent) ── */
-  --md-sys-color-primary: #ff4500;
-  --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-primary-container: rgba(255, 69, 0, 0.12);
-  --md-sys-color-on-primary-container: #ff8a5c;
+  /* ── Primary (Neon Lime — the hero accent) ── */
+  --md-sys-color-primary: #ccff00;
+  --md-sys-color-on-primary: #000000;
+  --md-sys-color-primary-container: rgba(204, 255, 0, 0.12);
+  --md-sys-color-on-primary-container: #d4ff33;
 
-  /* ── Secondary (Ember Glow — warm complement) ── */
-  --md-sys-color-secondary: #ff6b35;
-  --md-sys-color-on-secondary: #ffffff;
-  --md-sys-color-secondary-container: rgba(255, 107, 53, 0.12);
-  --md-sys-color-on-secondary-container: #ffa07a;
+  /* ── Secondary (Chartreuse — warm complement) ── */
+  --md-sys-color-secondary: #a3e635;
+  --md-sys-color-on-secondary: #000000;
+  --md-sys-color-secondary-container: rgba(163, 230, 53, 0.12);
+  --md-sys-color-on-secondary-container: #bef264;
 
   /* ── Tertiary (Emerald — success/positive) ── */
   --md-sys-color-tertiary: #10b981;
@@ -41,8 +41,8 @@
   --md-sys-color-on-error-container: #fca5a5;
 
   /* ── Cognitive State Colors ── */
-  --color-analytical: #ff6b35;
-  --color-creative: #ff4500;
+  --color-analytical: #a3e635;
+  --color-creative: #ccff00;
   --color-emotional: #10b981;
   --color-urgency: #ef4444;
   --color-success: #10b981;

@@ -18,7 +18,7 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#075e54;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#25d366;display:grid;place-items:center;">
-                <span class="material-symbols-rounded" style="color:#fff;font-size:18px;">explore</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">T</span>
               </div>
               <div>
                 <div style="color:#fff;font:600 14px/1.2 system-ui;">Thought GPS</div>
@@ -38,7 +38,7 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#2b5278;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#0088cc;display:grid;place-items:center;">
-                <span class="material-symbols-rounded" style="color:#fff;font-size:18px;">smart_toy</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">T</span>
               </div>
               <div>
                 <div style="color:#fff;font:600 14px/1.2 system-ui;">Thought GPS Bot</div>
@@ -71,8 +71,8 @@ export function HowItWorks() {
         <div class="phone-mockup card-reveal">
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
-              <div style="width:32px;height:32px;border-radius:50%;background:#ff4500;display:grid;place-items:center;">
-                <span class="material-symbols-rounded" style="color:#fff;font-size:18px;">route</span>
+              <div style="width:32px;height:32px;border-radius:50%;background:#ccff00;display:grid;place-items:center;">
+                <span style="color:#000;font:700 14px/1 'Space Grotesk';">M</span>
               </div>
               <div>
                 <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Map My Mind</div>
@@ -89,7 +89,7 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#10b981;display:grid;place-items:center;">
-                <span class="material-symbols-rounded" style="color:#fff;font-size:18px;">location_away</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">G</span>
               </div>
               <div>
                 <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Geo-fence Alert</div>
@@ -110,10 +110,10 @@ export function HowItWorks() {
         </p>
         <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
           <button class="btn-neon" onclick="showPage('interactive-space')">
-            <span class="material-symbols-rounded" style="font-size:18px;">chat</span> Open Chat
+            Open Chat
           </button>
           <button class="btn-m3 btn-tonal" onclick="showPage('mission-control')">
-            <span class="material-symbols-rounded" style="font-size:18px;">settings_suggest</span> Mission Control
+            Mission Control
           </button>
         </div>
       </div>
@@ -140,8 +140,8 @@ export function HowItWorks() {
 
   const phone4Messages = [
     { type: 'route-summary', text: "Today's route: 8 thoughts, 3 themes, 2 urgent", time: '9:00 AM' },
-    { type: 'thought-node', theme: 'Health', color: '#ff4500', text: 'Call Dr. Mehta about blood test', urgency: 'critical', halfLife: '4h' },
-    { type: 'thought-node', theme: 'Health', color: '#ff4500', text: 'Schedule annual checkup', urgency: 'normal', halfLife: '72h' },
+    { type: 'thought-node', theme: 'Health', color: '#ccff00', text: 'Call Dr. Mehta about blood test', urgency: 'critical', halfLife: '4h' },
+    { type: 'thought-node', theme: 'Health', color: '#ccff00', text: 'Schedule annual checkup', urgency: 'normal', halfLife: '72h' },
     { type: 'thought-node', theme: 'Finance', color: '#10b981', text: 'Pay electricity bill — due today', urgency: 'high', halfLife: '2h' },
     { type: 'navigate', text: 'Navigating: 3 themes to review. Swipe through your route.', step: '1 / 8' },
   ];
@@ -168,7 +168,7 @@ export function HowItWorks() {
     }
     if (style === 'telegram') {
       return `<div class="phone-bubble incoming" style="max-width:85%;border-radius:12px 12px 12px 4px;">
-        ${msg.icon ? `<span class="material-symbols-rounded" style="font-size:14px;color:#0088cc;vertical-align:middle;">${msg.icon}</span>` : ''}
+        ${msg.icon ? `<span style="font:9px/1 var(--font-mono);color:#0088cc;text-transform:uppercase;">${msg.icon}</span>` : ''}
         <div style="font:12px/1.5 system-ui;color:#111;margin-top:2px;">${msg.text}</div>
         <span style="font:9px/1 system-ui;color:#999;display:block;text-align:right;margin-top:2px;">${msg.time}</span>
       </div>`;
@@ -183,7 +183,7 @@ export function HowItWorks() {
       return `<div style="padding:0.5rem 0.6rem;border-left:3px solid #611f69;max-width:90%;">
         <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.25rem;">
           <div style="width:18px;height:18px;border-radius:4px;background:#611f69;display:grid;place-items:center;">
-            <span class="material-symbols-rounded" style="color:#fff;font-size:11px;">smart_toy</span>
+            <span style="color:#fff;font:700 9px/1 'Space Grotesk';">T</span>
           </div>
           <span style="font:bold 11px/1 system-ui;color:#111;">Thought GPS</span>
           <span style="font:9px/1 system-ui;color:#999;">${msg.time}</span>
@@ -196,9 +196,9 @@ export function HowItWorks() {
 
   function renderMapMindMsg(msg) {
     if (msg.type === 'route-summary') {
-      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,69,0,0.1);border:1px solid rgba(255,69,0,0.2);">
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(204,255,0,0.1);border:1px solid rgba(204,255,0,0.2);">
         <div style="display:flex;align-items:center;gap:0.4rem;">
-          <span class="material-symbols-rounded" style="font-size:16px;color:#ff4500;">route</span>
+          <span class="mono-label" style="color:#ccff00;font-size:9px;">ROUTE</span>
           <span style="font:600 12px/1.3 'Space Grotesk',system-ui;color:#ebebeb;">${msg.text}</span>
         </div>
         <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.4);display:block;margin-top:4px;">${msg.time}</span>
@@ -219,9 +219,9 @@ export function HowItWorks() {
       </div>`;
     }
     if (msg.type === 'navigate') {
-      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,69,0,0.15);border:1px solid rgba(255,69,0,0.3);">
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(204,255,0,0.15);border:1px solid rgba(204,255,0,0.3);">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font:600 11px/1.3 system-ui;color:#ff4500;">${msg.text}</span>
+          <span style="font:600 11px/1.3 system-ui;color:#ccff00;">${msg.text}</span>
           <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.4);">${msg.step}</span>
         </div>
       </div>`;
@@ -233,7 +233,7 @@ export function HowItWorks() {
     if (msg.type === 'geo-alert') {
       return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);">
         <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:4px;">
-          <span class="material-symbols-rounded" style="font-size:16px;color:${msg.color};">${msg.icon}</span>
+          <span class="mono-label" style="color:${msg.color};font-size:9px;">${(msg.icon || 'GEO').toUpperCase()}</span>
           <span style="font:600 12px/1.3 'Space Grotesk',system-ui;color:#ebebeb;">${msg.title}</span>
         </div>
         <div style="font:11px/1.4 system-ui;color:rgba(235,235,235,.6);">${msg.text}</div>
@@ -242,7 +242,7 @@ export function HowItWorks() {
     }
     if (msg.type === 'brief') {
       return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
-        <div class="mono-label" style="color:#ff4500;font-size:9px;margin-bottom:6px;text-transform:uppercase;">${msg.heading}</div>
+        <div class="mono-label" style="color:#ccff00;font-size:9px;margin-bottom:6px;text-transform:uppercase;">${msg.heading}</div>
         ${msg.items.map((item, i) => `<div style="display:flex;gap:0.35rem;align-items:baseline;margin-bottom:3px;">
           <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);">${i + 1}.</span>
           <span style="font:11px/1.4 system-ui;color:#ebebeb;">${item}</span>
@@ -250,12 +250,12 @@ export function HowItWorks() {
       </div>`;
     }
     if (msg.type === 'nearby') {
-      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(255,69,0,0.08);border:1px solid rgba(255,69,0,0.2);">
+      return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(204,255,0,0.08);border:1px solid rgba(204,255,0,0.2);">
         <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:6px;">
-          <span class="material-symbols-rounded" style="font-size:14px;color:#ff4500;">${msg.icon}</span>
-          <span style="font:600 11px/1.3 system-ui;color:#ff6b35;">${msg.text}</span>
+          <span class="mono-label" style="color:#ccff00;font-size:9px;">${(msg.icon || 'NEAR').toUpperCase()}</span>
+          <span style="font:600 11px/1.3 system-ui;color:#a3e635;">${msg.text}</span>
         </div>
-        ${msg.items.map((item, i) => `<div style="font:11px/1.5 system-ui;color:rgba(235,235,235,.7);padding-left:0.5rem;border-left:2px solid rgba(255,69,0,0.2);margin-bottom:3px;">${item}</div>`).join('')}
+        ${msg.items.map((item, i) => `<div style="font:11px/1.5 system-ui;color:rgba(235,235,235,.7);padding-left:0.5rem;border-left:2px solid rgba(204,255,0,0.2);margin-bottom:3px;">${item}</div>`).join('')}
         <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);display:block;margin-top:4px;">${msg.time}</span>
       </div>`;
     }

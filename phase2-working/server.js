@@ -170,6 +170,20 @@ async function start() {
       await checkCommitmentWitnesses(pool, caspian);
     }, 60 * 60 * 1000); // Every hour
 
+    // Daily clean up task to keep Neon Postgres under 500MB free limit
+    const runStoragePurge = async () => {
+      try {
+        const purgeRes = await pool.query("DELETE FROM memory_graph WHERE created_at < NOW() - INTERVAL '7 days'");
+        if (purgeRes.rowCount > 0) {
+          console.log(`[Storage Cleanup] Purged ${purgeRes.rowCount} memories older than 7 days to conserve database space.`);
+        }
+      } catch (err) {
+        console.error('[Storage Cleanup] Error:', err.message);
+      }
+    };
+    setInterval(runStoragePurge, 24 * 60 * 60 * 1000); // Every 24 hours
+    runStoragePurge(); // Also run immediately on startup to enforce storage limits
+
     if (!process.env.JWT_SECRET) console.warn('[SECURITY] Using default JWT_SECRET! Set JWT_SECRET env var in production.');
     if (!process.env.API_KEY_ENCRYPTION_SECRET) console.warn('[SECURITY] Using default API_KEY_ENCRYPTION_SECRET! Set env var in production.');
     if (!process.env.DATABASE_URL) console.warn('[SECURITY] No DATABASE_URL set — using localhost. Configure Neon.tech for production.');

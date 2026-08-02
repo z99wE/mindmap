@@ -32,7 +32,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const { provider, key } = req.body;
     if (!provider || !key) return res.status(400).json({ error: 'Provider and key are required' });
 
-    const validProviders = ['groq', 'openai', 'anthropic', 'nvidia', 'ollama', 'tavily', 'firecrawl', 'searxng_url'];
+    const validProviders = ['groq', 'openai', 'anthropic', 'nvidia', 'ollama', 'tavily', 'firecrawl', 'searxng_url', 'openrouter', 'lmstudio'];
     if (!validProviders.includes(provider.toLowerCase())) {
       return res.status(400).json({ error: `Invalid provider. Use: ${validProviders.join(', ')}` });
     }

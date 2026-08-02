@@ -29,7 +29,7 @@ export function Credits() {
             <span id="runs-limit" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);"></span>
           </div>
           <div class="progress-bar" style="margin-top:0.5rem;height:4px;">
-            <div class="progress-fill" id="runs-bar" style="width:0%;"></div>
+            <div class="progress-fill" id="runsbar" style="width:0%;"></div>
           </div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem 1.5rem;">
@@ -43,59 +43,62 @@ export function Credits() {
       <div class="bento-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
 
         <!-- Free Tier -->
-        <div class="surface-card card-reveal" style="padding:2rem;${currentTier === 'free' ? 'border-color:rgba(255,69,0,0.5);box-shadow:0 0 20px rgba(255,69,0,0.08);' : ''}">
-          ${currentTier === 'free' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">● CURRENT PLAN</div>' : ''}
+        <div class="surface-card card-reveal" style="padding:2rem;${currentTier === 'free' ? 'border-color:rgba(204,255,0,0.5);box-shadow:0 0 20px rgba(204,255,0,0.08);' : ''}">
+          ${currentTier === 'free' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">CURRENT PLAN</div>' : ''}
           <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Free</h3>
-          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Get started with your own API keys</p>
+          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Get started with local-first storage</p>
           <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">$0<span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-outline);">/month</span></div>
           <ul style="list-style:none;padding:0;margin:1.25rem 0;display:flex;flex-direction:column;gap:0.6rem;">
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>10 runs/day
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>10 runs/day
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Your own API keys (required)
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Your own API keys (required)
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Basic memory graph
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Basic memory graph
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>All cognitive features
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>15-day server storage vault
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Push notifications
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Local backup &amp; import sync
+            </li>
+            <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Max 2 connected channels
             </li>
           </ul>
           ${currentTier !== 'free' ? '<button class="btn-m3 btn-outlined" style="width:100%;" onclick="switchTier(\'free\')">Switch to Free</button>' : '<button class="btn-m3 btn-outlined" style="width:100%;opacity:0.5;" disabled>Current Plan</button>'}
         </div>
-
+ 
         <!-- Pro Tier -->
-        <div class="surface-card card-reveal" style="padding:2rem;position:relative;overflow:hidden;${currentTier === 'pro' ? 'border-color:rgba(255,69,0,0.5);box-shadow:0 0 30px rgba(255,69,0,0.12);' : ''}">
-          <div style="position:absolute;top:0;right:0;background:var(--md-sys-color-primary);color:#fff;font:var(--md-sys-typescale-label-small);padding:4px 14px;border-radius:0 0 0 var(--md-sys-shape-small);letter-spacing:0.08em;">BEST VALUE</div>
-          ${currentTier === 'pro' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">● CURRENT PLAN</div>' : ''}
-          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Pro</h3>
-          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Power users who need more runs</p>
-          <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">$5<span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-outline);">/month</span></div>
+        <div class="surface-card card-reveal" style="padding:2rem;position:relative;overflow:hidden;${currentTier === 'pro' || currentTier === 'premium' || currentTier === 'explorer plus' ? 'border-color:rgba(204,255,0,0.5);box-shadow:0 0 30px rgba(204,255,0,0.12);' : ''}">
+          <div style="position:absolute;top:0;right:0;background:var(--md-sys-color-primary);color:#000;font:var(--md-sys-typescale-label-small);padding:4px 14px;border-radius:0 0 0 var(--md-sys-shape-small);letter-spacing:0.08em;">BEST VALUE</div>
+          ${currentTier === 'pro' || currentTier === 'premium' || currentTier === 'explorer plus' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">CURRENT PLAN</div>' : ''}
+          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Explorer Plus</h3>
+          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Cross-device cognitive co-processing</p>
+          <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">$15<span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-outline);">/month</span></div>
           <ul style="list-style:none;padding:0;margin:1.25rem 0;display:flex;flex-direction:column;gap:0.6rem;">
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>500 runs/day
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>500 runs/day
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Your own API keys
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Fallback system keys (no keys needed)
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Full memory graph
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Unlimited server storage (never purged)
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Live web search (Tavily/Firecrawl)
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Seamless laptop &amp; phone sync
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>All cognitive features
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>All integration channels
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-success);">check</span>Priority support
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Live web search (Tavily/Firecrawl)
             </li>
           </ul>
-          ${currentTier !== 'pro' ? '<button class="btn-m3 btn-filled" style="width:100%;" onclick="subscribePro()">Upgrade to Pro</button>' : '<button class="btn-m3 btn-filled" style="width:100%;opacity:0.6;" disabled>Current Plan</button>'}
+          ${currentTier !== 'pro' && currentTier !== 'premium' && currentTier !== 'explorer plus' ? '<button class="btn-m3 btn-filled" style="width:100%;" onclick="subscribePro()">Upgrade to Explorer Plus</button>' : '<button class="btn-m3 btn-filled" style="width:100%;opacity:0.6;" disabled>Current Plan</button>'}
         </div>
 
         <!-- Managed Tier (Coming Soon) -->
@@ -106,19 +109,19 @@ export function Credits() {
           <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">TBD</div>
           <ul style="list-style:none;padding:0;margin:1.25rem 0;display:flex;flex-direction:column;gap:0.6rem;">
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">check</span>Unlimited runs
+              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Unlimited runs
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">check</span>No API keys needed
+              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>No API keys needed
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">check</span>Managed LLM infrastructure
+              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Managed LLM infrastructure
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">check</span>Custom routing
+              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Custom routing
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">check</span>SLA guarantee
+              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>SLA guarantee
             </li>
           </ul>
           <div id="waitlist-section">
@@ -127,6 +130,47 @@ export function Credits() {
               <button class="btn-m3 btn-outlined" id="btn-waitlist" style="white-space:nowrap;">Join Waitlist</button>
             </div>
             <div id="waitlist-status" style="margin-top:0.5rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cognitive Navigation Boosters -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:2rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Cognitive Navigation Boosters</h2>
+        <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin:0 0 1.5rem;">
+          Ran out of daily Explorer Plus runs? Activate a temporary 15-day booster pack. Limit 3 purchases in any 30-day window. Only available when runs are at least 50% consumed.
+        </p>
+
+        <!-- Active Boosters Panel -->
+        <div id="active-boosters-status" style="margin-bottom:1.5rem;display:none;padding:1rem;background:rgba(204,255,0,0.05);border:1px solid rgba(204,255,0,0.15);border-radius:var(--md-sys-shape-medium);">
+          <div style="font-weight:bold;color:var(--md-sys-color-primary);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;">explore</span>
+            Active Boosters
+          </div>
+          <div id="active-boosters-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+        </div>
+
+        <div class="bento-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+          <div class="surface-card" style="padding:1.5rem;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:2rem;margin-bottom:0.5rem;">🧭</div>
+            <h4 style="font:var(--md-sys-typescale-title-medium);margin:0;">Compass Pack</h4>
+            <div style="font:700 1.25rem/1.5 'Space Grotesk';color:var(--md-sys-color-primary);margin:0.25rem 0;">50 Runs</div>
+            <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">$2.00 (Expires in 15d)</p>
+            <button class="btn-m3 btn-tonal" style="width:100%;" onclick="buyBooster('compass')">Activate Pack</button>
+          </div>
+          <div class="surface-card" style="padding:1.5rem;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:2rem;margin-bottom:0.5rem;">📡</div>
+            <h4 style="font:var(--md-sys-typescale-title-medium);margin:0;">Radar Pack</h4>
+            <div style="font:700 1.25rem/1.5 'Space Grotesk';color:var(--md-sys-color-primary);margin:0.25rem 0;">100 Runs</div>
+            <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">$4.00 (Expires in 15d)</p>
+            <button class="btn-m3 btn-tonal" style="width:100%;" onclick="buyBooster('radar')">Activate Pack</button>
+          </div>
+          <div class="surface-card" style="padding:1.5rem;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:2rem;margin-bottom:0.5rem;">🔭</div>
+            <h4 style="font:var(--md-sys-typescale-title-medium);margin:0;">Sextant Pack</h4>
+            <div style="font:700 1.25rem/1.5 'Space Grotesk';color:var(--md-sys-color-primary);margin:0.25rem 0;">200 Runs</div>
+            <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">$7.00 (Expires in 15d)</p>
+            <button class="btn-m3 btn-tonal" style="width:100%;" onclick="buyBooster('sextant')">Activate Pack</button>
           </div>
         </div>
       </div>
@@ -160,7 +204,7 @@ export function Credits() {
       } else {
         status.innerHTML = '<p style="color:var(--color-success);font:var(--md-sys-typescale-body-small);">You\'re on the list! We\'ll notify you when Managed is ready.</p>';
         container.querySelector('#waitlist-email').value = '';
-        btnWaitlist.textContent = 'Joined ✓';
+        btnWaitlist.textContent = 'Joined';
       }
     });
   }
@@ -175,9 +219,31 @@ export function Credits() {
       const limit = tier === 'pro' ? 500 : 10;
       container.querySelector('#runs-limit').textContent = `/ ${limit} runs`;
       const pct = Math.min(100, ((me.daily_runs_used || 0) / limit) * 100);
-      const bar = container.querySelector('#runs-bar');
+      const bar = container.querySelector('#runsbar');
       if (bar) bar.style.width = `${pct}%`;
       container.querySelector('#credit-balance').textContent = `${me.credits || 0}`;
+    }
+
+    // Load active boosters status
+    try {
+      const bData = await api.get('/billing/boosters');
+      const bStatus = container.querySelector('#active-boosters-status');
+      const bList = container.querySelector('#active-boosters-list');
+      if (bData?.boostersList?.length > 0 && bStatus && bList) {
+        bStatus.style.display = 'block';
+        bList.innerHTML = bData.boostersList.map(b => {
+          const daysLeft = Math.max(0, Math.ceil((new Date(b.expires_at) - new Date()) / (1000 * 60 * 60 * 24)));
+          return `
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:4px;margin-top:4px;">
+              <span><strong>${b.bundle_name}</strong> (${b.total_runs - b.runs_used} / ${b.total_runs} remaining)</span>
+              <span style="color:var(--md-sys-color-outline);">Expires in ${daysLeft} days</span>
+            </div>`;
+        }).join('');
+      } else if (bStatus) {
+        bStatus.style.display = 'none';
+      }
+    } catch (e) {
+      console.warn('Could not load boosters status:', e);
     }
 
     // Load transaction history
@@ -213,7 +279,19 @@ export function Credits() {
       alert(result.error);
       return;
     }
-    alert('Upgraded to Pro! Refreshing...');
+    alert('Upgraded to Explorer Plus! Refreshing...');
+    const me = await api.get('/auth/me');
+    if (me.id) api.setUser(me);
+    window.showPage?.('credits');
+  };
+
+  window.buyBooster = async (bundleId) => {
+    const result = await api.post('/billing/buy-booster', { bundleId });
+    if (result.error) {
+      alert(result.error);
+      return;
+    }
+    alert(result.message || 'Booster activated successfully!');
     const me = await api.get('/auth/me');
     if (me.id) api.setUser(me);
     window.showPage?.('credits');

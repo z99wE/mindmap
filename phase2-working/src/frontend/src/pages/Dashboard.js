@@ -78,9 +78,9 @@ async function loadDashboard(c) {
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Credits</div>
         <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:#10b981;">${billing.totalCredits ?? 0}</div>
       </div>
-      <div class="surface-card" style="padding:1.25rem;border-left:3px solid #ff6b35;">
+      <div class="surface-card" style="padding:1.25rem;border-left:3px solid #a3e635;">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Memories</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:#ff6b35;">${memStats.total || 0}</div>
+        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:#a3e635;">${memStats.total || 0}</div>
       </div>`;
 
     // Run gauge
@@ -96,7 +96,7 @@ async function loadDashboard(c) {
 
   // Cognitive Load
   if (!cogData.error && cogData.distribution?.length > 0) {
-    const loadColors = { critical: '#f44336', high: '#ff9800', medium: '#ff4500', low: '#10b981' };
+    const loadColors = { critical: '#f44336', high: '#ff9800', medium: '#ccff00', low: '#10b981' };
     c.querySelector('#cog-load').innerHTML = cogData.distribution.map(d => `
       <div>
         <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">

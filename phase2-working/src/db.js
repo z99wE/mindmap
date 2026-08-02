@@ -154,6 +154,20 @@ async function runMigrations() {
       )
     `);
 
+    // User boosters table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_boosters (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        bundle_name VARCHAR(50) NOT NULL,
+        total_runs INT NOT NULL,
+        runs_used INT DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        expires_at TIMESTAMPTZ NOT NULL
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_boosters_user ON user_boosters(user_id)');
+
     // ── Migrate old tier names to new ones ──────────────────────────────────────
     await client.query("UPDATE users SET tier = 'pro' WHERE tier = 'premium'").catch(() => {});
     await client.query("UPDATE users SET tier = 'managed' WHERE tier = 'enterprise'").catch(() => {});

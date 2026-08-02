@@ -13,6 +13,8 @@ const SUPPORTED_PLATFORMS = [
   { id: 'email', name: 'Email', fields: ['smtp_host', 'smtp_port', 'email', 'password'] },
   { id: 'sms', name: 'SMS', fields: ['phone_number', 'api_key'] },
   { id: 'signal', name: 'Signal', fields: ['phone_number', 'api_key'] },
+  { id: 'twitter', name: 'Twitter (X)', fields: ['api_key', 'api_secret', 'access_token', 'access_secret'] },
+  { id: 'bluesky', name: 'Bluesky', fields: ['identifier', 'app_password'] },
 ];
 
 // GET /api/channels/platforms - list supported platforms
@@ -39,6 +41,28 @@ router.post('/connect', authMiddleware, async (req, res) => {
     const { platform, displayName, credentials, webhookUrl } = req.body;
     if (!platform || !credentials) {
       return res.status(400).json({ error: 'Platform and credentials are required' });
+    }
+
+    // Check user tier for gatekeeping
+    const userRes = await pool.query('SELECT tier FROM users WHERE id = $1', [req.user.userId]);
+    const userTier = userRes.rows[0]?.tier || 'free';
+
+    if (userTier === 'free') {
+      const allowedFreePlatforms = ['telegram', 'email'];
+      if (!allowedFreePlatforms.includes(platform.toLowerCase())) {
+        return res.status(403).json({
+          error: `The ${platform.toUpperCase()} integration is a Premium feature. Upgrade to Premium ($15/mo) for full access to all channels (Slack, WhatsApp, Discord, Twitter, Bluesky).`
+        });
+      }
+
+      // Check count of active channels
+      const countRes = await pool.query('SELECT COUNT(*) FROM channels WHERE user_id = $1 AND is_active = true', [req.user.userId]);
+      const currentCount = parseInt(countRes.rows[0]?.count || '0');
+      if (currentCount >= 2) {
+        return res.status(403).json({
+          error: 'Free tier users are limited to a maximum of 2 active connection channels. Upgrade to Premium for unlimited channels.'
+        });
+      }
     }
 
     const platformDef = SUPPORTED_PLATFORMS.find(p => p.id === platform);

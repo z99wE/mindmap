@@ -6,7 +6,7 @@ export function InteractiveSpace() {
   container.innerHTML = `
     <div class="page-container" style="max-width:900px;">
       <div class="section-header card-reveal">
-        <span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);">psychology</span>
+        <span class="dot" style="width:12px;height:12px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 10px rgba(204,255,0,0.4);"></span>
         <h1 style="font:var(--md-sys-typescale-headline-medium);">Thought GPS</h1>
       </div>
       <p class="card-reveal" style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin-bottom:1rem;">
@@ -21,7 +21,7 @@ export function InteractiveSpace() {
       <!-- Chat area -->
       <div id="chat-area" class="surface-card card-reveal" style="padding:1rem;min-height:400px;max-height:600px;overflow-y:auto;margin-bottom:1rem;">
         <div style="text-align:center;padding:2rem;color:var(--md-sys-color-outline);">
-          <span class="material-symbols-rounded" style="font-size:48px;opacity:0.3;">forum</span>
+          <p style="font:700 32px/1 'Space Grotesk';letter-spacing:-0.04em;opacity:0.2;margin-bottom:0.5rem;">CHAT</p>
           <p style="margin-top:0.5rem;">Start a conversation. Your thoughts will be classified and stored in memory.</p>
         </div>
       </div>
@@ -32,7 +32,7 @@ export function InteractiveSpace() {
           <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." style="resize:vertical;min-height:48px;"></textarea>
         </div>
         <button type="submit" class="btn-m3 btn-filled" id="send-btn" style="height:48px;">
-          <span class="material-symbols-rounded">send</span>
+          <span style="font:700 14px/1 'Space Grotesk';">SEND</span>
         </button>
       </form>
     </div>`;
@@ -75,7 +75,16 @@ export function InteractiveSpace() {
       </div>`;
     chatArea.scrollTop = chatArea.scrollHeight;
 
-    const result = await api.post('/process/message', { message: msg });
+    // Fetch local memories from IndexedDB to inject into context
+    let localMemories = [];
+    try {
+      const { searchLocalMemories } = await import('../lib/indexedDb.js');
+      localMemories = await searchLocalMemories(msg, 5);
+    } catch (e) {
+      console.warn('Could not query local memories:', e);
+    }
+
+    const result = await api.post('/process/message', { message: msg, localMemories });
 
     document.getElementById(loadingId)?.remove();
     btn.disabled = false;
@@ -94,7 +103,7 @@ export function InteractiveSpace() {
         <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
           <div class="mono-label" style="font-size:9px;color:var(--md-sys-color-outline);text-transform:uppercase;margin-bottom:4px;">SOURCES</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            ${result.sources.slice(0, 4).map(s => `<a href="${escHtml(s.url || '#')}" target="_blank" rel="noopener" style="font:10px/1.3 system-ui;color:var(--md-sys-color-primary);text-decoration:none;background:rgba(255,69,0,0.06);padding:2px 8px;border-radius:var(--md-sys-shape-full);border:1px solid rgba(255,69,0,0.15);">${escHtml(s.title || s.url || 'source').slice(0, 40)}</a>`).join('')}
+            ${result.sources.slice(0, 4).map(s => `<a href="${escHtml(s.url || '#')}" target="_blank" rel="noopener" style="font:10px/1.3 system-ui;color:var(--md-sys-color-primary);text-decoration:none;background:rgba(204,255,0,0.06);padding:2px 8px;border-radius:var(--md-sys-shape-full);border:1px solid rgba(204,255,0,0.15);">${escHtml(s.title || s.url || 'source').slice(0, 40)}</a>`).join('')}
           </div>
         </div>` : '';
       chatArea.innerHTML += `
@@ -114,7 +123,7 @@ export function InteractiveSpace() {
           <div style="margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
             <div class="surface-card" style="padding:1rem;border-left:3px solid var(--md-sys-color-tertiary);max-width:400px;">
               <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
-                <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">help</span>
+                <span class="mono-label" style="color:var(--md-sys-color-tertiary);font-size:10px;">ANCHOR</span>
                 <span style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-tertiary);">Needs anchoring</span>
               </div>
               <p style="font:var(--md-sys-typescale-body-medium);margin:0 0 0.5rem;">${escHtml(result.unanchored.clarification_question)}</p>
@@ -132,7 +141,7 @@ export function InteractiveSpace() {
           <div style="margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
             <div class="surface-card" style="padding:1rem;border-left:3px solid var(--md-sys-color-secondary);max-width:400px;">
               <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
-                <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary);">person</span>
+                <span class="mono-label" style="color:var(--md-sys-color-secondary);font-size:10px;">WITNESS</span>
                 <span style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-secondary);">Commitment detected</span>
               </div>
               <p style="font:var(--md-sys-typescale-body-medium);margin:0 0 0.5rem;">${escHtml(result.commitment.witness_ask_message)}</p>

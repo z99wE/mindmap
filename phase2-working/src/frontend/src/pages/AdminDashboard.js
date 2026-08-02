@@ -9,7 +9,7 @@ export function AdminDashboard() {
     container.innerHTML = `
       <div class="page-shell">
         <div class="surface-card" style="padding:3rem;text-align:center;">
-          <span class="material-symbols-rounded" style="font-size:56px;color:var(--md-sys-color-error);">admin_panel_settings</span>
+          <div class="mono-label" style="color:var(--md-sys-color-error);font-size:14px;">ADMIN ONLY</div>
           <h2 style="font:var(--md-sys-typescale-headline-small);margin-top:1rem;">Access Restricted</h2>
           <p style="color:var(--md-sys-color-on-surface-variant);">This dashboard is only available to admin users.</p>
         </div>
@@ -21,7 +21,7 @@ export function AdminDashboard() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--md-sys-color-error);font-size:28px;">admin_panel_settings</span>
+          <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-error);box-shadow:0 0 12px rgba(239,68,68,0.3);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Admin Console</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -54,7 +54,7 @@ export function AdminDashboard() {
       <!-- Key Pool Status -->
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
-          <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">key</span>
+          <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-primary);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
           Shared Key Pool
         </h2>
         <div id="key-pool-status">
@@ -66,7 +66,7 @@ export function AdminDashboard() {
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
           <h2 style="font:var(--md-sys-typescale-title-large);margin:0;">
-            <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">route</span>
+            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
             OmniRoute (Personal)
           </h2>
           <span class="chip-m3 active" style="pointer-events:none;background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);">ADMIN ONLY</span>
@@ -82,7 +82,7 @@ export function AdminDashboard() {
       <!-- Langfuse Observability -->
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
-          <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">analytics</span>
+          <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);vertical-align:middle;"></span>
           Langfuse Observability
         </h2>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1rem;">
@@ -94,7 +94,6 @@ export function AdminDashboard() {
           </p>
         </div>
         <button class="btn-m3 btn-outlined" style="margin-top:1rem;" onclick="window.open(import.meta.env.VITE_LANGFUSE_URL || 'https://cloud.langfuse.com', '_blank')">
-          <span class="material-symbols-rounded" style="font-size:18px;">open_in_new</span>
           Open Langfuse Dashboard
         </button>
       </div>
@@ -102,7 +101,7 @@ export function AdminDashboard() {
       <!-- User Management -->
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
-          <span class="material-symbols-rounded" style="vertical-align:middle;font-size:20px;">group</span>
+          <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-on-surface);box-shadow:0 0 8px rgba(235,235,235,0.2);vertical-align:middle;"></span>
           User Management
         </h2>
         <div id="users-list">
@@ -115,13 +114,13 @@ export function AdminDashboard() {
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">System Actions</h2>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
           <button class="btn-m3 btn-outlined" onclick="alert('Export functionality coming soon')">
-            <span class="material-symbols-rounded" style="font-size:18px;">download</span>Export All Data
+            Export All Data
           </button>
           <button class="btn-m3 btn-outlined" onclick="alert('Backup functionality coming soon')">
-            <span class="material-symbols-rounded" style="font-size:18px;">backup</span>Backup Database
+            Backup Database
           </button>
           <button class="btn-m3 btn-outlined" style="border-color:var(--md-sys-color-error);color:var(--md-sys-color-error);" onclick="alert('Reset not available in production')">
-            <span class="material-symbols-rounded" style="font-size:18px;">restart_alt</span>Reset System
+            Reset System
           </button>
         </div>
       </div>

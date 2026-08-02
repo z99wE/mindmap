@@ -7,7 +7,7 @@ export function ThoughtExport() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);font-size:28px;">download</span>
+          <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-primary);box-shadow:0 0 12px rgba(204,255,0,0.3);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Thought Export</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -50,11 +50,9 @@ export function ThoughtExport() {
         </div>
         <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
           <button class="btn-m3 btn-filled" id="btn-preview">
-            <span class="material-symbols-rounded" style="font-size:18px;">preview</span>
             Preview
           </button>
           <button class="btn-m3 btn-tonal" id="btn-download">
-            <span class="material-symbols-rounded" style="font-size:18px;">download</span>
             Download
           </button>
         </div>

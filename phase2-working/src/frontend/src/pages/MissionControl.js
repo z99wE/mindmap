@@ -15,11 +15,11 @@ export function MissionControl() {
 
       <!-- Tab Bar -->
       <div class="tab-bar card-reveal" style="margin-top:1.5rem;" id="mc-tabs">
-        <button class="tab active" data-tab="channels"><span class="material-symbols-rounded" style="font-size:18px;">cell_tower</span>Channels</button>
-        <button class="tab" data-tab="keys"><span class="material-symbols-rounded" style="font-size:18px;">key</span>API Keys</button>
-        <button class="tab" data-tab="notifications"><span class="material-symbols-rounded" style="font-size:18px;">notifications</span>Notifications</button>
-        <button class="tab" data-tab="privacy"><span class="material-symbols-rounded" style="font-size:18px;">shield</span>Privacy</button>
-        <button class="tab" data-tab="geofences"><span class="material-symbols-rounded" style="font-size:18px;">near_me</span>Geo-fences</button>
+        <button class="tab active" data-tab="channels">Channels</button>
+        <button class="tab" data-tab="keys">API Keys</button>
+        <button class="tab" data-tab="notifications">Notifications</button>
+        <button class="tab" data-tab="privacy">Privacy</button>
+        <button class="tab" data-tab="geofences">Geo-fences</button>
       </div>
 
       <!-- Tab Panels -->
@@ -173,7 +173,7 @@ function channelsPanel() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Connected Channels</h2>
         <button class="btn-m3 btn-tonal" onclick="document.getElementById('add-channel-dialog').style.display='flex';">
-          <span class="material-symbols-rounded" style="font-size:18px;">add</span> Connect
+          <span style="font:700 14px/1 'Space Grotesk';">+</span> Connect
         </button>
       </div>
       <div id="channels-list"><div class="anim-shimmer" style="height:80px;"></div></div>
@@ -182,7 +182,7 @@ function channelsPanel() {
       <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">Delivery Routes</h2>
       <div id="delivery-routes"></div>
       <button class="btn-m3 btn-outlined" style="margin-top:1rem;width:100%;" id="test-all-channels">
-        <span class="material-symbols-rounded" style="font-size:18px;">cell_tower</span> Test All Channels
+        <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-primary);">TEST</span> Test All Channels
       </button>
       <div id="test-results" style="margin-top:1rem;display:none;"></div>
     </div>`;
@@ -197,7 +197,7 @@ function keysPanel() {
           <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.25rem 0 0;">Keys are AES-256 encrypted. Never exposed to the frontend.</p>
         </div>
         <button class="btn-m3 btn-tonal" onclick="document.getElementById('add-key-dialog').style.display='flex';">
-          <span class="material-symbols-rounded" style="font-size:18px;">add</span> Add Key
+          <span style="font:700 14px/1 'Space Grotesk';">+</span> Add Key
         </button>
       </div>
       <div id="keys-list"><div class="anim-shimmer" style="height:80px;"></div></div>
@@ -240,7 +240,7 @@ function notificationsPanel() {
       <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
         <button class="btn-m3 btn-filled" id="save-prefs-btn">Save Preferences</button>
         <button class="btn-m3 btn-outlined" id="enable-push-btn">
-          <span class="material-symbols-rounded" style="font-size:18px;">notifications_active</span> Enable Push
+          <span class="mono-label" style="font-size:9px;">PUSH</span> Enable Push
         </button>
       </div>
     </div>
@@ -270,10 +270,10 @@ function privacyPanel() {
       <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">Data Management</h2>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
         <button class="btn-m3 btn-outlined" id="export-data-btn">
-          <span class="material-symbols-rounded" style="font-size:18px;">download</span> Export All Data
+          <span class="mono-label" style="font-size:9px;">EXPORT</span> Export All Data
         </button>
         <button class="btn-m3 btn-outlined" id="delete-account-btn" style="border-color:var(--md-sys-color-error);color:var(--md-sys-color-error);">
-          <span class="material-symbols-rounded" style="font-size:18px;">delete_forever</span> Delete Account
+          <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-error);">DELETE</span> Delete Account
         </button>
       </div>
     </div>`;
@@ -288,7 +288,7 @@ function geofencesPanel() {
           <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.25rem 0 0;">Location-based triggers for departure briefs and task nudges.</p>
         </div>
         <button class="btn-m3 btn-tonal" onclick="document.getElementById('add-geofence-dialog').style.display='flex';">
-          <span class="material-symbols-rounded" style="font-size:18px;">add</span> Add
+          <span style="font:700 14px/1 'Space Grotesk';">+</span> Add
         </button>
       </div>
       <div id="geofences-list"><div class="anim-shimmer" style="height:80px;"></div></div>
@@ -298,11 +298,11 @@ function geofencesPanel() {
 // ── Data Loaders ──────────────────────────────────────────────────────────
 
 const FEATURE_ROUTES = [
-  { name: 'Thought Half-Life Nudges', icon: 'hourglass_empty' },
-  { name: 'Commitment Witness', icon: 'task_alt' },
-  { name: 'Departure Brief', icon: 'directions_walk' },
-  { name: 'Weekly Archaeology', icon: 'history_edu' },
-  { name: 'Thought Revival', icon: 'autorenew' },
+  { name: 'Thought Half-Life Nudges', icon: 'HALF-LIFE' },
+  { name: 'Commitment Witness', icon: 'WITNESS' },
+  { name: 'Departure Brief', icon: 'DEPART' },
+  { name: 'Weekly Archaeology', icon: 'ARCHAEO' },
+  { name: 'Thought Revival', icon: 'REVIVE' },
 ];
 
 async function loadChannels(c) {
@@ -321,7 +321,7 @@ async function loadChannels(c) {
           <span style="font:var(--md-sys-typescale-body-small);">${ch.display_name || ch.platform}</span>
         </div>
         <button class="btn-m3 btn-icon" onclick="deleteChannel('${ch.id}')" title="Disconnect">
-          <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+          <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
         </button>
       </div>`).join('');
   }
@@ -334,7 +334,7 @@ async function loadChannels(c) {
       ).join(' ');
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
         <div style="display:flex;align-items:center;gap:0.5rem;">
-          <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-primary);">${route.icon}</span>
+          <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-primary);">${route.icon}</span>
           <span style="font:var(--md-sys-typescale-body-medium);">${route.name}</span>
         </div>
         <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">${channelChips}</div>
@@ -356,7 +356,7 @@ async function loadChannels(c) {
     }
     resultsEl.innerHTML = results.map(r =>
       `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;">
-        <span class="material-symbols-rounded" style="font-size:18px;color:${r.success ? 'var(--color-success)' : 'var(--md-sys-color-error)'};">${r.success ? 'check_circle' : 'error'}</span>
+        <span class="mono-label" style="font-size:9px;color:${r.success ? 'var(--color-success)' : 'var(--md-sys-color-error)'};">${r.success ? 'PASS' : 'FAIL'}</span>
         <span style="font:var(--md-sys-typescale-body-small);">${r.platform}: ${r.message}</span>
       </div>`).join('');
   });
@@ -382,14 +382,14 @@ async function loadKeys(c) {
     el.innerHTML = hasKeys.map(k => `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
         <div style="display:flex;align-items:center;gap:0.75rem;">
-          <span class="material-symbols-rounded" style="font-size:20px;color:var(--md-sys-color-primary);">${providerIcons[k.provider] || 'key'}</span>
+          <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-primary);">${k.provider.toUpperCase()}</span>
           <div>
             <div style="font:var(--md-sys-typescale-body-medium);text-transform:capitalize;">${k.provider}</div>
             <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);font-family:var(--font-mono);">${k.masked}</div>
           </div>
         </div>
         <button class="btn-m3 btn-icon" onclick="deleteKey('${k.provider}')" title="Remove">
-          <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+          <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
         </button>
       </div>`).join('');
   }
@@ -400,19 +400,19 @@ async function loadKeys(c) {
   liveEl.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:0.5rem;">
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
-        <span class="material-symbols-rounded" style="font-size:16px;color:var(--color-success);">check_circle</span>
+        <span class="mono-label" style="font-size:9px;color:var(--color-success);">ACTIVE</span>
         <span style="font:var(--md-sys-typescale-body-small);">DuckDuckGo (free, always available)</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
-        <span class="material-symbols-rounded" style="font-size:16px;color:var(--color-success);">check_circle</span>
+        <span class="mono-label" style="font-size:9px;color:var(--color-success);">ACTIVE</span>
         <span style="font:var(--md-sys-typescale-body-small);">Wikipedia (free, always available)</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
-        <span class="material-symbols-rounded" style="font-size:16px;color:${tavilyKey ? 'var(--color-success)' : 'var(--md-sys-color-outline)'};">${tavilyKey ? 'check_circle' : 'radio_button_unchecked'}</span>
+        <span class="mono-label" style="font-size:9px;color:${tavilyKey ? 'var(--color-success)' : 'var(--md-sys-color-outline)'};">${tavilyKey ? 'ACTIVE' : 'OFFLINE'}</span>
         <span style="font:var(--md-sys-typescale-body-small);">Tavily ${tavilyKey ? '(connected)' : '(add key above)'}</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
-        <span class="material-symbols-rounded" style="font-size:16px;color:${firecrawlKey ? 'var(--color-success)' : 'var(--md-sys-color-outline)'};">${firecrawlKey ? 'check_circle' : 'radio_button_unchecked'}</span>
+        <span class="mono-label" style="font-size:9px;color:${firecrawlKey ? 'var(--color-success)' : 'var(--md-sys-color-outline)'};">${firecrawlKey ? 'ACTIVE' : 'OFFLINE'}</span>
         <span style="font:var(--md-sys-typescale-body-small);">Firecrawl ${firecrawlKey ? '(connected)' : '(add key above)'}</span>
       </div>
     </div>`;
@@ -453,12 +453,12 @@ async function loadGeofences(c) {
             <div style="font:var(--md-sys-typescale-title-small);margin-bottom:0.25rem;">${escHtml(g.name)}</div>
             <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">
               ${g.lat?.toFixed(4)}, ${g.lng?.toFixed(4)} · ${g.radius}m ·
-              <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">${triggerIcons[g.trigger_type] || 'near_me'}</span> ${g.trigger_type}
+              <span class="mono-label" style="font-size:9px;vertical-align:middle;">${(triggerIcons[g.trigger_type] || 'GEO').toUpperCase()}</span> ${g.trigger_type}
             </div>
             ${g.linked_tasks?.length ? `<div style="margin-top:0.25rem;font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-secondary);">Tasks: ${g.linked_tasks.join(', ')}</div>` : ''}
           </div>
           <button class="btn-m3 btn-icon" onclick="deleteGeofence('${g.id}')" title="Remove">
-            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+            <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
           </button>
         </div>
       </div>`).join('');

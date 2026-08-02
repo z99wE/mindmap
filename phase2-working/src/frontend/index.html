@@ -6,12 +6,96 @@
   <title>Thought GPS — Cognitive Coprocessor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['"Instrument Serif"', 'serif'],
+            body: ['"Barlow"', 'sans-serif'],
+          },
+          borderRadius: {
+            DEFAULT: '9999px',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
     @import url('./src/styles/m3-tokens.css');
     @import url('./src/styles/glass.css');
     @import url('./src/styles/animations.css');
+
+    .liquid-glass {
+      background: rgba(255,255,255,0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .liquid-glass::before {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0%,
+        rgba(255,255,255,0.15) 20%,
+        rgba(255,255,255,0) 40%,
+        rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.15) 80%,
+        rgba(255,255,255,0.45) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .liquid-glass-strong {
+      background: rgba(255,255,255,0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow: 4px 4px 4px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .liquid-glass-strong::before {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.5) 0%,
+        rgba(255,255,255,0.2) 20%,
+        rgba(255,255,255,0) 40%,
+        rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.2) 80%,
+        rgba(255,255,255,0.5) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .neon-cyan {
+      color: #00f3ff;
+      text-shadow: 0 0 8px rgba(0,243,255,0.5);
+    }
+    .neon-pink {
+      color: #ff0055;
+      text-shadow: 0 0 8px rgba(255,0,85,0.5);
+    }
+    .neon-green {
+      color: #39ff14;
+      text-shadow: 0 0 8px rgba(57,255,20,0.5);
+    }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -76,9 +160,11 @@
     .nav-logo-icon {
       width: 40px; height: 40px;
       border-radius: 12px;
-      background: #ff4500;
+      background: #ccff00;
       display: grid; place-items: center;
-      box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+      box-shadow: 0 0 20px rgba(204, 255, 0, 0.3);
+      font: 700 20px/1 'Space Grotesk', sans-serif;
+      color: #000000;
     }
     .nav-logo-text { font: 600 16px/1.2 'Space Grotesk', sans-serif; color: #ebebeb; letter-spacing: -0.04em; }
     .nav-logo-sub { font: 500 11px/1.2 'JetBrains Mono', monospace; color: rgba(235,235,235,0.4); text-transform: uppercase; letter-spacing: 0.15em; }
@@ -95,10 +181,16 @@
     }
     .nav-item:hover { background: rgba(255,255,255,.05); color: #ebebeb; }
     .nav-item.active {
-      background: rgba(255, 69, 0, 0.12);
-      color: #ff8a5c;
+      background: rgba(204, 255, 0, 0.12);
+      color: #d4ff33;
     }
-    .nav-item .material-symbols-rounded { font-size: 22px; }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+    .nav-item.active .nav-dot { background: #ccff00; box-shadow: 0 0 8px rgba(204,255,0,0.5); }
     .nav-section-label {
       font: 500 10px/16px 'JetBrains Mono', monospace;
       color: rgba(235,235,235,0.25);
@@ -125,7 +217,14 @@
       font: 500 11px/1.2 'Space Grotesk', sans-serif;
       cursor: pointer;
     }
-    .bottom-nav-item.active { color: #ff4500; }
+    .bottom-nav-item.active { color: #ccff00; }
+    .bottom-nav-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.4;
+    }
+    .bottom-nav-item.active .bottom-nav-dot { opacity: 1; box-shadow: 0 0 6px rgba(204,255,0,0.5); }
     @media (max-width: 840px) { .bottom-nav { display: block; } main { padding-bottom: 80px; } }
 
     /* ── Top Bar ── */
@@ -169,7 +268,7 @@
       cursor: pointer;
       transition: border-color 200ms;
     }
-    .user-chip:hover { border-color: rgba(255, 69, 0, 0.4); }
+    .user-chip:hover { border-color: rgba(204, 255, 0, 0.4); }
 
     /* ── Main Content ── */
     main {
@@ -225,7 +324,7 @@
         <header class="top-bar" id="top-bar">
           <div style="display:flex;align-items:center;gap:0.75rem;">
             <button class="icon-btn mobile-menu-btn" onclick="toggleDrawer()" aria-label="Open menu">
-              <span class="material-symbols-rounded">menu</span>
+              <span style="font:700 18px/1 'Space Grotesk';">&#9776;</span>
             </button>
             <span class="top-bar-title" id="page-title">Home</span>
           </div>
@@ -235,11 +334,11 @@
               <span>SYSTEM ONLINE</span>
             </div>
             <button class="icon-btn" id="notif-btn" onclick="showPage('notifications')" aria-label="Notifications">
-              <span class="material-symbols-rounded">notifications</span>
+              <span class="mono-label" style="font-size:11px;color:inherit;">NOTIF</span>
               <span class="badge" id="notif-badge" style="display:none;">0</span>
             </button>
             <div class="user-chip" id="user-chip" onclick="handleUserClick()" role="button" aria-label="User account">
-              <span class="material-symbols-rounded" style="font-size:18px;">person</span>
+              <span style="font:600 14px/1 'Space Grotesk';color:rgba(235,235,235,0.6);">&#9679;</span>
               <span id="user-name" style="font:500 13px/1 'Space Grotesk',sans-serif;">Sign In</span>
             </div>
           </div>
@@ -247,6 +346,8 @@
 
         <!-- Main Content -->
         <main id="main-content" aria-live="polite"></main>
+        <!-- Strands Ambient Footer -->
+        <div id="strands-footer" style="height: 180px; position: relative; width: 100%; overflow: hidden; margin-top: auto; pointer-events: none; z-index: 0;"></div>
       </div>
     </div>
 

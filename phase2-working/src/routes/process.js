@@ -16,7 +16,7 @@ router.post('/message', authMiddleware, async (req, res) => {
   const startTime = Date.now();
   try {
     const userId = req.user.userId;
-    const { message } = req.body;
+    const { message, localMemories } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
 
     // Check daily run limit
@@ -27,14 +27,30 @@ router.post('/message', authMiddleware, async (req, res) => {
     const user = userRes.rows[0];
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    let usingBooster = false;
+    let activeBoosterId = null;
+
     if (user.daily_runs_used >= user.daily_runs_limit) {
-      return res.status(429).json({
-        error: 'Daily run limit reached',
-        limit: user.daily_runs_limit,
-        used: user.daily_runs_used,
-        tier: user.tier,
-        upgradeUrl: '/credits',
-      });
+      // Fallback check: do they have unexpired booster top-up runs?
+      const boosterRes = await pool.query(
+        `SELECT id, total_runs, runs_used FROM user_boosters 
+         WHERE user_id = $1 AND expires_at > NOW() AND runs_used < total_runs 
+         ORDER BY expires_at LIMIT 1`,
+        [userId]
+      );
+      if (boosterRes.rows.length > 0) {
+        usingBooster = true;
+        activeBoosterId = boosterRes.rows[0].id;
+      } else {
+        return res.status(429).json({
+          error: 'Daily run limit reached',
+          limit: user.daily_runs_limit,
+          used: user.daily_runs_used,
+          tier: user.tier,
+          upgradeUrl: '/credits',
+          isEligibleForBooster: user.tier !== 'free',
+        });
+      }
     }
 
     // Langfuse trace
@@ -62,9 +78,9 @@ router.post('/message', authMiddleware, async (req, res) => {
     try {
       const userKeys = {};
       const byoKeys = user.api_keys || {};
-      if (byoKeys.tavily?.key) userKeys.tavily = require('./keys').getDecryptedKey ? await getDecryptedKey(userId, 'tavily') : null;
-      if (byoKeys.firecrawl?.key) userKeys.firecrawl = require('./keys').getDecryptedKey ? await getDecryptedKey(userId, 'firecrawl') : null;
-      if (byoKeys.searxng_url?.key) userKeys.searxng_url = require('./keys').getDecryptedKey ? await getDecryptedKey(userId, 'searxng_url') : null;
+      if (byoKeys.tavily?.key) userKeys.tavily = require('./keys').getDecryptedKey ? await require('./keys').getDecryptedKey(userId, 'tavily') : null;
+      if (byoKeys.firecrawl?.key) userKeys.firecrawl = require('./keys').getDecryptedKey ? await require('./keys').getDecryptedKey(userId, 'firecrawl') : null;
+      if (byoKeys.searxng_url?.key) userKeys.searxng_url = require('./keys').getDecryptedKey ? await require('./keys').getDecryptedKey(userId, 'searxng_url') : null;
 
       if (liveInfoSystem.needsWebSearch(message)) {
         const searchResult = await liveInfoSystem.searchPriority(message, userKeys);
@@ -79,7 +95,7 @@ router.post('/message', authMiddleware, async (req, res) => {
     const llmSpan = createSpan(trace, 'process_llm', { message, intent, liveContextCount: liveContext.length });
     let llmResponse = null;
     if (user.data_sharing !== false) {
-      llmResponse = await callLLM(user, message, relatedMemories, intent, liveContext);
+      llmResponse = await callLLM(user, message, relatedMemories, intent, liveContext, Array.isArray(localMemories) ? localMemories : []);
     } else {
       llmResponse = 'Your thought has been saved. LLM enrichment is disabled in your privacy settings.';
     }
@@ -91,19 +107,37 @@ router.post('/message', authMiddleware, async (req, res) => {
     endSpan(storeSpan, { stored: true, category: classification.category, halfLifeHours: classification.halfLifeHours });
 
     // Increment run counter
-    await pool.query(
-      'UPDATE users SET daily_runs_used = daily_runs_used + 1, updated_at = NOW() WHERE id = $1',
-      [userId]
-    );
+    if (usingBooster && activeBoosterId) {
+      await pool.query(
+        'UPDATE user_boosters SET runs_used = runs_used + 1 WHERE id = $1',
+        [activeBoosterId]
+      );
+    } else {
+      await pool.query(
+        'UPDATE users SET daily_runs_used = daily_runs_used + 1, updated_at = NOW() WHERE id = $1',
+        [userId]
+      );
+    }
 
     const latency = Date.now() - startTime;
+    
+    let runsRemaining = Math.max(0, user.daily_runs_limit - user.daily_runs_used - (usingBooster ? 0 : 1));
+    if (usingBooster) {
+      const bLeft = await pool.query(
+        'SELECT SUM(total_runs - runs_used) as left FROM user_boosters WHERE user_id = $1 AND expires_at > NOW()',
+        [userId]
+      );
+      runsRemaining = parseInt(bLeft.rows[0]?.left || '0');
+    }
+
     res.json({
       response: llmResponse,
       intent,
       relatedMemories: relatedMemories.slice(0, 5),
-      runsUsed: user.daily_runs_used + 1,
-      runsRemaining: user.daily_runs_limit - user.daily_runs_used - 1,
+      runsUsed: usingBooster ? (user.daily_runs_limit + 1) : (user.daily_runs_used + 1),
+      runsRemaining,
       latency,
+      usingBooster,
       // Classification metadata for frontend display
       classification: {
         halfLifeHours: classification.halfLifeHours,
@@ -233,25 +267,32 @@ async function searchRelatedMemories(userId, message) {
 }
 
 // Call LLM using key pool
-async function callLLM(user, message, relatedMemories, intent, liveContext = []) {
+async function callLLM(user, message, relatedMemories, intent, liveContext = [], localMemories = []) {
   const contextStr = relatedMemories.length > 0
     ? `\n\nRelated memories:\n${relatedMemories.map(m => `- ${m.content}`).join('\n')}`
     : '';
+  const localStr = localMemories.length > 0
+    ? `\n\nAdditional historical memories (Synced locally from user backup):\n${localMemories.map(m => `- [${m.category || 'Memory'}] ${m.value || m.content || m}`).join('\n')}`
+    : '';
   const liveStr = liveContext.length > 0
-    ? `\n\nLive web context:\n${liveContext.slice(0, 3).map(r => `- [${r.source}] ${r.content}`).join('\n')}`
+    ? `\n\nLive web context (Real-time live information):\n${liveContext.slice(0, 3).map(r => `- [${r.source}] ${r.content}`).join('\n')}`
     : '';
 
   const systemPrompt = `You are Thought GPS, a cognitive coprocessor for ADHD/neurodiverse users.
 You help organize thoughts, track commitments, detect patterns, and navigate cognitive load.
-Current intent: ${intent}.${contextStr}${liveStr}
+Current intent: ${intent}.${contextStr}${localStr}${liveStr}
+${liveContext.length > 0 ? '\nIMPORTANT: Real-time search results are provided above. Prioritize this live web context for any current news, status, or date-sensitive facts. Do NOT output outdated facts if the live context contains fresh information.\n' : ''}
 Be concise, empathetic, and action-oriented. Format key items as bullet points.`;
 
   // Try BYO keys first (all tiers)
   const byoKeys = user.api_keys || {};
+  const { decrypt } = require('../crypto');
+
   for (const [provider, keyData] of Object.entries(byoKeys)) {
     if (keyData?.key) {
       try {
-        return await callProvider(provider, keyData.key, systemPrompt, message);
+        const decryptedKey = decrypt(keyData.key);
+        return await callProvider(provider, decryptedKey, systemPrompt, message);
       } catch (e) {
         console.log(`[LLM] BYO ${provider} failed: ${e.message}`);
       }
@@ -290,22 +331,56 @@ async function callProvider(provider, apiKey, systemPrompt, message) {
   const endpoints = {
     groq: 'https://api.groq.com/openai/v1/chat/completions',
     openai: 'https://api.openai.com/v1/chat/completions',
+    openrouter: 'https://openrouter.ai/api/v1/chat/completions',
+    ollama: 'http://localhost:11434/v1/chat/completions',
+    lmstudio: 'http://localhost:1234/v1/chat/completions',
+    anthropic: 'https://api.anthropic.com/v1/messages',
   };
+
   const models = {
     groq: 'llama-3.3-70b-versatile',
     openai: 'gpt-4o-mini',
+    openrouter: 'meta-llama/llama-3.3-70b-instruct',
+    ollama: 'llama3',
+    lmstudio: 'meta-llama-3-8b-instruct',
+    anthropic: 'claude-3-5-haiku-latest',
   };
+
   const endpoint = endpoints[provider];
   const model = models[provider];
   if (!endpoint) throw new Error(`Unknown provider: ${provider}`);
 
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
+  let headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (apiKey) {
+    if (provider === 'anthropic') {
+      headers['x-api-key'] = apiKey;
+      headers['anthropic-version'] = '2023-06-01';
+    } else {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+  }
+
+  if (provider === 'openrouter') {
+    headers['HTTP-Referer'] = 'https://thoughtgps.local';
+    headers['X-Title'] = 'Thought GPS';
+  }
+
+  let body;
+  if (provider === 'anthropic') {
+    body = JSON.stringify({
+      model,
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: message }
+      ],
+      max_tokens: 1024,
+      temperature: 0.7,
+    });
+  } else {
+    body = JSON.stringify({
       model,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -313,7 +388,13 @@ async function callProvider(provider, apiKey, systemPrompt, message) {
       ],
       max_tokens: 1024,
       temperature: 0.7,
-    }),
+    });
+  }
+
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body,
   });
 
   if (!resp.ok) {
@@ -322,6 +403,9 @@ async function callProvider(provider, apiKey, systemPrompt, message) {
   }
 
   const data = await resp.json();
+  if (provider === 'anthropic') {
+    return data.content?.[0]?.text || 'No response generated.';
+  }
   return data.choices?.[0]?.message?.content || 'No response generated.';
 }
 
