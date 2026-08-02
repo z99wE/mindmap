@@ -928,31 +928,12 @@ app.use('/agent-reach', (req, res, next) => {
 // ============================================
 
 // Create endpoints for Phase 8 features
-app.use('/api/thought', (req, res, next) => {
-  // Proxy to thought interceptor
-  next();
-});
-
-app.use('/api/geofence', (req, res, next) => {
-  // Proxy to invisible checklist
-  next();
-});
-
-app.use('/api/drift', (req, res, next) => {
-  // Proxy to drift detector
-  next();
-});
-
-app.use('/api/door', (req, res, next) => {
-  // Proxy to door rule
-  next();
-});
-
-// Classification endpoints
-app.use('/api/classify', (req, res, next) => {
-  // Proxy to thought classification
-  next();
-});
+createThoughtInterceptorEndpoints(app, pool);
+createInvisibleChecklistEndpoints(app, pool);
+createDriftDetectorEndpoints(app, pool);
+createRelationshipAnchorEndpoints(app, pool);
+createDoorRuleEndpoints(app, pool);
+createClassificationEndpoints(app, pool, llmRouter);
 
 // Initialize Caspian client
 const { CommClient } = require('caspian-sdk');
