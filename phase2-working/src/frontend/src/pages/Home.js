@@ -1,231 +1,151 @@
-// Home Page Component with high-fidelity Carbon-inspired VC pitch, Problem statement, interactive features, and animations
+// Home Page Component - Overhauled to match Astrix high-end monospace layout specifications
 export const Home = () => {
   const container = document.createElement('div');
-  container.className = 'home-pitch-container';
-  
+  container.className = 'w-full';
+
   container.innerHTML = `
-    <!-- Hero Pitch Section -->
-    <section class="hero-section">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <div class="brand-eyebrow">COGNITIVE COPROCESSOR</div>
-        <h1 class="hero-headline glitch-text">Your Mind Was Never Meant to Remember Everything.</h1>
-        <h2 class="hero-subheadline">Thought GPS maps your ideas, remembers context, researches the web, coordinates AI agents, and guides you from scattered thoughts to finished work.</h2>
-        
-        <div class="hero-cta-group">
-          <button class="btn btn-primary btn-lg" onclick="showPage('interactive-space')">Start Navigating</button>
-          <button class="btn btn-secondary btn-lg" onclick="showPage('dashboard')">See Mission Control</button>
-        </div>
-        
-        <!-- Interactive Telemetry Feed -->
-        <div class="telemetry-ticker">
-          <span class="telemetry-pulse"></span>
-          <span class="telemetry-text" id="telemetry-feed">Thinking...</span>
-        </div>
-      </div>
-    </section>
+    <!-- Astrix-Style Hero Section -->
+    <div id="varda-hero" class="relative h-[90vh] w-full bg-black overflow-hidden flex flex-col justify-between pt-16">
+      
+      <!-- Background Image & Gradient -->
+      <div class="hero-image-bg"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-0"></div>
 
-    <!-- Alternative Headlines Marquee (Fundable Positioning) -->
-    <section class="value-prop-strip">
-      <div class="marquee-wrapper">
-        <div class="marquee-content">
-          <span>Navigate ideas like Google Maps navigates roads.</span>
-          <span class="divider">//</span>
-          <span>AI That Understands Where Your Thinking Is Going.</span>
-          <span class="divider">//</span>
-          <span>Stop Searching. Start Navigating.</span>
-          <span class="divider">//</span>
-          <span>Your second brain finally has directions.</span>
-        </div>
+      <!-- Grid Overlay -->
+      <div class="absolute inset-0 pt-16 z-10 pointer-events-none">
+         <div class="w-full h-full grid grid-cols-7 grid-rows-6" style="background-size: calc(100% / 7) calc(100% / 6); 
+                    background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), 
+                                      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+                    background-position: -1px -1px;">
+         </div>
       </div>
-    </section>
 
-    <!-- The Problem (ADHD & Cognitive Friction) -->
-    <section class="problem-solution-section">
-      <div class="grid-2col">
-        <div class="problem-block">
-          <div class="section-label text-warning">THE INEFFICIENCY GRID</div>
-          <h3 class="section-heading">Your Brain Isn't the Bottleneck. <br><span class="text-orange">Navigation Is.</span></h3>
-          <p class="section-body">Most AI forgets. Most note-taking apps just collect. Most productivity tools make you organize everything yourself. Your brain ends up doing all the navigation.</p>
-          <div class="problem-list">
-            <div class="problem-item">
-              <span class="cross-icon"></span>
-              <div>
-                <strong>The ADHD Tax:</strong> Out-of-sight, out-of-mind. Static files disappear from focus.
-              </div>
-            </div>
-            <div class="problem-item">
-              <span class="cross-icon"></span>
-              <div>
-                <strong>Context Fragmentation:</strong> Switching platforms drops details.
-              </div>
-            </div>
-            <div class="problem-item">
-              <span class="cross-icon"></span>
-              <div>
-                <strong>Information Stagnation:</strong> Note lists accumulate clutter instead of driving execution.
-              </div>
-            </div>
+      <!-- Title Area / Context -->
+      <div class="relative z-20 w-full h-full grid grid-cols-7 grid-rows-6 pointer-events-none">
+        
+        <!-- Headline -->
+        <div class="col-span-7 lg:col-span-4 row-span-2 lg:row-span-3 p-6 lg:p-10 flex flex-col justify-start pointer-events-auto">
+          <span class="text-[9px] uppercase tracking-[0.4em] text-white/50 mb-3 font-bold">Cognitive Coprocessor</span>
+          <h1 class="text-[42px] leading-[0.9] lg:text-[72px] font-black text-white tracking-tighter uppercase font-primary">
+            Thought<br><span class="text-white/20">GPS</span>
+          </h1>
+          <p class="text-xs uppercase tracking-widest text-white/60 mt-4 max-w-sm">
+            Your Mind Was Never Meant to Remember Everything. Navigate ideas like Google Maps navigates roads.
+          </p>
+        </div>
+
+        <div class="hidden lg:block col-span-1 row-span-3"></div>
+
+        <!-- Subheadline -->
+        <div class="col-span-7 lg:col-span-2 row-span-2 lg:row-span-3 p-6 lg:p-10 flex flex-col justify-start pointer-events-auto">
+           <p class="text-[12px] leading-normal text-white/80 font-bold uppercase tracking-widest text-left">
+              Thought GPS maps your ideas, remembers context, researches the web, coordinates AI agents, and guides you from scattered thoughts to finished work.
+           </p>
+           
+           <!-- Telemetry message indicator -->
+           <div class="mt-8 flex items-center gap-3 text-green-500 font-mono text-[10px] uppercase tracking-widest">
+             <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_#00e676]"></span>
+             <span id="telemetry-feed">Thinking...</span>
+           </div>
+        </div>
+
+        <!-- Bottom Call To Actions (Row 6) -->
+        <div class="hidden lg:block col-span-5 row-span-1"></div>
+
+        <a onclick="showPage('interactive-space')" class="pointer-events-auto col-span-3 md:col-span-2 lg:col-span-1 row-span-1 p-6 flex flex-col justify-end border-t border-r border-white/10 hover:bg-white group transition-all duration-500 no-underline cursor-pointer">
+          <span class="text-white font-black uppercase text-[10px] tracking-widest group-hover:text-black transition-colors duration-500 block">
+            Start Navigating &rarr;
+          </span>
+        </a>
+
+        <a onclick="showPage('dashboard')" class="pointer-events-auto col-span-4 md:col-span-2 lg:col-span-1 row-span-1 p-6 flex flex-col justify-end border-t border-white/10 hover:bg-white group transition-all duration-500 no-underline cursor-pointer">
+          <span class="text-white font-black uppercase text-[10px] tracking-widest group-hover:text-black transition-colors duration-500 block">
+            Mission Control
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Monospace Ticker Marquee -->
+    <div class="w-full py-6 bg-black overflow-hidden whitespace-nowrap border-y border-white/10">
+      <div class="flex gap-6 animate-marquee items-center text-[10px] uppercase tracking-[0.5em] text-white font-black">
+        <span>AI That Understands Where Your Thinking Is Going</span> <div class="w-12 h-px bg-white/20"></div>
+        <span>Stop Searching. Start Navigating.</span> <div class="w-12 h-px bg-white/20"></div>
+        <span>The operating system for human thought</span> <div class="w-12 h-px bg-white/20"></div>
+        <span>Zero-friction cognitive memory graph</span> <div class="w-12 h-px bg-white/20"></div>
+        <span>AI That Understands Where Your Thinking Is Going</span> <div class="w-12 h-px bg-white/20"></div>
+        <span>Stop Searching. Start Navigating.</span>
+      </div>
+    </div>
+
+    <!-- Astrix Bento Grid for Platform Features -->
+    <section class="bg-black py-16 px-4">
+      <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[400px]">
+        
+        <!-- Platform Pitch Cell -->
+        <div class="lg:col-span-2 lg:row-span-2 group relative overflow-hidden flex flex-col justify-between p-8 lg:p-12 bg-transparent text-white border border-white/10 hover:bg-white hover:text-black transition-all duration-500">
+          <div class="flex justify-between items-start w-full relative z-10">
+            <div class="text-white/40 group-hover:text-black/40 font-black uppercase tracking-[0.3em] text-[10px]">The Problem</div>
+          </div>
+          <div class="relative z-10">
+            <h2 class="text-[36px] lg:text-[54px] leading-[0.9] font-black tracking-tighter text-white group-hover:text-black uppercase transition-colors">
+              Your Brain Isn't<br>The Bottleneck.<br><span class="text-white/30 group-hover:text-black/30">Navigation Is.</span>
+            </h2>
+            <p class="text-xs uppercase tracking-widest opacity-60 mt-4 max-w-md">
+              Most AI forgets. Most note-taking apps just collect. Most productivity tools make you organize everything yourself. Your brain ends up doing all the navigation.
+            </p>
           </div>
         </div>
-        
-        <div class="solution-block">
-          <div class="section-label text-success">THE COGNITIVE RESOLUTION</div>
-          <h3 class="section-heading">You don't need another notebook. <br><span class="text-green">You need a navigation system.</span></h3>
-          <p class="section-body">Thought GPS integrates vector persistence, OSRM physical transport awareness, and automated channels to build a zero-friction second brain.</p>
-          
-          <div class="solution-grid">
-            <div class="solution-card">
-              <div class="sol-num">01</div>
-              <h4>Designed for Non-Linear Minds</h4>
-              <p>Your thoughts aren't messy—they're multidimensional. Follow them instead of fighting them.</p>
-            </div>
-            <div class="solution-card">
-              <div class="sol-num">02</div>
-              <h4>Zero-Friction Capture</h4>
-              <p>WhatsApp, Signal, and Web widgets feed a single pgvector Knowledge Graph instantly.</p>
-            </div>
+
+        <!-- Metric Card -->
+        <div class="flex flex-col justify-between p-10 bg-white border border-white/10 text-black hover:bg-black hover:text-white transition-colors duration-500 group">
+          <div class="text-[10px] uppercase tracking-[0.3em] font-black text-black/40 group-hover:text-white/40">Performance</div>
+          <div>
+            <div class="text-[54px] font-black tracking-tighter leading-none mb-4">0.0$</div>
+            <p class="text-[10px] uppercase tracking-widest font-black leading-tight">SearXNG-based reality search. Real intelligence at a zero-cost budget.</p>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- How It Works (Thought to Direction Lobe) -->
-    <section class="how-it-works-section">
-      <div class="section-header-centered">
-        <div class="section-label">WORKFLOW PIPELINE</div>
-        <h2 class="section-heading">From Thought &rarr; Direction</h2>
-      </div>
-      
-      <div class="pipeline-grid">
-        <div class="pipeline-step">
-          <div class="step-badge">CAPTURE</div>
-          <p class="step-desc">Type. Speak. Paste. Every thought becomes a node.</p>
+        <!-- ADHD Benefits Lobe -->
+        <div class="flex flex-col justify-between p-10 bg-[#141414] border border-white/10 group hover:bg-white transition-all duration-500">
+          <div class="text-white/40 font-black uppercase tracking-[0.3em] text-[10px] group-hover:text-black/40">ADHD Mode</div>
+          <h3 class="text-[28px] leading-[0.9] font-black text-white group-hover:text-black uppercase tracking-tighter">Designed for<br>Brains That Don't<br>Think In Straight Lines</h3>
         </div>
-        <div class="pipeline-step">
-          <div class="step-badge">UNDERSTAND</div>
-          <p class="step-desc">AI extracts meaning instead of keywords. Relationships appear automatically.</p>
-        </div>
-        <div class="pipeline-step">
-          <div class="step-badge">RESEARCH</div>
-          <p class="step-desc">Searches the web in real time. Adds evidence. Removes hallucinations.</p>
-        </div>
-        <div class="pipeline-step">
-          <div class="step-badge">REMEMBER</div>
-          <p class="step-desc">Every conversation becomes connected memory. Nothing disappears.</p>
-        </div>
-        <div class="pipeline-step">
-          <div class="step-badge">NAVIGATE</div>
-          <p class="step-desc">Jump between ideas. See where your thinking leads.</p>
-        </div>
-        <div class="pipeline-step">
-          <div class="step-badge">EXECUTE</div>
-          <p class="step-desc">Launch AI agents. Generate work. Complete tasks.</p>
-        </div>
-      </div>
-    </section>
 
-    <!-- Structural Comparison -->
-    <section class="comparison-section">
-      <div class="section-header-centered">
-        <div class="section-label">SYSTEM ARCHITECTURE</div>
-        <h2 class="section-heading">Stop Managing Information. Start Using It.</h2>
-      </div>
-      
-      <div class="comparison-table-wrapper">
-        <table class="comparison-table">
-          <thead>
-            <tr>
-              <th>TRADITIONAL APPLICATIONS</th>
-              <th class="accent-header">THOUGHT GPS COPROCESSOR</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Remember where things are.</td>
-              <td class="success-row">Remember why they matter.</td>
-            </tr>
-            <tr>
-              <td>Search files.</td>
-              <td class="success-row">Navigate ideas.</td>
-            </tr>
-            <tr>
-              <td>Store information.</td>
-              <td class="success-row">Grow intelligence.</td>
-            </tr>
-            <tr>
-              <td>Folders, lists, static files.</td>
-              <td class="success-row">Asymmetric knowledge maps.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+        <!-- Step-by-Step Pipeline -->
+        <div class="md:col-span-2 p-10 bg-black border border-white/10 text-white flex flex-col md:flex-row gap-8 items-center overflow-hidden hover:bg-white hover:text-black transition-all duration-500 group">
+          <div class="space-y-4">
+            <span class="text-[9px] uppercase tracking-[0.4em] bg-white text-black group-hover:bg-black group-hover:text-white px-3 py-1 font-black">Memory Pipeline</span>
+            <h3 class="text-[36px] leading-[0.9] font-black uppercase tracking-tighter">From Thought &rarr; Direction</h3>
+            <p class="text-xs uppercase tracking-widest opacity-60 group-hover:opacity-100 max-w-sm">
+              Capture (type or speak), Understand (extract context), Research (web search verify), Remember (relationship graph), and Execute tasks in real-time.
+            </p>
+          </div>
+        </div>
 
-    <!-- Attention/ADHD Benefits Grid -->
-    <section class="benefits-section">
-      <div class="grid-2col">
-        <div>
-          <div class="section-label">ATTENTION DYNAMICS</div>
-          <h3 class="section-heading">Designed For Brains That Don't Think In Straight Lines.</h3>
-          <p class="section-body">Instead of folders, you get maps. Instead of history, you get context. Instead of search, you get navigation.</p>
+        <!-- Architecture Bulletin -->
+        <div class="p-10 bg-white border border-white/10 flex flex-col justify-between text-black group hover:bg-black hover:text-white transition-all duration-500">
+          <div class="text-[10px] uppercase tracking-[0.3em] text-black/40 group-hover:text-white/40 font-black">Storage</div>
+          <div class="space-y-4">
+            <h4 class="text-lg font-black uppercase tracking-tight">Connected Memory</h4>
+            <p class="text-[10px] text-black/60 group-hover:text-white/60 leading-relaxed font-bold uppercase tracking-widest">Thought GPS doesn't save conversations—it builds semantic knowledge graph relationships.</p>
+          </div>
         </div>
-        <div class="benefits-grid">
-          <div class="benefit-item">Reduce cognitive overload</div>
-          <div class="benefit-item">Never lose ideas</div>
-          <div class="benefit-item">Lower task switching</div>
-          <div class="benefit-item">Visual thinking</div>
-          <div class="benefit-item">Capture before forgetting</div>
-          <div class="benefit-item">Reconnect forgotten thoughts</div>
-          <div class="benefit-item">Reduce mental fatigue</div>
-          <div class="benefit-item">Finish more work</div>
-          <div class="benefit-item">Stay in flow</div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Features Overview -->
-    <section class="features-grid-section">
-      <div class="section-header-centered">
-        <div class="section-label">PLATFORM MODES</div>
-        <h2 class="section-heading">The Cognitive Command Grid</h2>
-      </div>
-      
-      <div class="features-grid">
-        <div class="feat-card" onclick="showPage('mission-control')">
-          <h5>Mission Control</h5>
-          <p>Every AI, memory, and channel monitored in a single centralized command center.</p>
+        <!-- Multi-Agent Lobe -->
+        <div class="p-10 bg-[#141414] border border-white/10 flex flex-col justify-center gap-6 text-left group hover:bg-white transition-colors duration-500">
+          <p class="text-3xl font-black uppercase tracking-tighter text-white group-hover:text-black">Multi-Agent<br>Specialists</p>
+          <div class="w-full h-1 bg-white/10">
+            <div class="w-full h-full bg-white group-hover:bg-black"></div>
+          </div>
+          <p class="text-[9px] uppercase tracking-[0.4em] text-white/40 font-black group-hover:text-black/40">Coordinating Research, Writing, Coding & Planning</p>
         </div>
-        <div class="feat-card" onclick="showPage('brain-fragments')">
-          <h5>Knowledge Graph</h5>
-          <p>Evolving semantic relationships connecting creative, analytical, and emotional thoughts.</p>
-        </div>
-        <div class="feat-card" onclick="showPage('interactive-space')">
-          <h5>Live Web Search</h5>
-          <p>Reality before reasoning. Ground thoughts with real-time duckduckgo/searxng scraping.</p>
-        </div>
-        <div class="feat-card" onclick="showPage('dashboard')">
-          <h5>Multi-Agent AI</h5>
-          <p>Coordinated specialists for writing, research, and analysis tasks working as one.</p>
-        </div>
-        <div class="feat-card" onclick="showPage('memory')">
-          <h5>Persistent Memory</h5>
-          <p>Portable JSON-LD exports keeping your neural network compatible and yours forever.</p>
-        </div>
-        <div class="feat-card" onclick="showPage('cognitive-load')">
-          <h5>ADHD Task Decayer</h5>
-          <p>Half-life tracking that escalates tasks before they expire from working memory.</p>
-        </div>
-      </div>
-    </section>
 
-    <!-- Brand Footer Pitch -->
-    <section class="brand-footer-pitch">
-      <h3 class="tagline">Less remembering. <br><span class="text-orange">More thinking.</span></h3>
+      </div>
     </section>
   `;
 
-  // Telemetry loop for floating notifications simulator
+  // Telemetry loop for status ticker
   const telemetryMsgs = [
     "Thinking...",
     "Connecting ideas...",
