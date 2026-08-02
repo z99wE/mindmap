@@ -16,7 +16,7 @@ router.post('/message', authMiddleware, async (req, res) => {
   const startTime = Date.now();
   try {
     const userId = req.user.userId;
-    const { message, localMemories } = req.body;
+    const { message, localMemories, attachment } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
 
     // Check daily run limit
@@ -92,10 +92,20 @@ router.post('/message', authMiddleware, async (req, res) => {
     }
 
     // 4. Process with LLM (only if data_sharing is enabled)
-    const llmSpan = createSpan(trace, 'process_llm', { message, intent, liveContextCount: liveContext.length });
+    let finalMessage = message;
+    if (attachment && user.tier !== 'free') {
+      if (attachment.type?.startsWith('image/')) {
+        finalMessage += `\n\n[Attached Image: ${attachment.name}]`;
+      } else {
+        const snippet = attachment.content?.substring(0, 15000);
+        finalMessage += `\n\n[Attached File Content "${attachment.name}"]: ${snippet}`;
+      }
+    }
+
+    const llmSpan = createSpan(trace, 'process_llm', { message: finalMessage, intent, liveContextCount: liveContext.length });
     let llmResponse = null;
     if (user.data_sharing !== false) {
-      llmResponse = await callLLM(user, message, relatedMemories, intent, liveContext, Array.isArray(localMemories) ? localMemories : []);
+      llmResponse = await callLLM(user, finalMessage, relatedMemories, intent, liveContext, Array.isArray(localMemories) ? localMemories : []);
     } else {
       llmResponse = 'Your thought has been saved. LLM enrichment is disabled in your privacy settings.';
     }

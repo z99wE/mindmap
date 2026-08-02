@@ -28,9 +28,19 @@ export function InteractiveSpace() {
 
       <!-- Input form -->
       <form id="chat-form" class="card-reveal" style="display:flex;gap:0.75rem;align-items:flex-end;">
-        <div style="flex:1;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
+          <div id="attachment-preview" style="display:none;background:rgba(255,255,255,0.05);padding:0.5rem 1rem;border-radius:var(--md-sys-shape-small);font-size:12px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,0.1);">
+            <span id="attachment-name" style="color:var(--md-sys-color-primary);"></span>
+            <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0;min-width:auto;height:auto;color:var(--md-sys-color-error);">REMOVE</button>
+          </div>
           <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." style="resize:vertical;min-height:48px;"></textarea>
         </div>
+        <button type="button" class="btn-m3 btn-tonal" id="dictate-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Voice Dictation">
+          <span class="material-symbols-rounded">mic</span>
+        </button>
+        <button type="button" class="btn-m3 btn-tonal" id="attach-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Attach File (Premium <1MB)">
+          <span class="material-symbols-rounded">attach_file</span>
+        </button>
         <button type="submit" class="btn-m3 btn-filled" id="send-btn" style="height:48px;">
           <span style="font:700 14px/1 'Space Grotesk';">SEND</span>
         </button>
@@ -41,23 +51,129 @@ export function InteractiveSpace() {
   const input = container.querySelector('#chat-input');
   const chatArea = container.querySelector('#chat-area');
   const runsInfo = container.querySelector('#runs-info');
+  const dictateBtn = container.querySelector('#dictate-btn');
+  const attachBtn = container.querySelector('#attach-btn');
+  const attachPreview = container.querySelector('#attachment-preview');
+  const attachName = container.querySelector('#attachment-name');
+  const removeAttachBtn = container.querySelector('#remove-attach-btn');
   let firstMessage = true;
+  let attachedFile = null;
 
   // Load conversation history + run status
   loadHistory(chatArea, runsInfo);
 
+  // Voice Dictation
+  let recognition = null;
+  let isRecording = false;
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      isRecording = true;
+      dictateBtn.style.background = 'var(--md-sys-color-error)';
+      dictateBtn.style.color = '#fff';
+      dictateBtn.querySelector('span').textContent = 'mic_off';
+      input.placeholder = 'Listening...';
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      dictateBtn.style.background = '';
+      dictateBtn.style.color = '';
+      dictateBtn.querySelector('span').textContent = 'mic';
+      input.placeholder = 'Type a thought, question, or commitment...';
+    };
+
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript;
+      input.value += (input.value ? ' ' : '') + text;
+    };
+
+    recognition.onerror = (e) => {
+      console.error('Dictation error:', e);
+      isRecording = false;
+      dictateBtn.style.background = '';
+      dictateBtn.style.color = '';
+      dictateBtn.querySelector('span').textContent = 'mic';
+    };
+  }
+
+  dictateBtn.addEventListener('click', () => {
+    if (!recognition) {
+      alert('Speech recognition is not supported in this browser.');
+      return;
+    }
+    if (isRecording) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  });
+
+  // Premium File Attachments
+  attachBtn.addEventListener('click', () => {
+    const currentUser = api.getUser();
+    if (!currentUser || currentUser.tier === 'free') {
+      alert('Document and file attachments are exclusive to Explorer Plus tier users.');
+      return;
+    }
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.txt,.pdf,image/*';
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 1024 * 1024) {
+        alert('File size exceeds the 1MB safety limit.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        attachedFile = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          content: reader.result
+        };
+        attachName.textContent = `Attached: ${file.name} (${Math.round(file.size/1024)} KB)`;
+        attachPreview.style.display = 'flex';
+      };
+
+      if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
+        reader.readAsText(file);
+      } else {
+        reader.readAsDataURL(file); // Images/PDFs base64 encoded
+      }
+    };
+    fileInput.click();
+  });
+
+  removeAttachBtn.addEventListener('click', () => {
+    attachedFile = null;
+    attachPreview.style.display = 'none';
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const msg = input.value.trim();
-    if (!msg) return;
+    if (!msg && !attachedFile) return;
 
     if (firstMessage) { chatArea.innerHTML = ''; firstMessage = false; }
+
+    const displayMsg = msg + (attachedFile ? `\n[File: ${attachedFile.name}]` : '');
 
     // User bubble
     chatArea.innerHTML += `
       <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
-        <div style="max-width:80%;padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small) var(--md-sys-shape-large);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font:var(--md-sys-typescale-body-medium);">
-          ${escHtml(msg)}
+        <div style="max-width:80%;padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small) var(--md-sys-shape-large);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font:var(--md-sys-typescale-body-medium);white-space:pre-wrap;">
+          ${escHtml(displayMsg)}
         </div>
       </div>`;
 
@@ -84,7 +200,13 @@ export function InteractiveSpace() {
       console.warn('Could not query local memories:', e);
     }
 
-    const result = await api.post('/process/message', { message: msg, localMemories });
+    const payload = { message: msg || `Uploaded file: ${attachedFile.name}`, localMemories, attachment: attachedFile };
+
+    // Clear attachment
+    attachedFile = null;
+    attachPreview.style.display = 'none';
+
+    const result = await api.post('/process/message', payload);
 
     document.getElementById(loadingId)?.remove();
     btn.disabled = false;

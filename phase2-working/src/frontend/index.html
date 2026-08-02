@@ -302,6 +302,82 @@
       overflow-y: auto;
     }
     .mobile-drawer.open .mobile-drawer-content { transform: translateX(0); }
+
+    /* ── UI Legibility & Glow Hover Overrides ── */
+    .surface-card {
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease !important;
+      color: #f5f5f7 !important;
+    }
+    .surface-card:hover {
+      border-color: rgba(204, 255, 0, 0.4) !important;
+      box-shadow: 0 8px 30px rgba(204, 255, 0, 0.15) !important;
+      transform: translateY(-2px) !important;
+    }
+    p, .md-sys-color-outline, .md-sys-color-on-surface-variant {
+      color: rgba(235, 235, 245, 0.8) !important;
+    }
+    input, textarea, select, option {
+      color: #ffffff !important;
+    }
+
+    /* ── Jupiter Ring Footer ── */
+    .jupiter-orb-container {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140%;
+      height: 200px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .jupiter-ring {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%) scaleY(0.18);
+      width: 80%;
+      height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(204, 255, 0, 0.45) 0%, rgba(204, 255, 0, 0.15) 30%, rgba(0, 0, 0, 0) 70%);
+      box-shadow: 0 0 100px rgba(204, 255, 0, 0.3), inset 0 0 50px rgba(204, 255, 0, 0.2);
+      animation: pulse-jupiter 6s ease-in-out infinite;
+      filter: blur(10px);
+    }
+    .jupiter-ring-inner {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) scaleY(0.08);
+      width: 50%;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, #ffffff 0%, rgba(204, 255, 0, 0.6) 20%, rgba(0, 0, 0, 0) 65%);
+      box-shadow: 0 0 60px rgba(204, 255, 0, 0.5);
+      animation: pulse-jupiter-inner 6s ease-in-out infinite;
+      filter: blur(4px);
+    }
+    @keyframes pulse-jupiter {
+      0%, 100% {
+        transform: translateX(-50%) scaleY(0.18) scale(1);
+        opacity: 0.7;
+      }
+      50% {
+        transform: translateX(-50%) scaleY(0.20) scale(1.08);
+        opacity: 0.9;
+      }
+    }
+    @keyframes pulse-jupiter-inner {
+      0%, 100% {
+        transform: translateX(-50%) scaleY(0.08) scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateX(-50%) scaleY(0.09) scale(1.15);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -347,7 +423,12 @@
         <!-- Main Content -->
         <main id="main-content" aria-live="polite"></main>
         <!-- Strands Ambient Footer -->
-        <div id="strands-footer" style="height: 180px; position: relative; width: 100%; overflow: hidden; margin-top: auto; pointer-events: none; z-index: 0;"></div>
+        <div id="strands-footer" style="height: 180px; position: relative; width: 100%; overflow: hidden; margin-top: auto; pointer-events: none; z-index: 0;">
+          <div class="jupiter-orb-container">
+            <div class="jupiter-ring"></div>
+            <div class="jupiter-ring-inner"></div>
+          </div>
+        </div>
       </div>
     </div>
 

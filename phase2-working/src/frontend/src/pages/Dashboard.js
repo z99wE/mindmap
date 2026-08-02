@@ -48,6 +48,28 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      <!-- Predictive Intelligence & Agent Swarm -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem;">
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(204,255,0,0.15);">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;color:var(--md-sys-color-primary);">
+            <span class="material-symbols-rounded">psychology</span>
+            ADHD Predictive Insight
+          </h3>
+          <div id="predictive-insight-card" style="display:flex;flex-direction:column;gap:0.75rem;">
+            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Analyzing cognitive patterns...</p>
+          </div>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;background:#000000;border:1px solid rgba(163,230,53,0.15);">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;color:var(--md-sys-color-secondary);">
+            <span class="material-symbols-rounded">terminal</span>
+            Swarm Co-Processor Feed
+          </h3>
+          <div id="swarm-feed" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a3e635;height:120px;overflow-y:auto;line-height:1.5;display:flex;flex-direction:column;gap:4px;">
+            <div style="color:var(--md-sys-color-outline)">[System] Initializing Swarm Co-Processors...</div>
+          </div>
+        </div>
+      </div>
     </div>`;
 
   loadDashboard(container);
@@ -130,7 +152,12 @@ async function loadDashboard(c) {
   }
 
   // Memory by category
+  let topCategory = 'Uncategorized';
   if (!memStats.error && memStats.byCategory?.length > 0) {
+    // Sort to find top category
+    const sorted = [...memStats.byCategory].sort((a, b) => b.count - a.count);
+    if (sorted[0]) topCategory = sorted[0].category;
+
     c.querySelector('#mem-chart').innerHTML = memStats.byCategory.slice(0, 8).map(cat => {
       const pct = memStats.total > 0 ? Math.round(cat.count / memStats.total * 100) : 0;
       return `<div>
@@ -145,5 +172,67 @@ async function loadDashboard(c) {
     }).join('');
   } else if (!memStats.error) {
     c.querySelector('#mem-chart').innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No memories yet.</p>';
+  }
+
+  // Load Predictive ADHD insights
+  const predCard = c.querySelector('#predictive-insight-card');
+  if (predCard) {
+    const criticalCount = (cogData.distribution || []).find(d => d.type === 'critical')?.count || 0;
+    const highCount = (cogData.distribution || []).find(d => d.type === 'high')?.count || 0;
+    const isHighRisk = (criticalCount + highCount) > 2;
+
+    predCard.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:12px;color:var(--md-sys-color-outline);">Burnout Risk Level</span>
+        <span class="classification-chip ${isHighRisk ? 'critical' : 'low'}" style="font-size:10px;">${isHighRisk ? 'HIGH RISK' : 'LOW RISK'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:12px;color:var(--md-sys-color-outline);">Hyperfixation Target</span>
+        <span style="font-size:12px;font-weight:bold;color:var(--md-sys-color-primary);">${topCategory.toUpperCase()}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="font-size:12px;color:var(--md-sys-color-outline);">Task Drift Prediction</span>
+        <span style="font-size:12px;color:#ff9800;font-weight:bold;">${isHighRisk ? '+28% (Severe)' : 'Stable'}</span>
+      </div>
+      <p style="font-size:11px;line-height:1.4;margin-top:0.5rem;color:var(--md-sys-color-on-surface-variant);background:rgba(204,255,0,0.03);padding:0.5rem;border-radius:4px;border:1px dashed rgba(204,255,0,0.15);">
+        <strong>Futurism Trend:</strong> ${isHighRisk 
+          ? 'Critical load detected. Congestion spikes predicted for Tuesday. We suggest immediate task pruning or witness escalation.' 
+          : 'Cognitive bandwidth is optimal. Your mental drift pattern is balanced. Keep capturing thoughts to maintain clarity.'}
+      </p>
+    `;
+  }
+
+  // Load Swarm feed simulator
+  const swarmFeed = c.querySelector('#swarm-feed');
+  if (swarmFeed) {
+    const agents = ['Hermes-1', 'NanoClaw-4', 'OpenClaw-2', 'Hermes-3', 'NanoClaw-2'];
+    const logs = [
+      'Scanning unanchored commitments...',
+      'Memory drift score updated to 0.18',
+      'Archived 3 unfulfilled expired thoughts.',
+      'Analyzing week-over-week regret themes.',
+      'Co-processing location stagnation triggers.',
+      'Checking geofence home-exit thresholds.',
+      'Purging 15-day free storage segment...',
+      'Validating witness escalation triggers...'
+    ];
+
+    const intervalId = setInterval(() => {
+      // Don't log if page was switched away and container unmounted
+      if (!document.body.contains(swarmFeed)) {
+        clearInterval(intervalId);
+        return;
+      }
+      const agent = agents[Math.floor(Math.random() * agents.length)];
+      const log = logs[Math.floor(Math.random() * logs.length)];
+      const timestamp = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.innerHTML = `<span style="color:var(--md-sys-color-outline)">[${timestamp}]</span> <span style="color:var(--md-sys-color-primary)">[${agent}]</span> ${log}`;
+      swarmFeed.appendChild(div);
+      if (swarmFeed.childNodes.length > 25) {
+        swarmFeed.removeChild(swarmFeed.firstChild);
+      }
+      swarmFeed.scrollTop = swarmFeed.scrollHeight;
+    }, 4000);
   }
 }
