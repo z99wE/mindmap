@@ -128,14 +128,58 @@ async function start() {
     await runMigrations();
     initLangfuse();
 
-    // Initialize Caspian SDK client (real delivery on free channels, stub fallback if no API key)
-    const { createCaspianClient } = require('./src/caspian-client');
-    const caspian = await createCaspianClient(pool);
+    // ── PulseKit: ThoughtGPS native multi-channel messenger (PRIMARY) ─────────
+    // Zero external SDK dependency. Works without any API key.
+    // Channels activated via env vars — all free, all self-owned.
+    const { createPulseKit } = require('./src/pulsekit/index');
+    const pulseKit = await createPulseKit(pool, webpush, vapidKeys);
 
-    // Expose caspian client and pool on app for use in route handlers (e.g. channel test endpoint, cron tick)
+    // ── Caspian SDK: optional enriched fallback (secondary) ───────────────────
+    // If CASPIAN_API_KEY is present, Caspian runs alongside PulseKit.
+    // If Caspian ever goes down, PulseKit already handles everything.
+    let caspianFallback = null;
+    if (process.env.CASPIAN_API_KEY) {
+      try {
+        const { createCaspianClient } = require('./src/caspian-client');
+        caspianFallback = await createCaspianClient(pool);
+        console.log('[Server] Caspian SDK loaded as secondary fallback');
+      } catch (e) {
+        console.warn('[Server] Caspian SDK failed to load (not critical — PulseKit handles delivery):', e.message);
+      }
+    }
+
+    // ── Unified messenger: PulseKit first, Caspian if PulseKit has no channel ─
+    // All existing route code calls app.locals.caspian.send() — interface unchanged.
+    const caspian = {
+      // Forward all sends to PulseKit
+      send: async (opts) => {
+        try {
+          const result = await pulseKit.send(opts);
+          if (result.via !== 'db-only') return result;
+        } catch (e) {
+          console.warn('[Messenger] PulseKit send failed, trying Caspian fallback:', e.message);
+        }
+        // If PulseKit had no channel driver, try Caspian
+        if (caspianFallback) {
+          return caspianFallback.send(opts);
+        }
+      },
+      broadcast: pulseKit.broadcast.bind(pulseKit),
+      schedule:  pulseKit.schedule.bind(pulseKit),
+      onInbound: pulseKit.onInbound.bind(pulseKit),
+      startListening: pulseKit.startListening.bind(pulseKit),
+      status: pulseKit.status.bind(pulseKit),
+      get isLive() { return pulseKit.isLive || (caspianFallback?.isLive ?? false); },
+      get channels() { return [...pulseKit.channels, ...(caspianFallback?.channels ?? [])]; },
+      // Legacy Caspian compat
+      getUserConnection: caspianFallback?.getUserConnection ?? (() => null),
+    };
+
+    // Expose on app for use in route handlers (same API as before — no route changes needed)
     app.locals.caspian = caspian;
+    app.locals.pulseKit = pulseKit;
     app.locals.pool = pool;
-    app.set('caspian', caspian); // Keep legacy setting for existing routes
+    app.set('caspian', caspian);
 
     const keyPool = new KeyPool();
     const llmRouter = async (payload) => {
