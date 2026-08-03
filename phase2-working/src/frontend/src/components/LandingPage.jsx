@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Strands from './Strands.jsx';
-import DecryptedText from './DecryptedText.jsx';
-import BlurText from './BlurText.jsx';
 
 const FEATURES = [
   {
@@ -120,15 +117,6 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
       fontFamily: "'Space Grotesk', 'Inter', sans-serif",
       overflowX: 'hidden',
     }}>
-      {/* Ambient Strands Background */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.18 }}>
-        <Strands
-          colors={['#ccff00', '#a3e635', '#60a5fa', '#e879f9']}
-          count={4} speed={0.4} amplitude={1.0} waviness={2.5}
-          thickness={0.6} glow={2.0} scale={1.8} opacity={0.6}
-        />
-      </div>
-
       {/* ── NAV ── */}
       <nav style={{
         position: 'relative', zIndex: 10,
@@ -408,19 +396,21 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
                   {feat.body}
                 </p>
               </div>
-              <div style={{
-                marginTop: '2rem',
-                height: 3, borderRadius: 999,
-                background: `rgba(${hexToRgb(feat.color)}, 0.15)`,
-                overflow: 'hidden',
-              }}>
-                <motion.div
-                  key={feat.id}
-                  initial={{ width: '0%' }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 3.5, ease: 'linear' }}
-                  style={{ height: '100%', background: feat.color, borderRadius: 999 }}
-                />
+              {/* Feature dot indicator */}
+              <div style={{ marginTop: '2rem', display: 'flex', gap: 6 }}>
+                {FEATURES.map((_, i) => (
+                  <div
+                    key={i}
+                    onClick={() => setActiveFeature(i)}
+                    style={{
+                      width: i === activeFeature ? 20 : 6,
+                      height: 6, borderRadius: 999,
+                      background: i === activeFeature ? feat.color : 'rgba(255,255,255,0.15)',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
               </div>
             </motion.div>
           </AnimatePresence>
