@@ -42,3 +42,8 @@ test('Thought GPS Core Endpoints', async (t) => {
     await request(app).post('/api/process/message').expect(401);
   });
 });
+
+test.after(async () => {
+  const { pool } = require('./src/db');
+  await pool.end();
+});

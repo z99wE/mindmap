@@ -38,8 +38,7 @@ const PLACE_PATTERNS = [
   /going to\s+/i, /heading to\s+/i,
 ];
 
-// In-memory revival queue (zero cost, no Redis needed)
-const revivalQueue = new Map();
+// Removed in-memory revivalQueue to use PostgreSQL (thought_revivals table)
 
 /**
  * Detect if a message contains intent verbs
@@ -125,98 +124,91 @@ function applyRevivalHours(result, urgencyTier) {
 }
 
 /**
- * Schedule a revival in the in-memory queue
+ * Schedule a revival durably in Postgres
+ * @param {object} pool - Database pool
  * @param {string} userId - User ID
  * @param {string} thoughtId - Thought ID
  * @param {string} thought - Thought text
  * @param {number} ttlHours - Hours until revival
  */
-function scheduleRevival(userId, thoughtId, thought, ttlHours = 12) {
-  const key = `revival:${userId}:${thoughtId}`;
-  const expiresAt = Date.now() + ttlHours * 60 * 60 * 1000;
-  revivalQueue.set(key, { userId, thoughtId, thought, expiresAt });
+async function scheduleRevival(pool, userId, thoughtId, thought, ttlHours = 12) {
+  try {
+    const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000);
+    await pool.query(
+      `INSERT INTO thought_revivals (user_id, thought_id, thought, expires_at)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, thought_id) 
+       DO UPDATE SET thought = EXCLUDED.thought, expires_at = EXCLUDED.expires_at`,
+      [userId, thoughtId, JSON.stringify(thought), expiresAt]
+    );
+  } catch (err) {
+    console.error('[Interceptor] Failed to schedule revival:', err);
+  }
 }
 
 /**
- * Process revival queue and return due revivals
- * @param {object} caspian - Caspian SDK client (optional)
+ * Process durable revival queue and return due revivals
+ * @param {object} pool - Database pool
  * @returns {Array} - Array of revival messages to send
  */
-function processRevivalQueue(caspian = null) {
-  const now = Date.now();
-  const due = [];
-
-  for (const [key, entry] of revivalQueue.entries()) {
-    if (now >= entry.expiresAt) {
-      due.push(entry);
-      revivalQueue.delete(key);
-    }
+async function processRevivalQueue(pool) {
+  try {
+    const res = await pool.query(
+      `DELETE FROM thought_revivals
+       WHERE expires_at <= NOW()
+       RETURNING user_id, thought_id, thought`
+    );
+    
+    return res.rows.map(entry => ({
+      userId: entry.user_id,
+      thoughtId: entry.thought_id,
+      message: `Still on your mind? "${entry.thought}"`
+    }));
+  } catch (err) {
+    console.error('[Interceptor] Failed to process revival queue:', err);
+    return [];
   }
-
-  return due.map(entry => ({
-    userId: entry.userId,
-    message: `Still on your mind? "${entry.thought}"`
-  }));
 }
 
 /**
  * Get pending clarifications for a user
+ * @param {object} pool - Database pool
  * @param {string} userId - User ID
  * @returns {Array} - Pending clarifications
  */
-function getPendingClarifications(userId) {
-  const pending = [];
-  for (const [key, entry] of revivalQueue.entries()) {
-    if (key.startsWith(`revival:${userId}:`)) {
-      pending.push({
-        thoughtId: entry.thoughtId,
-        thought: entry.thought,
-        expiresAt: entry.expiresAt,
-      });
-    }
+async function getPendingClarifications(pool, userId) {
+  try {
+    const res = await pool.query(
+      `SELECT thought_id as "thoughtId", thought, expires_at as "expiresAt"
+       FROM thought_revivals
+       WHERE user_id = $1`,
+      [userId]
+    );
+    return res.rows;
+  } catch (err) {
+    console.error('[Interceptor] Failed to get pending clarifications:', err);
+    return [];
   }
-  return pending;
 }
 
 /**
  * Clear a pending clarification
+ * @param {object} pool - Database pool
  * @param {string} userId
  * @param {string} thoughtId
  */
-function clearClarification(userId, thoughtId) {
-  const key = `revival:${userId}:${thoughtId}`;
-  revivalQueue.delete(key);
+async function clearClarification(pool, userId, thoughtId) {
+  try {
+    await pool.query(
+      `DELETE FROM thought_revivals WHERE user_id = $1 AND thought_id = $2`,
+      [userId, thoughtId]
+    );
+  } catch (err) {
+    console.error('[Interceptor] Failed to clear clarification:', err);
+  }
 }
 
-/**
- * Setup revival cron using setInterval (no Redis needed)
- * @param {object} pool - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
- * @param {number} intervalMs - Check interval (default: 5 min)
- */
-function setupRevivalCron(pool, caspian, intervalMs = 5 * 60 * 1000) {
-  setInterval(async () => {
-    const revivals = processRevivalQueue(caspian);
-    for (const r of revivals) {
-      if (caspian) {
-        try {
-          await caspian.send({ channel: 'whatsapp', to: r.userId, message: r.message });
-          console.log(`[Interceptor] Revival sent to ${r.userId}`);
-        } catch (e) {
-          console.error('[Interceptor] Revival send failed:', e.message);
-        }
-      }
-      // Also store as notification
-      try {
-        await pool.query(
-          `INSERT INTO notifications (user_id, type, title, message, channel)
-           VALUES ($1, 'thought_revival', 'Thought Revival', $2, 'browser')`,
-          [r.userId, r.message]
-        );
-      } catch { /* notifications table may not exist */ }
-    }
-  }, intervalMs);
-}
+// setupRevivalCron is removed - queue processing is now handled by the serverless /api/cron/tick endpoint
 
 module.exports = {
   detectIntent,
@@ -227,6 +219,4 @@ module.exports = {
   processRevivalQueue,
   getPendingClarifications,
   clearClarification,
-  setupRevivalCron,
-  revivalQueue,
 };

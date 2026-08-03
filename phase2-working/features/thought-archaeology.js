@@ -51,35 +51,39 @@ async function generateArchaeologyReport(pool, userId) {
 }
 
 /**
- * Setup weekly cron trigger to email or WhatsApp report on Sunday 8 PM.
- * For local servers, checks on 1-hour intervals if it is Sunday 8 PM.
+ * Processes archaeology reports for a single serverless tick.
+ * Only sends reports if it is Sunday in the server's timezone.
  */
-function setupArchaeologyCron(pool, caspian) {
-  setInterval(async () => {
-    const now = new Date();
-    // Sunday (0) at 20:00 (8 PM)
-    if (now.getDay() === 0 && now.getHours() === 20) {
-      try {
-        const usersRes = await pool.query(`SELECT DISTINCT user_id FROM memory_graph`);
-        for (const user of usersRes.rows) {
-          const report = await generateArchaeologyReport(pool, user.user_id);
-          if (report) {
+async function processArchaeologyReports(pool, caspian) {
+  const now = new Date();
+  // Serverless environments are UTC. 
+  // We can just check if it's Sunday (0).
+  // The exact hour will be controlled by the cron trigger (e.g. 20:00 UTC).
+  if (now.getDay() === 0) {
+    try {
+      const usersRes = await pool.query(`SELECT DISTINCT user_id FROM memory_graph`);
+      for (const user of usersRes.rows) {
+        const report = await generateArchaeologyReport(pool, user.user_id);
+        if (report && caspian) {
+          try {
             await caspian.send({
               channel: 'whatsapp',
               to: user.user_id,
               message: report
             });
             console.log(`[Archaeology] Sent weekly regret ledger to ${user.user_id}`);
+          } catch (e) {
+            console.error(`[Archaeology] Failed to send report to ${user.user_id}:`, e.message);
           }
         }
-      } catch (err) {
-        console.error('[Archaeology Cron] Error:', err.message);
       }
+    } catch (err) {
+      console.error('[Archaeology Cron] Error:', err.message);
     }
-  }, 60 * 60 * 1000); // Check hourly
+  }
 }
 
 module.exports = {
   generateArchaeologyReport,
-  setupArchaeologyCron
+  processArchaeologyReports
 };

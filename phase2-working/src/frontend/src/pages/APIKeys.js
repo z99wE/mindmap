@@ -1,5 +1,6 @@
 // API Keys - Server-side vault with AES-256 encryption
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function APIKeys() {
   const container = document.createElement('div');
@@ -50,7 +51,7 @@ export function APIKeys() {
     const key = container.querySelector('#key-value').value.trim();
     if (!key) return;
     const result = await api.post('/keys', { provider, key });
-    if (result.error) { alert(result.error); return; }
+    if (result.error) { toast.show(result.error, 'error'); return; }
     container.querySelector('#key-value').value = '';
     window.showPage('api-keys');
   });

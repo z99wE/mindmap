@@ -22,10 +22,23 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Helper for basic email and password validation
+function validateEmailPassword(email, password) {
+  if (!email || typeof email !== 'string' || !/^\S+@\S+\.\S+$/.test(email)) {
+    return 'Invalid email format';
+  }
+  if (!password || typeof password !== 'string' || password.length < 8) {
+    return 'Password must be at least 8 characters long';
+  }
+  return null;
+}
+
 // POST /api/auth/register
 router.post('/register', registerLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
+    const validationError = validateEmailPassword(email, password);
+    if (validationError) return res.status(400).json({ error: validationError });
     const user = await register(email, password);
     const token = signToken(user);
     const refreshToken = signRefreshToken(user);
@@ -43,6 +56,8 @@ router.post('/register', registerLimiter, async (req, res) => {
 router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
+    const validationError = validateEmailPassword(email, password);
+    if (validationError) return res.status(400).json({ error: validationError });
     const user = await login(email, password);
     const token = signToken(user);
     const refreshToken = signRefreshToken(user);

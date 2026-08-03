@@ -79,25 +79,6 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <!-- Langfuse Observability -->
-      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
-        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
-          <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);vertical-align:middle;"></span>
-          Langfuse Observability
-        </h2>
-        <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1rem;">
-          Agent tracing, LLM call monitoring, and prompt performance metrics.
-        </p>
-        <div id="langfuse-status">
-          <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">
-            Langfuse dashboard available at your configured URL. Traces are automatically captured for all LLM calls.
-          </p>
-        </div>
-        <button class="btn-m3 btn-outlined" style="margin-top:1rem;" onclick="window.open(import.meta.env.VITE_LANGFUSE_URL || 'https://cloud.langfuse.com', '_blank')">
-          Open Langfuse Dashboard
-        </button>
-      </div>
-
       <!-- User Management -->
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
@@ -113,10 +94,10 @@ export function AdminDashboard() {
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">System Actions</h2>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-          <button class="btn-m3 btn-outlined" onclick="alert('Export functionality coming soon')">
+          <button class="btn-m3 btn-outlined" id="btn-export">
             Export All Data
           </button>
-          <button class="btn-m3 btn-outlined" onclick="alert('Backup functionality coming soon')">
+          <button class="btn-m3 btn-outlined" id="btn-backup">
             Backup Database
           </button>
           <button class="btn-m3 btn-outlined" style="border-color:var(--md-sys-color-error);color:var(--md-sys-color-error);" onclick="alert('Reset not available in production')">
@@ -168,19 +149,62 @@ export function AdminDashboard() {
       `).join('') || '<p style="color:var(--md-sys-color-outline);">No API keys configured in pool. Add GROQ_KEY_1, OPENAI_KEY_1, etc. to env vars.</p>';
     }
 
+    // Export button listener
+    const btnExport = container.querySelector('#btn-export');
+    if (btnExport) {
+      btnExport.addEventListener('click', async () => {
+        btnExport.textContent = 'Exporting...';
+        const data = await api.get('/memory/export');
+        if (data && !data.error) {
+          const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'export.json';
+          a.click();
+        } else {
+          alert(data?.error || 'Export failed');
+        }
+        btnExport.textContent = 'Export All Data';
+      });
+    }
+
+    // Backup button listener
+    const btnBackup = container.querySelector('#btn-backup');
+    if (btnBackup) {
+      btnBackup.addEventListener('click', async () => {
+        btnBackup.textContent = 'Backing up...';
+        const data = await api.get('/admin/backup');
+        if (data && !data.error) {
+          const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'system_backup.json';
+          a.click();
+        } else {
+          alert(data?.error || 'Backup failed');
+        }
+        btnBackup.textContent = 'Backup Database';
+      });
+    }
+
     // OmniRoute status
     const omniEl = container.querySelector('#omniroute-status');
+    const hasXai = keyPool && keyPool.providers && keyPool.providers['xai'] && keyPool.providers['xai'].keys.length > 0;
+    const hasNvidia = keyPool && keyPool.providers && keyPool.providers['nvidia'] && keyPool.providers['nvidia'].keys.length > 0;
+    
     omniEl.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
         <div class="surface-card" style="padding:1rem;background:var(--md-sys-color-surface-container);">
           <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Grok (xAI)</div>
-          <div style="font:var(--md-sys-typescale-body-large);color:var(--color-success);margin-top:0.25rem;">Configured</div>
-          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Personal key active</div>
+          <div style="font:var(--md-sys-typescale-body-large);color:${hasXai ? 'var(--color-success)' : 'var(--md-sys-color-error)'};margin-top:0.25rem;">${hasXai ? 'Configured' : 'Missing'}</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${hasXai ? 'Personal key active' : 'Add XAI_API_KEY'}</div>
         </div>
         <div class="surface-card" style="padding:1rem;background:var(--md-sys-color-surface-container);">
           <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">NVIDIA</div>
-          <div style="font:var(--md-sys-typescale-body-large);color:var(--color-success);margin-top:0.25rem;">Configured</div>
-          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">NIM endpoints available</div>
+          <div style="font:var(--md-sys-typescale-body-large);color:${hasNvidia ? 'var(--color-success)' : 'var(--md-sys-color-error)'};margin-top:0.25rem;">${hasNvidia ? 'Configured' : 'Missing'}</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${hasNvidia ? 'NIM endpoints available' : 'Add NVIDIA_API_KEY'}</div>
         </div>
       </div>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.75rem;">

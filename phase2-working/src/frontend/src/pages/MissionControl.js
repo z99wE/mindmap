@@ -1,5 +1,6 @@
 // Mission Control - Tabbed central hub for all configuration
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function MissionControl() {
   const container = document.createElement('div');
@@ -52,13 +53,18 @@ export function MissionControl() {
                 <option value="email">Email</option><option value="sms">SMS</option>
               </select>
             </div>
-            <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">TOKEN / API KEY</label>
-              <input type="password" id="channel-token" class="input-m3" placeholder="Your bot token or API key">
+            <div id="channel-token-container">
+              <div>
+                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">TOKEN / API KEY</label>
+                <input type="password" id="channel-token" class="input-m3" placeholder="Your bot token or API key">
+              </div>
+              <div style="margin-top:1rem;">
+                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">CHANNEL / CHAT ID (Optional)</label>
+                <input type="text" id="channel-id" class="input-m3" placeholder="Channel or chat identifier">
+              </div>
             </div>
-            <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">CHANNEL / CHAT ID</label>
-              <input type="text" id="channel-id" class="input-m3" placeholder="Channel or chat identifier">
+            <div id="channel-oauth-container" style="display:none;padding:1rem;background:rgba(var(--md-sys-color-primary-rgb),0.1);border-radius:8px;">
+              <p style="font:var(--md-sys-typescale-body-medium);margin:0;color:var(--md-sys-color-primary);">This platform requires OAuth authentication. Click Connect to be redirected to the provider.</p>
             </div>
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
               <button class="btn-m3 btn-text" onclick="document.getElementById('add-channel-dialog').style.display='none';">Cancel</button>
@@ -471,12 +477,35 @@ async function loadGeofences(c) {
 
 function setupSaveHandlers(c) {
   // Save channel
+  // Handle UI toggles for OAuth vs Token
+  c.querySelector('#channel-platform')?.addEventListener('change', (e) => {
+    const isOauth = ['slack', 'discord'].includes(e.target.value);
+    c.querySelector('#channel-token-container').style.display = isOauth ? 'none' : 'block';
+    c.querySelector('#channel-oauth-container').style.display = isOauth ? 'block' : 'none';
+  });
+
+  // Save channel
   c.querySelector('#save-channel-btn')?.addEventListener('click', async () => {
     const platform = c.querySelector('#channel-platform').value;
+    const isOauth = ['slack', 'discord'].includes(platform);
+    
+    if (isOauth) {
+      // Hit oauth endpoint
+      const result = await api.post('/channels/install-oauth/' + platform, {});
+      if (result.authorize_url) {
+        window.location.href = result.authorize_url;
+      } else if (result.error) {
+        toast.show(result.error, 'error');
+      } else {
+        toast.show(result.message || 'Error occurred during installation.', 'error');
+      }
+      return;
+    }
+
     const token = c.querySelector('#channel-token').value;
     const channelId = c.querySelector('#channel-id').value;
     if (!token) return;
-    const result = await api.post('/channels/connect', { platform, credentials: { token, chat_id: channelId }, displayName: platform });
+    const result = await api.post('/channels/connect', { platform, credentials: { bot_token: token, chat_id: channelId }, displayName: platform });
     if (!result.error) {
       c.querySelector('#add-channel-dialog').style.display = 'none';
       loadChannels(c);
@@ -490,7 +519,7 @@ function setupSaveHandlers(c) {
     if (!key) return;
     const result = await api.post('/keys', { provider, key });
     if (result.error) {
-      alert(result.error);
+      toast.show(result.error, 'error');
       return;
     }
     c.querySelector('#add-key-dialog').style.display = 'none';
@@ -510,18 +539,18 @@ function setupSaveHandlers(c) {
       quietTo: c.querySelector('#quiet-to').value,
     };
     await api.put('/auth/notification-prefs', { prefs });
-    alert('Preferences saved!');
+    toast.show('Preferences saved!', 'success');
   });
 
   // Enable push
   c.querySelector('#enable-push-btn')?.addEventListener('click', async () => {
-    if (!('Notification' in window)) { alert('Push notifications not supported in this browser.'); return; }
+    if (!('Notification' in window)) { toast.show('Push notifications not supported in this browser.', 'error'); return; }
     const perm = await Notification.requestPermission();
     if (perm === 'granted') {
       c.querySelector('#pref-push').checked = true;
-      alert('Push notifications enabled!');
+      toast.show('Push notifications enabled!', 'success');
     } else {
-      alert('Push permission denied. Please allow notifications in browser settings.');
+      toast.show('Push permission denied. Please allow notifications in browser settings.', 'error');
     }
   });
 
@@ -550,7 +579,7 @@ function setupSaveHandlers(c) {
       api.clearAuth();
       window.showPage?.('home');
     } else {
-      alert(result.error);
+      toast.show(result.error, 'error');
     }
   });
 
@@ -571,7 +600,7 @@ function setupSaveHandlers(c) {
       c.querySelector('#geofence-form').reset();
       loadGeofences(c);
     } else {
-      alert(result.error);
+      toast.show(result.error, 'error');
     }
   });
 }

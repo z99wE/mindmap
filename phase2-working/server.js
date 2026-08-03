@@ -3,16 +3,21 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
-const { runMigrations } = require('./src/db');
-const { initLangfuse, flush } = require('./src/langfuse');
-const { setupHalfLifeCron } = require('./features/thought-half-life');
-const { setupArchaeologyCron } = require('./features/thought-archaeology');
+const { runMigrations, pool } = require('./src/db');
+const { initLangfuse, flush } = require('./src/thought-tracer');
 const { checkCommitmentWitnesses } = require('./features/commitment-witness');
-const { setupRevivalCron } = require('./features/thought-interceptor');
+const { createRelationshipAnchorEndpoints } = require('./features/relationship-anchor');
+const { createDriftDetectorEndpoints } = require('./features/drift-detector');
+const { createClassificationEndpoints } = require('./features/thought-classification');
+const { createInvisibleChecklistEndpoints } = require('./features/invisible-checklist');
+const { createDoorRuleEndpoints } = require('./features/door-rule');
 const { auditMiddleware, sanitizeBody } = require('./src/middleware');
+const { KeyPool } = require('./src/key-pool');
+const https = require('https');
 
 // ── Web Push (VAPID) Setup ────────────────────────────────────────────────
 const webpush = require('web-push');
@@ -43,6 +48,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 
+// Global security headers
+app.use(helmet());
+
 // XSS sanitization on all request bodies
 app.use('/api/', sanitizeBody);
 
@@ -70,6 +78,7 @@ const notificationsRoutes = require('./src/routes/notifications');
 const locationRoutes = require('./src/routes/location');
 const adminRoutes = require('./src/routes/admin');
 const geofencesRoutes = require('./src/routes/geofences');
+const cronRoutes = require('./src/routes/cron');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
 
 app.use('/api/auth', authRoutes);
@@ -83,6 +92,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/geofences', geofencesRoutes);
+app.use('/api/cron', cronRoutes);
 
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);
@@ -118,77 +128,80 @@ async function start() {
     await runMigrations();
     initLangfuse();
 
-    // Start cognitive cron jobs
-    const { pool } = require('./src/db');
-    // Caspian stub: queries user's connected channels, delivers via all active ones
-    const { sendWebPush } = require('./src/routes/notifications');
-    const caspian = {
-      send: async ({ channel, to, message }) => {
-        // Query user's active channels
-        try {
-          const chResult = await pool.query(
-            'SELECT platform, display_name FROM channels WHERE user_id = $1 AND is_active = true',
-            [to]
-          );
-          if (chResult.rows.length > 0) {
-            for (const ch of chResult.rows) {
-              console.log(`[Caspian] ${ch.platform} -> ${to}: ${message?.slice(0, 80)}`);
-              await pool.query(
-                `INSERT INTO notifications (user_id, type, title, message, channel)
-                 VALUES ($1, 'cognitive_nudge', $2, $3, $4)`,
-                [to, `Nudge via ${ch.platform}`, message, ch.platform]
-              ).catch(() => {});
+    // Initialize Caspian SDK client (real delivery on free channels, stub fallback if no API key)
+    const { createCaspianClient } = require('./src/caspian-client');
+    const caspian = await createCaspianClient(pool);
+
+    // Expose caspian client and pool on app for use in route handlers (e.g. channel test endpoint, cron tick)
+    app.locals.caspian = caspian;
+    app.locals.pool = pool;
+    app.set('caspian', caspian); // Keep legacy setting for existing routes
+
+    const keyPool = new KeyPool();
+    const llmRouter = async (payload) => {
+      const keyData = keyPool.getNextKey('groq') || keyPool.getNextKey('openai');
+      if (!keyData) throw new Error('No LLM API key available');
+      
+      const provider = keyData.provider;
+      const apiKey = keyData.key;
+      
+      const hostname = provider === 'groq' ? 'api.groq.com' : 'api.openai.com';
+      const path = provider === 'groq' ? '/openai/v1/chat/completions' : '/v1/chat/completions';
+      const model = provider === 'groq' ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini';
+      
+      const body = JSON.stringify({
+        model,
+        messages: payload.messages,
+        max_tokens: payload.max_tokens || 1024,
+        temperature: payload.temperature || 0.7,
+      });
+
+      return new Promise((resolve, reject) => {
+        const request = https.request({
+          hostname,
+          path,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Length': Buffer.byteLength(body),
+          },
+        }, (res) => {
+          let data = '';
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => {
+            try {
+              resolve(JSON.parse(data));
+            } catch (e) {
+              reject(e);
             }
-          } else {
-            // No channels connected — fall back to browser notification
-            console.log(`[Caspian] browser -> ${to}: ${message?.slice(0, 80)}`);
-            await pool.query(
-              `INSERT INTO notifications (user_id, type, title, message, channel)
-               VALUES ($1, 'cognitive_nudge', $2, $3, 'browser')`,
-              [to, 'Cognitive Nudge', message, 'browser']
-            ).catch(() => {});
-          }
-          // Send web push notification
-          await sendWebPush(to, {
-            title: 'Thought GPS',
-            body: message?.slice(0, 200) || 'New cognitive nudge',
-            tag: 'cognitive-nudge',
-            data: { url: '/' },
-            vibrate: [100, 50, 100],
-          }).catch(() => {});
-        } catch {
-          // DB may not be ready
-          console.log(`[Caspian] ${channel} -> ${to}: ${message?.slice(0, 80)}`);
-        }
-      }
+          });
+        });
+        request.on('error', reject);
+        request.write(body);
+        request.end();
+      });
     };
+    app.locals.llmRouter = llmRouter;
 
-    setupHalfLifeCron(pool, caspian);           // Every 30 min
-    setupArchaeologyCron(pool, caspian);        // Hourly check for Sunday 8pm
-    setupRevivalCron(pool, caspian);            // Every 5 min
-    setInterval(async () => {
-      await checkCommitmentWitnesses(pool, caspian);
-    }, 60 * 60 * 1000); // Every hour
+    // Mount additional cognitive endpoints
+    createRelationshipAnchorEndpoints(app, pool, llmRouter);
+    createDriftDetectorEndpoints(app, pool, caspian, llmRouter);
+    createClassificationEndpoints(app, pool, llmRouter);
+    createInvisibleChecklistEndpoints(app, pool, caspian);
+    createDoorRuleEndpoints(app, pool, caspian);
 
-    // Daily clean up task to keep Neon Postgres under 500MB free limit
-    const runStoragePurge = async () => {
-      try {
-        const purgeRes = await pool.query("DELETE FROM memory_graph WHERE created_at < NOW() - INTERVAL '7 days'");
-        if (purgeRes.rowCount > 0) {
-          console.log(`[Storage Cleanup] Purged ${purgeRes.rowCount} memories older than 7 days to conserve database space.`);
-        }
-      } catch (err) {
-        console.error('[Storage Cleanup] Error:', err.message);
-      }
-    };
-    setInterval(runStoragePurge, 24 * 60 * 60 * 1000); // Every 24 hours
-    runStoragePurge(); // Also run immediately on startup to enforce storage limits
+    if (process.env.NODE_ENV === 'production') {
+      if (!process.env.JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is missing in production.');
+      if (!process.env.API_KEY_ENCRYPTION_SECRET) throw new Error('FATAL: API_KEY_ENCRYPTION_SECRET environment variable is missing in production.');
+      if (!process.env.DATABASE_URL) throw new Error('FATAL: DATABASE_URL is missing in production.');
+    } else {
+      if (!process.env.JWT_SECRET) console.warn('[SECURITY] Using default JWT_SECRET! Set JWT_SECRET env var in production.');
+      if (!process.env.API_KEY_ENCRYPTION_SECRET) console.warn('[SECURITY] Using default API_KEY_ENCRYPTION_SECRET! Set env var in production.');
+      if (!process.env.DATABASE_URL) console.warn('[SECURITY] No DATABASE_URL set — using localhost.');
+    }
 
-    if (!process.env.JWT_SECRET) console.warn('[SECURITY] Using default JWT_SECRET! Set JWT_SECRET env var in production.');
-    if (!process.env.API_KEY_ENCRYPTION_SECRET) console.warn('[SECURITY] Using default API_KEY_ENCRYPTION_SECRET! Set env var in production.');
-    if (!process.env.DATABASE_URL) console.warn('[SECURITY] No DATABASE_URL set — using localhost. Configure Neon.tech for production.');
-
-    console.log('[Cognitive Crons] Half-life, Archaeology, Revival, Commitment Witness — started');
+    console.log('[Cognitive Crons] Native Vercel/GitHub Action cron endpoint mounted at /api/cron/tick');
 
     app.listen(PORT, () => {
       console.log(`[Thought GPS] Server running on port ${PORT}`);
@@ -204,6 +217,11 @@ async function start() {
   }
 }
 
+// Global unhandled promise rejection handler
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Thought GPS] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('[Thought GPS] Shutting down...');
@@ -211,6 +229,8 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-start();
+if (require.main === module) {
+  start();
+}
 
 module.exports = app;

@@ -1,5 +1,6 @@
 // Interactive Space - Rich Cognitive Chat with classification chips
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function InteractiveSpace() {
   const container = document.createElement('div');
@@ -103,8 +104,8 @@ export function InteractiveSpace() {
   }
 
   dictateBtn.addEventListener('click', () => {
-    if (!recognition) {
-      alert('Speech recognition is not supported in this browser.');
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      toast.show('Speech recognition is not supported in this browser.', 'error');
       return;
     }
     if (isRecording) {
@@ -118,7 +119,7 @@ export function InteractiveSpace() {
   attachBtn.addEventListener('click', () => {
     const currentUser = api.getUser();
     if (!currentUser || currentUser.tier === 'free') {
-      alert('Document and file attachments are exclusive to Explorer Plus tier users.');
+      toast.show('Document and file attachments are exclusive to Explorer Plus tier users.', 'error');
       return;
     }
 
@@ -130,7 +131,7 @@ export function InteractiveSpace() {
       if (!file) return;
 
       if (file.size > 1024 * 1024) {
-        alert('File size exceeds the 1MB safety limit.');
+        toast.show('File size exceeds the 1MB safety limit.', 'error');
         return;
       }
 

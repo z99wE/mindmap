@@ -22,6 +22,39 @@ router.get('/platforms', (req, res) => {
   res.json({ platforms: SUPPORTED_PLATFORMS });
 });
 
+// POST /api/channels/install-oauth/:platform - Get OAuth install URL for platforms that require it
+router.post('/install-oauth/:platform', authMiddleware, async (req, res) => {
+  try {
+    const { platform } = req.params;
+    
+    // Get the global caspian client from app (injected in server.js, but here we can just require it if needed, or we might need to handle it)
+    // Wait, the easiest way is to import it, but it's initialized in server.js.
+    // For now, we'll return a mock or require the caspian-client instance if we have a way.
+    // Let's rely on req.app.get('caspian') which we'll set in server.js
+    const caspian = req.app.get('caspian');
+    if (!caspian || !caspian.rawClient) {
+      return res.status(503).json({ error: 'Caspian messaging service is unavailable' });
+    }
+
+    let result = null;
+    if (platform === 'slack') {
+      result = await caspian.rawClient.installSlack();
+    } else if (platform === 'discord') {
+      result = await caspian.rawClient.installDiscord();
+    } else {
+      return res.status(400).json({ error: `OAuth install not supported for platform: ${platform}` });
+    }
+
+    if (result && result.authorize_url) {
+      res.json({ authorize_url: result.authorize_url });
+    } else {
+      res.json({ message: 'Installation requested but no authorize_url was returned by Caspian.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/channels - user's connected channels
 router.get('/', authMiddleware, async (req, res) => {
   try {
@@ -48,10 +81,10 @@ router.post('/connect', authMiddleware, async (req, res) => {
     const userTier = userRes.rows[0]?.tier || 'free';
 
     if (userTier === 'free') {
-      const allowedFreePlatforms = ['telegram', 'email'];
+      const allowedFreePlatforms = ['telegram', 'email', 'slack', 'discord', 'bluesky'];
       if (!allowedFreePlatforms.includes(platform.toLowerCase())) {
         return res.status(403).json({
-          error: `The ${platform.toUpperCase()} integration is a Premium feature. Upgrade to Premium ($15/mo) for full access to all channels (Slack, WhatsApp, Discord, Twitter, Bluesky).`
+          error: `The ${platform.toUpperCase()} integration is a Premium feature. Upgrade to Premium ($15/mo) for access to paid channels (WhatsApp, SMS, Twitter). Free channels: Telegram, Email, Slack, Discord, Bluesky.`
         });
       }
 
@@ -132,7 +165,18 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
 
     // Actual test send: log and store notification
     const testMessage = `[Thought GPS Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
-    console.log(`[Channel Test] ${channel.platform} -> user ${req.user.userId}: ${testMessage}`);
+
+    // Use real Caspian delivery if client is available
+    const caspianClient = req.app.get('caspian');
+    if (caspianClient && caspianClient.isLive) {
+      try {
+        await caspianClient.send({ channel: channel.platform, to: req.user.userId, message: testMessage });
+      } catch (e) {
+        console.warn(`[Channel Test] Caspian delivery failed:`, e.message);
+      }
+    } else {
+      console.log(`[Channel Test] ${channel.platform} -> user ${req.user.userId}: ${testMessage}`);
+    }
 
     // Store test notification in DB
     try {

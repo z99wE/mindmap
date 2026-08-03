@@ -7,10 +7,11 @@
 
 const { MemoryGraphManager, EmbeddingGenerator, knowledgeExtractor } = require('./memory-graph');
 const { KeyPool } = require('./src/key-pool');
-const { traceLLM, traceSpan } = require('./src/langfuse');
+const { traceLLM, traceSpan } = require('./src/thought-tracer');
 const { classifyHalfLife } = require('./features/thought-half-life');
 const { detectCommitment } = require('./features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('./features/thought-interceptor');
+const { inferClassification } = require('./features/thought-classification');
 
 // ============================================
 // 1. WORKFLOW NODE
@@ -272,6 +273,11 @@ class Orchestrator {
         }
       }
 
+      // Run full cognitive classification (free keyword-based)
+      const classification = inferClassification(state.input);
+      const cog = classification.cognitive_load || {};
+      const themeData = classification.theme_classification || {};
+
       const extraFields = {
         intent: state.parsedInput?.intent,
         llmResponse: state.llmResponse?.slice(0, 1000),
@@ -281,13 +287,18 @@ class Orchestrator {
         isActionable: halfLife.is_actionable,
         expiresAt,
         status: unanchored?.is_unanchored ? 'pending_clarification' : 'pending',
+        cognitiveLoad: cog.load_type,
+        brainArea: cog.brain_area,
+        emotionalTone: cog.emotional_tone,
+        theme: themeData.primary_theme,
+        relatedPerson: themeData.mentioned_people?.[0] || null,
       };
 
       const results = await this.memoryManager.addFact(state.userId, state.input, extraFields);
 
       // Schedule revival if unanchored
       if (unanchored?.is_unanchored && results[0]?.id) {
-        scheduleRevival(state.userId, results[0].id, state.input, unanchored.auto_revival_hours || 12);
+        await scheduleRevival(this.pool, state.userId, results[0].id, state.input, unanchored.auto_revival_hours || 12);
       }
 
       return {

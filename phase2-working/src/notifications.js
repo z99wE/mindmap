@@ -75,7 +75,7 @@ async function deliverViaCaspian(userId, notification, caspianClient) {
     // Try each active channel
     for (const ch of channels.rows) {
       try {
-        await caspianClient.send(ch.platform, notification.message);
+        await caspianClient.send({ channel: ch.platform, to: userId, message: notification.message });
         await pool.query(
           'UPDATE notifications SET delivered = true WHERE id = $1',
           [notification.id]

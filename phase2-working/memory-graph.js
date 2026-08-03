@@ -397,9 +397,11 @@ class MemoryGraphManager {
           user_id, entity, attribute, value, category, embedding,
           intent, llm_response, half_life_hours, urgency_tier,
           action_verb, is_actionable, expires_at, status,
-          witness_contact, context_note, requested_by
+          witness_contact, context_note, requested_by,
+          cognitive_load, theme, brain_area, emotional_tone,
+          related_person, location_tag
         )
-        VALUES ($1, $2, $3, $4, $5, $6::vector, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        VALUES ($1, $2, $3, $4, $5, $6::vector, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
         ON CONFLICT (user_id, attribute, value) DO NOTHING
         RETURNING *
       `;
@@ -420,6 +422,12 @@ class MemoryGraphManager {
           extraFields.witnessContact || null,
           extraFields.contextNote || null,
           extraFields.requestedBy || null,
+          extraFields.cognitiveLoad || null,
+          extraFields.theme || null,
+          extraFields.brainArea || null,
+          extraFields.emotionalTone || null,
+          extraFields.relatedPerson || null,
+          extraFields.locationTag || null,
         ]);
         results.push(result.rows[0]);
       } finally {

@@ -84,63 +84,67 @@ function classifyHalfLife(thought) {
 }
 
 /**
- * Setup a background job to run every 30 minutes, checking for elapsed half-life escalation tiers.
+ * Processes half-life escalation tiers for a single serverless tick.
  * @param {object} pool - PostgreSQL pool connection
  * @param {object} caspian - Caspian SDK client
  */
-function setupHalfLifeCron(pool, caspian) {
-  setInterval(async () => {
-    try {
-      // Find thoughts nearing/exceeding half-life thresholds
-      const now = new Date();
-      const res = await pool.query(
-        `SELECT id, user_id, value as thought, half_life_hours, created_at, notified_tier, urgency_tier
-         FROM memory_graph
-         WHERE status = 'pending' AND archived = false AND expires_at IS NOT NULL`
-      );
+async function processHalfLifeEscalations(pool, caspian) {
+  try {
+    // Find thoughts nearing/exceeding half-life thresholds
+    const now = new Date();
+    const res = await pool.query(
+      `SELECT id, user_id, value as thought, half_life_hours, created_at, notified_tier, urgency_tier
+       FROM memory_graph
+       WHERE status = 'pending' AND archived = false AND expires_at IS NOT NULL`
+    );
 
-      for (const row of res.rows) {
-        const elapsedMs = now - new Date(row.created_at);
-        const elapsedHours = elapsedMs / (1000 * 60 * 60);
-        const halfLife = row.half_life_hours;
+    for (const row of res.rows) {
+      const elapsedMs = now - new Date(row.created_at);
+      const elapsedHours = elapsedMs / (1000 * 60 * 60);
+      const halfLife = row.half_life_hours;
 
-        let targetTier = 0;
-        let message = '';
+      let targetTier = 0;
+      let message = '';
 
-        if (elapsedHours >= halfLife) {
-          targetTier = 3;
-          message = `Nudge Tier 3: Offer to archive expired thought: "${row.thought}". Reply 'archive' to archive, or check your regret ledger.`;
-        } else if (elapsedHours >= halfLife * 0.8) {
-          targetTier = 2;
-          message = `Nudge Tier 2: Still relevant? "${row.thought}"`;
-        } else if (elapsedHours >= halfLife * 0.5) {
-          targetTier = 1;
-          message = `Nudge Tier 1: Gentle reminder for: "${row.thought}"`;
-        }
-
-        if (targetTier > row.notified_tier) {
-          // Send Caspian WhatsApp notification
-          await caspian.send({
-            channel: 'whatsapp',
-            to: row.user_id,
-            message
-          });
-
-          // Update notified tier in DB
-          await pool.query(
-            `UPDATE memory_graph SET notified_tier = $1 WHERE id = $2`,
-            [targetTier, row.id]
-          );
-          console.log(`[Half-Life] Escalated task ${row.id} to tier ${targetTier} for user ${row.user_id}`);
-        }
+      if (elapsedHours >= halfLife) {
+        targetTier = 3;
+        message = `Nudge Tier 3: Offer to archive expired thought: "${row.thought}". Reply 'archive' to archive, or check your regret ledger.`;
+      } else if (elapsedHours >= halfLife * 0.8) {
+        targetTier = 2;
+        message = `Nudge Tier 2: Still relevant? "${row.thought}"`;
+      } else if (elapsedHours >= halfLife * 0.5) {
+        targetTier = 1;
+        message = `Nudge Tier 1: Gentle reminder for: "${row.thought}"`;
       }
-    } catch (error) {
-      console.error('[Half-Life Cron] Error:', error.message);
+
+      if (targetTier > row.notified_tier) {
+        // Send Caspian WhatsApp notification
+        if (caspian) {
+          try {
+            await caspian.send({
+              channel: 'whatsapp',
+              to: row.user_id,
+              message
+            });
+          } catch (e) {
+            console.error('[Half-Life] Caspian send failed:', e.message);
+          }
+        }
+
+        // Update notified tier in DB
+        await pool.query(
+          `UPDATE memory_graph SET notified_tier = $1 WHERE id = $2`,
+          [targetTier, row.id]
+        );
+        console.log(`[Half-Life] Escalated task ${row.id} to tier ${targetTier} for user ${row.user_id}`);
+      }
     }
-  }, 30 * 60 * 1000); // 30 minutes
+  } catch (error) {
+    console.error('[Half-Life Cron] Error:', error.message);
+  }
 }
 
 module.exports = {
   classifyHalfLife,
-  setupHalfLifeCron
+  processHalfLifeEscalations
 };

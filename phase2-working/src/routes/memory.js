@@ -129,6 +129,19 @@ router.put('/:id/complete', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/memory/:id/traces - Get cognitive trace for a thought
+router.get('/:id/traces', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT span_name, input, output, status, created_at, ended_at FROM thought_traces WHERE thought_id = $1 AND user_id = $2 ORDER BY created_at ASC',
+      [req.params.id, req.user.userId]
+    );
+    res.json({ traces: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/memory/export - export all memories as JSON or CSV
 router.get('/export', authMiddleware, async (req, res) => {
   try {

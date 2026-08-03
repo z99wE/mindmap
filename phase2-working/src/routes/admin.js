@@ -106,4 +106,33 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// GET /api/admin/backup - create a system-wide database backup dump
+router.get('/backup', async (req, res) => {
+  try {
+    const [users, memories, keys, settings] = await Promise.all([
+      pool.query('SELECT * FROM users'),
+      pool.query('SELECT * FROM memory_graph'),
+      pool.query('SELECT id, user_id, provider, created_at FROM keys'), // exclude actual key values
+      pool.query('SELECT * FROM user_settings'),
+    ]);
+    
+    const dump = {
+      timestamp: new Date().toISOString(),
+      version: '1.0',
+      data: {
+        users: users.rows,
+        memories: memories.rows,
+        keys: keys.rows,
+        settings: settings.rows
+      }
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="system_backup.json"');
+    res.send(JSON.stringify(dump, null, 2));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

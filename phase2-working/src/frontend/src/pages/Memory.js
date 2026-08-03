@@ -1,5 +1,6 @@
 // Memory - Real memories from DB with search and export
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function Memory() {
   const container = document.createElement('div');
@@ -17,6 +18,17 @@ export function Memory() {
         <input type="file" id="import-file-input" style="display:none;" accept=".json">
       </div>
       <div id="mem-list" class="card-reveal"><div class="anim-shimmer" style="height:200px;"></div></div>
+
+      <!-- Trace Modal -->
+      <div id="trace-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:1rem;">
+        <div class="glass-strong" style="width:100%;max-width:600px;max-height:80vh;overflow-y:auto;border-radius:var(--md-sys-shape-extra-large);padding:2rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+            <h2 style="font:var(--md-sys-typescale-title-large);margin:0;">Cognitive Trace</h2>
+            <button class="icon-btn" onclick="document.getElementById('trace-modal').style.display='none'"><span class="material-symbols-rounded">close</span></button>
+          </div>
+          <div id="trace-timeline" style="display:flex;flex-direction:column;gap:1rem;"></div>
+        </div>
+      </div>
     </div>`;
 
   function renderBackupWarning() {
@@ -96,9 +108,36 @@ export function Memory() {
             <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
           </button>
         </div>
-        <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;">${new Date(m.createdAt || m.created_at).toLocaleDateString()}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${new Date(m.createdAt || m.created_at).toLocaleDateString()}</div>
+          <button class="btn-m3 btn-tonal" onclick="window.viewTrace('${m.id}')" style="padding:0 0.75rem;height:28px;"><span class="material-symbols-rounded" style="font-size:16px;">timeline</span> Trace</button>
+        </div>
       </div>`).join('');
   }
+
+  window.viewTrace = async (id) => {
+    try {
+      const data = await api.get('/memory/' + id + '/traces');
+      const containerEl = document.getElementById('trace-timeline');
+      if (!data.traces || data.traces.length === 0) {
+        containerEl.innerHTML = '<div style="color:var(--md-sys-color-outline);">No traces available for this thought.</div>';
+      } else {
+        containerEl.innerHTML = data.traces.map((t, i) => `
+          <div style="padding-left:1.5rem;border-left:2px solid var(--md-sys-color-primary);position:relative;">
+            <div style="position:absolute;left:-6px;top:0;width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-primary);"></div>
+            <div style="font-weight:bold;margin-bottom:0.25rem;text-transform:uppercase;font-size:12px;color:var(--md-sys-color-primary);">${t.span_name}</div>
+            <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);background:rgba(255,255,255,0.05);padding:0.75rem;border-radius:8px;">
+              ${t.output ? JSON.stringify(t.output, null, 2).substring(0, 300) + (JSON.stringify(t.output).length > 300 ? '...' : '') : (t.status || 'pending')}
+            </div>
+          </div>
+        `).join('');
+      }
+      document.getElementById('trace-modal').style.display = 'flex';
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   container.querySelector('#search-btn').addEventListener('click', () => loadMems(container.querySelector('#mem-search').value));
   container.querySelector('#mem-search').addEventListener('keydown', e => { if (e.key === 'Enter') loadMems(e.target.value); });
@@ -132,17 +171,17 @@ export function Memory() {
       try {
         const parsed = JSON.parse(e.target.result);
         const memories = parsed.memories || parsed.results || [];
-        if (memories.length === 0) {
-          alert('No memories found in the backup file.');
+        if (!Array.isArray(memories) || memories.length === 0) {
+          toast.show('No memories found in the backup file.', 'error');
           return;
         }
 
         const { saveLocalMemories } = await import('../lib/indexedDb.js');
         await saveLocalMemories(memories);
-        alert(`Success: Imported ${memories.length} memories into local device storage!`);
+        toast.show(`Success: Imported ${memories.length} memories into local device storage!`, 'success');
         loadMems();
       } catch (err) {
-        alert('Failed to parse backup file: ' + err.message);
+        toast.show('Failed to parse backup file: ' + err.message, 'error');
       }
     };
     reader.readAsText(file);

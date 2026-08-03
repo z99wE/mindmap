@@ -249,24 +249,25 @@ export function Credits() {
     // Load transaction history
     const txEl = container.querySelector('#tx-history');
     try {
-      const tx = await api.get('/billing/transactions');
-      if (tx.length === 0) {
+      const tx = await api.get('/billing/history');
+      const txList = tx.transactions || [];
+      if (txList.length === 0) {
         txEl.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No transactions yet.</p>';
       } else {
-        txEl.innerHTML = tx.slice(0, 20).map(t => `
+        txEl.innerHTML = txList.slice(0, 20).map(t => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
             <div>
-              <div style="font:var(--md-sys-typescale-body-medium);">${t.type || 'transaction'}</div>
+              <div style="font:var(--md-sys-typescale-body-medium);text-transform:capitalize;">${t.type || 'transaction'}</div>
               <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${new Date(t.created_at).toLocaleDateString()}</div>
             </div>
-            <div style="font:var(--md-sys-typescale-body-medium);color:${t.amount > 0 ? 'var(--color-success)' : 'var(--md-sys-color-error)'};">
-              ${t.amount > 0 ? '+' : ''}${t.amount} credits
+            <div style="font:var(--md-sys-typescale-body-medium);color:${(t.runs_credited || t.amount) > 0 ? 'var(--color-success)' : 'var(--md-sys-color-error)'};">
+              ${(t.runs_credited || t.amount) > 0 ? '+' : ''}${t.runs_credited || t.amount} runs/credits
             </div>
           </div>
         `).join('');
       }
-    } catch {
-      txEl.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No transactions yet.</p>';
+    } catch (e) {
+      console.warn('Could not load transactions:', e);
     }
   }
 

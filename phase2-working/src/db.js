@@ -44,6 +44,9 @@ async function runMigrations() {
       )
     `);
 
+    // Indexes for users
+    await client.query('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)');
+
     // Memory graph table (knowledge graph + Phase 8 columns)
     await client.query(`
       CREATE TABLE IF NOT EXISTS memory_graph (
@@ -81,6 +84,7 @@ async function runMigrations() {
     await client.query('CREATE INDEX IF NOT EXISTS idx_memory_category ON memory_graph(user_id, category)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_memory_decay ON memory_graph(user_id, decay_status)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_memory_commitment ON memory_graph(user_id, commitment_deadline)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_memory_expires ON memory_graph(user_id, expires_at)');
 
     // Create vector index for similarity search (ivfflat, requires at least 1000 rows to be effective)
     await client.query(`
@@ -196,6 +200,13 @@ async function runMigrations() {
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS context_note TEXT',
       // Geofences support
       'ALTER TABLE users ADD COLUMN IF NOT EXISTS geofences JSONB DEFAULT \'[]\'',
+      // New cognitive classification columns
+      'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS cognitive_load VARCHAR(50)',
+      'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS theme VARCHAR(100)',
+      'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS brain_area VARCHAR(50)',
+      'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS emotional_tone VARCHAR(50)',
+      'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS related_person VARCHAR(255)',
+      'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS location_tag VARCHAR(255)',
     ];
     for (const sql of alterCols) {
       await client.query(sql).catch(() => {});
@@ -216,6 +227,40 @@ async function runMigrations() {
     await client.query('CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at)');
 
+    // ── Thought Traces (replaces Langfuse) ──────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS thought_traces (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        trace_id UUID NOT NULL,
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        thought_id UUID REFERENCES memory_graph(id) ON DELETE CASCADE,
+        span_name VARCHAR(100),
+        input JSONB,
+        output JSONB,
+        status VARCHAR(50),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        ended_at TIMESTAMPTZ
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_traces_trace ON thought_traces(trace_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_traces_thought ON thought_traces(thought_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_traces_user ON thought_traces(user_id)');
+
+    // ── Thought Revivals (Serverless Interceptor Queue) ─────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS thought_revivals (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        thought_id UUID REFERENCES memory_graph(id) ON DELETE CASCADE,
+        thought JSONB NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, thought_id)
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_revivals_user ON thought_revivals(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_revivals_expires ON thought_revivals(expires_at)');
+
     // ── Row-Level Security (defense-in-depth for user isolation) ───────────────
     // RLS ensures the DB itself blocks cross-user access even if app code has a bug.
     // The app sets app.user_id via SET LOCAL before queries.
@@ -232,6 +277,8 @@ async function runMigrations() {
       `CREATE POLICY IF NOT EXISTS user_isolation_notifications ON notifications
        USING (user_id::text = current_setting('app.user_id', true))`,
       `CREATE POLICY IF NOT EXISTS user_isolation_billing ON billing_transactions
+       USING (user_id::text = current_setting('app.user_id', true))`,
+      `CREATE POLICY IF NOT EXISTS user_isolation_revivals ON thought_revivals
        USING (user_id::text = current_setting('app.user_id', true))`,
     ];
     for (const sql of rlsStatements) {
@@ -267,7 +314,6 @@ async function resetDailyRuns() {
   }
 }
 
-// Run daily reset every hour
-setInterval(resetDailyRuns, 3600000);
+// Note: resetDailyRuns is now executed by the native /api/cron/tick serverless endpoint
 
 module.exports = { pool, runMigrations, resetDailyRuns };

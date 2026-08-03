@@ -1,5 +1,6 @@
 // Thought Archaeology - Weekly regret ledger
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function ThoughtArchaeology() {
   const container = document.createElement('div');
@@ -120,7 +121,7 @@ export function ThoughtArchaeology() {
   container.querySelector('#btn-archive')?.addEventListener('click', async () => {
     const result = await api.post('/features/archaeology/clear', {});
     if (!result.error) {
-      alert(`Archived ${result.archivedCount || 0} expired thoughts.`);
+      toast.show(`Archived ${result.archivedCount || 0} expired thoughts.`, 'success');
       loadData();
     }
   });

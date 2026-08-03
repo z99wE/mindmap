@@ -77,10 +77,12 @@ export function Dashboard() {
 }
 
 async function loadDashboard(c) {
-  const [billing, memStats, cogData] = await Promise.all([
+  const [billing, memStats, cogData, driftData, swarmLogsData] = await Promise.all([
     api.get('/billing/status'),
     api.get('/memory/stats'),
     api.get('/features/cognitive-load'),
+    api.get('/features/drift-status'),
+    api.get('/features/swarm-logs')
   ]);
 
   // Stat cards
@@ -177,9 +179,11 @@ async function loadDashboard(c) {
   // Load Predictive ADHD insights
   const predCard = c.querySelector('#predictive-insight-card');
   if (predCard) {
-    const criticalCount = (cogData.distribution || []).find(d => d.type === 'critical')?.count || 0;
-    const highCount = (cogData.distribution || []).find(d => d.type === 'high')?.count || 0;
-    const isHighRisk = (criticalCount + highCount) > 2;
+    const isHighRisk = driftData && driftData.isHighRisk;
+    const predictionStr = (driftData && driftData.prediction) ? driftData.prediction : (isHighRisk ? '+28% (Severe)' : 'Stable');
+    const trendStr = (driftData && driftData.trend) ? driftData.trend : (isHighRisk 
+      ? 'Critical load detected. Congestion spikes predicted for Tuesday. We suggest immediate task pruning or witness escalation.' 
+      : 'Cognitive bandwidth is optimal. Your mental drift pattern is balanced. Keep capturing thoughts to maintain clarity.');
 
     predCard.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
@@ -192,12 +196,10 @@ async function loadDashboard(c) {
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="font-size:12px;color:var(--md-sys-color-outline);">Task Drift Prediction</span>
-        <span style="font-size:12px;color:#ff9800;font-weight:bold;">${isHighRisk ? '+28% (Severe)' : 'Stable'}</span>
+        <span style="font-size:12px;color:#ff9800;font-weight:bold;">${predictionStr}</span>
       </div>
       <p style="font-size:11px;line-height:1.4;margin-top:0.5rem;color:var(--md-sys-color-on-surface-variant);background:rgba(204,255,0,0.03);padding:0.5rem;border-radius:4px;border:1px dashed rgba(204,255,0,0.15);">
-        <strong>Futurism Trend:</strong> ${isHighRisk 
-          ? 'Critical load detected. Congestion spikes predicted for Tuesday. We suggest immediate task pruning or witness escalation.' 
-          : 'Cognitive bandwidth is optimal. Your mental drift pattern is balanced. Keep capturing thoughts to maintain clarity.'}
+        <strong>Futurism Trend:</strong> ${trendStr}
       </p>
     `;
   }
@@ -205,34 +207,37 @@ async function loadDashboard(c) {
   // Load Swarm feed simulator
   const swarmFeed = c.querySelector('#swarm-feed');
   if (swarmFeed) {
-    const agents = ['Hermes-1', 'NanoClaw-4', 'OpenClaw-2', 'Hermes-3', 'NanoClaw-2'];
-    const logs = [
-      'Scanning unanchored commitments...',
-      'Memory drift score updated to 0.18',
-      'Archived 3 unfulfilled expired thoughts.',
-      'Analyzing week-over-week regret themes.',
-      'Co-processing location stagnation triggers.',
-      'Checking geofence home-exit thresholds.',
-      'Purging 15-day free storage segment...',
-      'Validating witness escalation triggers...'
-    ];
+    if (!swarmLogsData || swarmLogsData.error || !swarmLogsData.logs) {
+      swarmFeed.innerHTML = '<div style="color:var(--md-sys-color-outline)">[System] Initializing Swarm Co-Processors...</div>';
+    } else {
+      swarmFeed.innerHTML = '';
+      swarmLogsData.logs.reverse().forEach(log => {
+        const timestamp = new Date(log.timestamp).toLocaleTimeString();
+        const div = document.createElement('div');
+        div.innerHTML = `<span style="color:var(--md-sys-color-outline)">[${timestamp}]</span> <span style="color:var(--md-sys-color-primary)">[${log.agent}]</span> ${log.message}`;
+        swarmFeed.appendChild(div);
+      });
+      swarmFeed.scrollTop = swarmFeed.scrollHeight;
+    }
 
-    const intervalId = setInterval(() => {
-      // Don't log if page was switched away and container unmounted
+    // Lightweight polling every 30 seconds
+    const intervalId = setInterval(async () => {
       if (!document.body.contains(swarmFeed)) {
         clearInterval(intervalId);
         return;
       }
-      const agent = agents[Math.floor(Math.random() * agents.length)];
-      const log = logs[Math.floor(Math.random() * logs.length)];
-      const timestamp = new Date().toLocaleTimeString();
-      const div = document.createElement('div');
-      div.innerHTML = `<span style="color:var(--md-sys-color-outline)">[${timestamp}]</span> <span style="color:var(--md-sys-color-primary)">[${agent}]</span> ${log}`;
-      swarmFeed.appendChild(div);
-      if (swarmFeed.childNodes.length > 25) {
-        swarmFeed.removeChild(swarmFeed.firstChild);
+      
+      const newLogs = await api.get('/features/swarm-logs');
+      if (newLogs && newLogs.logs) {
+        swarmFeed.innerHTML = '';
+        newLogs.logs.reverse().forEach(log => {
+          const timestamp = new Date(log.timestamp).toLocaleTimeString();
+          const div = document.createElement('div');
+          div.innerHTML = `<span style="color:var(--md-sys-color-outline)">[${timestamp}]</span> <span style="color:var(--md-sys-color-primary)">[${log.agent}]</span> ${log.message}`;
+          swarmFeed.appendChild(div);
+        });
+        swarmFeed.scrollTop = swarmFeed.scrollHeight;
       }
-      swarmFeed.scrollTop = swarmFeed.scrollHeight;
-    }, 4000);
+    }, 30000);
   }
 }

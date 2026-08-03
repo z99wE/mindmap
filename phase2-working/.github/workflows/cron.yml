@@ -1,0 +1,18 @@
+name: Cognitive Orchestrator Cron
+
+on:
+  schedule:
+    # Runs every 14 minutes to bypass Render's 15-minute inactivity sleep
+    - cron: '*/14 * * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  ping-orchestrator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Cron Endpoint
+        run: |
+          curl -X GET "${{ secrets.PROD_API_URL }}/api/cron/tick" \
+               -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+               -H "Content-Type: application/json"
