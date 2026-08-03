@@ -476,41 +476,108 @@ async function loadGeofences(c) {
 // ── Save Handlers ──────────────────────────────────────────────────────────
 
 function setupSaveHandlers(c) {
-  // Save channel
-  // Handle UI toggles for OAuth vs Token
+  // Per-platform contextual help shown in the dialog
+  const PLATFORM_HELP = {
+    telegram: {
+      tokenLabel: 'BOT TOKEN',
+      tokenHint: 'From @BotFather → /newbot → copy token (e.g. 7123456789:AAF...)',
+      idLabel: 'YOUR CHAT ID',
+      idHint: 'Message @userinfobot on Telegram to get your numeric chat ID',
+    },
+    discord: {
+      tokenLabel: 'BOT TOKEN',
+      tokenHint: 'discord.com/developers → Your App → Bot → Reset Token',
+      idLabel: 'YOUR USER/CHANNEL ID',
+      idHint: 'Right-click your username → Copy User ID (enable Developer Mode first)',
+    },
+    slack: {
+      tokenLabel: 'BOT TOKEN (xoxb-...)',
+      tokenHint: 'api.slack.com/apps → OAuth & Permissions → Bot Token',
+      idLabel: 'YOUR SLACK USER/CHANNEL ID',
+      idHint: 'In Slack: right-click your name → Copy Member ID (starts with U...)',
+    },
+    email: {
+      tokenLabel: 'APP PASSWORD',
+      tokenHint: 'Gmail: myaccount.google.com → Security → App Passwords',
+      idLabel: 'YOUR EMAIL ADDRESS',
+      idHint: 'The address where notifications will be delivered',
+    },
+    whatsapp: { tokenLabel: 'API KEY', tokenHint: 'Premium plan required', idLabel: 'PHONE NUMBER', idHint: '' },
+    sms:      { tokenLabel: 'API KEY', tokenHint: 'Premium plan required', idLabel: 'PHONE NUMBER', idHint: '' },
+  };
+
+  function updateChannelDialogFields(platform) {
+    const help = PLATFORM_HELP[platform] || { tokenLabel: 'TOKEN / API KEY', tokenHint: '', idLabel: 'CHANNEL / CHAT ID', idHint: '' };
+    c.querySelector('#channel-token-container').style.display = 'block';
+    c.querySelector('#channel-oauth-container').style.display = 'none';
+
+    // Update labels and hints
+    const tokenLabel = c.querySelector('label[for="channel-token"], #channel-token').closest('div')?.querySelector('.mono-label');
+    if (tokenLabel) tokenLabel.textContent = help.tokenLabel;
+    const tokenInput = c.querySelector('#channel-token');
+    if (tokenInput && help.tokenHint) tokenInput.placeholder = help.tokenHint;
+
+    const idLabel = c.querySelector('#channel-id').closest('div')?.querySelector('.mono-label');
+    if (idLabel) idLabel.textContent = help.idLabel;
+    const idInput = c.querySelector('#channel-id');
+    if (idInput && help.idHint) idInput.placeholder = help.idHint;
+  }
+
+  // Initialize with default platform
+  updateChannelDialogFields(c.querySelector('#channel-platform')?.value || 'telegram');
+
   c.querySelector('#channel-platform')?.addEventListener('change', (e) => {
-    const isOauth = ['slack', 'discord'].includes(e.target.value);
-    c.querySelector('#channel-token-container').style.display = isOauth ? 'none' : 'block';
-    c.querySelector('#channel-oauth-container').style.display = isOauth ? 'block' : 'none';
+    updateChannelDialogFields(e.target.value);
   });
 
-  // Save channel
+  // Save channel — sends correct credential structure to backend → stored encrypted → PulseKit picks up on delivery
   c.querySelector('#save-channel-btn')?.addEventListener('click', async () => {
     const platform = c.querySelector('#channel-platform').value;
-    const isOauth = ['slack', 'discord'].includes(platform);
-    
-    if (isOauth) {
-      // Hit oauth endpoint
-      const result = await api.post('/channels/install-oauth/' + platform, {});
-      if (result.authorize_url) {
-        window.location.href = result.authorize_url;
-      } else if (result.error) {
-        toast.show(result.error, 'error');
-      } else {
-        toast.show(result.message || 'Error occurred during installation.', 'error');
-      }
+    const token = c.querySelector('#channel-token').value.trim();
+    const channelId = c.querySelector('#channel-id').value.trim();
+
+    if (!token) {
+      toast.show('Please enter your bot token or API key', 'error');
       return;
     }
 
-    const token = c.querySelector('#channel-token').value;
-    const channelId = c.querySelector('#channel-id').value;
-    if (!token) return;
-    const result = await api.post('/channels/connect', { platform, credentials: { bot_token: token, chat_id: channelId }, displayName: platform });
-    if (!result.error) {
+    // Build credentials object matching what PulseKit channel drivers expect
+    let credentials = {};
+    if (platform === 'telegram') {
+      credentials = { bot_token: token, recipient_id: channelId };
+    } else if (platform === 'discord') {
+      credentials = { bot_token: token, recipient_id: channelId };
+    } else if (platform === 'slack') {
+      credentials = { bot_token: token, recipient_id: channelId }; // channel ID or user ID
+    } else if (platform === 'email') {
+      credentials = {
+        smtp_host: 'smtp.gmail.com', smtp_port: 587,
+        smtp_user: token.includes('@') ? token : channelId,  // token field = email+pass or just pass
+        smtp_pass: token.includes('@') ? '' : token,
+        smtp_from: channelId || token,
+        recipient_id: channelId,
+      };
+    } else {
+      credentials = { bot_token: token, recipient_id: channelId };
+    }
+
+    const result = await api.post('/channels/connect', {
+      platform,
+      credentials,
+      displayName: platform.charAt(0).toUpperCase() + platform.slice(1),
+    });
+
+    if (result.error) {
+      toast.show(result.error, 'error');
+    } else {
+      toast.show(`${platform} connected! Test it below.`, 'success');
       c.querySelector('#add-channel-dialog').style.display = 'none';
+      c.querySelector('#channel-token').value = '';
+      c.querySelector('#channel-id').value = '';
       loadChannels(c);
     }
   });
+
 
   // Save API key
   c.querySelector('#save-key-btn')?.addEventListener('click', async () => {
