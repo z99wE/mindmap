@@ -332,28 +332,16 @@ async function init() {
   const pageFromPath = Object.entries(pageRegistry).find(([k]) => path.includes(k))?.[0];
   renderPage(pageFromPath || 'home');
 
-  // Mount ambient Strands globally at footer
+  // Mount ambient Footer globally
   setTimeout(() => {
-    const footerEl = document.getElementById('strands-footer');
-    if (footerEl) {
+    const footerReactRoot = document.getElementById('strands-react-root');
+    if (footerReactRoot) {
       import('react').then((React) => {
         import('react-dom/client').then((ReactDOM) => {
-          import('./components/Strands.jsx').then((module) => {
-            const Strands = module.default;
-            const root = ReactDOM.createRoot(footerEl);
-            root.render(
-              React.createElement(Strands, {
-                colors: ["#00f3ff", "#ff0055", "#39ff14", "#8b00ff"],
-                count: 3,
-                speed: 0.4,
-                amplitude: 1.0,
-                waviness: 2.0,
-                thickness: 0.6,
-                glow: 2.0,
-                scale: 1.5,
-                opacity: 0.6
-              })
-            );
+          import('./components/Footer.jsx').then((module) => {
+            const Footer = module.default;
+            const root = ReactDOM.createRoot(footerReactRoot);
+            root.render(React.createElement(Footer));
           });
         });
       });
