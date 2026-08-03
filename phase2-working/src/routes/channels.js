@@ -22,38 +22,48 @@ router.get('/platforms', (req, res) => {
   res.json({ platforms: SUPPORTED_PLATFORMS });
 });
 
-// POST /api/channels/install-oauth/:platform - Get OAuth install URL for platforms that require it
+// POST /api/channels/install-oauth/:platform - Get OAuth install URL for Slack/Discord
 router.post('/install-oauth/:platform', authMiddleware, async (req, res) => {
   try {
     const { platform } = req.params;
-    
-    // Get the global caspian client from app (injected in server.js, but here we can just require it if needed, or we might need to handle it)
-    // Wait, the easiest way is to import it, but it's initialized in server.js.
-    // For now, we'll return a mock or require the caspian-client instance if we have a way.
-    // Let's rely on req.app.get('caspian') which we'll set in server.js
-    const caspian = req.app.get('caspian');
-    if (!caspian || !caspian.rawClient) {
-      return res.status(503).json({ error: 'Caspian messaging service is unavailable' });
-    }
 
-    let result = null;
+    // PulseKit provides direct OAuth URLs for Slack and Discord.
+    // These are standard OAuth flows — no Caspian dependency needed.
     if (platform === 'slack') {
-      result = await caspian.rawClient.installSlack();
-    } else if (platform === 'discord') {
-      result = await caspian.rawClient.installDiscord();
-    } else {
-      return res.status(400).json({ error: `OAuth install not supported for platform: ${platform}` });
+      const clientId = process.env.SLACK_CLIENT_ID;
+      if (!clientId) {
+        return res.status(503).json({
+          error: 'Slack OAuth not configured. Set SLACK_CLIENT_ID and SLACK_CLIENT_SECRET in .env, or use a bot token directly.',
+          setup_guide: 'https://api.slack.com/apps → OAuth & Permissions → Bot Token Scopes',
+        });
+      }
+      const redirectUri = encodeURIComponent(`${process.env.FRONTEND_URL || 'http://localhost:3001'}/api/channels/oauth/slack/callback`);
+      const scopes = encodeURIComponent('chat:write,im:write,users:read');
+      const authorizeUrl = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}`;
+      return res.json({ authorize_url: authorizeUrl });
     }
 
-    if (result && result.authorize_url) {
-      res.json({ authorize_url: result.authorize_url });
-    } else {
-      res.json({ message: 'Installation requested but no authorize_url was returned by Caspian.' });
+    if (platform === 'discord') {
+      const clientId = process.env.DISCORD_CLIENT_ID;
+      if (!clientId) {
+        return res.status(503).json({
+          error: 'Discord OAuth not configured. Set DISCORD_CLIENT_ID in .env, or use a bot token directly.',
+          setup_guide: 'https://discord.com/developers/applications → OAuth2',
+        });
+      }
+      const redirectUri = encodeURIComponent(`${process.env.FRONTEND_URL || 'http://localhost:3001'}/api/channels/oauth/discord/callback`);
+      const scopes = encodeURIComponent('bot identify');
+      const permissions = '2048'; // SEND_MESSAGES
+      const authorizeUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&scope=${scopes}&permissions=${permissions}&redirect_uri=${redirectUri}&response_type=code`;
+      return res.json({ authorize_url: authorizeUrl });
     }
+
+    return res.status(400).json({ error: `OAuth install not supported for platform: ${platform}. Add the bot token directly instead.` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // GET /api/channels - user's connected channels
 router.get('/', authMiddleware, async (req, res) => {
