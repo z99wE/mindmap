@@ -497,10 +497,10 @@ function setupSaveHandlers(c) {
       idHint: 'In Slack: right-click your name → Copy Member ID (starts with U...)',
     },
     email: {
-      tokenLabel: 'APP PASSWORD',
-      tokenHint: 'Gmail: myaccount.google.com → Security → App Passwords',
-      idLabel: 'YOUR EMAIL ADDRESS',
-      idHint: 'The address where notifications will be delivered',
+      tokenLabel: 'EMAIL ADDRESS',
+      tokenHint: 'e.g. yourname@gmail.com',
+      idLabel: 'APP PASSWORD',
+      idHint: 'Gmail: myaccount.google.com → Security → App Passwords (not your normal password)',
     },
     whatsapp: { tokenLabel: 'API KEY', tokenHint: 'Premium plan required', idLabel: 'PHONE NUMBER', idHint: '' },
     sms:      { tokenLabel: 'API KEY', tokenHint: 'Premium plan required', idLabel: 'PHONE NUMBER', idHint: '' },
@@ -550,12 +550,14 @@ function setupSaveHandlers(c) {
     } else if (platform === 'slack') {
       credentials = { bot_token: token, recipient_id: channelId }; // channel ID or user ID
     } else if (platform === 'email') {
+      // token field = email address, channelId = app password
       credentials = {
-        smtp_host: 'smtp.gmail.com', smtp_port: 587,
-        smtp_user: token.includes('@') ? token : channelId,  // token field = email+pass or just pass
-        smtp_pass: token.includes('@') ? '' : token,
-        smtp_from: channelId || token,
-        recipient_id: channelId,
+        smtp_host: 'smtp.gmail.com',
+        smtp_port: 587,
+        smtp_user: token,       // email address
+        smtp_pass: channelId,   // app password
+        smtp_from: `Thought GPS <${token}>`,
+        recipient_id: token,    // deliver to the same address
       };
     } else {
       credentials = { bot_token: token, recipient_id: channelId };

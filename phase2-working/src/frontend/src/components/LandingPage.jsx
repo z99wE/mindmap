@@ -1,306 +1,494 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import FadingVideo from './FadingVideo.jsx';
-import BlurText from './BlurText.jsx';
-import InfiniteMenu from './InfiniteMenu.jsx';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Strands from './Strands.jsx';
 import DecryptedText from './DecryptedText.jsx';
-import Dither from './Dither.jsx';
+import BlurText from './BlurText.jsx';
+
+const FEATURES = [
+  {
+    id: 'half-life',
+    label: 'HALF-LIFE DECAY',
+    color: '#ccff00',
+    glow: 'rgba(204,255,0,0.25)',
+    border: 'rgba(204,255,0,0.2)',
+    title: 'Thoughts that matter survive.',
+    body: 'Every thought gets a half-life. Urgent ones escalate. Vague ones fade. Your cognitive load stays manageable — automatically.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'commitment',
+    label: 'COMMITMENT WITNESS',
+    color: '#a3e635',
+    glow: 'rgba(163,230,53,0.2)',
+    border: 'rgba(163,230,53,0.2)',
+    title: 'Your promises have accountability.',
+    body: 'When you say "I will", we remember. Nudged before the deadline — not after. Commitments become actions, not regrets.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'drift',
+    label: 'DRIFT DETECTOR',
+    color: '#60a5fa',
+    glow: 'rgba(96,165,250,0.2)',
+    border: 'rgba(96,165,250,0.2)',
+    title: 'Stay on the signal, not the noise.',
+    body: 'Detects when your focus drifts from what matters. Sends a soft course-correction nudge before you lose the thread entirely.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'memory',
+    label: 'LIVING MEMORY GRAPH',
+    color: '#e879f9',
+    glow: 'rgba(232,121,249,0.2)',
+    border: 'rgba(232,121,249,0.2)',
+    title: 'Your past thoughts fuel your future ones.',
+    body: 'Semantically indexed memory. Every thought is embedded, clustered, and surfaced when you need it — not just stored and forgotten.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <circle cx="12" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/>
+        <path d="M12 6v4M6 18l5-4M18 18l-5-4"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'geofence',
+    label: 'LOCATION CONTEXT',
+    color: '#34d399',
+    glow: 'rgba(52,211,153,0.2)',
+    border: 'rgba(52,211,153,0.2)',
+    title: 'Spatial intelligence for your brain.',
+    body: 'Leave home → get a departure brief. Arrive at the office → pending items surface. Location is context. We treat it that way.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'channels',
+    label: 'REACH YOU ANYWHERE',
+    color: '#f97316',
+    glow: 'rgba(249,115,22,0.2)',
+    border: 'rgba(249,115,22,0.2)',
+    title: 'Your nudges, your channel.',
+    body: 'Telegram, Discord, Slack, Email, or browser push — bring your own bot or use ours. You control where your mind gets pinged.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+      </svg>
+    ),
+  },
+];
+
+const STATS = [
+  { value: '8', unit: 'cognitive engines', label: 'working in parallel' },
+  { value: '< 50ms', unit: 'thought classification', label: 'not minutes — milliseconds' },
+  { value: '∞', unit: 'half-life decay', label: 'your thoughts age gracefully' },
+];
 
 export default function LandingPage({ onNavigate, isLoggedIn }) {
-  const [showMenu, setShowMenu] = useState(false);
+  const [activeFeature, setActiveFeature] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
-  const menuItems = [
-    {
-      image: 'https://picsum.photos/400/400?random=1',
-      link: 'home',
-      title: 'Home',
-      description: 'Back to the start.'
-    },
-    {
-      image: 'https://picsum.photos/400/400?random=2',
-      link: 'dashboard',
-      title: 'Dashboard',
-      description: 'Your main cognitive board.'
-    },
-    {
-      image: 'https://picsum.photos/400/400?random=3',
-      link: 'interactive-space',
-      title: 'Chat Space',
-      description: 'Talk to your memory coprocessor.'
-    },
-    {
-      image: 'https://picsum.photos/400/400?random=4',
-      link: 'map-my-mind',
-      title: 'Mind Map',
-      description: 'Explore connections.'
-    },
-    {
-      image: 'https://picsum.photos/400/400?random=5',
-      link: 'mission-control',
-      title: 'Mission Control',
-      description: 'System metrics and prompts.'
-    },
-    {
-      image: 'https://picsum.photos/400/400?random=6',
-      link: 'thought-afterlife',
-      title: 'Afterlife',
-      description: 'View decaying thoughts.'
-    }
-  ];
+  useEffect(() => {
+    setMounted(true);
+    const interval = setInterval(() => {
+      setActiveFeature(f => (f + 1) % FEATURES.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleMenuSelect = (item) => {
-    setShowMenu(false);
-    if (onNavigate) onNavigate(item.link);
-  };
+  const feat = FEATURES[activeFeature];
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-body selection:bg-cyan-500 selection:text-black overflow-hidden">
-      {/* Dynamic Strands Background (ambient space glow) */}
-      <div className="fixed inset-0 pointer-events-none z-10 opacity-30">
+    <div style={{
+      minHeight: '100vh',
+      background: '#090909',
+      color: '#fff',
+      fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+      overflowX: 'hidden',
+    }}>
+      {/* Ambient Strands Background */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.18 }}>
         <Strands
-          colors={["#00f3ff", "#ff0055", "#39ff14", "#8b00ff"]}
-          count={5}
-          speed={0.6}
-          amplitude={1.2}
-          waviness={3.0}
-          thickness={0.8}
-          glow={3.0}
-          scale={2.0}
-          opacity={0.7}
+          colors={['#ccff00', '#a3e635', '#60a5fa', '#e879f9']}
+          count={4} speed={0.4} amplitude={1.0} waviness={2.5}
+          thickness={0.6} glow={2.0} scale={1.8} opacity={0.6}
         />
       </div>
 
-      {/* ── SECTION 1: HERO ── */}
-      <section className="relative h-screen w-full flex flex-col justify-between overflow-hidden">
-        {/* Background Waves (Dither) */}
-        <div className="absolute inset-0 w-full h-full z-0 opacity-80">
-          <Dither
-            waveColor={[0.0, 0.95, 1.0]}
-            disableAnimation={false}
-            enableMouseInteraction={true}
-            mouseRadius={0.4}
-            colorNum={4.6}
-            waveAmplitude={0.5}
-            waveFrequency={3}
-            waveSpeed={0.04}
-          />
+      {/* ── NAV ── */}
+      <nav style={{
+        position: 'relative', zIndex: 10,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '1.5rem 2.5rem',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'rgba(204,255,0,0.12)',
+            border: '1px solid rgba(204,255,0,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, fontWeight: 700, color: '#ccff00',
+            fontStyle: 'italic',
+          }}>t</div>
+          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
+            Thought GPS
+          </span>
         </div>
 
-        {/* Navbar */}
-        <nav className="relative z-50 flex items-center justify-between px-8 lg:px-16 pt-6">
-          <div className="w-12 h-12 rounded-full liquid-glass flex items-center justify-center cursor-pointer border border-cyan-500/30">
-            <span className="font-heading italic text-2xl text-cyan-400">t</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-1.5 liquid-glass rounded-full px-2 py-1.5 border border-white/10">
-            <button onClick={() => onNavigate('home')} className="px-3 py-2 text-sm font-medium text-white/90 hover:text-cyan-400">Home</button>
-            <button onClick={() => setShowMenu(true)} className="px-3 py-2 text-sm font-medium text-white/90 hover:text-cyan-400">Menu Sphere</button>
-            {isLoggedIn ? (
-              <button onClick={() => onNavigate('dashboard')} className="px-3 py-2 text-sm font-medium text-white/90 hover:text-cyan-400">Dashboard</button>
-            ) : (
-              <button onClick={() => onNavigate('auth')} className="px-3 py-2 text-sm font-medium text-white/90 hover:text-cyan-400">Sign In</button>
-            )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          {isLoggedIn ? (
             <button
-              onClick={() => setShowMenu(true)}
-              className="bg-white text-black rounded-full px-4 py-2 text-sm font-semibold hover:bg-cyan-400 transition-colors duration-300 whitespace-nowrap flex items-center gap-1"
-            >
-              Open Atlas <span className="text-[10px]">&#x2197;</span>
-            </button>
-          </div>
-
-          <div className="w-12" /> {/* Spacer */}
-        </nav>
-
-        {/* Hero Content */}
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto pt-16">
-          {/* Badge */}
-          <motion.div
-            initial={{ filter: 'blur(10px)', opacity: 0, y: 20 }}
-            animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="liquid-glass rounded-full p-1 pr-3 flex items-center gap-2 mb-6 border border-cyan-500/20"
-          >
-            <span className="bg-cyan-500 text-black px-3 py-1 text-xs font-bold rounded-full animate-pulse">SYSTEM STATUS</span>
-            <span className="text-xs md:text-sm text-cyan-200">Thought GPS: Cognitive Coprocessor Active</span>
-          </motion.div>
-
-          {/* Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading italic text-white leading-none tracking-tight">
-            <BlurText text="Your thoughts have a half-life. Let the best survive." />
-          </h1>
-
-          {/* Subheading */}
-          <motion.p
-            initial={{ filter: 'blur(10px)', opacity: 0, y: 20 }}
-            animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-6 text-sm md:text-base text-white/80 max-w-2xl font-light leading-relaxed"
-          >
-            Thought GPS automatically captures, classifies, and scales your cognitive load using half-life decay. Built specifically for ADHD and neurodiverse minds to bring order to chaos.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            initial={{ filter: 'blur(10px)', opacity: 0, y: 20 }}
-            animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.1 }}
-            className="flex items-center gap-6 mt-8"
-          >
-            <button
-              onClick={() => setShowMenu(true)}
-              className="liquid-glass-strong rounded-full px-6 py-3 text-sm font-semibold text-white border border-cyan-400/40 hover:bg-cyan-400/20 transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-            >
-              Start Your Voyage <span className="text-cyan-400">&#x2197;</span>
-            </button>
-            <button
-              onClick={() => onNavigate('how-it-works')}
-              className="text-sm font-medium hover:text-cyan-400 transition-colors flex items-center gap-2"
-            >
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">&#9658;</span>
-              View Liftoff
-            </button>
-          </motion.div>
-
-          {/* Stats Row */}
-          <motion.div
-            initial={{ filter: 'blur(10px)', opacity: 0, y: 20 }}
-            animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.3 }}
-            className="flex flex-wrap justify-center gap-6 mt-12"
-          >
-            <div className="liquid-glass p-5 w-[200px] rounded-2xl border border-white/5 text-left">
-              <span className="text-2xl text-cyan-400">&#9201;</span>
-              <div className="text-3xl font-heading italic text-white mt-2">34.5 Min</div>
-              <div className="text-xs text-white/60 mt-1">Average Videos Watch Time</div>
-            </div>
-            <div className="liquid-glass p-5 w-[200px] rounded-2xl border border-white/5 text-left">
-              <span className="text-2xl text-pink-500">&#127760;</span>
-              <div className="text-3xl font-heading italic text-white mt-2">2.8B+</div>
-              <div className="text-xs text-white/60 mt-1">Users Across the Globe</div>
-            </div>
-          </motion.div>
+              onClick={() => onNavigate('dashboard')}
+              style={navBtnStyle}
+            >Dashboard</button>
+          ) : (
+            <>
+              <button onClick={() => onNavigate('auth')} style={navBtnStyle}>Sign In</button>
+              <button
+                onClick={() => onNavigate('auth')}
+                style={{
+                  ...navBtnStyle,
+                  background: '#ccff00', color: '#0a0a0a',
+                  borderRadius: 100, fontWeight: 700, padding: '0.5rem 1.25rem',
+                }}
+              >Get Started →</button>
+            </>
+          )}
         </div>
+      </nav>
 
-        {/* Partners */}
+      {/* ── HERO ── */}
+      <section style={{
+        position: 'relative', zIndex: 1,
+        minHeight: '92vh',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        textAlign: 'center', padding: '4rem 1.5rem 2rem',
+      }}>
+        {/* Status badge */}
         <motion.div
-          initial={{ filter: 'blur(10px)', opacity: 0, y: 20 }}
-          animate={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.4 }}
-          className="relative z-10 flex flex-col items-center gap-4 pb-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: 'rgba(204,255,0,0.08)',
+            border: '1px solid rgba(204,255,0,0.2)',
+            borderRadius: 100, padding: '0.35rem 1rem 0.35rem 0.5rem',
+            marginBottom: '2rem',
+          }}
         >
-          <div className="liquid-glass rounded-full px-4 py-1 text-xs font-medium text-cyan-300 border border-cyan-500/20">
-            Collaborating with top aerospace pioneers globally
-          </div>
-          <div className="flex items-center gap-8 md:gap-16 font-heading italic text-xl md:text-2xl text-white/60">
-            <span className="hover:text-cyan-400 transition-colors">Aeon</span>
-            <span className="hover:text-pink-500 transition-colors">Vela</span>
-            <span className="hover:text-green-400 transition-colors">Apex</span>
-            <span className="hover:text-purple-400 transition-colors">Orbit</span>
-            <span className="hover:text-cyan-300 transition-colors">Zeno</span>
-          </div>
+          <span style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: '#ccff00',
+            boxShadow: '0 0 8px #ccff00',
+            display: 'inline-block',
+            animation: 'pulse 2s infinite',
+          }}/>
+          <span style={{ fontSize: 12, color: '#ccff00', fontWeight: 600, letterSpacing: '0.08em' }}>
+            COGNITIVE COPROCESSOR · ONLINE
+          </span>
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.35 }}
+          style={{
+            fontSize: 'clamp(2.8rem, 8vw, 6.5rem)',
+            fontWeight: 700,
+            lineHeight: 1.0,
+            letterSpacing: '-0.04em',
+            maxWidth: 900,
+            margin: '0 auto 1.5rem',
+          }}
+        >
+          Your thoughts have{' '}
+          <span style={{ color: '#ccff00', fontStyle: 'italic' }}>a half-life.</span>
+          <br />Let the best survive.
+        </motion.h1>
+
+        {/* Subhead */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.55 }}
+          style={{
+            fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+            color: 'rgba(255,255,255,0.55)',
+            maxWidth: 560,
+            lineHeight: 1.65,
+            margin: '0 auto 2.5rem',
+            fontWeight: 400,
+          }}
+        >
+          Thought GPS is your cognitive coprocessor — it captures, classifies, and 
+          prioritises your mental load using decay physics. Built for ADHD 
+          and neurodiverse minds.
+        </motion.p>
+
+        {/* CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}
+        >
+          <button
+            onClick={() => onNavigate('auth')}
+            style={{
+              background: '#ccff00', color: '#0a0a0a',
+              border: 'none', borderRadius: 100,
+              padding: '0.85rem 2rem', fontSize: 15, fontWeight: 700,
+              cursor: 'pointer', letterSpacing: '-0.01em',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+              boxShadow: '0 0 24px rgba(204,255,0,0.35)',
+            }}
+            onMouseEnter={e => { e.target.style.transform = 'scale(1.03)'; e.target.style.boxShadow = '0 0 36px rgba(204,255,0,0.5)'; }}
+            onMouseLeave={e => { e.target.style.transform = 'scale(1)'; e.target.style.boxShadow = '0 0 24px rgba(204,255,0,0.35)'; }}
+          >
+            Start for free →
+          </button>
+          <button
+            onClick={() => onNavigate('how-it-works')}
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 100,
+              padding: '0.85rem 2rem', fontSize: 15, fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={e => { e.target.style.background = 'rgba(255,255,255,0.1)'; }}
+            onMouseLeave={e => { e.target.style.background = 'rgba(255,255,255,0.06)'; }}
+          >
+            See how it works
+          </button>
+        </motion.div>
+
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
+          style={{
+            display: 'flex', gap: '3rem', flexWrap: 'wrap',
+            justifyContent: 'center', marginTop: '4rem',
+          }}
+        >
+          {STATS.map((s, i) => (
+            <div key={i} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.03em', color: '#fff' }}>
+                {s.value}
+              </div>
+              <div style={{ fontSize: 11, color: '#ccff00', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2 }}>
+                {s.unit}
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
+            </div>
+          ))}
         </motion.div>
       </section>
 
-      {/* ── SECTION 2: CAPABILITIES ── */}
-      <section className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-black py-24">
-        {/* Background Video */}
-        <FadingVideo
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_094631_d30ab262-45ee-4b7d-99f3-5d5848c8ef13.mp4"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
+      {/* ── FEATURES ── */}
+      <section style={{
+        position: 'relative', zIndex: 1,
+        padding: 'clamp(3rem, 8vw, 7rem) clamp(1.5rem, 5vw, 5rem)',
+      }}>
+        {/* Section label */}
+        <div style={{
+          fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.12em',
+          color: 'rgba(255,255,255,0.35)', marginBottom: '3rem', textAlign: 'center',
+          textTransform: 'uppercase',
+        }}>
+          // COGNITIVE ENGINE
+        </div>
 
-        <div className="relative z-10 px-8 md:px-16 lg:px-20 flex flex-col justify-between flex-1">
-          {/* Header */}
-          <div className="text-left">
-            <span className="text-xs font-mono tracking-widest text-cyan-400 block mb-3">// CAPABILITIES</span>
-            <h2 className="font-heading italic text-white text-6xl md:text-7xl lg:text-8xl leading-none tracking-tight">
-              Production<br />evolved
-            </h2>
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          gap: '2rem', maxWidth: 1100, margin: '0 auto',
+          alignItems: 'start',
+        }}>
+          {/* Left: Feature selector list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {FEATURES.map((f, i) => (
+              <button
+                key={f.id}
+                onClick={() => setActiveFeature(i)}
+                style={{
+                  textAlign: 'left', background: 'none',
+                  border: `1px solid ${i === activeFeature ? f.border : 'rgba(255,255,255,0.06)'}`,
+                  borderRadius: 12, padding: '1rem 1.25rem',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                  background: i === activeFeature ? `rgba(${hexToRgb(f.color)}, 0.06)` : 'rgba(255,255,255,0.02)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em',
+                    color: i === activeFeature ? f.color : 'rgba(255,255,255,0.3)',
+                    transition: 'color 0.2s',
+                  }}>
+                    {f.label}
+                  </span>
+                  {i === activeFeature && (
+                    <span style={{
+                      width: 6, height: 6, borderRadius: '50%',
+                      background: f.color,
+                      boxShadow: `0 0 6px ${f.color}`,
+                      display: 'inline-block',
+                    }}/>
+                  )}
+                </div>
+                {i === activeFeature && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    style={{ marginTop: '0.5rem' }}
+                  >
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{f.title}</div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{f.body}</div>
+                  </motion.div>
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
-            {/* Card 1 */}
-            <div className="liquid-glass rounded-2xl p-6 min-h-[360px] flex flex-col justify-between border border-cyan-500/10 hover:border-cyan-500/30 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <div className="w-11 h-11 rounded-xl liquid-glass flex items-center justify-center text-cyan-400 border border-cyan-500/20">
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21H5Zm1-4h12l-3.75-5-3 4L9 13l-3 4Z" />
-                  </svg>
+          {/* Right: Animated feature display */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={feat.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.35 }}
+              style={{
+                border: `1px solid ${feat.border}`,
+                borderRadius: 20,
+                padding: '2.5rem',
+                background: `rgba(${hexToRgb(feat.color)}, 0.04)`,
+                minHeight: 340,
+                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 14,
+                  background: `rgba(${hexToRgb(feat.color)}, 0.12)`,
+                  border: `1px solid ${feat.border}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: feat.color, marginBottom: '1.5rem',
+                }}>
+                  {feat.icon}
                 </div>
-                <div className="flex flex-wrap justify-end gap-1.5 max-w-[70%]">
-                  <span className="liquid-glass rounded-full px-2.5 py-0.5 text-[10px] text-cyan-300 border border-cyan-500/10">Natural Context</span>
-                  <span className="liquid-glass rounded-full px-2.5 py-0.5 text-[10px] text-pink-300 border border-pink-500/10">Photo Realism</span>
+                <div style={{ fontFamily: 'monospace', fontSize: 10, color: feat.color, letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
+                  {feat.label}
                 </div>
-              </div>
-              <div className="mt-8">
-                <h3 className="font-heading italic text-white text-3xl tracking-tight leading-none">AI Scenery</h3>
-                <p className="mt-3 text-sm text-white/70 font-light leading-relaxed">
-                  AI analyzes your product to create indistinguishable natural environments — from Icelandic cliffs to misty forests.
+                <h3 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.03em', marginBottom: '1rem' }}>
+                  {feat.title}
+                </h3>
+                <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>
+                  {feat.body}
                 </p>
               </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="liquid-glass rounded-2xl p-6 min-h-[360px] flex flex-col justify-between border border-pink-500/10 hover:border-pink-500/30 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <div className="w-11 h-11 rounded-xl liquid-glass flex items-center justify-center text-pink-400 border border-pink-500/20">
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M4 6.47 5.76 10H20v8H4V6.47M22 4h-4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.89-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4Z" />
-                  </svg>
-                </div>
-                <div className="flex flex-wrap justify-end gap-1.5 max-w-[70%]">
-                  <span className="liquid-glass rounded-full px-2.5 py-0.5 text-[10px] text-pink-300 border border-pink-500/10">Scale Fast</span>
-                  <span className="liquid-glass rounded-full px-2.5 py-0.5 text-[10px] text-green-300 border border-green-500/10">Time Saver</span>
-                </div>
+              <div style={{
+                marginTop: '2rem',
+                height: 3, borderRadius: 999,
+                background: `rgba(${hexToRgb(feat.color)}, 0.15)`,
+                overflow: 'hidden',
+              }}>
+                <motion.div
+                  key={feat.id}
+                  initial={{ width: '0%' }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 3.5, ease: 'linear' }}
+                  style={{ height: '100%', background: feat.color, borderRadius: 999 }}
+                />
               </div>
-              <div className="mt-8">
-                <h3 className="font-heading italic text-white text-3xl tracking-tight leading-none">Batch Production</h3>
-                <p className="mt-3 text-sm text-white/70 font-light leading-relaxed">
-                  Style your entire product line in minutes. Create a unified visual identity for catalogues and social media without weeks of retouching.
-                </p>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="liquid-glass rounded-2xl p-6 min-h-[360px] flex flex-col justify-between border border-green-500/10 hover:border-green-500/30 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <div className="w-11 h-11 rounded-xl liquid-glass flex items-center justify-center text-green-400 border border-green-500/20">
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1Zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7Z" />
-                  </svg>
-                </div>
-                <div className="flex flex-wrap justify-end gap-1.5 max-w-[70%]">
-                  <span className="liquid-glass rounded-full px-2.5 py-0.5 text-[10px] text-green-300 border border-green-500/10">Ray Tracing</span>
-                  <span className="liquid-glass rounded-full px-2.5 py-0.5 text-[10px] text-cyan-300 border border-cyan-500/10">Studio Quality</span>
-                </div>
-              </div>
-              <div className="mt-8">
-                <h3 className="font-heading italic text-white text-3xl tracking-tight leading-none">Smart Lighting</h3>
-                <p className="mt-3 text-sm text-white/70 font-light leading-relaxed">
-                  Automatic lighting and material adjustment. Achieve flawless integration with realistic shadows and sunlight.
-                </p>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
 
-      {/* ── Interactive Menu Modal Overlay ── */}
-      {showMenu && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md">
-          <button
-            onClick={() => setShowMenu(false)}
-            className="absolute top-8 right-8 text-white hover:text-cyan-400 text-3xl font-heading"
-          >
-            CLOSE
-          </button>
-          <div className="w-[85vw] h-[85vh] max-w-6xl relative">
-            <InfiniteMenu items={menuItems} scale={1.2} onSelect={handleMenuSelect} />
-          </div>
-        </div>
-      )}
+      {/* ── CTA FOOTER ── */}
+      <section style={{
+        position: 'relative', zIndex: 1,
+        padding: 'clamp(4rem, 10vw, 8rem) 1.5rem',
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          style={{
+            fontSize: 'clamp(2rem, 5vw, 4rem)',
+            fontWeight: 700, letterSpacing: '-0.04em',
+            marginBottom: '1rem', lineHeight: 1.1,
+          }}
+        >
+          Your cognitive load deserves <br />
+          <span style={{ color: '#ccff00', fontStyle: 'italic' }}>a smarter system.</span>
+        </motion.h2>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginBottom: '2.5rem' }}>
+          Free to start. No credit card. No setup required.
+        </p>
+        <button
+          onClick={() => onNavigate('auth')}
+          style={{
+            background: '#ccff00', color: '#0a0a0a',
+            border: 'none', borderRadius: 100,
+            padding: '1rem 2.5rem', fontSize: 16, fontWeight: 700,
+            cursor: 'pointer', letterSpacing: '-0.01em',
+            boxShadow: '0 0 32px rgba(204,255,0,0.4)',
+            transition: 'transform 0.15s',
+          }}
+          onMouseEnter={e => { e.target.style.transform = 'scale(1.03)'; }}
+          onMouseLeave={e => { e.target.style.transform = 'scale(1)'; }}
+        >
+          Start capturing your thoughts →
+        </button>
+        <p style={{ marginTop: '1.25rem', fontSize: 12, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.05em' }}>
+          THOUGHT GPS · COGNITIVE COPROCESSOR · v3.0
+        </p>
+      </section>
+
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @media(max-width:768px){
+          .feat-grid{grid-template-columns:1fr !important}
+        }
+      `}</style>
     </div>
   );
+}
+
+const navBtnStyle = {
+  background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)',
+  fontSize: 14, fontWeight: 500, padding: '0.5rem 0.875rem',
+  cursor: 'pointer', borderRadius: 8, transition: 'color 0.15s',
+};
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `${r},${g},${b}`;
 }
