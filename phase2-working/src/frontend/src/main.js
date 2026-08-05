@@ -219,9 +219,9 @@ function renderPage(page) {
     if (main) {
       main.innerHTML = `
         <div class="page-shell">
-          <div class="surface-card card-reveal liquid-glass" style="padding:3rem;text-align:center;max-width:600px;margin:2rem auto;border: 1px solid var(--md-sys-color-primary) !important;">
+          <div class="surface-card card-reveal neopop-card" style="padding:3rem;text-align:center;max-width:600px;margin:2rem auto;border: 1px solid var(--md-sys-color-primary) !important;">
             <div class="mono-label" style="color:var(--md-sys-color-primary);font-size:14px;margin-bottom:0.5rem;">EXPLORER PLUS FEATURE</div>
-            <h2 style="font:var(--md-sys-typescale-headline-small);margin:0 0 1rem;">Unlock Advanced Co-Processing</h2>
+            <h2 class="neon-text-lime" style="font:var(--md-sys-typescale-headline-small);margin:0 0 1rem;">Unlock Advanced Co-Processing</h2>
             <p style="color:var(--md-sys-color-on-surface-variant);line-height:1.6;margin-bottom:2rem;">
               The <strong>${info?.title || page}</strong> features are exclusive to the <strong>Explorer Plus</strong> tier. Upgrade to unlock seamless cross-device synchronization, infinite memory storage, and all cognitive visualizations.
             </p>

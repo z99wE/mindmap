@@ -272,6 +272,16 @@
     /* ── Hide scrollbars globally for a cleaner UI ── */
     ::-webkit-scrollbar { display: none; }
     * { scrollbar-width: none; -ms-overflow-style: none; }
+
+    /* ── Liquid Glass golden rule: solid fallback for nav layers ── */
+    @media (prefers-reduced-transparency: reduce) {
+      .nav-rail, .top-bar, .bottom-nav, .mobile-drawer-content {
+        background: var(--neopop-popblack-400);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -288,12 +298,12 @@
   <div id="app-root">
     <div class="app-shell">
       <!-- Desktop Nav Rail -->
-      <nav class="nav-rail" id="nav-rail" role="navigation" aria-label="Main navigation"></nav>
+      <nav class="nav-rail glass-rim" id="nav-rail" role="navigation" aria-label="Main navigation"></nav>
 
       <!-- Main area -->
       <div style="display:flex;flex-direction:column;min-height:100vh;">
         <!-- Top Bar -->
-        <header class="top-bar" id="top-bar">
+        <header class="top-bar glass-rim" id="top-bar">
           <div style="display:flex;align-items:center;gap:0.75rem;">
             <button class="icon-btn mobile-menu-btn" onclick="toggleDrawer()" aria-label="Open menu">
               <span style="font:700 18px/1 'Space Grotesk';">&#9776;</span>
@@ -326,7 +336,7 @@
     </div>
 
     <!-- Mobile Bottom Nav -->
-    <nav class="bottom-nav" role="navigation" aria-label="Mobile navigation">
+    <nav class="bottom-nav glass-rim" role="navigation" aria-label="Mobile navigation">
       <div class="bottom-nav-items" id="bottom-nav-items"></div>
     </nav>
 

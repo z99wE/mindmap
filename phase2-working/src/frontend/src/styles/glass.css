@@ -116,10 +116,20 @@
   box-shadow: var(--plunk-shadow), 0 24px 70px -12px rgba(var(--glow-lime), 0.55);
   transition: transform 160ms var(--md-sys-motion-easing-spring), box-shadow 200ms ease;
 }
+.bento-accent::before {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 40%;
+  z-index: 1;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-130%) skewX(-18deg);
+  pointer-events: none;
+}
 .bento-accent:hover {
   transform: translate(-2px, -2px);
   box-shadow: 8px 8px 0 0 rgba(0, 0, 0, 0.45), 0 30px 80px -14px rgba(var(--glow-lime), 0.7);
 }
+.bento-accent:hover::before { animation: shine-sweep 0.9s cubic-bezier(0.25, 1, 0.35, 1); }
 .bento-accent:active { transform: translate(3px, 3px); box-shadow: var(--plunk-shadow-pressed); }
 .bento-accent::after {
   content: '';
@@ -212,17 +222,29 @@
   background: linear-gradient(145deg, #d6ff3e 0%, #ccff00 55%, #b3e600 100%);
   color: #000000;
   font-weight: 700;
+  position: relative;
+  overflow: hidden;
   box-shadow: var(--plunk-shadow), 0 14px 36px -10px rgba(var(--glow-lime), 0.45);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-bottom-color: rgba(0, 0, 0, 0.25);
+}
+.btn-filled::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 40%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transform: translateX(-130%) skewX(-18deg);
+  pointer-events: none;
 }
 .btn-filled:hover {
   transform: translate(-2px, -2px);
   box-shadow: 8px 8px 0 0 rgba(0, 0, 0, 0.45), 0 22px 50px -12px rgba(var(--glow-lime), 0.6);
 }
+.btn-filled:hover::after { animation: shine-sweep 0.9s cubic-bezier(0.25, 1, 0.35, 1); }
 .btn-filled:active {
   transform: translate(3px, 3px);
   box-shadow: var(--plunk-shadow-pressed), 0 6px 18px -6px rgba(var(--glow-lime), 0.5);
+  animation: touch-illuminate 0.55s ease-out;
 }
 .btn-outlined {
   background: rgba(255, 255, 255, 0.03);
@@ -247,36 +269,7 @@
 }
 .btn-text:hover { background: rgba(204, 255, 0, 0.08); }
 
-/* ── NeoPOP ghost CTA — glass face, lime rim, violet halo on hover ── */
-.btn-neopop-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.7rem 1.6rem;
-  border-radius: 9999px;
-  font: 600 13px/1 var(--font-body);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--brand-ink);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  cursor: pointer;
-  box-shadow: var(--glass-specular), 0 10px 30px -8px rgba(0, 0, 0, 0.5);
-  transition: transform 160ms var(--md-sys-motion-easing-spring),
-              box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
-}
-.btn-neopop-ghost:hover {
-  transform: translateY(-2px);
-  border-color: rgba(151, 114, 255, 0.55);
-  background: rgba(106, 53, 255, 0.1);
-  box-shadow: var(--glass-specular-strong), 0 18px 44px -10px rgba(0, 0, 0, 0.6),
-              0 0 34px -6px rgba(var(--glow-violet), 0.5);
-}
-.btn-neopop-ghost:active { transform: translateY(1px) scale(0.98); }
+
 
 /* ── Input Fields ── */
 .input-m3 {
@@ -746,10 +739,6 @@
 .neon-text-lime {
   color: var(--brand-primary);
   text-shadow: 0 0 18px rgba(var(--glow-lime), 0.55), 0 0 46px rgba(var(--glow-lime), 0.3);
-}
-.neon-text-violet {
-  color: var(--neopop-violet-300);
-  text-shadow: 0 0 18px rgba(var(--glow-violet), 0.6), 0 0 46px rgba(var(--glow-violet), 0.35);
 }
 
 /* ── Gradient hairline divider (NeoPOP + Liquid) ── */

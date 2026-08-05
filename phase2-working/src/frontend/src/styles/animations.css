@@ -136,34 +136,11 @@
    Spring physics + specular sheen, CRED-style.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* NeoPOP plunk-in entrance (cards pop with spring overshoot) */
-@keyframes plunk-in {
-  0%   { opacity: 0; transform: translateY(26px) scale(0.94); }
-  70%  { opacity: 1; transform: translateY(-4px) scale(1.015); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-.anim-plunk { animation: plunk-in 560ms var(--md-sys-motion-easing-spring) forwards; }
-
-/* Liquid specular sweep — a light streak glides across the glass face */
+/* Liquid specular sweep — a light streak glides across the glass face (baked into .btn-filled/.bento-accent) */
 @keyframes shine-sweep {
   0%   { transform: translateX(-130%) skewX(-18deg); }
   100% { transform: translateX(230%) skewX(-18deg); }
 }
-.shine-sweep {
-  position: relative;
-  overflow: hidden;
-}
-.shine-sweep::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 40%;
-  left: 0;
-  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.14), transparent);
-  transform: translateX(-130%) skewX(-18deg);
-  pointer-events: none;
-}
-.shine-sweep:hover::after { animation: shine-sweep 0.9s cubic-bezier(0.25, 1, 0.35, 1); }
 
 /* Violet ambient orb (NeoPOP glow range partner to lime) */
 .orb-violet { background: rgba(106, 53, 255, 0.14); animation-duration: 30s; }
@@ -175,4 +152,13 @@
   40%  { box-shadow: inset 0 0 40px 6px rgba(204, 255, 0, 0.22); }
   100% { box-shadow: inset 0 0 0 0 rgba(204, 255, 0, 0); }
 }
-.anim-touch-illuminate:active { animation: touch-illuminate 0.55s ease-out; }
+
+/* ── Reduced motion: settle the Liquid NeoPOP motion layer ── */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-orb, .orb-primary, .orb-secondary, .orb-tertiary, .orb-violet, .orb-yoyo,
+  .btn-filled::after, .btn-filled:active, .anim-bell, .anim-count, .anim-float, .float-anim {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}

@@ -131,9 +131,9 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
         filter: 'blur(90px)', pointerEvents: 'none', zIndex: 0,
       }}/>
 
-      {/* ── NAV — Liquid Glass floating layer ── */}
+      {/* ── NAV — Liquid Glass bar (non-sticky: the app's own top-bar is the sticky layer) ── */}
       <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'relative', zIndex: 10,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '1rem 2.5rem',
         background: 'rgba(10,10,13,0.55)',
@@ -189,6 +189,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
       }}>
         {/* Status badge */}
         <motion.div
+          className="glow-ring"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -198,7 +199,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             border: '1px solid rgba(204,255,0,0.2)',
             borderRadius: 100, padding: '0.35rem 1rem 0.35rem 0.5rem',
             marginBottom: '2rem',
-            boxShadow: '0 0 26px -6px rgba(204,255,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
           }}
         >
           <span style={{
@@ -272,7 +273,15 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             onMouseEnter={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '8px 8px 0 0 rgba(0,0,0,0.5), 0 0 60px rgba(204,255,0,0.6)'; }}
             onMouseLeave={e => { e.target.style.transform = 'translate(0,0)'; e.target.style.boxShadow = '6px 6px 0 0 rgba(0,0,0,0.5), 0 0 44px rgba(204,255,0,0.4)'; }}
             onMouseDown={e => { e.target.style.transform = 'translate(3px,3px)'; e.target.style.boxShadow = '2px 2px 0 0 rgba(0,0,0,0.5), 0 0 30px rgba(204,255,0,0.45)'; }}
-            onMouseUp={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '8px 8px 0 0 rgba(0,0,0,0.5), 0 0 60px rgba(204,255,0,0.6)'; }}
+            onMouseUp={e => {
+              if (e.target.matches(':hover')) {
+                e.target.style.transform = 'translate(-2px,-2px)';
+                e.target.style.boxShadow = '8px 8px 0 0 rgba(0,0,0,0.5), 0 0 60px rgba(204,255,0,0.6)';
+              } else {
+                e.target.style.transform = 'translate(0,0)';
+                e.target.style.boxShadow = '6px 6px 0 0 rgba(0,0,0,0.5), 0 0 44px rgba(204,255,0,0.4)';
+              }
+            }}
           >
             Start for free →
           </button>
@@ -489,9 +498,16 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             transition: 'transform 0.16s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s',
           }}
           onMouseEnter={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '9px 9px 0 0 rgba(0,0,0,0.5), 0 0 70px rgba(204,255,0,0.65)'; }}
-          onMouseLeave={e => { e.target.style.transform = 'translate(0,0)'; e.target.style.boxShadow = '7px 7px 0 0 rgba(0,0,0,0.5), 0 0 52px rgba(204,255,0,0.45)'; }}
-          onMouseDown={e => { e.target.style.transform = 'translate(4px,4px)'; e.target.style.boxShadow = '2px 2px 0 0 rgba(0,0,0,0.5), 0 0 32px rgba(204,255,0,0.5)'; }}
-          onMouseUp={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '9px 9px 0 0 rgba(0,0,0,0.5), 0 0 70px rgba(204,255,0,0.65)'; }}
+          onMouseLeave={e => { e.target.style.transform = 'translate(0,0)'; e.target.style.boxShadow = '7px 7px 0 0 rgba(0,0,0,0.5), 0 0 52px rgba(204,255,0,0.45)'; }}            onMouseDown={e => { e.target.style.transform = 'translate(4px,4px)'; e.target.style.boxShadow = '2px 2px 0 0 rgba(0,0,0,0.5), 0 0 32px rgba(204,255,0,0.5)'; }}
+            onMouseUp={e => {
+              if (e.target.matches(':hover')) {
+                e.target.style.transform = 'translate(-2px,-2px)';
+                e.target.style.boxShadow = '9px 9px 0 0 rgba(0,0,0,0.5), 0 0 70px rgba(204,255,0,0.65)';
+              } else {
+                e.target.style.transform = 'translate(0,0)';
+                e.target.style.boxShadow = '7px 7px 0 0 rgba(0,0,0,0.5), 0 0 52px rgba(204,255,0,0.45)';
+              }
+            }}
         >
           Start capturing your thoughts →
         </button>
