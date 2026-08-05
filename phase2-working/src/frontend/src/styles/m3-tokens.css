@@ -100,6 +100,34 @@
   --md-sys-elevation-4: 0 6px 10px 4px rgba(0,0,0,.4), 0 2px 3px rgba(0,0,0,.5);
   --md-sys-elevation-5: 0 8px 12px 6px rgba(0,0,0,.4), 0 4px 4px rgba(0,0,0,.5);
 
+  /* ── NeoPOP Palette (CRED-style glow range) ── */
+  --neopop-violet-300: #b49aff;
+  --neopop-violet-400: #9772ff;
+  --neopop-violet-500: #6a35ff;
+  --neopop-violet-600: #4a25b3;
+  --neopop-violet-800: #20104d;
+  --neopop-yoyo-500: #aa3fff;
+  --neopop-park-500: #3bffad;
+  --neopop-pink-500: #ff426f;
+  --neopop-popwhite-200: #e0e0e0;
+  --neopop-popwhite-300: #efefef;
+  --neopop-popblack-300: #161616;
+  --neopop-popblack-400: #121212;
+  --neopop-popblack-500: #0d0d0d;
+
+  /* Glow range — colored neon halos used by NeoPOP depth */
+  --glow-lime: 204, 255, 0;
+  --glow-violet: 106, 53, 255;
+  --glow-yoyo: 170, 63, 255;
+  --glow-emerald: 16, 185, 129;
+  --glow-chartreuse: 163, 230, 53;
+
+  /* ── NeoPOP Plunk geometry (3D edge) ── */
+  --plunk-edge: 6px;
+  --plunk-edge-sm: 4px;
+  --plunk-shadow: var(--plunk-edge) var(--plunk-edge) 0 0 rgba(0, 0, 0, 0.45);
+  --plunk-shadow-pressed: 2px 2px 0 0 rgba(0, 0, 0, 0.45);
+
   /* ── Motion ── */
   --md-sys-motion-duration-short1: 50ms;
   --md-sys-motion-duration-short2: 100ms;
@@ -115,4 +143,6 @@
   --md-sys-motion-easing-emphasized: cubic-bezier(0.4, 0, 0.2, 1);
   --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
   --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --md-sys-motion-easing-liquid: cubic-bezier(0.25, 1, 0.35, 1);
 }

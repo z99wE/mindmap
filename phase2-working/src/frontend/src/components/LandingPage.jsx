@@ -112,26 +112,45 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#090909',
+      background: 'transparent',
       color: '#fff',
       fontFamily: "'Space Grotesk', 'Inter', sans-serif",
       overflowX: 'hidden',
+      position: 'relative',
+      isolation: 'isolate',
     }}>
-      {/* ── NAV ── */}
+      {/* Ambient glow orbs (violet + lime — NeoPOP range behind the glass) */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: '-6rem', left: '12%', width: '30rem', height: '30rem',
+        borderRadius: '50%', background: 'radial-gradient(circle, rgba(106,53,255,0.16), transparent 60%)',
+        filter: 'blur(80px)', pointerEvents: 'none', zIndex: 0,
+      }}/>
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: '18rem', right: '-8rem', width: '26rem', height: '26rem',
+        borderRadius: '50%', background: 'radial-gradient(circle, rgba(204,255,0,0.12), transparent 60%)',
+        filter: 'blur(90px)', pointerEvents: 'none', zIndex: 0,
+      }}/>
+
+      {/* ── NAV — Liquid Glass floating layer ── */}
       <nav style={{
-        position: 'relative', zIndex: 10,
+        position: 'sticky', top: 0, zIndex: 100,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.5rem 2.5rem',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '1rem 2.5rem',
+        background: 'rgba(10,10,13,0.55)',
+        backdropFilter: 'blur(26px) saturate(185%)',
+        WebkitBackdropFilter: 'blur(26px) saturate(185%)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(204,255,0,0.12)',
-            border: '1px solid rgba(204,255,0,0.3)',
+            width: 36, height: 36, borderRadius: 12,
+            background: 'linear-gradient(145deg, #d6ff3e 0%, #ccff00 55%, #b3e600 100%)',
+            border: '1px solid rgba(255,255,255,0.4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, fontWeight: 700, color: '#ccff00',
+            fontSize: 18, fontWeight: 700, color: '#0a0a0a',
             fontStyle: 'italic',
+            boxShadow: '4px 4px 0 0 rgba(0,0,0,0.4), 0 0 24px rgba(204,255,0,0.4), inset 0 1px 0 rgba(255,255,255,0.5)',
           }}>t</div>
           <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.02em', color: '#f0f0f0' }}>
             Thought GPS
@@ -179,6 +198,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             border: '1px solid rgba(204,255,0,0.2)',
             borderRadius: 100, padding: '0.35rem 1rem 0.35rem 0.5rem',
             marginBottom: '2rem',
+            boxShadow: '0 0 26px -6px rgba(204,255,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)',
           }}
         >
           <span style={{
@@ -208,7 +228,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
           }}
         >
           Your thoughts have{' '}
-          <span style={{ color: '#ccff00', fontStyle: 'italic' }}>a half-life.</span>
+          <span style={{ color: '#ccff00', fontStyle: 'italic', textShadow: '0 0 24px rgba(204,255,0,0.55), 0 0 64px rgba(204,255,0,0.3)' }}>a half-life.</span>
           <br />Let the best survive.
         </motion.h1>
 
@@ -241,31 +261,37 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
           <button
             onClick={() => onNavigate('auth')}
             style={{
-              background: '#ccff00', color: '#0a0a0a',
-              border: 'none', borderRadius: 100,
+              background: 'linear-gradient(145deg, #d6ff3e 0%, #ccff00 55%, #b3e600 100%)', color: '#0a0a0a',
+              border: '1px solid rgba(255,255,255,0.4)', borderBottom: '1px solid rgba(0,0,0,0.25)',
+              borderRadius: 100,
               padding: '0.85rem 2rem', fontSize: 15, fontWeight: 700,
               cursor: 'pointer', letterSpacing: '-0.01em',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-              boxShadow: '0 0 24px rgba(204,255,0,0.35)',
+              transition: 'transform 0.16s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s',
+              boxShadow: '6px 6px 0 0 rgba(0,0,0,0.5), 0 0 44px rgba(204,255,0,0.4)',
             }}
-            onMouseEnter={e => { e.target.style.transform = 'scale(1.03)'; e.target.style.boxShadow = '0 0 36px rgba(204,255,0,0.5)'; }}
-            onMouseLeave={e => { e.target.style.transform = 'scale(1)'; e.target.style.boxShadow = '0 0 24px rgba(204,255,0,0.35)'; }}
+            onMouseEnter={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '8px 8px 0 0 rgba(0,0,0,0.5), 0 0 60px rgba(204,255,0,0.6)'; }}
+            onMouseLeave={e => { e.target.style.transform = 'translate(0,0)'; e.target.style.boxShadow = '6px 6px 0 0 rgba(0,0,0,0.5), 0 0 44px rgba(204,255,0,0.4)'; }}
+            onMouseDown={e => { e.target.style.transform = 'translate(3px,3px)'; e.target.style.boxShadow = '2px 2px 0 0 rgba(0,0,0,0.5), 0 0 30px rgba(204,255,0,0.45)'; }}
+            onMouseUp={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '8px 8px 0 0 rgba(0,0,0,0.5), 0 0 60px rgba(204,255,0,0.6)'; }}
           >
             Start for free →
           </button>
           <button
             onClick={() => onNavigate('how-it-works')}
             style={{
-              background: 'rgba(255,255,255,0.06)',
+              background: 'rgba(255,255,255,0.05)',
               color: '#fff',
-              border: '1px solid rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.14)',
               borderRadius: 100,
               padding: '0.85rem 2rem', fontSize: 15, fontWeight: 500,
               cursor: 'pointer',
-              transition: 'background 0.15s',
+              backdropFilter: 'blur(18px) saturate(170%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(170%)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.16), 0 12px 32px -12px rgba(0,0,0,0.6)',
+              transition: 'background 0.2s, box-shadow 0.2s, transform 0.16s cubic-bezier(0.34,1.56,0.64,1)',
             }}
-            onMouseEnter={e => { e.target.style.background = 'rgba(255,255,255,0.1)'; }}
-            onMouseLeave={e => { e.target.style.background = 'rgba(255,255,255,0.06)'; }}
+            onMouseEnter={e => { e.target.style.background = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.22), 0 0 30px -6px rgba(106,53,255,0.5), 0 14px 36px -12px rgba(0,0,0,0.6)'; }}
+            onMouseLeave={e => { e.target.style.background = 'rgba(255,255,255,0.05)'; e.target.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.16), 0 12px 32px -12px rgba(0,0,0,0.6)'; }}
           >
             See how it works
           </button>
@@ -283,10 +309,10 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
         >
           {STATS.map((s, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.03em', color: '#fff' }}>
+              <div style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.03em', color: '#fff', textShadow: '0 0 24px rgba(204,255,0,0.35)' }}>
                 {s.value}
               </div>
-              <div style={{ fontSize: 11, color: '#ccff00', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2 }}>
+              <div style={{ fontSize: 11, color: '#ccff00', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2, textShadow: '0 0 12px rgba(204,255,0,0.5)' }}>
                 {s.unit}
               </div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
@@ -321,11 +347,18 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
                 key={f.id}
                 onClick={() => setActiveFeature(i)}
                 style={{
-                  textAlign: 'left', background: 'none',
-                  border: `1px solid ${i === activeFeature ? f.border : 'rgba(255,255,255,0.06)'}`,
-                  borderRadius: 12, padding: '1rem 1.25rem',
-                  cursor: 'pointer', transition: 'all 0.2s',
-                  background: i === activeFeature ? `rgba(${hexToRgb(f.color)}, 0.06)` : 'rgba(255,255,255,0.02)',
+                  textAlign: 'left',
+                  border: `1px solid ${i === activeFeature ? f.border : 'rgba(255,255,255,0.07)'}`,
+                  borderRadius: 16, padding: '1rem 1.25rem',
+                  cursor: 'pointer', transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+                  background: i === activeFeature
+                    ? `linear-gradient(180deg, rgba(${hexToRgb(f.color)}, 0.08), rgba(${hexToRgb(f.color)}, 0.02))`
+                    : 'rgba(255,255,255,0.025)',
+                  backdropFilter: 'blur(18px) saturate(170%)',
+                  WebkitBackdropFilter: 'blur(18px) saturate(170%)',
+                  boxShadow: i === activeFeature
+                    ? `6px 6px 0 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 34px -8px ${f.glow}`
+                    : 'inset 0 1px 0 rgba(255,255,255,0.06)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -369,11 +402,14 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
               transition={{ duration: 0.35 }}
               style={{
                 border: `1px solid ${feat.border}`,
-                borderRadius: 20,
+                borderRadius: 24,
                 padding: '2.5rem',
-                background: `rgba(${hexToRgb(feat.color)}, 0.04)`,
+                background: `linear-gradient(180deg, rgba(${hexToRgb(feat.color)}, 0.08), rgba(${hexToRgb(feat.color)}, 0.02))`,
+                backdropFilter: 'blur(26px) saturate(185%)',
+                WebkitBackdropFilter: 'blur(26px) saturate(185%)',
                 minHeight: 340,
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                boxShadow: `8px 8px 0 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.14), 0 24px 60px -16px rgba(0,0,0,0.55), 0 0 60px -14px ${feat.glow}`,
               }}
             >
               <div>
@@ -383,6 +419,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
                   border: `1px solid ${feat.border}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: feat.color, marginBottom: '1.5rem',
+                  boxShadow: `4px 4px 0 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 22px -4px ${feat.glow}`,
                 }}>
                   {feat.icon}
                 </div>
@@ -418,11 +455,11 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
       </section>
 
       {/* ── CTA FOOTER ── */}
+      <div className="gradient-rule" style={{ maxWidth: 900, margin: '0 auto' }} aria-hidden="true"/>
       <section style={{
         position: 'relative', zIndex: 1,
         padding: 'clamp(4rem, 10vw, 8rem) 1.5rem',
         textAlign: 'center',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
       }}>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -435,7 +472,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
           }}
         >
           Your cognitive load deserves <br />
-          <span style={{ color: '#ccff00', fontStyle: 'italic' }}>a smarter system.</span>
+          <span style={{ color: '#ccff00', fontStyle: 'italic', textShadow: '0 0 24px rgba(204,255,0,0.55), 0 0 64px rgba(204,255,0,0.3)' }}>a smarter system.</span>
         </motion.h2>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginBottom: '2.5rem' }}>
           Free to start. No credit card. No setup required.
@@ -443,15 +480,18 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
         <button
           onClick={() => onNavigate('auth')}
           style={{
-            background: '#ccff00', color: '#0a0a0a',
-            border: 'none', borderRadius: 100,
+            background: 'linear-gradient(145deg, #d6ff3e 0%, #ccff00 55%, #b3e600 100%)', color: '#0a0a0a',
+            border: '1px solid rgba(255,255,255,0.4)', borderBottom: '1px solid rgba(0,0,0,0.25)',
+            borderRadius: 100,
             padding: '1rem 2.5rem', fontSize: 16, fontWeight: 700,
             cursor: 'pointer', letterSpacing: '-0.01em',
-            boxShadow: '0 0 32px rgba(204,255,0,0.4)',
-            transition: 'transform 0.15s',
+            boxShadow: '7px 7px 0 0 rgba(0,0,0,0.5), 0 0 52px rgba(204,255,0,0.45)',
+            transition: 'transform 0.16s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s',
           }}
-          onMouseEnter={e => { e.target.style.transform = 'scale(1.03)'; }}
-          onMouseLeave={e => { e.target.style.transform = 'scale(1)'; }}
+          onMouseEnter={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '9px 9px 0 0 rgba(0,0,0,0.5), 0 0 70px rgba(204,255,0,0.65)'; }}
+          onMouseLeave={e => { e.target.style.transform = 'translate(0,0)'; e.target.style.boxShadow = '7px 7px 0 0 rgba(0,0,0,0.5), 0 0 52px rgba(204,255,0,0.45)'; }}
+          onMouseDown={e => { e.target.style.transform = 'translate(4px,4px)'; e.target.style.boxShadow = '2px 2px 0 0 rgba(0,0,0,0.5), 0 0 32px rgba(204,255,0,0.5)'; }}
+          onMouseUp={e => { e.target.style.transform = 'translate(-2px,-2px)'; e.target.style.boxShadow = '9px 9px 0 0 rgba(0,0,0,0.5), 0 0 70px rgba(204,255,0,0.65)'; }}
         >
           Start capturing your thoughts →
         </button>

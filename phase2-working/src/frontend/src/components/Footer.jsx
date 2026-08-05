@@ -56,9 +56,11 @@ export default function Footer() {
           left: 50%;
           bottom: -6rem;
           transform: translateX(-50%);
-          width: 42rem;
-          height: 12rem;
-          background: radial-gradient(ellipse at center, rgba(204,255,0,0.10) 0%, rgba(204,255,0,0.03) 45%, transparent 70%);
+          width: 46rem;
+          height: 13rem;
+          background:
+            radial-gradient(ellipse at center, rgba(204,255,0,0.10) 0%, rgba(204,255,0,0.03) 45%, transparent 70%),
+            radial-gradient(ellipse at 65% 30%, rgba(106,53,255,0.08) 0%, transparent 55%);
           pointer-events: none;
         }
         .brand-footer-inner {
@@ -83,7 +85,7 @@ export default function Footer() {
           font: italic 700 16px/1 'Space Grotesk', sans-serif;
           color: #000;
           background: linear-gradient(145deg, #d6ff3e 0%, #ccff00 55%, #b3e600 100%);
-          box-shadow: 0 0 18px rgba(204,255,0,0.35);
+          box-shadow: 4px 4px 0 0 rgba(0,0,0,0.4), 0 0 18px rgba(204,255,0,0.4), inset 0 1px 0 rgba(255,255,255,0.5);
           letter-spacing: -0.02em;
         }
         .brand-footer-name {
