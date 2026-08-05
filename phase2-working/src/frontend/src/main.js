@@ -70,79 +70,94 @@ const pageFactories = {
 };
 
 // ── Navigation Rendering ─────────────────────────────────────────────────────
+let navWheelRoot = null;
+
+// Ordered, auth-aware list of pages rendered on the OptionWheel navigation
+function buildWheelPages() {
+  const isAdmin = user?.isAdmin;
+  const isLoggedIn = api.isLoggedIn();
+  const order = [
+    'home', 'dashboard', 'interactive-space', 'map-my-mind', 'mission-control',
+    'how-it-works',
+    'thought-afterlife', 'commitments', 'brain-fragments', 'cognitive-load',
+    'archaeology', 'memory-segments',
+    'memory', 'thought-export', 'api-keys', 'credits', 'notifications',
+    'legal',
+  ];
+  if (isAdmin) order.push('admin');
+  return order.filter(k =>
+    pageRegistry[k] &&
+    (!pageRegistry[k].auth || isLoggedIn) &&
+    (!pageRegistry[k].adminOnly || isAdmin)
+  );
+}
+
+// Navigation debounce: dragging/scrolling the wheel fires onChange many times
+// per gesture — only navigate after the wheel has briefly settled.
+let wheelNavTimer = null;
+function navigateFromWheel(key) {
+  if (key && key !== currentPage) {
+    if (wheelNavTimer) clearTimeout(wheelNavTimer);
+    wheelNavTimer = setTimeout(() => {
+      if (key !== currentPage) window.showPage(key);
+    }, 180);
+  }
+}
+
+// Mount the OptionWheel (React Bits) into the rail, re-rendering items on
+// every nav pass so auth state and the active page stay in sync.
+function mountNavWheel() {
+  const host = document.getElementById('nav-wheel-root');
+  if (!host) return;
+  const keys = buildWheelPages();
+  const labels = keys.map(k => pageRegistry[k].title);
+  const selected = Math.max(0, keys.indexOf(currentPage));
+  Promise.all([
+    import('react'),
+    import('react-dom/client'),
+    import('./components/OptionWheel.jsx'),
+  ]).then(([React, ReactDOM, wheelModule]) => {
+    const OptionWheel = wheelModule.default;
+    if (!navWheelRoot) navWheelRoot = ReactDOM.createRoot(host);
+    navWheelRoot.render(
+      React.createElement(OptionWheel, {
+        key: currentPage,
+        items: labels,
+        defaultSelected: selected,
+        textColor: '#aeb4bf',
+        activeColor: '#ccff00',
+        side: 'left',
+        fontSize: 1.44,
+        spacing: 1.67,
+        curve: 1.4,
+        tilt: 6,
+        blur: 0.5,
+        fade: 0.22,
+        minOpacity: 0.08,
+        smoothing: 520,
+        inset: 30,
+        loop: true,
+        draggable: true,
+        className: 'nav-wheel',
+        onChange: (idx) => {
+          navigateFromWheel(keys[idx]);
+        },
+      })
+    );
+  });
+}
+
 function renderNavRail() {
   const rail = document.getElementById('nav-rail');
   if (!rail) return;
-  const isAdmin = user?.isAdmin;
-  const isLoggedIn = api.isLoggedIn();
 
-  let html = `
-    <div class="nav-logo">
-      <div class="nav-logo-icon">T</div>
-      <div>
-        <div class="nav-logo-text">Thought GPS</div>
-        <div class="nav-logo-sub">Cognitive Coprocessor</div>
-      </div>
-    </div>`;
-
-  const sections = [
-    { key: 'main', label: '' },
-    { key: 'analytics', label: 'Cognitive Features' },
-    { key: 'setup', label: 'Configuration' },
-  ];
-
-  for (const section of sections) {
-    const items = Object.entries(pageRegistry).filter(([, p]) =>
-      p.section === section.key && (!p.auth || isLoggedIn) && (!p.adminOnly || isAdmin)
-    );
-    if (items.length === 0) continue;
-    if (section.label) html += `<div class="nav-section-label">${section.label}</div>`;
-    for (const [key, page] of items) {
-      const active = key === currentPage ? 'active' : '';
-      html += `<div class="nav-item ${active}" data-page="${key}" onclick="showPage('${key}')">
-        <span class="nav-dot"></span>
-        <span>${page.title}</span>
-      </div>`;
-    }
+  // The rail is just the rotating dial now — no logo, no chrome.
+  if (!rail.dataset.wheelMounted) {
+    rail.innerHTML = '<div class="nav-wheel-host" id="nav-wheel-root"></div>';
+    rail.dataset.wheelMounted = '1';
   }
 
-  // Admin section
-  if (isAdmin) {
-    html += `<div class="nav-section-label">Admin</div>`;
-    html += `<div class="nav-item ${currentPage === 'admin' ? 'active' : ''}" onclick="showPage('admin')">
-      <span class="nav-dot"></span><span>Admin</span></div>`;
-  }
-
-  // Legal always visible
-  html += `<div style="flex:1;"></div>`;
-  html += `<div class="nav-item ${currentPage === 'legal' ? 'active' : ''}" onclick="showPage('legal')">
-    <span class="nav-dot"></span><span>Legal</span></div>`;
-
-  rail.innerHTML = html;
-
-  // Render logo with React DecryptedText
-  setTimeout(() => {
-    const logoEl = rail.querySelector('.nav-logo-text');
-    if (logoEl) {
-      import('react').then((React) => {
-        import('react-dom/client').then((ReactDOM) => {
-          import('./components/DecryptedText.jsx').then((module) => {
-            const DecryptedText = module.default;
-            const root = ReactDOM.createRoot(logoEl);
-            root.render(
-              React.createElement(DecryptedText, {
-                text: "Thought GPS",
-                speed: 60,
-                maxIterations: 12,
-                characters: "01X[]{}?*&%$#@!+=",
-                className: "brand-glow-text font-heading italic text-lg"
-              })
-            );
-          });
-        });
-      });
-    }
-  }, 0);
+  mountNavWheel();
 }
 
 function renderBottomNav() {
@@ -165,13 +180,24 @@ function renderBottomNav() {
 function renderMobileDrawer() {
   const content = document.getElementById('drawer-content');
   if (!content) return;
-  const rail = document.getElementById('nav-rail');
-  content.innerHTML = rail ? rail.innerHTML : '';
-  content.querySelectorAll('[onclick]').forEach(el => {
-    el.addEventListener('click', () => {
-      document.getElementById('mobile-drawer').classList.remove('open');
-    });
-  });
+  // Build a plain link list (the rail itself now hosts the React OptionWheel,
+  // which can't be copied into the drawer).
+  const items = buildWheelPages().map(k => {
+    const p = pageRegistry[k];
+    const active = k === currentPage ? 'active' : '';
+    return `<div class="nav-item ${active}" onclick="showPage('${k}');document.getElementById('mobile-drawer').classList.remove('open')">
+      <span class="nav-dot"></span><span>${p.title}</span>
+    </div>`;
+  }).join('');
+  content.innerHTML = `
+    <div class="nav-logo">
+      <div class="nav-logo-icon">T</div>
+      <div>
+        <div class="nav-logo-text">Thought GPS</div>
+        <div class="nav-logo-sub">Cognitive Coprocessor</div>
+      </div>
+    </div>
+    ${items}`;
 }
 
 function updateUserChip() {
