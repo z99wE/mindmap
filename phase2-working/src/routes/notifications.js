@@ -5,17 +5,23 @@ const { pool } = require('../db');
 const { authMiddleware } = require('../auth');
 const { getNotifications, markRead, markAllRead } = require('../notifications');
 
-// Lazy-load webpush (set up in server.js)
-function getWebpush() {
+// Resolve the shared webpush instance (configured in server.js).
+// Preferred path: read from req.app.locals — no circular require. The lazy
+// require is kept only as a fallback for callers without a req (sendWebPush).
+function getWebpush(req) {
+  const locals = req?.app?.locals;
+  if (locals?.webpush) return { webpush: locals.webpush, vapidKeys: locals.vapidKeys };
   try {
     const serverModule = require('../../server');
-    return { webpush: serverModule.webpush, vapidKeys: serverModule.vapidKeys };
+    const vapidKeys = serverModule?.vapidKeys || serverModule?.getSharedVapid?.()?.vapidKeys;
+    const webpush = serverModule?.webpush || serverModule?.getSharedVapid?.()?.webpush;
+    return { webpush, vapidKeys };
   } catch { return { webpush: null, vapidKeys: null }; }
 }
 
 // GET /api/notifications/vapid-public-key - returns VAPID public key (no auth needed)
 router.get('/vapid-public-key', (req, res) => {
-  const { vapidKeys } = getWebpush();
+  const { vapidKeys } = getWebpush(req);
   if (!vapidKeys) return res.status(500).json({ error: 'VAPID not configured' });
   res.json({ publicKey: vapidKeys.publicKey });
 });
@@ -102,7 +108,7 @@ module.exports = router;
 // ── Helper: Send web push to a user ────────────────────────────────────
 async function sendWebPush(userId, payload) {
   try {
-    const { webpush } = getWebpush();
+    const { webpush } = getWebpush(null);
     if (!webpush) return;
     const result = await pool.query(
       "SELECT notification_prefs->'pushSubscription' as sub FROM users WHERE id = $1",

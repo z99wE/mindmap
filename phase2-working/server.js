@@ -30,8 +30,11 @@ webpush.setVapidDetails(
   vapidKeys.privateKey
 );
 // Export for use in notification delivery
-module.exports.vapidKeys = vapidKeys;
-module.exports.webpush = webpush;
+// NOTE: must be attached AFTER `module.exports = app` below, otherwise the
+// module.exports reassignment wipes them. We set them on `app` instead.
+let sharedVapidKeys = vapidKeys;
+let sharedWebpush = webpush;
+function getSharedVapid() { return { vapidKeys: sharedVapidKeys, webpush: sharedWebpush }; }
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -49,7 +52,32 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // Global security headers
-app.use(helmet());
+// NOTE: The frontend is an inline-style + inline-handler SPA (string-template pages
+// with onclick= handlers) and loads Tailwind from CDN. helmet's strict defaults
+// would block all of that, so we scope CSP to allow the app's actual needs while
+// keeping XSS / MIME / framing protections on.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com'],
+      scriptSrcAttr: ["'unsafe-inline'"], // the SPA uses inline onclick= handlers for navigation
+      // 'https:' here is scoped: Tailwind CDN + Google Fonts CSS. 'https:' in styleSrc is
+      // intentionally NOT used — we enumerate the two origins the app actually loads.
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+      // Browser never calls LLM/agent APIs directly (those are server-side) — the SPA
+      // only fetches same-origin /api routes, so no wildcard https: needed here.
+      connectSrc: ["'self'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'self'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'", 'https:'],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 
 // XSS sanitization on all request bodies
 app.use('/api/', sanitizeBody);
@@ -97,6 +125,11 @@ app.use('/api/cron', cronRoutes);
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);
 
+// ── Health Check (MUST be registered before the SPA fallback) ───────────────
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', version: '3.0.0', uptime: process.uptime() });
+});
+
 // ── Static Frontend (dev: Vite serves from src/frontend) ────────────────────
 const frontendDist = path.join(__dirname, 'src/frontend/dist');
 const frontendPublic = path.join(__dirname, 'src/frontend/public');
@@ -108,12 +141,10 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
       if (err) res.status(200).json({ status: 'Thought GPS API running', version: '3.0.0' });
     });
+  } else {
+    // Unknown API route → 404 JSON instead of hanging
+    res.status(404).json({ error: `Unknown API endpoint: ${req.method} ${req.path}` });
   }
-});
-
-// ── Health Check ────────────────────────────────────────────────────────────
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', version: '3.0.0', uptime: process.uptime() });
 });
 
 // ── Error Handler ───────────────────────────────────────────────────────────
@@ -273,8 +304,16 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
+// Attach shared services to the exported app (set after module.exports = app)
+app.locals.vapidKeys = vapidKeys;
+app.locals.webpush = webpush;
+app.locals.getSharedVapid = getSharedVapid;
+
 if (require.main === module) {
   start();
 }
 
 module.exports = app;
+module.exports.vapidKeys = vapidKeys;
+module.exports.webpush = webpush;
+module.exports.getSharedVapid = getSharedVapid;

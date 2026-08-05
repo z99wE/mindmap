@@ -221,7 +221,7 @@ export function Credits() {
       const pct = Math.min(100, ((me.daily_runs_used || 0) / limit) * 100);
       const bar = container.querySelector('#runsbar');
       if (bar) bar.style.width = `${pct}%`;
-      container.querySelector('#credit-balance').textContent = `${me.credits || 0}`;
+      container.querySelector('#credit-balance').textContent = `${me.totalCredits || 0}`;
     }
 
     // Load active boosters status

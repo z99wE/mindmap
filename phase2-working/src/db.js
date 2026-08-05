@@ -186,6 +186,7 @@ async function runMigrations() {
       // Phase 8 feature columns
       'ALTER TABLE users ADD COLUMN IF NOT EXISTS last_departure_brief_sent_at TIMESTAMPTZ',
       'ALTER TABLE users ADD COLUMN IF NOT EXISTS data_sharing BOOLEAN DEFAULT true',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS web_search BOOLEAN DEFAULT true',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS notified_tier INTEGER DEFAULT 0',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT \'pending\'',

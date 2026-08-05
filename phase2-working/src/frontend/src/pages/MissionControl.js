@@ -640,15 +640,24 @@ function setupSaveHandlers(c) {
     }
   });
 
-  // Delete account
+  // Delete account (two-step GDPR flow: request token, then delete with confirmation)
   c.querySelector('#delete-account-btn')?.addEventListener('click', async () => {
     if (!confirm('Are you sure? This will permanently delete all your data. This cannot be undone.')) return;
-    const result = await api.del('/auth/account');
-    if (!result.error) {
-      api.clearAuth();
-      window.showPage?.('home');
-    } else {
-      toast.show(result.error, 'error');
+    try {
+      const req = await api.post('/memory/account/delete-request', {});
+      if (req.error || !req.confirmationToken) {
+        toast.show(req.error || 'Could not start account deletion', 'error');
+        return;
+      }
+      const result = await api.del('/auth/account', { confirmationToken: req.confirmationToken });
+      if (!result.error) {
+        api.clearAuth();
+        window.showPage?.('home');
+      } else {
+        toast.show(result.error, 'error');
+      }
+    } catch (err) {
+      toast.show('Account deletion failed', 'error');
     }
   });
 

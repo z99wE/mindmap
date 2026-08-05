@@ -1,28 +1,41 @@
-/* ── Obsidian & Lime Design Tokens ── */
-/* Futuristic glassmorphism: high contrast, blurred transparency, tech-industrial */
+/* ═══════════════════════════════════════════════════════════════════════
+   Thought GPS — Brand Design Tokens
+   Obsidian & Lime Signal. One accent, one system.
+   ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Surface Colors (Obsidian Dark) ── */
-  --md-sys-color-background: #000000;
-  --md-sys-color-surface: #0a0a0a;
-  --md-sys-color-surface-dim: #0a0a0a;
-  --md-sys-color-surface-bright: #2a2a2a;
-  --md-sys-color-surface-container: #0c0c0c;
-  --md-sys-color-surface-container-low: #0e0e0e;
-  --md-sys-color-surface-container-high: #161616;
-  --md-sys-color-surface-container-highest: #1e1e1e;
-  --md-sys-color-on-surface: #ebebeb;
-  --md-sys-color-on-surface-variant: rgba(235, 235, 235, 0.6);
-  --md-sys-color-outline: rgba(235, 235, 235, 0.2);
-  --md-sys-color-outline-variant: rgba(255, 255, 255, 0.1);
+  /* ── Brand Core ── */
+  --brand-primary: #ccff00;        /* Lime Signal — the hero accent */
+  --brand-primary-bright: #d6ff3e; /* highlight stop */
+  --brand-primary-dim: #b3e600;    /* shadow stop */
+  --brand-secondary: #a3e635;      /* Chartreuse — warm complement */
+  --brand-tertiary: #10b981;       /* Emerald — success/positive */
+  --brand-error: #ef4444;          /* Hot red — urgency */
+  --brand-ink: #f2f4f0;            /* near-white text */
+  --brand-ink-dim: rgba(235, 235, 235, 0.62);
+  --brand-ink-faint: rgba(235, 235, 235, 0.38);
 
-  /* ── Primary (Neon Lime — the hero accent) ── */
+  /* ── Surface Colors (Obsidian Dark) ── */
+  --md-sys-color-background: #07080a;
+  --md-sys-color-surface: #0a0b0d;
+  --md-sys-color-surface-dim: #0a0b0d;
+  --md-sys-color-surface-bright: #2a2b2e;
+  --md-sys-color-surface-container: #0e0f12;
+  --md-sys-color-surface-container-low: #101114;
+  --md-sys-color-surface-container-high: #17181c;
+  --md-sys-color-surface-container-highest: #1f2126;
+  --md-sys-color-on-surface: #f2f4f0;
+  --md-sys-color-on-surface-variant: rgba(235, 235, 235, 0.62);
+  --md-sys-color-outline: rgba(235, 235, 235, 0.28);
+  --md-sys-color-outline-variant: rgba(255, 255, 255, 0.09);
+
+  /* ── Primary (Lime Signal) ── */
   --md-sys-color-primary: #ccff00;
   --md-sys-color-on-primary: #000000;
   --md-sys-color-primary-container: rgba(204, 255, 0, 0.12);
   --md-sys-color-on-primary-container: #d4ff33;
 
-  /* ── Secondary (Chartreuse — warm complement) ── */
+  /* ── Secondary (Chartreuse) ── */
   --md-sys-color-secondary: #a3e635;
   --md-sys-color-on-secondary: #000000;
   --md-sys-color-secondary-container: rgba(163, 230, 53, 0.12);
@@ -37,7 +50,7 @@
   /* ── Error (Hot Red — urgency/alerts) ── */
   --md-sys-color-error: #ef4444;
   --md-sys-color-on-error: #ffffff;
-  --md-sys-color-error-container: rgba(239, 68, 68, 0.12);
+  --md-sys-color-error-container: rgba(239, 68, 68, 0.14);
   --md-sys-color-on-error-container: #fca5a5;
 
   /* ── Cognitive State Colors ── */
@@ -49,10 +62,10 @@
   --color-muted: rgba(235, 235, 235, 0.3);
   --color-faint: rgba(255, 255, 255, 0.08);
 
-  /* ── Typography ── */
-  --font-heading: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-body: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* ── Typography (brand pair: Space Grotesk + Barlow, mono labels) ── */
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
   --md-sys-typescale-display-large: 700 57px/64px var(--font-heading);
   --md-sys-typescale-display-medium: 700 45px/52px var(--font-heading);
@@ -70,13 +83,13 @@
   --md-sys-typescale-label-medium: 500 12px/16px var(--font-body);
   --md-sys-typescale-label-small: 500 11px/16px var(--font-body);
 
-  /* ── Shape (High radii for modern hardware feel) ── */
+  /* ── Shape ── */
   --md-sys-shape-none: 0;
   --md-sys-shape-extra-small: 4px;
   --md-sys-shape-small: 8px;
   --md-sys-shape-medium: 12px;
-  --md-sys-shape-large: 1.5rem;
-  --md-sys-shape-extra-large: 2rem;
+  --md-sys-shape-large: 1.25rem;
+  --md-sys-shape-extra-large: 1.75rem;
   --md-sys-shape-full: 9999px;
 
   /* ── Elevation (Subtle dark shadows) ── */

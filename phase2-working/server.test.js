@@ -21,7 +21,8 @@ test('Thought GPS Core Endpoints', async (t) => {
 
     assert.ok(res.body.tiers);
     assert.ok(res.body.tiers.free);
-    assert.ok(res.body.tiers.premium);
+    assert.ok(res.body.tiers.pro);
+    assert.ok(res.body.tiers.managed);
   });
 
   await t.test('GET /api/channels/platforms returns supported platforms', async () => {

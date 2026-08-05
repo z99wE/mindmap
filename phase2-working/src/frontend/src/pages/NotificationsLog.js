@@ -153,8 +153,8 @@ export function NotificationsLog() {
   });
 
   // Mark as read
-  window.markRead = async (id) => {
-    await api.post(`/notifications/${id}/read`);
+window.markRead = async (id) => {
+  await api.put(`/notifications/${id}/read`);
     const notif = allNotifs.find(n => n.id === id);
     if (notif) notif.read = true;
     renderList();
@@ -162,7 +162,7 @@ export function NotificationsLog() {
 
   // Mark all read
   container.querySelector('#btn-mark-all-read').addEventListener('click', async () => {
-    await api.post('/notifications/mark-all-read');
+    await api.put('/notifications/read-all');
     allNotifs.forEach(n => n.read = true);
     renderList();
   });

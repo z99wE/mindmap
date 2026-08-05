@@ -135,7 +135,7 @@ function renderNavRail() {
                 speed: 60,
                 maxIterations: 12,
                 characters: "01X[]{}?*&%$#@!+=",
-                className: "neon-cyan font-heading italic text-lg"
+                className: "brand-glow-text font-heading italic text-lg"
               })
             );
           });
@@ -334,7 +334,7 @@ async function init() {
 
   // Mount ambient Footer globally
   setTimeout(() => {
-    const footerReactRoot = document.getElementById('strands-react-root');
+    const footerReactRoot = document.getElementById('footer-react-root');
     if (footerReactRoot) {
       import('react').then((React) => {
         import('react-dom/client').then((ReactDOM) => {

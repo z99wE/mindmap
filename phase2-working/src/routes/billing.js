@@ -340,6 +340,40 @@ router.get('/history', authMiddleware, async (req, res) => {
   }
 });
 
+// POST /api/billing/subscribe - upgrade/downgrade tier (demo flow)
+// NOTE: In production this must go through create-order + verify-payment, otherwise
+// anyone can claim a paid tier for free. We hard-gate paid tiers unless payment is configured.
+router.post('/subscribe', authMiddleware, async (req, res) => {
+  try {
+    const { tier } = req.body;
+    if (!tier || !TIERS[tier]) return res.status(400).json({ error: 'Invalid tier' });
+    if (TIERS[tier].comingSoon) return res.status(400).json({ error: 'This tier is not available yet. Join the waitlist instead.' });
+
+    const tierConfig = TIERS[tier];
+    const isPaidUpgrade = tier === 'pro';
+    // Paid tier requires real payment (Razorpay configured). Free/downgrade is always allowed.
+    if (isPaidUpgrade && !RAZORPAY_KEY_ID) {
+      return res.status(403).json({ error: 'Paid tiers require a completed payment. Use the checkout flow to upgrade.' });
+    }
+    const result = await pool.query(
+      `UPDATE users SET tier = $1, daily_runs_limit = $2, subscription_status = $3, updated_at = NOW()
+       WHERE id = $4 RETURNING tier, daily_runs_limit`,
+      [tier, tierConfig.dailyRuns, tier === 'free' ? 'none' : 'active', req.user.userId]
+    );
+
+    // Record transaction
+    await pool.query(
+      `INSERT INTO billing_transactions (user_id, type, amount, runs_credited, status, metadata)
+       VALUES ($1, $2, $3, $4, 'completed', $5)`,
+      [req.user.userId, 'subscription', tierConfig.price, 0, JSON.stringify({ tier, action: tier === 'free' ? 'downgrade' : 'upgrade' })]
+    );
+
+    res.json({ success: true, user: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/billing/waitlist - join managed tier waitlist
 router.post('/waitlist', async (req, res) => {
   try {

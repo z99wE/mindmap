@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import LaserFlow from './LaserFlow';
+import React from 'react';
+
+// Lightweight brand footer — no WebGL, no laser canvas, no 520KB chunk.
+// Pure CSS liquid-glass footer with the Thought GPS wordmark.
 
 const copies = [
   "ThoughtGPS: The navigation system for your ideas.",
@@ -10,108 +12,106 @@ const copies = [
 ];
 
 export default function Footer() {
-  const [copyIndex, setCopyIndex] = useState(0);
-  const [isHovering, setIsHovering] = useState(false);
+  const [copyIndex, setCopyIndex] = React.useState(0);
 
-  useEffect(() => {
-    let interval;
-    if (isHovering) {
-      interval = setInterval(() => {
-        setCopyIndex((prev) => (prev + 1) % copies.length);
-      }, 3000);
-    } else {
-      setCopyIndex(0); // reset when not hovering
-    }
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCopyIndex((prev) => (prev + 1) % copies.length);
+    }, 3200);
     return () => clearInterval(interval);
-  }, [isHovering]);
+  }, []);
 
   return (
-    <div 
-      style={{ 
-        position: 'relative', 
-        width: '100%', 
-        height: '100%', 
-        backgroundColor: '#050505',
-        cursor: 'crosshair',
-        overflow: 'hidden'
-      }}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      {/* Background Laser Flow */}
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-        <LaserFlow 
-          color="#39ff14"
-          flowSpeed={isHovering ? 0.8 : 0.35}
-          wispIntensity={isHovering ? 9.0 : 5.0}
-          wispDensity={isHovering ? 1.5 : 1.0}
-          wispSpeed={isHovering ? 20.0 : 12.0}
-          fogIntensity={0.5}
-          horizontalBeamOffset={0.5} 
-          verticalBeamOffset={0.5}
-          verticalSizing={2.5}
-          horizontalSizing={2.0}
-          decay={1.2}
-          mouseTiltStrength={0.05}
-          mouseSmoothTime={0.05}
-        />
-      </div>
-      
-      {/* Content Overlay */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        zIndex: 10,
-        width: '90%',
-        pointerEvents: 'none'
-      }}>
-        <h2 style={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: isHovering ? '3rem' : '2.5rem',
-          fontWeight: 800,
-          letterSpacing: '0.15em',
-          textTransform: 'uppercase',
-          margin: 0,
-          background: 'linear-gradient(180deg, #b0ffb0 0%, #39ff14 40%, #00aa00 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          filter: isHovering ? 'drop-shadow(0 0 15px rgba(57, 255, 20, 0.8))' : 'drop-shadow(0 4px 8px rgba(57, 255, 20, 0.4))',
-          transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}>
-          Thought GPS
-        </h2>
-        
-        <div style={{
-          marginTop: '1rem',
-          height: '2.5rem',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '1.15rem',
-            color: '#ffffff',
-            fontWeight: 500,
-            letterSpacing: '0.05em',
-            margin: 0,
-            opacity: isHovering ? 1 : 0,
-            transform: isHovering ? 'translateY(0)' : 'translateY(15px)',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 0 4px rgba(57,255,20,0.5)'
-          }}>
-            {copies[copyIndex]}
-          </p>
+    <footer className="brand-footer" aria-label="Footer">
+      <div className="brand-footer-glow" aria-hidden="true" />
+      <div className="brand-footer-inner">
+        <div className="brand-footer-wordmark">
+          <span className="brand-footer-mark">t</span>
+          <span className="brand-footer-name">Thought GPS</span>
         </div>
+        <p className="brand-footer-tagline">{copies[copyIndex]}</p>
       </div>
-    </div>
+      <div className="brand-footer-meta">
+        <span>COGNITIVE COPROCESSOR</span>
+        <span>·</span>
+        <span>v3.0</span>
+      </div>
+      <style>{`
+        .brand-footer {
+          position: relative;
+          width: 100%;
+          min-height: 180px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          padding: 3rem 1.5rem;
+          overflow: hidden;
+          background: linear-gradient(180deg, rgba(10,11,13,0) 0%, rgba(10,11,13,0.9) 100%);
+          border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .brand-footer-glow {
+          position: absolute;
+          left: 50%;
+          bottom: -6rem;
+          transform: translateX(-50%);
+          width: 42rem;
+          height: 12rem;
+          background: radial-gradient(ellipse at center, rgba(204,255,0,0.10) 0%, rgba(204,255,0,0.03) 45%, transparent 70%);
+          pointer-events: none;
+        }
+        .brand-footer-inner {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.6rem;
+        }
+        .brand-footer-wordmark {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+        }
+        .brand-footer-mark {
+          width: 30px;
+          height: 30px;
+          border-radius: 9px;
+          display: grid;
+          place-items: center;
+          font: italic 700 16px/1 'Space Grotesk', sans-serif;
+          color: #000;
+          background: linear-gradient(145deg, #d6ff3e 0%, #ccff00 55%, #b3e600 100%);
+          box-shadow: 0 0 18px rgba(204,255,0,0.35);
+          letter-spacing: -0.02em;
+        }
+        .brand-footer-name {
+          font: 600 20px/1 'Space Grotesk', sans-serif;
+          letter-spacing: -0.02em;
+          color: #f2f4f0;
+        }
+        .brand-footer-tagline {
+          font: 400 14px/1.5 'Barlow', sans-serif;
+          color: rgba(235,235,235,0.5);
+          margin: 0;
+          max-width: 480px;
+          text-align: center;
+        }
+        .brand-footer-meta {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          gap: 0.5rem;
+          font: 500 10px/1 'JetBrains Mono', monospace;
+          letter-spacing: 0.18em;
+          color: rgba(235,235,235,0.28);
+          text-transform: uppercase;
+        }
+        @media (max-width: 640px) {
+          .brand-footer { min-height: 140px; padding: 2.25rem 1rem; }
+        }
+      `}</style>
+    </footer>
   );
 }

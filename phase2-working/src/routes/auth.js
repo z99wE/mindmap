@@ -85,7 +85,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     const { pool } = require('../db');
     const result = await pool.query(
       `SELECT id, email, tier, is_admin, daily_runs_used, daily_runs_limit,
-              total_credits, notification_prefs, witness_contacts, created_at
+              total_credits, notification_prefs, witness_contacts, data_sharing, web_search, created_at
        FROM users WHERE id = $1`,
       [req.user.userId]
     );
@@ -101,6 +101,8 @@ router.get('/me', authMiddleware, async (req, res) => {
       totalCredits: u.total_credits,
       notificationPrefs: u.notification_prefs,
       witnessContacts: u.witness_contacts,
+      dataSharing: u.data_sharing,
+      webSearch: u.web_search,
       createdAt: u.created_at,
     });
   } catch (err) {
@@ -139,6 +141,87 @@ router.put('/notification-prefs', authMiddleware, async (req, res) => {
       [JSON.stringify(prefs), req.user.userId]
     );
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/auth/data-sharing
+router.put('/data-sharing', authMiddleware, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    const { dataSharing } = req.body;
+    if (typeof dataSharing !== 'boolean') {
+      return res.status(400).json({ error: 'dataSharing must be a boolean' });
+    }
+    await pool.query(
+      'UPDATE users SET data_sharing = $1, updated_at = NOW() WHERE id = $2',
+      [dataSharing, req.user.userId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/auth/web-search
+router.put('/web-search', authMiddleware, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    const { webSearch } = req.body;
+    if (typeof webSearch !== 'boolean') {
+      return res.status(400).json({ error: 'webSearch must be a boolean' });
+    }
+    await pool.query(
+      'UPDATE users SET web_search = $1, updated_at = NOW() WHERE id = $2',
+      [webSearch, req.user.userId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/auth/account → use the safer GDPR flow in memory.js instead.
+// Account deletion is a destructive cascade (memories, channels, notifications, billing)
+// and memory.js requires a confirmation token obtained via POST /api/memory/account/delete-request.
+// The frontend routes through that flow; keep this path consistent with it.
+router.delete('/account', authMiddleware, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    const { confirmationToken } = req.body;
+    const userId = req.user.userId;
+
+    if (!confirmationToken) {
+      return res.status(400).json({ error: 'Confirmation token required. Call POST /api/memory/account/delete-request first.' });
+    }
+
+    // Delegate to the memory.js deletion logic (single source of truth for the cascade)
+    const memoryRoutes = require('./memory');
+    const tokenData = memoryRoutes.verifyDeletionToken?.(confirmationToken, userId);
+    if (!tokenData) {
+      return res.status(400).json({ error: 'Invalid or expired confirmation token' });
+    }
+
+    await pool.query('DELETE FROM memory_graph WHERE user_id = $1', [userId]);
+    await pool.query('DELETE FROM channels WHERE user_id = $1', [userId]);
+    await pool.query('DELETE FROM notifications WHERE user_id = $1', [userId]);
+    await pool.query('DELETE FROM billing_transactions WHERE user_id = $1', [userId]);
+    await pool.query('DELETE FROM api_key_log WHERE user_id = $1', [userId]);
+    await pool.query('DELETE FROM audit_log WHERE user_id = $1', [userId]);
+
+    await pool.query(
+      `UPDATE users SET email = $1, password_hash = 'DELETED', tier = 'free',
+       api_keys = '{}', notification_prefs = '{}', witness_contacts = '[]',
+       daily_runs_used = 0, daily_runs_limit = 0, total_credits = 0,
+       subscription_status = 'deleted', updated_at = NOW()
+       WHERE id = $2`,
+      [`deleted_${userId}@removed.local`, userId]
+    );
+
+    memoryRoutes.consumeDeletionToken?.(confirmationToken);
+
+    res.json({ success: true, message: 'Account and all data permanently deleted.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

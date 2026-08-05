@@ -320,4 +320,28 @@ router.delete('/account', authMiddleware, async (req, res) => {
   }
 });
 
+// ── Shared deletion-token helpers (used by routes/auth.js DELETE /account) ───
+function verifyDeletionToken(token, userId) {
+  const data = deletionTokens.get(token);
+  if (!data || data.userId !== userId) return null;
+  if (Date.now() - data.createdAt > 300000) {
+    deletionTokens.delete(token);
+    return null;
+  }
+  return data;
+}
+
+function consumeDeletionToken(token) {
+  deletionTokens.delete(token);
+}
+
 module.exports = router;
+module.exports.verifyDeletionToken = verifyDeletionToken;
+module.exports.consumeDeletionToken = consumeDeletionToken;
+module.exports.requestDeletionToken = (userId) => {
+  const crypto = require('crypto');
+  const token = crypto.randomBytes(32).toString('hex');
+  deletionTokens.set(token, { userId, createdAt: Date.now() });
+  setTimeout(() => deletionTokens.delete(token), 300000);
+  return token;
+};
