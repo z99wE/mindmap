@@ -109,7 +109,7 @@
   height: 32rem;
   border-radius: 9999px;
   filter: blur(120px);
-  opacity: 0.2;
+  opacity: 0.28;
   pointer-events: none;
   z-index: 0;
   animation: orb-drift 22s ease-in-out infinite alternate;

@@ -21,7 +21,7 @@ export function AdminDashboard() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-error);box-shadow:0 0 12px rgba(239,68,68,0.3);"></span>
+          <span class="dot" style="width:10px;height:10px;background:#ccff00;box-shadow:0 0 12px rgba(204,255,0,0.5);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Admin Console</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -39,15 +39,15 @@ export function AdminDashboard() {
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Total Users</div>
-          <div id="stat-users" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-primary);">—</div>
+          <div id="stat-users" style="font:var(--md-sys-typescale-headline-large);color:#ccff00;">—</div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Memory Nodes</div>
-          <div id="stat-memory" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-secondary);">—</div>
+          <div id="stat-memory" style="font:var(--md-sys-typescale-headline-large);color:#a3e635;">—</div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">API Keys Active</div>
-          <div id="stat-keys" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-tertiary);">—</div>
+          <div id="stat-keys" style="font:var(--md-sys-typescale-headline-large);color:#10b981;">—</div>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export function AdminDashboard() {
             <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
             OmniRoute (Personal)
           </h2>
-          <span class="chip-m3 active" style="pointer-events:none;background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);">ADMIN ONLY</span>
+          <span class="chip-m3 active" style="pointer-events:none;background:rgba(204,255,0,0.12);color:#d4ff33;border:1px solid rgba(204,255,0,0.3);">ADMIN ONLY</span>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1rem;">
           Your personal Grok + NVIDIA routing layer. Not accessible to other users.
@@ -100,7 +100,7 @@ export function AdminDashboard() {
           <button class="btn-m3 btn-outlined" id="btn-backup">
             Backup Database
           </button>
-          <button class="btn-m3 btn-outlined" style="border-color:var(--md-sys-color-error);color:var(--md-sys-color-error);" onclick="alert('Reset not available in production')">
+          <button class="btn-m3 btn-outlined" style="border-color:rgba(255,255,255,0.16);color:var(--md-sys-color-on-surface-variant);" onclick="alert('System reset is disabled.')">
             Reset System
           </button>
         </div>
@@ -115,10 +115,8 @@ export function AdminDashboard() {
       healthEl.innerHTML = `<span style="color:var(--md-sys-color-error);">Offline</span>`;
     } else {
       healthEl.innerHTML = `<span style="color:var(--color-success);">Healthy</span>`;
-      if (health.stats) {
-        container.querySelector('#stat-users').textContent = health.stats.totalUsers || 0;
-        container.querySelector('#stat-memory').textContent = health.stats.totalMemories || 0;
-      }
+      if (health.users != null) container.querySelector('#stat-users').textContent = health.users;
+      if (health.memories != null) container.querySelector('#stat-memory').textContent = health.memories;
     }
 
     // Key pool status
@@ -127,26 +125,30 @@ export function AdminDashboard() {
     if (keyPool.error) {
       poolEl.innerHTML = `<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Unable to load key pool status.</p>`;
     } else {
-      const providers = keyPool.providers || {};
-      const totalKeys = Object.values(providers).reduce((sum, p) => sum + (p.keys?.length || 0), 0);
+      const totalKeys = keyPool.totalKeys || 0;
+      const byProvider = keyPool.byProvider || {};
+      const cooling = keyPool.coolingDown || [];
+      const usage = keyPool.usage || [];
       container.querySelector('#stat-keys').textContent = totalKeys;
 
-      poolEl.innerHTML = Object.entries(providers).map(([name, provider]) => `
-        <div style="margin-bottom:1rem;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-            <span style="font:var(--md-sys-typescale-title-small);text-transform:capitalize;">${name}</span>
-            <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${provider.keys?.length || 0} keys</span>
+      poolEl.innerHTML = Object.entries(byProvider).map(([name, count]) => {
+        const rows = usage.filter(u => u.id.startsWith(name)).map(k => `
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;font:var(--md-sys-typescale-body-small);">
+            <span style="width:8px;height:8px;border-radius:50%;background:${cooling.some(c => c.id === k.id) ? 'var(--md-sys-color-error)' : 'var(--color-success)'};flex-shrink:0;"></span>
+            <span style="color:var(--md-sys-color-on-surface-variant);">${k.id}</span>
+            ${cooling.some(c => c.id === k.id) ? '<span style="color:var(--md-sys-color-error);font-size:11px;">COOLING DOWN</span>' : ''}
+            <span style="margin-left:auto;color:var(--md-sys-color-outline);">${k.count || 0} req/hr</span>
           </div>
-          ${(provider.keys || []).map(k => `
-            <div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;font:var(--md-sys-typescale-body-small);">
-              <span style="width:8px;height:8px;border-radius:50%;background:${k.coolingDown ? 'var(--md-sys-color-error)' : 'var(--color-success)'};"></span>
-              <span style="color:var(--md-sys-color-on-surface-variant);">${k.id}</span>
-              ${k.coolingDown ? '<span style="color:var(--md-sys-color-error);font-size:11px;">COOLING DOWN</span>' : ''}
-              <span style="margin-left:auto;color:var(--md-sys-color-outline);">${k.usageThisHour || 0} req/hr</span>
+        `).join('');
+        return `
+          <div style="margin-bottom:1rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+              <span style="font:var(--md-sys-typescale-title-small);text-transform:capitalize;">${name}</span>
+              <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${count} key${count > 1 ? 's' : ''}</span>
             </div>
-          `).join('')}
-        </div>
-      `).join('') || '<p style="color:var(--md-sys-color-outline);">No API keys configured in pool. Add GROQ_KEY_1, OPENAI_KEY_1, etc. to env vars.</p>';
+            ${rows || '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Ready — no usage this hour.</p>'}
+          </div>`;
+      }).join('') || '<p style="color:var(--md-sys-color-outline);">No API keys configured in pool. Add GROQ_API_KEY / OPENAI_API_KEY etc. to env vars.</p>';
     }
 
     // Export button listener
@@ -191,8 +193,8 @@ export function AdminDashboard() {
 
     // OmniRoute status
     const omniEl = container.querySelector('#omniroute-status');
-    const hasXai = keyPool && keyPool.providers && keyPool.providers['xai'] && keyPool.providers['xai'].keys.length > 0;
-    const hasNvidia = keyPool && keyPool.providers && keyPool.providers['nvidia'] && keyPool.providers['nvidia'].keys.length > 0;
+    const hasXai = keyPool && keyPool.byProvider && (keyPool.byProvider['xai'] || 0) > 0;
+    const hasNvidia = keyPool && keyPool.byProvider && (keyPool.byProvider['nvidia'] || 0) > 0;
     
     omniEl.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
@@ -232,7 +234,7 @@ export function AdminDashboard() {
             <tbody>
               ${users.users.map(u => `
                 <tr style="border-bottom:1px solid var(--md-sys-color-outline-variant);">
-                  <td style="padding:0.5rem;">${u.email}${u.is_admin ? ' <span style="color:var(--md-sys-color-error);font-size:11px;">ADMIN</span>' : ''}</td>
+                  <td style="padding:0.5rem;">${u.email || u.id?.slice(0, 8) || '—'}${u.is_admin ? ' <span style="color:#ccff00;font-size:11px;font-weight:600;">ADMIN</span>' : ''}</td>
                   <td style="padding:0.5rem;"><span style="background:var(--md-sys-color-surface-container);padding:2px 8px;border-radius:var(--md-sys-shape-full);font-size:11px;">${u.tier || 'free'}</span></td>
                   <td style="padding:0.5rem;">${u.daily_runs_used || 0}</td>
                   <td style="padding:0.5rem;">${u.total_credits || 0}</td>

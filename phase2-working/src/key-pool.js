@@ -12,7 +12,7 @@ class KeyPool {
   }
 
   _loadKeys() {
-    const providers = ['GROQ', 'OPENAI', 'ANTHROPIC'];
+    const providers = ['GROQ', 'OPENAI', 'ANTHROPIC', 'XAI', 'NVIDIA'];
     for (const provider of providers) {
       // Check numbered keys: GROQ_KEY_1, GROQ_KEY_2, ...
       for (let i = 1; i <= 10; i++) {
@@ -26,7 +26,7 @@ class KeyPool {
           });
         }
       }
-      // Also check single key: GROQ_API_KEY, OPENAI_API_KEY, etc.
+      // Also check single key: GROQ_API_KEY, OPENAI_API_KEY, XAI_API_KEY, ...
       const singleKey = process.env[`${provider}_API_KEY`];
       if (singleKey && !this.keys.find(k => k.provider === provider.toLowerCase())) {
         this.keys.push({
@@ -36,6 +36,11 @@ class KeyPool {
           rateLimit: provider === 'GROQ' ? 30 : 60,
         });
       }
+    }
+    // Alias: GROK_API_KEY is commonly used for xAI's Grok
+    const grokAlias = process.env.GROK_API_KEY;
+    if (grokAlias && !this.keys.find(k => k.provider === 'xai')) {
+      this.keys.push({ id: 'xai_default', provider: 'xai', key: grokAlias, rateLimit: 60 });
     }
     console.log(`[KeyPool] Loaded ${this.keys.length} shared API keys`);
   }

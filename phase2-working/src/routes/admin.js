@@ -39,11 +39,11 @@ router.get('/health', async (req, res) => {
   }
 });
 
-// GET /api/admin/users - list all users (anonymized)
+// GET /api/admin/users - list all users (admin-only; emails visible to admins)
 router.get('/users', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, tier, is_admin, daily_runs_used, daily_runs_limit,
+      `SELECT id, email, tier, is_admin, daily_runs_used, daily_runs_limit,
               total_credits, subscription_status, created_at
        FROM users ORDER BY created_at DESC LIMIT 100`
     );
@@ -109,11 +109,12 @@ router.get('/stats', async (req, res) => {
 // GET /api/admin/backup - create a system-wide database backup dump
 router.get('/backup', async (req, res) => {
   try {
-    const [users, memories, keys, settings] = await Promise.all([
+    const [users, memories, keys, channels] = await Promise.all([
       pool.query('SELECT * FROM users'),
       pool.query('SELECT * FROM memory_graph'),
-      pool.query('SELECT id, user_id, provider, created_at FROM keys'), // exclude actual key values
-      pool.query('SELECT * FROM user_settings'),
+      // admin-only endpoint: includes user rows + channel metadata (no raw key values)
+      pool.query('SELECT id, user_id, provider, action, masked_key, created_at FROM api_key_log'),
+      pool.query('SELECT id, user_id, platform, display_name, is_active, webhook_url, created_at FROM channels'),
     ]);
     
     const dump = {
@@ -123,7 +124,7 @@ router.get('/backup', async (req, res) => {
         users: users.rows,
         memories: memories.rows,
         keys: keys.rows,
-        settings: settings.rows
+        channels: channels.rows
       }
     };
 

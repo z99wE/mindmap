@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RippleDistortion from './RippleDistortion';
 
 const FEATURES = [
   {
@@ -233,24 +234,45 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
           <br />Let the best survive.
         </motion.h1>
 
-        {/* Subhead */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.55 }}
+        {/* Ripple Distortion Component */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
           style={{
-            fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-            color: 'rgba(255,255,255,0.55)',
-            maxWidth: 560,
-            lineHeight: 1.65,
-            margin: '0 auto 2.5rem',
-            fontWeight: 400,
+             width: '100%',
+             maxWidth: '800px',
+             height: '450px',
+             margin: '0 auto 3rem auto',
+             borderRadius: '24px',
+             overflow: 'hidden',
+             boxShadow: '0 24px 64px -16px rgba(204,255,0,0.15)',
+             border: '1px solid rgba(255,255,255,0.08)',
+             maskImage: 'radial-gradient(ellipse at center, black 25%, transparent 80%)',
+             WebkitMaskImage: 'radial-gradient(ellipse at center, black 25%, transparent 80%)'
           }}
         >
-          Thought GPS is your cognitive coprocessor — it captures, classifies, and 
-          prioritises your mental load using decay physics. Built for ADHD 
-          and neurodiverse minds.
-        </motion.p>
+          <RippleDistortion
+            src="/abstract_neural.png"
+            brushSize={145}
+            strength={0.2}
+            swirl={1}
+            rings={3}
+            grayscale
+            spread={7.75}
+            fade={3.3}
+            spacing={18}
+            dispersion={1}
+            glint={1.05}
+            tint="#a855f7"
+            tintAmount={0.08}
+            highlightColor="#84CC16"
+            trigger="hover"
+            clickStrength={3.5}
+            quality="high"
+            enabled
+          />
+        </motion.div>
 
         {/* CTAs */}
         <motion.div

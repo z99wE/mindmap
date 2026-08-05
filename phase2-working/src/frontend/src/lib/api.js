@@ -1,11 +1,24 @@
 // Centralized API Client with JWT auth
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
+// Local / local-network instances (localhost, 127.0.0.1, LAN IPs) keep every
+// feature unlocked — the server's /api/health env flag is authoritative and
+// overrides this after first fetch.
+function detectLocalHost() {
+  const h = window.location.hostname;
+  return h === 'localhost' || h === '127.0.0.1' ||
+    /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h);
+}
+
 class ApiClient {
   constructor() {
     this.token = localStorage.getItem('tg_token');
     this.refreshToken = localStorage.getItem('tg_refresh_token');
+    this.isDevInstance = detectLocalHost();
   }
+
+  setIsDev(isDev) { this.isDevInstance = !!isDev; }
+  isDev() { return this.isDevInstance; }
 
   setToken(token, refreshToken) {
     this.token = token;

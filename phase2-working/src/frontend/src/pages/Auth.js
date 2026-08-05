@@ -35,11 +35,43 @@ export function Auth() {
           </button>
         </form>
 
+        <div id="auth-dev-admin" style="display:none;margin-top:1.25rem;"></div>
+
         <p style="text-align:center;margin-top:1.5rem;font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">
           Disposable email addresses are not allowed. Use a real email to get started.
         </p>
       </div>
     </div>`;
+
+  // Local admin hint — shown only on dev/network instances where the server
+  // seeds an admin account (production returns { available: false }).
+  const hintBox = container.querySelector('#auth-dev-admin');
+  (async () => {
+    try {
+      const hint = await api.get('/auth/dev-admin-hint');
+      if (!hint?.available) return;
+      hintBox.innerHTML = `
+        <div style="padding:0.9rem 1rem;border-radius:var(--md-sys-shape-medium);background:rgba(204,255,0,0.07);border:1px solid rgba(204,255,0,0.28);">
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:#ccff00;">admin_panel_settings</span>
+            <span style="font:600 12px/1 var(--font-body);letter-spacing:0.06em;color:#d4ff33;text-transform:uppercase;">Local Admin</span>
+          </div>
+          <div style="font:500 12px/1.7 var(--font-mono);color:var(--md-sys-color-on-surface-variant);word-break:break-all;">
+            ${hint.email}<br>${hint.password}
+          </div>
+          <button type="button" id="auth-dev-admin-fill" class="btn-m3 btn-tonal" style="width:100%;margin-top:0.6rem;min-height:36px;font-size:13px;">
+            Sign in as local admin
+          </button>
+        </div>`;
+      hintBox.style.display = 'block';
+      hintBox.querySelector('#auth-dev-admin-fill').addEventListener('click', () => {
+        container.querySelector('.auth-tab[data-tab="login"]')?.click();
+        container.querySelector('#auth-email').value = hint.email;
+        container.querySelector('#auth-password').value = hint.password;
+        container.querySelector('#auth-form').requestSubmit();
+      });
+    } catch (e) { /* hint unavailable — ignore */ }
+  })();
 
   // Tab switching
   let mode = 'login';

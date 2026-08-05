@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const { runMigrations, pool } = require('./src/db');
+const { ensureDevAdmin } = require('./src/dev-admin');
 const { initLangfuse, flush } = require('./src/thought-tracer');
 const { checkCommitmentWitnesses } = require('./features/commitment-witness');
 const { createRelationshipAnchorEndpoints } = require('./features/relationship-anchor');
@@ -127,7 +128,12 @@ createAgentReachEndpoints(app);
 
 // ── Health Check (MUST be registered before the SPA fallback) ───────────────
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', version: '3.0.0', uptime: process.uptime() });
+  res.json({
+    status: 'ok',
+    version: '3.0.0',
+    uptime: process.uptime(),
+    env: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  });
 });
 
 // ── Static Frontend (dev: Vite serves from src/frontend) ────────────────────
@@ -158,6 +164,33 @@ async function start() {
   try {
     await runMigrations();
     initLangfuse();
+
+    // ── Local dev admin (never seeded in production) ───────────────────────
+    // Guarantees you can always sign in as admin on local-network deployments.
+    try {
+      const devAdmin = await ensureDevAdmin();
+      if (devAdmin) {
+        console.log('[DEV] Local admin account ready — sign in via the Auth page');
+        console.log(`[DEV]   email:    ${devAdmin.email}`);
+        console.log(`[DEV]   password: ${devAdmin.password}`);
+        console.log("[DEV]   (only exists outside production — deployed instances have no admin)");
+      }
+    } catch (e) {
+      console.warn('[DEV] Admin seed skipped:', e.message);
+    }
+
+    // Production safety: never seed, and warn loudly if an admin row exists
+    // (e.g. a snapshot of a local dev DB was deployed by mistake). Read-only.
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        const { rows } = await pool.query(
+          'SELECT COUNT(*)::int AS n FROM users WHERE is_admin = true'
+        );
+        if (rows[0]?.n > 0) {
+          console.warn(`[SECURITY] ${rows[0].n} admin account(s) exist in production. Deployed instances should have no admin — restore a clean database or demote them.`);
+        }
+      } catch (e) { /* ignore */ }
+    }
 
     // ── PulseKit: ThoughtGPS native multi-channel messenger (PRIMARY) ─────────
     // Zero external SDK dependency. Works without any API key.

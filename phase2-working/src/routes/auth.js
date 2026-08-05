@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { register, login, signToken, signRefreshToken, verifyToken, authMiddleware } = require('../auth');
+const { getDevAdminCredentials } = require('../dev-admin');
 
 // Rate limit registration: max 5 per IP per hour
 const registerLimiter = rateLimit({
@@ -50,6 +51,15 @@ router.post('/register', registerLimiter, async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+// GET /api/auth/dev-admin-hint — local-network convenience for the seeded dev
+// admin. Returns the credentials on non-production instances, or
+// { available: false } in production (where no admin account exists).
+router.get('/dev-admin-hint', (req, res) => {
+  const creds = getDevAdminCredentials();
+  if (!creds) return res.json({ available: false });
+  res.json({ available: true, email: creds.email, password: creds.password });
 });
 
 // POST /api/auth/login

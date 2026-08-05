@@ -5,7 +5,7 @@ import { toast } from '../lib/toast.js';
 export function APIKeys() {
   const container = document.createElement('div');
   const user = api.getUser();
-  const isPremium = user?.tier === 'premium' || user?.isAdmin;
+  const isPremium = user?.tier === 'premium' || user?.isAdmin || api.isDev();
   container.innerHTML = `
     <div class="page-container">
       <div class="section-header card-reveal"><span class="material-symbols-rounded" style="color:var(--md-sys-color-tertiary);">key</span>

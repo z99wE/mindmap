@@ -236,10 +236,12 @@ function renderPage(page) {
     page = 'home';
   }
 
-  // Premium guard (Explorer Plus only)
+  // Premium guard (Explorer Plus only) — skipped on local/dev instances,
+  // where every feature is unlocked so the app looks and behaves the same
+  // for every account.
   const premiumPages = ['map-my-mind', 'commitments', 'thought-afterlife', 'cognitive-load', 'archaeology', 'brain-fragments', 'memory-segments'];
   const userTier = user?.tier || 'free';
-  if (premiumPages.includes(page) && userTier === 'free') {
+  if (premiumPages.includes(page) && userTier === 'free' && !api.isDev()) {
     currentPage = page;
     const main = document.getElementById('main-content');
     if (main) {
@@ -352,6 +354,12 @@ async function init() {
       updateNotifBadge();
     }
   }
+
+  // Server-authoritative dev flag (overrides the hostname heuristic)
+  try {
+    const health = await api.get('/health');
+    if (health && health.env) api.setIsDev(health.env !== 'production');
+  } catch (e) { /* keep hostname heuristic */ }
 
   // Determine initial page from URL
   const path = window.location.pathname;

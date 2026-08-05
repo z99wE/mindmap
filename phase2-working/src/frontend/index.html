@@ -176,16 +176,35 @@
     .top-bar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0.75rem 1.5rem;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
-      backdrop-filter: blur(20px) saturate(170%);
-      -webkit-backdrop-filter: blur(20px) saturate(170%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 12px 32px -16px rgba(0, 0, 0, 0.55);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+        inset 0 -18px 28px -20px rgba(255, 255, 255, 0.06),
+        inset 0 0 60px -30px rgba(204, 255, 0, 0.12),
+        0 12px 32px -16px rgba(0, 0, 0, 0.55);
       position: sticky; top: 0; z-index: 5;
+    }
+    /* Colorful glow band fixed behind the bar so the frost has light to refract */
+    .aurora-band {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 260px;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 120% at 50% -10%, rgba(204, 255, 0, 0.26), transparent 60%),
+        radial-gradient(ellipse 38% 110% at 16% 0%, rgba(106, 53, 255, 0.30), transparent 55%),
+        radial-gradient(ellipse 42% 115% at 86% 0%, rgba(16, 185, 129, 0.22), transparent 55%);
+      filter: blur(10px);
     }
     /* Keep dim-gray controls legible over the lighter frost */
     .top-bar .icon-btn { color: rgba(228, 234, 244, 0.85); }
     .top-bar .icon-btn:hover { color: #ffffff; }
+    .top-bar .status-tag { color: rgba(240, 245, 235, 0.75); }
+    .top-bar .status-tag .dot-pulse { background: #d4ff33; }
     .top-bar-title { font: 600 17px/24px var(--font-heading); letter-spacing: -0.02em; }
     .top-bar-actions { display: flex; align-items: center; gap: 0.75rem; }
     .icon-btn {
@@ -273,12 +292,16 @@
         -webkit-backdrop-filter: none;
         box-shadow: none;
       }
+      .aurora-band { opacity: 0.12; }
     }
   </style>
 </head>
 <body>
   <!-- Skip to content (accessibility) -->
   <a href="#main-content" class="skip-link">Skip to content</a>
+
+  <!-- Aurora band behind the top bar (gives the glass something to refract) -->
+  <div class="aurora-band" aria-hidden="true"></div>
 
   <!-- Glow Spheres -->
   <div class="ambient-orb orb-primary"></div>
