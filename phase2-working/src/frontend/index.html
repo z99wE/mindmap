@@ -30,6 +30,7 @@
     @import url('./src/styles/m3-tokens.css');
     @import url('./src/styles/glass.css');
     @import url('./src/styles/animations.css');
+    @import url('./src/styles/tg-upgrade.css');
 
     /* ── Base ── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -330,12 +331,11 @@
               <span class="dot-pulse"></span>
               <span>SYSTEM ONLINE</span>
             </div>
-            <button class="icon-btn" id="notif-btn" onclick="showPage('notifications')" aria-label="Notifications">
-              <span class="mono-label" style="font-size:11px;color:inherit;">NOTIF</span>
+            <button class="tg-topchip" id="notif-btn" onclick="showPage('notifications')" aria-label="Notifications">
+              <span class="tg-topchip-label">Notifications</span>
               <span class="badge" id="notif-badge" style="display:none;">0</span>
             </button>
             <div class="user-chip" id="user-chip" onclick="handleUserClick()" role="button" aria-label="User account">
-              <span style="font:600 14px/1 'Space Grotesk';color:rgba(235,235,235,0.6);">&#9679;</span>
               <span id="user-name" style="font:500 13px/1 'Space Grotesk',sans-serif;">Sign In</span>
             </div>
           </div>

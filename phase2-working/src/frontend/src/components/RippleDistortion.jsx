@@ -430,7 +430,7 @@ const RippleDistortion = ({
   return (
     <div
       ref={mountRef}
-      className={`relative w-full h-full overflow-hidden bg-black [&>canvas]:block [&>canvas]:w-full [&>canvas]:h-full ${className}`.trim()}
+      className={`relative w-full h-full overflow-hidden bg-transparent [&>canvas]:block [&>canvas]:w-full [&>canvas]:h-full ${className}`.trim()}
       style={style}
     />
   );

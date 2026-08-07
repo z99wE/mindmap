@@ -28,7 +28,7 @@ export function MemorySegments() {
         <div class="progress-bar"><span style="width:${pct}%"></span></div>
         <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;">${pct}% of all memories</div>
       </div>`;
-    }).join('') : '<div class="surface-card card-reveal" style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--md-sys-color-outline);"><span class="material-symbols-rounded" style="font-size:48px;opacity:0.3;">scatter_plot</span><p style="margin-top:0.5rem;">No memory segments yet. Start capturing thoughts to build your knowledge graph.</p></div>';
+    }).join('') : '<div class="tg-state" style="grid-column:1/-1;"><div class="tg-state-title">No memory segments yet</div><div class="tg-state-body">Start capturing thoughts and segments will form into a browsable knowledge graph.</div></div>';
   });
   return container;
 }

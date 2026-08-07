@@ -19,7 +19,7 @@ export function MapMyMind() {
           <span class="dot" style="width:12px;height:12px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 10px rgba(204,255,0,0.4);"></span>
           <div>
             <div style="font:var(--md-sys-typescale-title-small);">Today's route</div>
-            <div id="route-stats" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Loading...</div>
+            <div id="route-stats" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></div>
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@ export function MapMyMind() {
   function renderThemeClusters(themes) {
     const el = container.querySelector('#theme-clusters');
     if (themes.length === 0) {
-      el.innerHTML = '<p style="color:var(--md-sys-color-outline);">No themes detected yet.</p>';
+      el.innerHTML = '<div class="tg-state"><div class="tg-state-title">No themes detected yet</div><div class="tg-state-body">Themes emerge once there are enough thoughts to cluster. Keep capturing and the map will draw itself.</div></div>';
       return;
     }
     el.innerHTML = themes.map(t => {

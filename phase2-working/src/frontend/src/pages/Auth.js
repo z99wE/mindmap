@@ -7,9 +7,6 @@ export function Auth() {
     <div style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
       <div class="glass-strong" style="width:100%;max-width:440px;border-radius:var(--md-sys-shape-extra-large);padding:2.5rem;">
         <div style="text-align:center;margin-bottom:2rem;">
-          <div style="width:56px;height:56px;border-radius:var(--md-sys-shape-large);background:linear-gradient(135deg,var(--md-sys-color-primary-container),var(--md-sys-color-secondary-container));display:inline-grid;place-items:center;margin-bottom:1rem;">
-            <span class="material-symbols-rounded" style="font-size:28px;color:#fff;">explore</span>
-          </div>
           <h1 style="font:var(--md-sys-typescale-headline-small);margin-bottom:0.5rem;">Welcome to Thought GPS</h1>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">Your cognitive coprocessor for navigating thoughts</p>
         </div>

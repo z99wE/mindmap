@@ -1,0 +1,1434 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Thought GPS — liquid glass upgrade layer
+
+   Loaded last, so it refines the existing Obsidian & Lime Signal system
+   (m3-tokens / glass / animations / shell) rather than replacing it.
+   Presentation only: light, depth, type, motion.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* depth: soft, wide, low-opacity ambient occlusion instead of hard offsets */
+  --depth-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px -10px rgba(0, 0, 0, 0.5);
+  --depth-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 14px 34px -16px rgba(0, 0, 0, 0.58);
+  --depth-3: 0 4px 8px rgba(0, 0, 0, 0.32), 0 26px 60px -24px rgba(0, 0, 0, 0.62);
+  --depth-4: 0 8px 16px rgba(0, 0, 0, 0.34), 0 44px 96px -34px rgba(0, 0, 0, 0.68);
+
+  /* glass */
+  --lg-tint: rgba(255, 255, 255, 0.045);
+  --lg-tint-strong: rgba(255, 255, 255, 0.07);
+  --lg-rim-top: rgba(255, 255, 255, 0.16);
+  --lg-rim-bottom: rgba(255, 255, 255, 0.05);
+  --lg-blur: 26px;
+  --lg-sheen: rgba(255, 255, 255, 0.07);
+  --lg-sheen-lime: rgba(204, 255, 0, 0.1);
+
+  /* radii — continuous, generous curvature */
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 30px;
+
+  /* one shared motion language */
+  --ease-glass: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --dur-in: 320ms;
+  --dur-out: 480ms;
+
+  --scroll-progress: 0;
+}
+
+/* ── Living entropy skin ──────────────────────────────────────────────────── */
+#tg-entropy {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+  filter: blur(28px);
+  mix-blend-mode: screen;
+}
+
+/* the original decorative orbs are dialled right down — the entropy field
+   carries the ambience now */
+.ambient-orb {
+  opacity: 0.16 !important;
+  filter: blur(120px) saturate(60%) !important;
+}
+
+body::before {
+  opacity: 0.55;
+}
+
+/* ── Glass surfaces ───────────────────────────────────────────────────────── */
+.surface-card,
+.liquid-glass,
+.glass-3d,
+.neopop-card,
+.top-bar,
+.bottom-nav,
+.mobile-drawer-content,
+.tg-state {
+  position: relative;
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(180deg, var(--lg-tint-strong), var(--lg-tint)) padding-box;
+  backdrop-filter: blur(var(--lg-blur)) saturate(135%);
+  border: 1px solid transparent;
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    inset 0 22px 34px -30px rgba(255, 255, 255, 0.5),
+    var(--depth-2);
+  transition:
+    transform var(--dur-out) var(--ease-glass),
+    box-shadow var(--dur-out) var(--ease-glass),
+    backdrop-filter var(--dur-out) var(--ease-glass);
+}
+
+.neopop-card {
+  /* the hard NeoPOP offset becomes glass depth */
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-3) !important;
+}
+
+/* hairline rim that is brighter on top than on the bottom */
+.surface-card::before,
+.liquid-glass::before,
+.glass-3d::before,
+.tg-state::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.05) 42%,
+    rgba(255, 255, 255, 0.02)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── One branded hover gesture: light moving across glass ─────────────────── */
+.lg-hover {
+  --lg-x: 50%;
+  --lg-y: 0%;
+  isolation: isolate;
+}
+
+.lg-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+  background:
+    radial-gradient(
+      340px circle at var(--lg-x) var(--lg-y),
+      var(--lg-sheen),
+      transparent 62%
+    ),
+    radial-gradient(
+      120px circle at var(--lg-x) var(--lg-y),
+      var(--lg-sheen-lime),
+      transparent 70%
+    );
+  transition: opacity var(--dur-out) var(--ease-glass);
+}
+
+.lg-hover:hover::after,
+.lg-hover:focus-visible::after {
+  opacity: 1;
+  transition-duration: var(--dur-in);
+}
+
+.surface-card.lg-hover:hover,
+.glass-3d.lg-hover:hover,
+.liquid-glass.lg-hover:hover,
+.neopop-card.lg-hover:hover,
+.tg-state.lg-hover:hover {
+  transform: translateY(-2px);
+  backdrop-filter: blur(calc(var(--lg-blur) + 8px)) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-3);
+  transition-duration: var(--dur-in);
+}
+
+/* the old inline 3D tilt and border-glow treatments are retired */
+.glass-3d {
+  transform: none !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn-m3,
+.btn-neon,
+.icon-btn,
+.user-chip {
+  position: relative;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  transition:
+    transform var(--dur-out) var(--ease-glass),
+    box-shadow var(--dur-out) var(--ease-glass),
+    background var(--dur-out) var(--ease-glass),
+    color var(--dur-out) var(--ease-glass);
+}
+
+.btn-m3:hover,
+.btn-neon:hover,
+.icon-btn:hover,
+.user-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--depth-2);
+}
+
+.btn-m3:active,
+.btn-neon:active,
+.icon-btn:active,
+.user-chip:active {
+  transform: translateY(1px) scale(0.995);
+  transition-duration: 120ms;
+}
+
+.btn-m3:disabled,
+.btn-m3[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* buttons in flight — text state, never an icon spinner */
+.btn-m3[data-loading="true"],
+.btn-neon[data-loading="true"] {
+  color: var(--brand-ink-dim);
+  pointer-events: none;
+}
+
+.btn-m3[data-loading="true"]::before,
+.btn-neon[data-loading="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(204, 255, 0, 0.7), transparent);
+  animation: tg-inflight 1.4s var(--ease-glass) infinite;
+}
+
+@keyframes tg-inflight {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+/* focus is part of the polish, not an afterthought */
+:where(a, button, [role="button"], input, select, textarea, .nav-item):focus-visible {
+  outline: 1px solid rgba(204, 255, 0, 0.55);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ── Navigation ───────────────────────────────────────────────────────────── */
+.nav-item,
+.bottom-nav-item {
+  border-radius: var(--r-sm);
+  transition:
+    color var(--dur-out) var(--ease-glass),
+    background var(--dur-out) var(--ease-glass);
+}
+
+.nav-item::before {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: 4px;
+  height: 1px;
+  background: rgba(204, 255, 0, 0.5);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-in) var(--ease-glass);
+}
+
+.nav-item:hover::before,
+.nav-item.active::before {
+  transform: scaleX(1);
+}
+
+.nav-item:hover,
+.bottom-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* rows get a soft glass wash instead of the old scanline */
+tbody tr,
+.list-row,
+.row-hover {
+  transition: background var(--dur-out) var(--ease-glass);
+}
+
+tbody tr:hover,
+.list-row:hover,
+.row-hover:hover {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+}
+
+/* ── Typographic discipline ───────────────────────────────────────────────── */
+.mono-label,
+.tg-label {
+  font: 500 10px/1.4 var(--font-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand-ink-faint);
+}
+
+.tg-eyebrow {
+  font: 500 10px/1.4 var(--font-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(204, 255, 0, 0.7);
+}
+
+.tg-hairline {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+  border: 0;
+  margin: 1.25rem 0;
+}
+
+/* numbers in stat tiles line up */
+.stat-value,
+.metric-value,
+[data-numeric] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ── No icons, no pill tags ───────────────────────────────────────────────── */
+.material-symbols-rounded,
+.material-icons,
+[data-icon],
+.icon-emoji {
+  display: none !important;
+}
+/* Safety: icon-only controls keep their glyph so they never render blank */
+button .material-symbols-rounded,
+button .material-icons,
+a .material-symbols-rounded,
+a .material-icons,
+.icon-btn .material-symbols-rounded,
+.icon-btn .material-icons {
+  display: inline-block !important;
+}
+
+/* status now reads as type + hairline, never as a rounded chip */
+.status-tag,
+.badge,
+.chip,
+.pill,
+.tag {
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 0 !important;
+  padding: 0 0 0 0.6rem !important;
+  box-shadow: none !important;
+  font: 500 10px/1.5 var(--font-mono) !important;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-ink-dim) !important;
+}
+
+.status-tag .dot-pulse,
+.badge .dot-pulse {
+  display: none;
+}
+
+/* ── States: loading · empty · error · success ─────────────────────────────── */
+.tg-state {
+  padding: 2.5rem 2rem;
+  text-align: left;
+  max-width: 46rem;
+  border-radius: var(--r-lg);
+}
+
+.tg-state-title {
+  font: 500 18px/1.3 var(--font-heading);
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
+}
+
+.tg-state-body {
+  font: 400 14px/1.7 var(--font-body);
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 34rem;
+}
+
+.tg-state-action {
+  margin-top: 1.25rem;
+  display: inline-block;
+  font: 500 13px/1 var(--font-body);
+  color: #ccff00;
+  border-bottom: 1px solid rgba(204, 255, 0, 0.35);
+  padding-bottom: 3px;
+  cursor: pointer;
+  background: none;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  transition: border-color var(--dur-in) var(--ease-glass);
+}
+
+.tg-state-action:hover {
+  border-color: rgba(204, 255, 0, 0.9);
+}
+
+.tg-state--error {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 90, 90, 0.28),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-2);
+}
+
+.tg-state--error .tg-state-title {
+  color: #ff8f8f;
+}
+
+.tg-state--success {
+  box-shadow:
+    inset 0 1px 0 rgba(204, 255, 0, 0.35),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-2);
+  animation: tg-resolve 420ms var(--ease-glass) both;
+}
+
+@keyframes tg-resolve {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* skeletons: glass blocks with a slow specular sweep, no spinners */
+.tg-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.045);
+  height: 14px;
+}
+
+.tg-skeleton + .tg-skeleton {
+  margin-top: 0.7rem;
+}
+
+.tg-skeleton--title {
+  height: 22px;
+  width: 42%;
+}
+
+.tg-skeleton--block {
+  height: 96px;
+}
+
+.tg-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.09) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: tg-sweep 2.2s var(--ease-glass) infinite;
+}
+
+@keyframes tg-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.tg-skeleton-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* ── Reveal ───────────────────────────────────────────────────────────────── */
+.tg-rise {
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(6px);
+  transition:
+    opacity 620ms var(--ease-glass),
+    transform 620ms var(--ease-glass),
+    filter 620ms var(--ease-glass);
+}
+
+.tg-rise.tg-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ── Hero, scroll-linked camera ───────────────────────────────────────────── */
+.tg-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  isolation: isolate;
+}
+
+.tg-hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tg-constellation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tg-hero-inner {
+  position: relative;
+  z-index: 1;
+  transform: translateY(calc(var(--scroll-progress) * -34px))
+    scale(calc(1 - var(--scroll-progress) * 0.03));
+  filter: blur(calc(var(--scroll-progress) * 3px));
+  opacity: calc(1 - var(--scroll-progress) * 0.55);
+  will-change: transform, filter, opacity;
+}
+
+.tg-hero-edge {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: calc(var(--scroll-progress) * 100%);
+  background: linear-gradient(90deg, rgba(204, 255, 0, 0.55), transparent);
+}
+
+.tg-word {
+  display: inline-block;
+  animation: tg-word-in 900ms var(--ease-glass) both;
+}
+
+@keyframes tg-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ── Brand sign-off (footer) ──────────────────────────────────────────────── */
+#app-footer {
+  height: auto !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+#app-footer::before,
+#app-footer::after {
+  display: none !important;
+}
+#footer-react-root {
+  position: relative !important;
+  height: auto !important;
+}
+
+
+.tg-current {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Logo decay signature ─────────────────────────────────────────────────── */
+.tg-logo {
+  --decay: 0;
+  position: relative;
+  display: inline-block;
+  font: 600 15px/1.2 var(--font-heading);
+  letter-spacing: -0.02em;
+  color: var(--md-sys-color-on-surface);
+  filter: blur(calc(var(--decay) * 0.7px));
+  opacity: calc(1 - var(--decay) * 0.22);
+  transition:
+    filter 700ms var(--ease-glass),
+    opacity 700ms var(--ease-glass);
+}
+
+.tg-logo::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  opacity: calc(var(--decay) * 0.5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  transition: opacity 700ms var(--ease-glass);
+}
+
+.tg-logo-resolve {
+  animation: tg-logo-in 1200ms var(--ease-glass) both;
+}
+
+@keyframes tg-logo-in {
+  from {
+    opacity: 0;
+    filter: blur(9px);
+    letter-spacing: 0.1em;
+  }
+  to {
+    opacity: 1;
+    filter: none;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ── Layout rhythm ────────────────────────────────────────────────────────── */
+.page-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.75rem 1.75rem 4rem;
+}
+
+.page-shell > * + * {
+  margin-top: 1.25rem;
+}
+
+.top-bar {
+  border-radius: 0;
+  backdrop-filter: blur(30px) saturate(150%);
+}
+
+.aurora-band {
+  opacity: 0.35;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .tg-rise {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .tg-hero-inner {
+    transform: none;
+    filter: none;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 840px) {
+  .page-shell {
+    padding: 1.75rem 1.1rem 3rem;
+  }
+
+  .tg-state {
+    padding: 1.75rem 1.25rem;
+  }
+}
+
+/* ── Landing page ─────────────────────────────────────────────────────────── */
+/* the marketing surface runs full-bleed: the app chrome steps aside for it */
+:root[data-page="home"][data-auth="false"] .top-bar,
+:root[data-page="home"][data-auth="false"] .nav-rail,
+:root[data-page="home"][data-auth="false"] .bottom-nav {
+  display: none !important;
+}
+
+:root[data-page="home"][data-auth="false"] .app-shell {
+  grid-template-columns: 1fr !important;
+}
+
+/* the marketing surface always gets the full measure */
+.tg-landing {
+  width: 100%;
+}
+
+#main-content {
+  min-width: 0;
+}
+
+.tg-landing {
+  position: relative;
+  isolation: isolate;
+  color: var(--md-sys-color-on-surface);
+}
+
+.tg-landing-hero {
+  min-height: min(78vh, 50rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(3rem, 7vw, 6rem) clamp(1.25rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+  perspective: 1400px;
+  perspective-origin: 50% 42%;
+}
+
+/* 3D stage — every hero layer lives on a real Z axis */
+.tg-landing-stage {
+  position: relative;
+  width: 100%;
+  max-width: 62rem;
+  margin: 0 auto;
+  text-align: center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.tg-landing-aura {
+  position: absolute;
+  width: min(46rem, 90%);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transform: translateZ(-320px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(204, 255, 0, 0.1), transparent 62%),
+    radial-gradient(circle, rgba(120, 140, 255, 0.07), transparent 70%);
+  filter: blur(46px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.tg-landing-headline {
+  position: relative;
+  z-index: 2;
+  font: 500 clamp(2.4rem, 7vw, 5.4rem) / 1.02 var(--font-heading);
+  letter-spacing: -0.045em;
+  margin: 0 auto clamp(1.25rem, 3vw, 2rem);
+  max-width: 52rem;
+  text-wrap: balance;
+  transform-style: preserve-3d;
+}
+
+
+.tg-headline-line {
+  display: block;
+}
+
+.tg-headline-word {
+  display: inline-block;
+  margin-right: 0.28em;
+  transform-style: preserve-3d;
+  will-change: transform, filter, opacity;
+}
+
+.tg-headline-line:last-child .tg-headline-word:last-child,
+.tg-headline-word:last-child {
+  margin-right: 0;
+}
+
+.tg-headline-word--accent {
+  font-style: italic;
+  font-weight: 400;
+  color: #ccff00;
+  text-shadow: 0 0 42px rgba(204, 255, 0, 0.28);
+}
+
+.tg-landing-headline em,
+.tg-landing-close-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: #ccff00;
+  text-shadow: 0 0 42px rgba(204, 255, 0, 0.28);
+}
+
+.tg-landing-sub {
+  font: 400 clamp(0.98rem, 1.5vw, 1.15rem) / 1.75 var(--font-body);
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 38rem;
+  margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+  text-wrap: pretty;
+}
+
+/* hero displacement field — no frame, no plate: it reads as atmosphere */
+.tg-landing-field {
+  position: absolute;
+  inset: -6% -4% 0;
+  width: auto;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0.16;
+  mask-image: radial-gradient(ellipse 74% 64% at 50% 46%, #000 6%, transparent 76%);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  z-index: 0;
+}
+
+
+
+
+.tg-landing-ctas {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: clamp(2.25rem, 5vw, 3.25rem);
+}
+
+
+/* one button vocabulary, shared with the closing section */
+.tg-btn {
+  position: relative;
+  border-radius: 999px;
+  padding: 0.9rem 1.9rem;
+  font: 500 0.95rem/1 var(--font-body);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: 0;
+  isolation: isolate;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transition:
+    transform 260ms var(--ease-glass),
+    box-shadow 260ms var(--ease-glass),
+    background 260ms var(--ease-glass),
+    filter 260ms var(--ease-glass);
+}
+
+/* ambient displacement echo — the same pointer-tracked sheen as the hero field */
+.tg-btn::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+  background: radial-gradient(
+    160px circle at var(--lg-x, 50%) var(--lg-y, 50%),
+    rgba(255, 255, 255, 0.22),
+    transparent 68%
+  );
+  transition: opacity 320ms var(--ease-glass);
+}
+
+.tg-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tg-btn:focus {
+  outline: none;
+}
+
+.tg-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--md-sys-color-surface, #0b0d08),
+    0 0 0 3.5px rgba(204, 255, 0, 0.72),
+    0 18px 44px -20px rgba(204, 255, 0, 0.45);
+}
+
+.tg-btn--primary {
+  background: linear-gradient(180deg, #dcff5c 0%, #ccff00 58%, #b6e600 100%);
+  color: #0b0d08;
+  font-weight: 600;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 16px 40px -18px rgba(204, 255, 0, 0.55);
+}
+
+.tg-btn--quiet {
+  background: var(--lg-tint);
+  color: var(--md-sys-color-on-surface);
+  backdrop-filter: blur(var(--lg-blur)) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-2);
+}
+
+/* hover only where a real pointer exists — no sticky states on touch */
+@media (hover: hover) and (pointer: fine) {
+  .tg-btn:hover::before {
+    opacity: 1;
+  }
+
+  .tg-btn--primary:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.62),
+      0 2px 4px rgba(0, 0, 0, 0.4),
+      0 24px 54px -18px rgba(204, 255, 0, 0.68);
+  }
+
+  .tg-btn--quiet:hover {
+    background: var(--lg-tint-strong);
+    transform: translate3d(0, -2px, 0);
+    backdrop-filter: blur(calc(var(--lg-blur) + 6px)) saturate(190%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 var(--lg-rim-bottom),
+      var(--depth-3);
+  }
+}
+
+/* press — settles rather than snaps, same on touch and pointer */
+.tg-btn:active {
+  transform: translate3d(0, 0, 0) scale(0.978);
+  transition-duration: 110ms;
+}
+
+.tg-btn--primary:active {
+  filter: brightness(0.97);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.45),
+    0 10px 26px -16px rgba(204, 255, 0, 0.5);
+}
+
+.tg-btn--quiet:active {
+  background: var(--lg-tint-strong);
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-1, 0 2px 8px rgba(0, 0, 0, 0.35));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-btn,
+  .tg-btn::before {
+    transition-duration: 0.01ms;
+  }
+
+  .tg-btn:hover,
+  .tg-btn:active {
+    transform: none;
+  }
+}
+
+
+.tg-landing-stats {
+  display: flex;
+  gap: clamp(2rem, 6vw, 4.5rem);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: clamp(2.25rem, 5vw, 3.25rem);
+}
+
+.tg-landing-stat-value {
+  font: 500 clamp(1.4rem, 3vw, 2.1rem) / 1 var(--font-heading);
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tg-landing-stat-unit {
+  font: 500 10px/1.6 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(204, 255, 0, 0.85);
+  margin-top: 0.55rem;
+}
+
+.tg-landing-stat-note {
+  font: 400 12px/1.6 var(--font-body);
+  color: var(--brand-ink-dim, rgba(255, 255, 255, 0.4));
+}
+
+.tg-landing-section {
+  padding: clamp(2.5rem, 5vw, 4.5rem) clamp(1.25rem, 5vw, 5rem);
+  max-width: 74rem;
+  margin: 0 auto;
+}
+
+.tg-landing-section--tight {
+  padding-top: 0;
+}
+
+.tg-landing-section-label {
+  text-align: center;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.tg-landing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2.25rem);
+  align-items: start;
+}
+
+.tg-landing-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tg-landing-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 1.1rem 1rem 1.1rem 1.1rem;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition:
+    background var(--dur-in) var(--ease-glass),
+    padding var(--dur-in) var(--ease-glass);
+}
+
+.tg-landing-list .tg-landing-item:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.tg-landing-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 0;
+  background: #ccff00;
+  transform: translateY(-50%);
+  transition: height var(--dur-in) var(--ease-glass);
+}
+
+.tg-landing-item.is-active::after {
+  height: 62%;
+}
+
+.tg-landing-item.is-active,
+.tg-landing-item:hover {
+  background: rgba(255, 255, 255, 0.035);
+  padding-left: 1.4rem;
+}
+
+.tg-landing-item-label {
+  font: 500 10px/1.4 var(--font-mono);
+  letter-spacing: 0.17em;
+  color: rgba(255, 255, 255, 0.32);
+  transition: color var(--dur-in) var(--ease-glass);
+}
+
+.tg-landing-item.is-active .tg-landing-item-label {
+  color: rgba(204, 255, 0, 0.9);
+}
+
+.tg-landing-item-title {
+  font: 400 0.95rem/1.45 var(--font-body);
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: -0.01em;
+}
+
+.tg-landing-item.is-active .tg-landing-item-title {
+  color: var(--md-sys-color-on-surface);
+}
+
+.tg-landing-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  min-height: 21rem;
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  border-radius: var(--r-lg);
+  background: var(--lg-tint);
+  backdrop-filter: blur(var(--lg-blur)) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    var(--depth-3);
+}
+
+.tg-landing-panel-label {
+  font: 500 10px/1.4 var(--font-mono);
+  letter-spacing: 0.17em;
+  color: rgba(204, 255, 0, 0.85);
+  margin-bottom: 1rem;
+}
+
+.tg-landing-panel-title {
+  font: 500 clamp(1.3rem, 2.4vw, 1.95rem) / 1.18 var(--font-heading);
+  letter-spacing: -0.035em;
+  margin: 0 0 0.9rem;
+  text-wrap: balance;
+}
+
+.tg-landing-panel-body {
+  font: 400 0.95rem/1.75 var(--font-body);
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+  max-width: 30rem;
+}
+
+.tg-landing-progress {
+  display: flex;
+  gap: 6px;
+}
+
+.tg-landing-progress-step {
+  width: 8px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: width var(--dur-in) var(--ease-glass), background var(--dur-in) var(--ease-glass);
+}
+
+.tg-landing-progress-step.is-active {
+  width: 26px;
+  background: #ccff00;
+}
+
+.tg-landing-trust {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding-top: clamp(1rem, 2vw, 1.75rem);
+}
+
+.tg-landing-trust-title {
+  font: 500 1.02rem/1.35 var(--font-heading);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.tg-landing-trust-body {
+  font: 400 0.9rem/1.75 var(--font-body);
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+  max-width: 24rem;
+}
+
+.tg-landing-close {
+  text-align: center;
+}
+
+.tg-landing-close-title {
+  font: 500 clamp(1.8rem, 4.6vw, 3.4rem) / 1.08 var(--font-heading);
+  letter-spacing: -0.045em;
+  margin: 0 auto clamp(1.75rem, 3.5vw, 2.5rem);
+  max-width: 40rem;
+  text-wrap: balance;
+}
+
+
+/* the next section arrives out of Z as the hero recedes */
+.tg-landing {
+  perspective: 1600px;
+  perspective-origin: 50% 10%;
+}
+
+.tg-landing-arrive {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-landing-arrive {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+
+
+/* legacy shimmer placeholders read as calm glass skeletons */
+.anim-shimmer {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.anim-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.07) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: tg-sweep 1.9s var(--ease-glass) infinite;
+}
+
+@media (max-width: 900px) {
+  .tg-landing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-shimmer::after,
+  .tg-landing-field {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   App surfaces refresh — calmer chrome, quieter glass, tighter typography.
+   Presentation only.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Top bar ──────────────────────────────────────────────────────────────── */
+.top-bar {
+  padding: 0.85rem 1.75rem;
+  min-height: 60px;
+  gap: 1rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018)) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255,255,255,0.10),
+    0 18px 40px -30px rgba(0,0,0,0.8) !important;
+}
+.top-bar-title {
+  font: 600 15px/22px var(--font-heading);
+  letter-spacing: -0.015em;
+  color: rgba(240,244,250,0.94);
+}
+.top-bar-actions { gap: 0.6rem; }
+
+.tg-topchip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.035);
+  color: rgba(226,233,243,0.78);
+  font: 500 12.5px/1 var(--font-body);
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  transition: color 200ms ease, border-color 240ms ease, background 240ms ease, transform 240ms ease;
+}
+.tg-topchip:hover {
+  color: rgba(255,255,255,0.98);
+  border-color: rgba(204,255,0,0.30);
+  background: rgba(204,255,0,0.055);
+  transform: translateY(-1px);
+}
+.tg-topchip .badge {
+  position: static;
+  margin-left: 0.5rem;
+  background: rgba(204,255,0,0.16);
+  border: 1px solid rgba(204,255,0,0.34);
+  color: #d7ff4a;
+  font: 500 10.5px/1 var(--font-mono);
+  border-radius: 999px;
+  min-width: auto;
+  height: auto;
+  padding: 2px 6px;
+}
+.user-chip {
+  padding: 0.42rem 0.9rem;
+  font: 500 12.5px/1 var(--font-body);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.09);
+}
+.status-tag {
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.18em;
+  opacity: 0.6;
+}
+
+/* ── Nav dial — a quiet vertical index, no skew, no glow ──────────────────── */
+.nav-rail { padding-left: 0.5rem; }
+.nav-wheel-host .option-wheel__item {
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  transition: color 260ms ease;
+}
+.nav-wheel-host .option-wheel__item--selected {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.nav-wheel-host .option-wheel__item:hover { color: rgba(255,255,255,0.96); }
+/* hairline that hints the rail edge without drawing a box */
+.nav-rail::after {
+  content: '';
+  position: absolute;
+  top: 18%;
+  bottom: 18%;
+  right: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.10) 30%, rgba(255,255,255,0.10) 70%, transparent);
+  pointer-events: none;
+}
+
+/* ── Page rhythm and headings ─────────────────────────────────────────────── */
+.page-shell { max-width: 1120px; gap: 1.15rem; }
+.page-shell h1 {
+  font: 600 clamp(1.5rem, 2.4vw, 2rem)/1.08 var(--font-heading);
+  letter-spacing: -0.035em;
+}
+.page-shell h2 {
+  font: 600 1.05rem/1.3 var(--font-heading);
+  letter-spacing: -0.02em;
+}
+.page-shell h3 { letter-spacing: -0.015em; }
+.section-header {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 0.6rem;
+}
+
+/* ── Cards: shallower, cleaner, one hairline ──────────────────────────────── */
+.surface-card,
+.glass-strong,
+.liquid-glass,
+.glass-3d {
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.075);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.014)),
+    rgba(14,16,20,0.58);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255,255,255,0.075),
+    0 22px 48px -34px rgba(0,0,0,0.85);
+}
+.surface-card { padding: 1.35rem 1.45rem; }
+.neopop-card { border-radius: 18px; }
+
+/* ── Inputs ───────────────────────────────────────────────────────────────── */
+.input-m3,
+input[type="text"], input[type="email"], input[type="password"],
+input[type="number"], input[type="search"], textarea, select {
+  background: rgba(255,255,255,0.032);
+  border: 1px solid rgba(255,255,255,0.085);
+  border-radius: 13px;
+  color: rgba(240,244,250,0.95);
+  font: 400 14px/1.4 var(--font-body);
+  padding: 0.72rem 0.9rem;
+  transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
+}
+.input-m3::placeholder, textarea::placeholder { color: rgba(226,233,243,0.34); }
+.input-m3:focus,
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: rgba(204,255,0,0.42);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 0 0 3px rgba(204,255,0,0.10);
+}
+
+/* ── Buttons: one accent, quiet secondaries ───────────────────────────────── */
+.btn-m3, .btn-filled, .btn-tonal, .btn-outlined, .btn-text, .btn-neon {
+  border-radius: 999px;
+  font: 500 13.5px/1 var(--font-body);
+  letter-spacing: 0.002em;
+  padding: 0.7rem 1.25rem;
+}
+.btn-filled, .btn-neon {
+  background: linear-gradient(180deg, #d9ff4d, #b8e600);
+  color: #0a0b0d;
+  border: 1px solid rgba(204,255,0,0.5);
+  box-shadow: 0 14px 34px -22px rgba(204,255,0,0.6);
+}
+.btn-filled:hover, .btn-neon:hover { filter: brightness(1.04); }
+.btn-tonal, .btn-outlined, .btn-text {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(233,239,247,0.9);
+}
+.btn-tonal:hover, .btn-outlined:hover, .btn-text:hover {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.tab, .auth-tab {
+  border-radius: 999px;
+  font: 500 13px/1 var(--font-body);
+  color: rgba(226,233,243,0.6);
+  transition: color 200ms ease, background 220ms ease;
+}
+.tab.active, .auth-tab.active {
+  color: #0a0b0d;
+  background: linear-gradient(180deg, #d9ff4d, #b8e600);
+}
+
+/* ── Tables and lists ────────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; }
+th {
+  font: 500 10.5px/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(226,233,243,0.45);
+  text-align: left;
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+td {
+  font: 400 13.5px/1.5 var(--font-body);
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.045);
+  color: rgba(236,241,248,0.86);
+}
+tr:hover td { background: rgba(255,255,255,0.022); }
+
+/* ── Progress ────────────────────────────────────────────────────────────── */
+.progress-bar {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  overflow: hidden;
+}
+.progress-bar > * { background: linear-gradient(90deg, #b8e600, #d9ff4d); }
+
+/* ── Footer wordmark ─────────────────────────────────────────────────────── */
+/* styling lives in Footer.jsx (scoped) — no overrides here */
+

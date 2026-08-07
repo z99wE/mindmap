@@ -83,8 +83,10 @@ export function Home() {
         <section class="card-reveal" style="margin-top:2rem;">
           <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Recent Activity</h2>
           <div id="recent-thoughts" class="surface-card" style="padding:0;">
-            <div style="padding:2rem;text-align:center;color:var(--md-sys-color-outline);">
-              <div class="spinner-m3" style="margin:0 auto;"></div>
+            <div style="padding:1.5rem;">
+              <div class="tg-skeleton tg-skeleton--title"></div>
+              <div class="tg-skeleton"></div>
+              <div class="tg-skeleton"></div>
             </div>
           </div>
         </section>
@@ -206,7 +208,7 @@ async function loadHomeStats(container) {
       </div>
     `).join('');
   } else if (thoughtsEl) {
-    thoughtsEl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-medium);">No thoughts captured yet. Start with Quick Capture above or open the Full Chat.</div>';
+    thoughtsEl.innerHTML = '<div class="tg-state"><div class="tg-state-title">No thoughts captured yet</div><div class="tg-state-body">Use Quick Capture above, or open the full chat to start a thread. Everything you capture lands here first.</div></div>';
   }
 }
 

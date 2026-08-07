@@ -23,12 +23,12 @@ export function Dashboard() {
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Run Usage</h3>
           <div id="run-gauge"><div class="progress-bar"><span style="width:0%"></span></div></div>
-          <p id="run-text" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;">Loading...</p>
+          <p id="run-text" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></p>
         </div>
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Cognitive Load</h3>
           <div id="cog-load" style="display:flex;flex-direction:column;gap:0.5rem;">
-            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Loading...</p>
+            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></p>
           </div>
         </div>
       </div>
@@ -38,13 +38,13 @@ export function Dashboard() {
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Memory by Category</h3>
           <div id="mem-chart" style="display:flex;flex-direction:column;gap:0.5rem;">
-            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Loading...</p>
+            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></p>
           </div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">14-Day Activity</h3>
           <div id="trend-chart" style="min-height:100px;">
-            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Loading...</p>
+            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></p>
           </div>
         </div>
       </div>
@@ -115,7 +115,7 @@ async function loadDashboard(c) {
       </div>`;
     c.querySelector('#run-text').textContent = `${billing.dailyRunsUsed || 0} / ${billing.dailyRunsLimit || 0} runs used today`;
   } else {
-    statsEl.innerHTML = '<div class="surface-card" style="padding:1.25rem;color:var(--md-sys-color-error);grid-column:1/-1;">Unable to load billing status.</div>';
+    statsEl.innerHTML = '<div class="tg-state tg-state--error" style="grid-column:1/-1;"><div class="tg-state-title">Billing status unavailable</div><div class="tg-state-body">We could not reach the usage service. Your data is safe — this panel will fill in once the connection returns.</div><button class="tg-state-action" onclick="showPage(&#39;dashboard&#39;)">Try again</button></div>';
   }
 
   // Cognitive Load
@@ -173,7 +173,7 @@ async function loadDashboard(c) {
       </div>`;
     }).join('');
   } else if (!memStats.error) {
-    c.querySelector('#mem-chart').innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No memories yet.</p>';
+    c.querySelector('#mem-chart').innerHTML = '<div class="tg-state"><div class="tg-state-title">No memories stored yet</div><div class="tg-state-body">Categories build up as you capture thoughts. This chart fills in on its own.</div></div>';
   }
 
   // Load Predictive ADHD insights

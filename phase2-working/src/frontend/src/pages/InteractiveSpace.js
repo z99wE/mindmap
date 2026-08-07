@@ -16,7 +16,7 @@ export function InteractiveSpace() {
 
       <!-- Status bar -->
       <div id="status-bar" class="card-reveal" style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
-        <span id="runs-info" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Loading...</span>
+        <span id="runs-info" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></span>
       </div>
 
       <!-- Chat area -->

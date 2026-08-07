@@ -40,7 +40,7 @@ export function NotificationsLog() {
       <!-- Notification list -->
       <div id="notif-list" style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.75rem;">
         <div class="surface-card" style="padding:2rem;text-align:center;">
-          <div class="spinner-m3" style="margin:0 auto;"></div>
+          <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
           <p style="color:var(--md-sys-color-outline);margin-top:1rem;">Loading notifications...</p>
         </div>
       </div>

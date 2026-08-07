@@ -57,7 +57,7 @@ export function ThoughtArchaeology() {
             Show All Expired Thoughts
           </summary>
           <div id="all-expired" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;">
-            <p style="color:var(--md-sys-color-outline);">Loading...</p>
+            <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div><div class="tg-skeleton"></div>
           </div>
         </details>
       </div>

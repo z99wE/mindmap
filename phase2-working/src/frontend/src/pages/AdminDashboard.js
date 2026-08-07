@@ -34,7 +34,7 @@ export function AdminDashboard() {
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Server Status</div>
           <div id="health-status" style="font:var(--md-sys-typescale-headline-small);margin-top:0.25rem;">
-            <div class="spinner-m3" style="margin:0 auto;width:20px;height:20px;"></div>
+            <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
           </div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
@@ -58,7 +58,7 @@ export function AdminDashboard() {
           Shared Key Pool
         </h2>
         <div id="key-pool-status">
-          <div class="spinner-m3" style="margin:1rem auto;"></div>
+          <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export function AdminDashboard() {
           Your personal Grok + NVIDIA routing layer. Not accessible to other users.
         </p>
         <div id="omniroute-status">
-          <div class="spinner-m3" style="margin:1rem auto;"></div>
+          <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export function AdminDashboard() {
           User Management
         </h2>
         <div id="users-list">
-          <div class="spinner-m3" style="margin:1rem auto;"></div>
+          <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
         </div>
       </div>
 
@@ -123,7 +123,7 @@ export function AdminDashboard() {
     const keyPool = await api.get('/admin/key-pool');
     const poolEl = container.querySelector('#key-pool-status');
     if (keyPool.error) {
-      poolEl.innerHTML = `<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Unable to load key pool status.</p>`;
+      poolEl.innerHTML = `<div class="tg-state tg-state--error"><div class="tg-state-title">Key pool status unavailable</div><div class="tg-state-body">The pool did not respond. Nothing has changed on the keys themselves.</div><button class="tg-state-action" onclick="showPage(&#39;admin&#39;)">Try again</button></div>`;
     } else {
       const totalKeys = keyPool.totalKeys || 0;
       const byProvider = keyPool.byProvider || {};
@@ -217,7 +217,7 @@ export function AdminDashboard() {
     const users = await api.get('/admin/users');
     const usersEl = container.querySelector('#users-list');
     if (users.error || !users.users?.length) {
-      usersEl.innerHTML = `<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No users registered yet.</p>`;
+      usersEl.innerHTML = `<div class="tg-state"><div class="tg-state-title">No users registered yet</div><div class="tg-state-body">New accounts appear here as soon as they sign up.</div></div>`;
     } else {
       usersEl.innerHTML = `
         <div style="overflow-x:auto;">

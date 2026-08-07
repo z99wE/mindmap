@@ -46,14 +46,14 @@ export function CognitiveLoad() {
           <div class="progress-bar"><span style="width:${d.percentage}%;background:${loadColors[d.type] || 'var(--md-sys-color-primary)'}"></span></div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${d.count} thoughts</div>
         </div>`).join('')
-      : '<p style="color:var(--md-sys-color-outline);">No data yet. Process some thoughts to see cognitive load distribution.</p>');
+      : '<div class="tg-state"><div class="tg-state-title">No load data yet</div><div class="tg-state-body">Process a few thoughts and the distribution across analytical, creative and emotional load will appear here.</div></div>');
 
     // Tones
     const toneEl = container.querySelector('#tone-dist');
     toneEl.innerHTML = `<h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Emotional Tones</h3>` +
       (tones.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:0.5rem;">${tones.map(t =>
         `<span class="chip">${t.tone} · ${t.count}</span>`
-      ).join('')}</div>` : '<p style="color:var(--md-sys-color-outline);">No tone data yet.</p>');
+      ).join('')}</div>` : '<div class="tg-state"><div class="tg-state-title">No tone data yet</div><div class="tg-state-body">Tone is derived from processed thoughts. This panel fills in as they come through.</div></div>');
 
     // Trend (simple bar chart)
     if (trend.length > 0) {

@@ -20,6 +20,7 @@ import { AdminDashboard } from './pages/AdminDashboard.js';
 import { Legal } from './pages/Legal.js';
 import { MapMyMind } from './pages/MapMyMind.js';
 import { initBorderGlow } from './components/borderGlow.js';
+import { initEnhancements } from './enhance.js';
 
 let currentPage = 'home';
 let user = null;
@@ -236,6 +237,10 @@ function renderPage(page) {
     page = 'home';
   }
 
+  // presentation hook: lets the stylesheet adapt the chrome per page/auth state
+  document.documentElement.dataset.page = page;
+  document.documentElement.dataset.auth = api.isLoggedIn() ? 'true' : 'false';
+
   // Premium guard (Explorer Plus only) — skipped on local/dev instances,
   // where every feature is unlocked so the app looks and behaves the same
   // for every account.
@@ -365,6 +370,10 @@ async function init() {
   const path = window.location.pathname;
   const pageFromPath = Object.entries(pageRegistry).find(([k]) => path.includes(k))?.[0];
   renderPage(pageFromPath || 'home');
+
+  // Branded presentation layer: entropy skin, liquid-glass hover, reveal,
+  // hero scroll camera, logo decay (all presentation-only, never data)
+  initEnhancements();
 
   // Mount ambient Footer globally
   setTimeout(() => {

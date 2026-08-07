@@ -318,7 +318,7 @@ async function loadChannels(c) {
   const routesEl = c.querySelector('#delivery-routes');
 
   if (channels.length === 0) {
-    listEl.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-medium);">No channels connected yet.</p>';
+    listEl.innerHTML = '<div class="tg-state"><div class="tg-state-title">No channels connected</div><div class="tg-state-body">Connect a channel to let Mission Control route thoughts where you already work.</div></div>';
   } else {
     listEl.innerHTML = channels.map(ch => `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
@@ -354,7 +354,7 @@ async function loadChannels(c) {
   c.querySelector('#test-all-channels')?.addEventListener('click', async () => {
     const resultsEl = c.querySelector('#test-results');
     resultsEl.style.display = 'block';
-    resultsEl.innerHTML = '<div class="spinner-m3" style="margin:0 auto;"></div>';
+    resultsEl.innerHTML = '<div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>';
     const results = [];
     for (const ch of channels) {
       const r = await api.post(`/channels/${ch.id}/test`, {});
@@ -383,7 +383,7 @@ async function loadKeys(c) {
   const hasKeys = entries.filter(e => e.masked);
 
   if (hasKeys.length === 0) {
-    el.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-medium);">No API keys added yet. Add your first key to enable AI-powered responses.</p>';
+    el.innerHTML = '<div class="tg-state"><div class="tg-state-title">No keys in the vault</div><div class="tg-state-body">Add your first key to enable AI-powered responses. Keys stay encrypted and scoped to your account.</div></div>';
   } else {
     el.innerHTML = hasKeys.map(k => `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">

@@ -47,7 +47,7 @@ export function Commitments() {
       <!-- Commitments list -->
       <div id="commitments-list" style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1rem;">
         <div class="surface-card" style="padding:2rem;text-align:center;">
-          <div class="spinner-m3" style="margin:0 auto;"></div>
+          <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
           <p style="color:var(--md-sys-color-outline);margin-top:1rem;">Loading commitments...</p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export function Commitments() {
     if (commitments.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:3rem;text-align:center;">
         <p style="font:700 28px/1 'Space Grotesk';opacity:0.2;margin-bottom:0.5rem;">NO COMMITMENTS</p>
-        <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin-top:1rem;">No commitments yet</p>
+        <div class="tg-state"><div class="tg-state-title">No commitments yet</div><div class="tg-state-body">Promises you make in conversation get tracked here, with the context they came from.</div></div>
         <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Add your first commitment to start tracking accountability.</p>
       </div>`;
       return;

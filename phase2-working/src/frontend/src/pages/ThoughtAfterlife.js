@@ -49,7 +49,7 @@ export function ThoughtAfterlife() {
       <!-- Thoughts List -->
       <div id="thoughts-list" style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1rem;">
         <div class="surface-card" style="padding:2rem;text-align:center;">
-          <div class="spinner-m3" style="margin:0 auto;"></div>
+          <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
           <p style="color:var(--md-sys-color-outline);margin-top:1rem;">Loading thought decay data...</p>
         </div>
       </div>
@@ -61,7 +61,7 @@ export function ThoughtAfterlife() {
             Expired Thoughts Archive
           </summary>
           <div id="archived-list" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;">
-            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Loading...</p>
+            <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></p>
           </div>
         </details>
       </div>
@@ -167,7 +167,7 @@ export function ThoughtAfterlife() {
   function renderArchived(archived) {
     const list = container.querySelector('#archived-list');
     if (archived.length === 0) {
-      list.innerHTML = `<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No expired thoughts yet.</p>`;
+      list.innerHTML = `<div class="tg-state"><div class="tg-state-title">Nothing has expired yet</div><div class="tg-state-body">Thoughts appear here as their half-life runs down, so you can revive what still matters.</div></div>`;
       return;
     }
     list.innerHTML = archived.slice(0, 20).map(t =>

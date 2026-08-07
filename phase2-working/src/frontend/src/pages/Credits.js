@@ -179,7 +179,7 @@ export function Credits() {
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:2rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">Transaction History</h2>
         <div id="tx-history" style="display:flex;flex-direction:column;gap:0.5rem;">
-          <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Loading...</p>
+          <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);"><span class="tg-skeleton" style="display:inline-block;width:9rem;vertical-align:middle;"></span></p>
         </div>
       </div>
     </div>`;
@@ -252,7 +252,7 @@ export function Credits() {
       const tx = await api.get('/billing/history');
       const txList = tx.transactions || [];
       if (txList.length === 0) {
-        txEl.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No transactions yet.</p>';
+        txEl.innerHTML = '<div class="tg-state"><div class="tg-state-title">No transactions yet</div><div class="tg-state-body">Credit purchases and usage will be listed here with a running balance.</div></div>';
       } else {
         txEl.innerHTML = txList.slice(0, 20).map(t => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
