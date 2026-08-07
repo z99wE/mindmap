@@ -1,15 +1,25 @@
 import React from 'react';
-import GlitchText from './GlitchText';
+import ShinyText from './ShinyText';
 
 // Brand sign-off — no chrome, no rules, no plates. The app skin simply
-// dissolves into a gradient and the wordmark glitches once in a while.
+// dissolves into a gradient and the wordmark carries a quiet shine.
 
 export default function Footer() {
   return (
     <section className="brand-signoff" aria-label="Thought GPS">
       <div className="brand-signoff-glow" aria-hidden="true" />
       <div className="brand-signoff-mark">
-        <GlitchText text="Thought GPS" />
+        <ShinyText
+          text="Thought GPS"
+          speed={2}
+          color="#b5b5b5"
+          shineColor="#ffffff"
+          spread={120}
+          direction="left"
+          yoyo={false}
+          pauseOnHover={false}
+          disabled={false}
+        />
       </div>
       <style>{`
         .brand-signoff {
@@ -48,21 +58,8 @@ export default function Footer() {
           font-size: clamp(2.4rem, 9vw, 7.5rem);
           letter-spacing: -0.03em;
           line-height: 0.95;
-          color: rgba(238, 240, 238, 0.9);
           -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
           mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
-        }
-        .brand-signoff-mark .gt-base {
-          background-image: linear-gradient(
-            180deg,
-            rgba(246, 248, 245, 0.95) 0%,
-            rgba(150, 156, 150, 0.5) 64%,
-            rgba(96, 102, 96, 0.22) 100%
-          );
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          text-shadow: 0 0 44px rgba(255, 255, 255, 0.05);
         }
         @media (max-width: 640px) {
           .brand-signoff { min-height: 200px; padding: 4.5rem 1rem 2rem; }

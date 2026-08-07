@@ -19,7 +19,7 @@ import { NotificationsLog } from './pages/NotificationsLog.js';
 import { AdminDashboard } from './pages/AdminDashboard.js';
 import { Legal } from './pages/Legal.js';
 import { MapMyMind } from './pages/MapMyMind.js';
-import { initBorderGlow } from './components/borderGlow.js';
+import { initSpecularButtons } from './components/specularButton.js';
 import { initEnhancements } from './enhance.js';
 
 let currentPage = 'home';
@@ -269,7 +269,9 @@ function renderPage(page) {
       setTimeout(() => {
         document.querySelectorAll('.card-reveal').forEach((el) => el.classList.add('revealed'));
         const mainEl = document.getElementById('main-content');
-        if (mainEl) initBorderGlow(mainEl);
+        if (mainEl) {
+          initSpecularButtons(mainEl);
+        }
       }, 50);
       return;
     }
@@ -304,17 +306,16 @@ function renderPage(page) {
   // Update nav active states
   renderNavRail();
   renderBottomNav();
-  renderMobileDrawer();
-
-  // Reveal cards with stagger + apply border glow
-  setTimeout(() => {
-    document.querySelectorAll('.card-reveal').forEach((el, i) => {
-      setTimeout(() => el.classList.add('revealed'), i * 80);
-    });
-    // Apply interactive edge-glow to all surface cards on this page
-    const mainEl = document.getElementById('main-content');
-    if (mainEl) initBorderGlow(mainEl);
-  }, 100);
+  renderMobileDrawer();    // Reveal cards with stagger + apply specular glare to buttons
+    setTimeout(() => {
+      document.querySelectorAll('.card-reveal').forEach((el, i) => {
+        setTimeout(() => el.classList.add('revealed'), i * 80);
+      });
+      const mainEl = document.getElementById('main-content');
+      if (mainEl) {
+        initSpecularButtons(mainEl);
+      }
+    }, 100);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -374,6 +375,9 @@ async function init() {
   // Branded presentation layer: entropy skin, liquid-glass hover, reveal,
   // hero scroll camera, logo decay (all presentation-only, never data)
   initEnhancements();
+
+  // Specular glare on the top-bar chips + any button outside page content
+  initSpecularButtons(document.body);
 
   // Mount ambient Footer globally
   setTimeout(() => {

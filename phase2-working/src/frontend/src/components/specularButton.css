@@ -1,0 +1,68 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   SpecularButton — dark glass base, lime hairline, cursor-tracked glare
+   Reference tuning: base #000000, line #84CC16, text #f5f5f5, proximity ~360.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.sp-btn {
+  --sp-x: 50%;
+  --sp-y: 50%;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Specular glare — a whisper of light under the pointer, nothing more */
+.sp-btn > .sp-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1; /* paints above the button background, below its label */
+  opacity: 0;
+  transition: opacity 320ms ease;
+  background:
+    radial-gradient(
+      70px circle at var(--sp-x, 50%) var(--sp-y, 50%),
+      rgba(255, 255, 255, 0.07),
+      transparent 60%
+    );
+}
+
+.sp-btn:hover > .sp-glare,
+.sp-btn:focus-visible > .sp-glare {
+  opacity: 1;
+}
+
+/* Dark glass base + lime hairline for quiet controls (tonal / outlined /
+   icon / text chips). Filled lime CTAs keep their brand fill below. */
+.sp-btn:not(.btn-filled):not(.btn-neon):not(.tg-btn--primary) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    rgba(8, 10, 14, 0.8);
+  color: #e9eef5;
+  border: 1px solid rgba(132, 198, 22, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.sp-btn:not(.btn-filled):not(.btn-neon):not(.tg-btn--primary):hover {
+  border-color: rgba(132, 198, 22, 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(132, 198, 22, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 20px -8px rgba(132, 198, 22, 0.35);
+}
+
+/* Filled lime CTAs keep their fill; hover just tightens the lime rim + glow */
+.sp-btn.btn-filled:hover,
+.sp-btn.btn-neon:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(204, 255, 0, 0.55),
+    0 0 30px -8px rgba(204, 255, 0, 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-btn > .sp-glare {
+    opacity: 0 !important;
+  }
+}

@@ -73,29 +73,21 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
   // smooth-scroll feel: spring-damped progress instead of raw scroll
   const p = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.35 });
 
+  // 2D only — no 3D camera, no stage bending. Gentle rise + fade on scroll.
   const heroY = useTransform(p, [0, 1], reduce ? ['0%', '0%'] : ['0%', '-9%']);
-  const heroZ = useTransform(p, [0, 1], reduce ? [0, 0] : [0, -260]);
-  const heroTiltX = useTransform(p, [0, 1], reduce ? [0, 0] : [0, 9]);
   const heroFade = useTransform(p, [0, 0.9], [1, 0.08]);
-  const fieldZ = useTransform(p, [0, 1], reduce ? [0, 0] : [0, 170]);
-  const fieldTiltX = useTransform(p, [0, 1], reduce ? [0, 0] : [12, -6]);
-  const headZ = useTransform(p, [0, 1], reduce ? [0, 0] : [0, 120]);
-
-  // the next section rises out of Z as the hero recedes — one continuous camera
-  const nextZ = useTransform(p, [0.2, 1], reduce ? [0, 0] : [-320, 0]);
-  const nextTiltX = useTransform(p, [0.2, 1], reduce ? [0, 0] : [-7, 0]);
-  const nextScale = useTransform(p, [0.2, 1], reduce ? [1, 1] : [0.94, 1]);
+  const nextY = useTransform(p, [0.2, 1], reduce ? [0, 0] : [90, 0]);
+  const nextScale = useTransform(p, [0.2, 1], reduce ? [1, 1] : [0.96, 1]);
   const nextFade = useTransform(p, [0.25, 0.95], [0.15, 1]);
 
 
-  // pointer-driven parallax — the stage leans towards the cursor
+  // pointer-driven parallax — a flat 2D drift, no rotation, no bend
   const px = useSpring(0, { stiffness: 70, damping: 20, mass: 0.4 });
   const py = useSpring(0, { stiffness: 70, damping: 20, mass: 0.4 });
-  const stageRotY = useTransform(px, [-1, 1], reduce ? [0, 0] : [-7, 7]);
-  const stageRotX = useTransform(py, [-1, 1], reduce ? [0, 0] : [4.5, -4.5]);
+  const stageX = useTransform(px, [-1, 1], reduce ? [0, 0] : [-10, 10]);
+  const stageY = useTransform(py, [-1, 1], reduce ? [0, 0] : [6, -6]);
   const glowX = useTransform(px, [-1, 1], ['38%', '62%']);
   const glowY = useTransform(py, [-1, 1], ['38%', '62%']);
-  const stageTiltX = useTransform([heroTiltX, stageRotX], ([a, b]) => a + b);
 
   useEffect(() => {
     if (reduce) return;
@@ -136,22 +128,20 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
           ref={stageRef}
           className="tg-landing-stage"
           style={{
+            x: stageX,
             y: heroY,
-            z: heroZ,
-            rotateX: stageTiltX,
-            rotateY: stageRotY,
             opacity: heroFade,
           }}
         >
           <motion.div
             className="tg-landing-aura"
             style={{ left: glowX, top: glowY }}
-            animate={reduce ? {} : { opacity: [0.42, 0.7, 0.42], scale: [1, 1.08, 1] }}
+            animate={reduce ? {} : { opacity: [0.18, 0.32, 0.18], scale: [1, 1.06, 1] }}
             transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
             aria-hidden="true"
           />
 
-          <motion.h1 className="tg-landing-headline" style={{ z: headZ }}>
+          <motion.h1 className="tg-landing-headline">
             {HEAD_LINES.map((line, li) => (
               <span className="tg-headline-line" key={li}>
                 {line.map(word => {
@@ -161,8 +151,8 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
                     <motion.span
                       className={accent ? 'tg-headline-word tg-headline-word--accent' : 'tg-headline-word'}
                       key={word}
-                      initial={{ opacity: 0, y: 42, z: -180, filter: 'blur(16px)' }}
-                      animate={{ opacity: 1, y: 0, z: 0, filter: 'blur(0px)' }}
+                      initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                       transition={{ duration: 1.1, delay: 0.12 + i * 0.075, ease: EASE }}
                     >
                       {word}
@@ -196,7 +186,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
           {/* ambient displacement layer — no visible plate, hover ripple retained */}
           <motion.div
             className="tg-landing-field"
-            style={{ z: fieldZ, rotateX: fieldTiltX }}
+            style={{ y: stageY }}
             initial={{ opacity: 0 }}
             animate={reduce ? { opacity: 0.16 } : { opacity: [0.11, 0.2, 0.11] }}
             transition={
@@ -247,7 +237,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
       {/* ── FEATURES — rises out of Z as the hero recedes (one continuous camera) ── */}
       <motion.section
         className="tg-landing-section tg-landing-arrive"
-        style={{ z: nextZ, rotateX: nextTiltX, opacity: nextFade, scale: nextScale }}
+        style={{ y: nextY, opacity: nextFade, scale: nextScale }}
       >
         <motion.p
           className="tg-eyebrow tg-landing-section-label"
