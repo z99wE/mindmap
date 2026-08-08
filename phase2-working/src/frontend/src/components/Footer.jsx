@@ -1,7 +1,7 @@
 import React from 'react';
 import ShinyText from './ShinyText';
 import GlassSurface from './GlassSurface';
-import Hyperspeed from './Hyperspeed';
+import RippleGrid from './RippleGrid';
 
 // Brand sign-off — a liquid-glass surface dissolves the app into the dark,
 // and the wordmark rides the glass with a quiet shine.
@@ -37,44 +37,23 @@ export default function Footer() {
           />
         </div>
       </GlassSurface>
-      <Hyperspeed
-        className="brand-signoff-speed"
-        effectOptions={{
-          distortion: 'xyDistortion',
-          length: 400,
-          roadWidth: 9,
-          islandWidth: 2,
-          lanesPerRoad: 3,
-          fov: 90,
-          fovSpeedUp: 150,
-          speedUp: 3,
-          carLightsFade: 0.4,
-          totalSideLightSticks: 50,
-          lightPairsPerRoadWay: 30,
-          shoulderLinesWidthPercentage: 0.05,
-          brokenLinesWidthPercentage: 0.1,
-          brokenLinesLengthPercentage: 0.5,
-          lightStickWidth: [0.02, 0.05],
-          lightStickHeight: [0.3, 0.7],
-          movingAwaySpeed: [20, 50],
-          movingCloserSpeed: [-150, -230],
-          carLightsLength: [20, 80],
-          carLightsRadius: [0.03, 0.08],
-          carWidthPercentage: [0.1, 0.5],
-          carShiftX: [-0.5, 0.5],
-          carFloorSeparation: [0, 0.1],
-          colors: {
-            roadColor: 0x080808,
-            islandColor: 0x0a0a0a,
-            background: 0x000000,
-            shoulderLines: 0x333333,
-            brokenLines: 0x444444,
-            leftCars: [0x888888, 0xbbbbbb, 0xffffff],
-            rightCars: [0x555555, 0x777777, 0x999999],
-            sticks: 0x666666
-          }
-        }}
-      />
+      
+      <div className="brand-signoff-speed" style={{ width: '100%', height: '500px', position: 'relative', overflow: 'hidden' }}>
+        <RippleGrid
+          enableRainbow
+          gridColor="#84CC16"
+          rippleIntensity={0.06}
+          gridSize={12}
+          gridThickness={15}
+          mouseInteraction
+          mouseInteractionRadius={0.9}
+          opacity={0.4}
+          fadeDistance={2.5}
+          vignetteStrength={1.8}
+          glowIntensity={0.1}
+          gridRotation={0}
+        />
+      </div>
       <style>{`
         .brand-signoff {
           position: relative;
