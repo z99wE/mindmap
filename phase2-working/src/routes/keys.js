@@ -9,6 +9,16 @@ const { pool } = require('../db');
 const { authMiddleware } = require('../auth');
 const { encrypt, decrypt, maskKey } = require('../crypto');
 const { keyRouter } = require('../key-router');
+const rateLimit = require('express-rate-limit');
+
+// Abuse filter to prevent key addition/deletion spam
+const keyLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // 30 operations per minute per IP
+  message: { error: 'Too many key operations. Please wait a minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ── Provider registry (backend → frontend configuration) ─────────────────────
 // Served via GET /api/keys/providers so the API Vault page and Mission Control
@@ -19,6 +29,10 @@ const PROVIDER_REGISTRY = [
   { id: 'groq',         name: 'Groq',                    type: 'llm',    requiresKey: true,  freeTier: true,  note: 'Low-latency inference' },
   { id: 'openai',       name: 'OpenAI',                  type: 'llm',    requiresKey: true,  freeTier: false, note: 'Pay per use' },
   { id: 'anthropic',    name: 'Anthropic',               type: 'llm',    requiresKey: true,  freeTier: false, note: 'Pay per use' },
+  { id: 'gemini',       name: 'Google Gemini',           type: 'llm',    requiresKey: true,  freeTier: true,  note: 'Multimodal foundation models' },
+  { id: 'claude',       name: 'Claude (AWS/GCP)',        type: 'llm',    requiresKey: true,  freeTier: false, note: 'Enterprise API integration' },
+  { id: 'mistral',      name: 'Mistral AI',              type: 'llm',    requiresKey: true,  freeTier: true,  note: 'Open-weight models API' },
+  { id: 'cohere',       name: 'Cohere',                  type: 'llm',    requiresKey: true,  freeTier: true,  note: 'Command & embedding models' },
   { id: 'nvidia',       name: 'NVIDIA NIM',              type: 'llm',    requiresKey: true,  freeTier: true,  note: 'Credits on signup' },
   { id: 'openrouter',   name: 'OpenRouter',              type: 'llm',    requiresKey: true,  freeTier: false, note: 'Multi-model gateway' },
   { id: 'ollama',       name: 'Ollama (Local)',          type: 'llm',    requiresKey: false, freeTier: true,  note: 'Local server — no key needed' },
@@ -94,7 +108,7 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // POST /api/keys - add an API key (multiple keys per provider allowed)
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, keyLimiter, async (req, res) => {
   try {
     const { provider, key } = req.body;
     if (!provider || !key) return res.status(400).json({ error: 'Provider and key are required' });
@@ -142,7 +156,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // DELETE /api/keys/:provider - remove ALL keys for a provider
-router.delete('/:provider', authMiddleware, async (req, res) => {
+router.delete('/:provider', authMiddleware, keyLimiter, async (req, res) => {
   try {
     const existing = await pool.query('SELECT api_keys FROM users WHERE id = $1', [req.user.userId]);
     const keys = normalizeKeys(existing.rows[0]?.api_keys || {});

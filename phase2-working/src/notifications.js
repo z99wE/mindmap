@@ -72,20 +72,47 @@ async function deliverViaCaspian(userId, notification, caspianClient) {
     );
     if (channels.rows.length === 0) return false;
 
-    // Try each active channel
-    for (const ch of channels.rows) {
-      try {
-        await caspianClient.send({ channel: ch.platform, to: userId, message: notification.message });
+    // Check user routing preference (failover vs broadcast)
+    const user = await pool.query('SELECT notification_prefs FROM users WHERE id = $1', [userId]);
+    const prefs = user.rows[0]?.notification_prefs || {};
+    const mode = prefs.channel_routing_mode === 'broadcast' ? 'broadcast' : 'failover';
+
+    if (mode === 'broadcast') {
+      // Parallel broadcast: send to all active channels simultaneously
+      const promises = channels.rows.map(async (ch) => {
+        try {
+          await caspianClient.send({ channel: ch.platform, to: userId, message: notification.message });
+          return true;
+        } catch (e) {
+          console.error(`[Notify] Caspian broadcast failed for ${ch.platform}:`, e.message);
+          return false;
+        }
+      });
+      const results = await Promise.all(promises);
+      const anySuccess = results.some(r => r);
+      if (anySuccess) {
         await pool.query(
           'UPDATE notifications SET delivered = true WHERE id = $1',
           [notification.id]
         );
-        return true;
-      } catch (e) {
-        console.error(`[Notify] Caspian send failed for ${ch.platform}:`, e.message);
       }
+      return anySuccess;
+    } else {
+      // Failover mode: sequential fallback
+      for (const ch of channels.rows) {
+        try {
+          await caspianClient.send({ channel: ch.platform, to: userId, message: notification.message });
+          await pool.query(
+            'UPDATE notifications SET delivered = true WHERE id = $1',
+            [notification.id]
+          );
+          return true;
+        } catch (e) {
+          console.error(`[Notify] Caspian failover send failed for ${ch.platform}:`, e.message);
+        }
+      }
+      return false;
     }
-    return false;
   } catch (e) {
     console.error('[Notify] Delivery error:', e.message);
     return false;

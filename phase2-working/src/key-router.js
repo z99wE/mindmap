@@ -18,9 +18,9 @@ const { decrypt } = require('./crypto');
 // no user key exists for them.
 const GROUPS = {
   llm: {
-    order: ['groq', 'openai', 'anthropic', 'nvidia', 'openrouter', 'ollama', 'lmstudio'],
+    order: ['groq', 'openai', 'anthropic', 'gemini', 'claude', 'mistral', 'cohere', 'nvidia', 'openrouter', 'ollama', 'lmstudio'],
     keyless: ['ollama', 'lmstudio'],
-    poolFallback: ['groq', 'openai', 'anthropic'],
+    poolFallback: ['groq', 'openai', 'anthropic', 'gemini', 'claude'],
   },
   search: {
     order: ['tavily', 'firecrawl', 'searxng_url'],

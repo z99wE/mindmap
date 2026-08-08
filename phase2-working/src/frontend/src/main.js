@@ -9,6 +9,7 @@ import { MemorySegments } from './pages/MemorySegments.js';
 import { Memory } from './pages/Memory.js';
 import { InteractiveSpace } from './pages/InteractiveSpace.js';
 import { APIKeys } from './pages/APIKeys.js';
+import { Channels } from './pages/Channels.js';
 import { Credits } from './pages/Credits.js';
 import { ThoughtAfterlife } from './pages/ThoughtAfterlife.js';
 import { Commitments } from './pages/Commitments.js';
@@ -46,6 +47,7 @@ const pageRegistry = {
   memory:              { title: 'Memory',          icon: 'memory',         auth: true,  section: 'setup' },
   'thought-export':    { title: 'Export',          icon: 'download',       auth: true,  section: 'setup' },
   'api-keys':          { title: 'API Vault',       icon: 'key',            auth: true,  section: 'setup' },
+  channels:            { title: 'Channels',        icon: 'forum',          auth: true,  section: 'setup' },
   credits:             { title: 'Credits & Tiers', icon: 'payments',       auth: true,  section: 'setup' },
   notifications:       { title: 'Notifications',   icon: 'notifications',  auth: true,  section: 'setup' },
 
@@ -61,8 +63,10 @@ const pageRegistry = {
 const pageFactories = {
   home: Home, auth: Auth, dashboard: Dashboard, 'mission-control': MissionControl,
   'brain-fragments': BrainFragments, 'cognitive-load': CognitiveLoad,
-  'memory-segments': MemorySegments, memory: Memory, 'interactive-space': InteractiveSpace,
-  'api-keys': APIKeys, credits: Credits, 'thought-afterlife': ThoughtAfterlife,
+  'memory-segments': MemorySegments, memory: Memory,  'interactive-space': InteractiveSpace,
+  'api-keys': APIKeys,
+  channels: Channels,
+  credits: Credits, 'thought-afterlife': ThoughtAfterlife,
   commitments: Commitments, archaeology: ThoughtArchaeology,
   'thought-export': ThoughtExport, 'how-it-works': HowItWorks,
   notifications: NotificationsLog,
@@ -82,7 +86,7 @@ function buildWheelPages() {
     'how-it-works',
     'thought-afterlife', 'commitments', 'brain-fragments', 'cognitive-load',
     'archaeology', 'memory-segments',
-    'memory', 'thought-export', 'api-keys', 'credits', 'notifications',
+    'memory', 'thought-export', 'api-keys', 'channels', 'credits', 'notifications',
     'legal',
   ];
   if (isAdmin) order.push('admin');
@@ -389,6 +393,19 @@ async function init() {
             const Footer = module.default;
             const root = ReactDOM.createRoot(footerReactRoot);
             root.render(React.createElement(Footer));
+          });
+        });
+      });
+    }
+
+    const topLogoRoot = document.getElementById('top-logo-root');
+    if (topLogoRoot) {
+      import('react').then((React) => {
+        import('react-dom/client').then((ReactDOM) => {
+          import('./components/TopLogo.jsx').then((module) => {
+            const TopLogo = module.default;
+            const root = ReactDOM.createRoot(topLogoRoot);
+            root.render(React.createElement(TopLogo));
           });
         });
       });

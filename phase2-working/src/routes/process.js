@@ -10,9 +10,19 @@ const { detectCommitment } = require('../../features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('../../features/thought-interceptor');
 const { liveInfoSystem } = require('../../agent-reach-integration');
 const { callLLM } = require('../llm-provider');
+const rateLimit = require('express-rate-limit');
+
+// Abuse filter to prevent API key and LLM spam/leakage
+const processLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 15, // Limit each IP to 15 requests per minute
+  message: { error: 'Too many requests. Please wait a minute before sending more thoughts.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // POST /api/process/message - main thought processing endpoint
-router.post('/message', authMiddleware, async (req, res) => {
+router.post('/message', authMiddleware, processLimiter, async (req, res) => {
   const startTime = Date.now();
   try {
     const userId = req.user.userId;
