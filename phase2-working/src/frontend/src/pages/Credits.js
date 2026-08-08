@@ -98,6 +98,11 @@ export function Credits() {
               <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Live web search (Tavily/Firecrawl)
             </li>
           </ul>
+          ${import.meta.env.VITE_ENABLE_PAYMENTS === 'true' ? `
+          <!-- PAYMENT STUBS: Razorpay (UPI, Netbanking, Cards) / Lemon Squeezy / RevenueCat -->
+          <!-- Replace this button's onclick with your Razorpay or Lemon Squeezy checkout link -->
+          <button class="btn-m3 btn-filled" style="width:100%;" onclick="window.open('https://your-razorpay-link-here.com', '_blank')">Upgrade with Razorpay</button>
+          ` : `
           <div id="waitlist-pro-section">
             <div style="display:flex;gap:0.5rem;">
               <input type="email" id="waitlist-pro-email" placeholder="your@email.com" style="flex:1;padding:0.6rem 1rem;background:rgba(255,255,255,0.05);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-sys-shape-small);color:var(--md-sys-color-on-surface);font:var(--md-sys-typescale-body-medium);outline:none;" />
@@ -105,6 +110,7 @@ export function Credits() {
             </div>
             <div id="waitlist-pro-status" style="margin-top:0.5rem;"></div>
           </div>
+          `}
         </div>
 
         <!-- Managed Tier (Coming Soon) -->
@@ -130,6 +136,10 @@ export function Credits() {
               <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>SLA guarantee
             </li>
           </ul>
+          ${import.meta.env.VITE_ENABLE_PAYMENTS === 'true' ? `
+          <!-- PAYMENT STUBS for Managed -->
+          <button class="btn-m3 btn-filled" style="width:100%;" onclick="window.open('https://your-razorpay-link-here.com', '_blank')">Subscribe with Razorpay</button>
+          ` : `
           <div id="waitlist-section">
             <div style="display:flex;gap:0.5rem;">
               <input type="email" id="waitlist-email" placeholder="your@email.com" style="flex:1;padding:0.6rem 1rem;background:rgba(255,255,255,0.05);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-sys-shape-small);color:var(--md-sys-color-on-surface);font:var(--md-sys-typescale-body-medium);outline:none;" />
@@ -137,6 +147,7 @@ export function Credits() {
             </div>
             <div id="waitlist-status" style="margin-top:0.5rem;"></div>
           </div>
+          `}
         </div>
       </div>
 
