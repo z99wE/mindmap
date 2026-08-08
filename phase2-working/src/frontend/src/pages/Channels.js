@@ -79,7 +79,7 @@ export function Channels() {
           const input = document.createElement('input');
           // simple check for sensitive fields to make them password fields
           input.type = field.includes('token') || field.includes('key') || field.includes('password') || field.includes('secret') ? 'password' : 'text';
-          input.id = \`field-\${field}\`;
+          input.id = `field-${field}`;
           input.dataset.field = field;
           input.className = 'input-m3';
           input.placeholder = field.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -132,7 +132,7 @@ export function Channels() {
 
     if (platformDef && platformDef.fields) {
       platformDef.fields.forEach(field => {
-        const val = container.querySelector(\`#field-\${field}\`)?.value.trim();
+        const val = container.querySelector(`#field-${field}`)?.value.trim();
         if (!val) missingField = true;
         credentials[field] = val;
       });
@@ -153,22 +153,23 @@ export function Channels() {
 
   // Attach global functions for inline handlers
   window.toggleChannel = async (id) => {
-    const res = await api.put(\`/channels/\${id}/toggle\`);
+    const res = await api.put(`/channels/${id}/toggle`);
     if (res.error) { toast.show(res.error, 'error'); loadChannels(); }
+    else toast.show('Channel toggled', 'success');
   };
 
   window.deleteChannel = async (id) => {
     if (!confirm('Remove this channel?')) return;
-    const res = await api.del(\`/channels/\${id}\`);
+    const res = await api.del(`/channels/${id}`);
     if (res.error) toast.show(res.error, 'error');
     loadChannels();
   };
 
   window.testChannel = async (id) => {
     toast.show('Sending test message...', 'info');
-    const res = await api.post(\`/channels/\${id}/test\`);
+    const res = await api.post(`/channels/${id}/test`);
     if (res.error) toast.show(res.error, 'error');
-    else toast.show(res.message, 'success');
+    else toast.show('Test message sent successfully!', 'success');
   };
 
   return container;
