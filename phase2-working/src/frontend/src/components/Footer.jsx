@@ -127,7 +127,7 @@ export default function Footer() {
           right: 6%;
           bottom: 0.4rem;
           height: clamp(84px, 15vw, 150px);
-          opacity: 0.10;
+          opacity: 0.30;
           z-index: 0;
           pointer-events: none;
           -webkit-mask-image: radial-gradient(ellipse 66% 86% at 50% 100%, #000 18%, transparent 74%);

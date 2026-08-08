@@ -37,29 +37,29 @@ void main() {
   vec3 col = vec3(0.0);
   float alpha = 0.0;
 
-  // Horizon glow (lime)
+  // Horizon glow (grayscale)
   float hg = exp(-abs(y - HORIZON) * 30.0);
-  col += vec3(0.42, 0.95, 0.30) * hg * 0.9;
+  col += vec3(0.5, 0.5, 0.5) * hg * 0.9;
   alpha += hg * 0.5;
 
   // Road surface
   float roadHalf = 0.60 * depth;
   float inRoad = step(abs(x), roadHalf);
-  col += vec3(0.010, 0.013, 0.020) * inRoad;
+  col += vec3(0.05, 0.05, 0.05) * inRoad;
   alpha += inRoad * 0.12;
 
-  // Road edge lines (solid, lime)
+  // Road edge lines (solid, grayscale)
   float edge = 1.0 - smoothstep(0.0, 0.016, abs(abs(x) - roadHalf));
-  col += vec3(0.85, 1.0, 0.45) * edge;
+  col += vec3(0.7, 0.7, 0.7) * edge;
   alpha += edge * 0.55;
 
   // Center dashed line — dashes stream toward the camera
   float dash = step(fract(depth * 9.0 - t * 2.2), 0.5);
   float center = (1.0 - smoothstep(0.0, 0.02, abs(x))) * dash;
-  col += vec3(0.8, 1.0, 0.4) * center * 0.85;
+  col += vec3(0.6, 0.6, 0.6) * center * 0.85;
   alpha += center * 0.5;
 
-  // Roadside light sticks — alternating lime / emerald, scrolling past
+  // Roadside light sticks — grayscale, scrolling past
   float stickIdx = floor(depth * 16.0);
   float stickF = fract(depth * 16.0 - t * 2.6);
   float stick = step(stickF, 0.12);
@@ -67,11 +67,11 @@ void main() {
   float stickL = (1.0 - smoothstep(0.0, 0.018, abs(abs(x) - stickX))) * stick;
   float stickR = (1.0 - smoothstep(0.0, 0.018, abs(abs(x) + stickX))) * stick;
   float hue = fract(stickIdx * 0.5);
-  vec3 stickCol = mix(vec3(0.8, 1.0, 0.4), vec3(0.30, 0.95, 0.55), hue);
+  vec3 stickCol = mix(vec3(0.9, 0.9, 0.9), vec3(0.4, 0.4, 0.4), hue);
   col += stickCol * (stickL + stickR) * 0.9;
   alpha += (stickL + stickR) * 0.55;
 
-  // Car light streaks — lime / violet pairs rushing outward from center
+  // Car light streaks — grayscale pairs rushing outward from center
   for (int i = 0; i < 6; i++) {
     float fi = float(i);
     float lane = 0.20 + 0.10 * hash(vec2(fi, 1.0));
@@ -80,7 +80,7 @@ void main() {
     float side = mod(fi, 2.0) < 1.0 ? 1.0 : -1.0;
     float cx = side * lane * roadHalf;
     float car = (1.0 - smoothstep(0.0, 0.035, abs(x - cx))) * c;
-    vec3 carCol = mix(vec3(0.85, 1.0, 0.45), vec3(0.72, 0.5, 1.0), fract(fi * 0.618));
+    vec3 carCol = mix(vec3(0.8, 0.8, 0.8), vec3(0.3, 0.3, 0.3), fract(fi * 0.618));
     col += carCol * car * 1.15;
     alpha += car * 0.7;
   }
