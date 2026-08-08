@@ -50,7 +50,6 @@ export function ThoughtExport() {
             </select>
           </div>
         </div>
-        </div>
         <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
           <button class="btn-m3 btn-filled" id="btn-download" aria-label="Download exported thoughts">
             Download Export
@@ -92,14 +91,14 @@ export function ThoughtExport() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = \`thought-gps-export.\${format === 'markdown' ? 'md' : 'csv'}\`;
+      a.download = `thought-gps-export.${format === 'markdown' ? 'md' : 'csv'}`;
       a.click();
       URL.revokeObjectURL(url);
     } else {
       // JSON and Vortex download
-      const data = await api.get(\`/memory/export?\${params}\`);
+      const data = await api.get(`/memory/export?${params}`);
       if (data.error) {
-        alert(\`Export failed: \${data.error}\`);
+        alert(`Export failed: ${data.error}`);
         return;
       }
       

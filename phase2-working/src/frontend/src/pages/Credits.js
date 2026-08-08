@@ -98,7 +98,13 @@ export function Credits() {
               <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Live web search (Tavily/Firecrawl)
             </li>
           </ul>
-          ${currentTier !== 'pro' && currentTier !== 'premium' ? '<button class="btn-m3 btn-filled" style="width:100%;" onclick="subscribePro()">Upgrade to PRO</button>' : '<button class="btn-m3 btn-filled" style="width:100%;opacity:0.6;" disabled>Current Plan</button>'}
+          <div id="waitlist-pro-section">
+            <div style="display:flex;gap:0.5rem;">
+              <input type="email" id="waitlist-pro-email" placeholder="your@email.com" style="flex:1;padding:0.6rem 1rem;background:rgba(255,255,255,0.05);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-sys-shape-small);color:var(--md-sys-color-on-surface);font:var(--md-sys-typescale-body-medium);outline:none;" />
+              <button class="btn-m3 btn-outlined" id="btn-pro-waitlist" style="white-space:nowrap;">Join Waitlist</button>
+            </div>
+            <div id="waitlist-pro-status" style="margin-top:0.5rem;"></div>
+          </div>
         </div>
 
         <!-- Managed Tier (Coming Soon) -->
@@ -184,7 +190,7 @@ export function Credits() {
       </div>
     </div>`;
 
-  // Waitlist signup
+  // Waitlist signup (Managed)
   const btnWaitlist = container.querySelector('#btn-waitlist');
   if (btnWaitlist) {
     btnWaitlist.addEventListener('click', async () => {
@@ -196,7 +202,7 @@ export function Credits() {
       }
       btnWaitlist.disabled = true;
       btnWaitlist.textContent = 'Joining...';
-      const result = await api.post('/billing/waitlist', { email });
+      const result = await api.post('/billing/waitlist', { email, tier: 'managed' });
       if (result.error) {
         status.innerHTML = `<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">${result.error}</p>`;
         btnWaitlist.disabled = false;
@@ -205,6 +211,31 @@ export function Credits() {
         status.innerHTML = '<p style="color:var(--color-success);font:var(--md-sys-typescale-body-small);">You\'re on the list! We\'ll notify you when Managed is ready.</p>';
         container.querySelector('#waitlist-email').value = '';
         btnWaitlist.textContent = 'Joined';
+      }
+    });
+  }
+
+  // Waitlist signup (PRO)
+  const btnProWaitlist = container.querySelector('#btn-pro-waitlist');
+  if (btnProWaitlist) {
+    btnProWaitlist.addEventListener('click', async () => {
+      const email = container.querySelector('#waitlist-pro-email')?.value?.trim();
+      const status = container.querySelector('#waitlist-pro-status');
+      if (!email || !email.includes('@')) {
+        status.innerHTML = '<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">Please enter a valid email.</p>';
+        return;
+      }
+      btnProWaitlist.disabled = true;
+      btnProWaitlist.textContent = 'Joining...';
+      const result = await api.post('/billing/waitlist', { email, tier: 'pro' });
+      if (result.error) {
+        status.innerHTML = `<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">${result.error}</p>`;
+        btnProWaitlist.disabled = false;
+        btnProWaitlist.textContent = 'Join Waitlist';
+      } else {
+        status.innerHTML = '<p style="color:var(--color-success);font:var(--md-sys-typescale-body-small);">You\'re on the PRO list! We\'ll notify you when PRO is ready.</p>';
+        container.querySelector('#waitlist-pro-email').value = '';
+        btnProWaitlist.textContent = 'Joined';
       }
     });
   }

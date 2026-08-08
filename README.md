@@ -139,7 +139,7 @@ npm run dev
 - **Data storage**: 15-day server storage purge (automatic database pruning)
 - **Features**: Basic chat & local memory search (Advanced cognitive tabs are locked)
 
-### Explorer Plus Tier ($15/month)
+### PRO Tier ($15/month) - *Currently Waitlisted*
 - **Runs limit**: 500 daily runs
 - **Channels**: All integration channels enabled (WhatsApp, Slack, Discord, Twitter, Bluesky, Telegram, Email)
 - **Data storage**: Infinite server storage (never purged)
@@ -147,10 +147,15 @@ npm run dev
 - **Synchronization**: Seamless cross-device synchronization (laptop & phone)
 - **Keys**: Fallback system keys pool (no keys needed)
 
+### Managed Tier - *Currently Waitlisted*
+- No API keys needed — we handle everything
+- Unlimited runs & Managed LLM infrastructure
+- Custom routing & SLA guarantees
+
 ### Cognitive Navigation Boosters (Thoughtfulness Top-ups)
 - Expiring in **15 days** from purchase
 - Limited to **maximum 3 booster activations in a 30-day window**
-- Available only to Explorer Plus users who have consumed at least 50% of daily runs
+- Available only to PRO users who have consumed at least 50% of daily runs
   1. **Compass Booster**: 50 runs - **$2.00**
   2. **Radar Booster**: 100 runs - **$4.00**
   3. **Sextant Booster**: 200 runs - **$7.00**
@@ -174,6 +179,7 @@ npm run dev
 - [BUILD_PHASES_STATUS.md](BUILD_PHASES_STATUS.md) - Complete phase timeline
 - [INTELLIGENT_LLM_ROUTER.md](INTELLIGENT_LLM_ROUTER.md) - Routing architecture
 - [MEMORY_PERSISTENCE_ENGINE.md](MEMORY_PERSISTENCE_ENGINE.md) - Memory system
+- [deployment-guide.md](deployment-guide.md) - Zero-Cost Production Deployment Guide
 
 ---
 
