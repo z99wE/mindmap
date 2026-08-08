@@ -31,7 +31,7 @@ const pageRegistry = {
   home:                { title: 'Home',            icon: 'home',           auth: false, section: 'main' },
   dashboard:           { title: 'Dashboard',       icon: 'dashboard',      auth: true,  section: 'main' },
   'interactive-space': { title: 'Chat',            icon: 'psychology',     auth: true,  section: 'main' },
-  'map-my-mind':       { title: 'Map My Mind',     icon: 'explore',        auth: true,  section: 'main' },
+  'map-my-mind':       { title: 'Thought GPS',     icon: 'explore',        auth: true,  section: 'main' },
   'mission-control':   { title: 'Mission Control', icon: 'settings_suggest',auth: true, section: 'main' },
 
   // Secondary (Cognitive Features)

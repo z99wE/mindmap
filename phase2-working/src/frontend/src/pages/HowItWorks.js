@@ -67,15 +67,15 @@ export function HowItWorks() {
           </div>
         </div>
 
-        <!-- Phone 4: Map My Mind - Navigation Mode -->
+        <!-- Phone 4: Thought GPS - Navigation Mode -->
         <div class="phone-mockup card-reveal">
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#ccff00;display:grid;place-items:center;">
-                <span style="color:#000;font:700 14px/1 'Space Grotesk';">M</span>
+                <span style="color:#000;font:700 14px/1 'Space Grotesk';">T</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Map My Mind</div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Thought GPS</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Navigate</div>
               </div>
             </div>
@@ -84,15 +84,15 @@ export function HowItWorks() {
           </div>
         </div>
 
-        <!-- Phone 5: Geo-fence Departure Alert -->
+        <!-- Phone 5: Thought GPS - Geo-fence Departure Alert -->
         <div class="phone-mockup card-reveal">
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#10b981;display:grid;place-items:center;">
-                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">G</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">T</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Geo-fence Alert</div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Thought GPS</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Push</div>
               </div>
             </div>

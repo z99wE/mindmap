@@ -43,6 +43,9 @@ export default function ShinyText({
           position: relative;
           display: inline-block;
           white-space: pre;
+          /* own line-height >= 1 so the background-clip:text paint box
+             covers full glyphs (descenders) instead of slicing them off */
+          line-height: 1.12;
           color: var(--shine-color, #b5b5b5);
           -webkit-background-clip: text;
           background-clip: text;
