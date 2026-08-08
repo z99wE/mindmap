@@ -1,62 +1,27 @@
 import React from 'react';
 import RippleGrid from './RippleGrid';
+import ShinyText from './ShinyText';
 
-export default function TopLogo() {
-  return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: '12px', display: 'flex', alignItems: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}>
-        <RippleGrid
-          enableRainbow={true}
-          gridColor="#84CC16"
-          rippleIntensity={0.06}
-          gridSize={12}
-          gridThickness={15}
-          mouseInteraction={true}
-          mouseInteractionRadius={0.9}
-          opacity={0.4}
-          fadeDistance={2.5}
-          vignetteStrength={1.8}
-          glowIntensity={0.1}
-          gridRotation={0}
-        />
-      </div>
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0 8px',
-        width: '100%'
-      }}>
-        <div style={{
-          width: '24px',
-          height: '24px',
-          borderRadius: '8px',
-          background: 'linear-gradient(145deg, #ccff00, #99cc00)',
-          display: 'grid',
-          placeItems: 'center',
-          boxShadow: '2px 2px 0 0 rgba(0, 0, 0, 0.4), 0 0 16px rgba(204, 255, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-          fontFamily: 'var(--font-heading)',
-          fontStyle: 'italic',
-          fontWeight: '700',
-          fontSize: '12px',
-          lineHeight: '1',
-          color: '#000000',
-          letterSpacing: '-0.02em'
-        }}>
-          T
-        </div>
-        <div style={{
-          fontFamily: 'var(--font-heading)',
-          fontSize: '16px',
-          fontWeight: '600',
-          color: 'var(--md-sys-color-on-surface)',
-          letterSpacing: '-0.02em',
-          pointerEvents: 'none'
-        }}>
+export default function TopLogo({ mobile }) {
+  if (mobile) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content' }}>
+        <div className="nav-logo-icon" style={{ width: '32px', height: '32px', fontSize: '16px' }}>T</div>
+        <span style={{ font: 'italic 700 18px/1 var(--font-heading)', color: 'var(--md-sys-color-on-surface)' }}>
           Thought GPS
-        </div>
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+        <RippleGrid enableRainbow gridColor="#84CC16" mouseInteraction />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="nav-logo-icon" style={{ width: '48px', height: '48px', fontSize: '24px', boxShadow: '4px 4px 0 0 rgba(0, 0, 0, 0.4), 0 0 26px rgba(204, 255, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5)' }}>T</div>
+        <ShinyText text="Thought GPS" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 700 22px/1 var(--font-heading)' }} />
       </div>
     </div>
   );

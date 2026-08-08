@@ -75,10 +75,15 @@
 
     /* ── App Shell ── */
     .app-shell { display: grid; grid-template-columns: 248px 1fr; grid-template-rows: auto 1fr; min-height: 100vh; }
-    @media (max-width: 840px) { .app-shell { grid-template-columns: 1fr; } }
-
-    /* ── Navigation Dial (Desktop) — just the rotating menu, no chrome ── */
-    .nav-rail {
+    @media (max-width: 900px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .nav-rail { display: none; }
+      .mobile-menu-btn { display: grid; }
+    }
+    
+    @media (min-width: 901px) {
+      .mobile-logo-root { display: none !important; }
+    }.nav-rail {
       grid-row: 1 / -1;
       display: flex;
       flex-direction: column;
@@ -324,7 +329,7 @@
             <button class="icon-btn mobile-menu-btn" onclick="toggleDrawer()" aria-label="Open menu">
               <span style="font:700 18px/1 'Space Grotesk';">&#9776;</span>
             </button>
-            <div id="top-logo-root" style="width:140px; height:36px; margin-right:auto;"></div>
+            <div id="mobile-logo-root" class="mobile-logo-root" style="margin-right:auto;"></div>
             <span class="top-bar-title" id="page-title" style="display:none;">Home</span>
           </div>
           <div class="top-bar-actions">

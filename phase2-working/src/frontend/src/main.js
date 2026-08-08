@@ -156,10 +156,27 @@ function renderNavRail() {
   const rail = document.getElementById('nav-rail');
   if (!rail) return;
 
-  // The rail is just the rotating dial now — no logo, no chrome.
-  if (!rail.dataset.wheelMounted) {
-    rail.innerHTML = '<div class="nav-wheel-host" id="nav-wheel-root"></div>';
+  if (!document.getElementById('nav-wheel-root') || !document.getElementById('desktop-logo-root')) {
+    rail.innerHTML = `
+      <div id="desktop-logo-root" style="width:100%; height:200px; flex-shrink:0;"></div>
+      <div class="nav-wheel-host" id="nav-wheel-root" style="flex:1;"></div>
+    `;
     rail.dataset.wheelMounted = '1';
+
+    setTimeout(() => {
+      const desktopRoot = document.getElementById('desktop-logo-root');
+      if (desktopRoot) {
+        import('react').then((React) => {
+          import('react-dom/client').then((ReactDOM) => {
+            import('./components/TopLogo.jsx').then((module) => {
+              const TopLogo = module.default;
+              if (!desktopRoot._root) desktopRoot._root = ReactDOM.createRoot(desktopRoot);
+              desktopRoot._root.render(React.createElement(TopLogo, { mobile: false }));
+            });
+          });
+        });
+      }
+    }, 0);
   }
 
   mountNavWheel();
@@ -398,14 +415,14 @@ async function init() {
       });
     }
 
-    const topLogoRoot = document.getElementById('top-logo-root');
-    if (topLogoRoot) {
+    const mobileLogoRoot = document.getElementById('mobile-logo-root');
+    if (mobileLogoRoot) {
       import('react').then((React) => {
         import('react-dom/client').then((ReactDOM) => {
           import('./components/TopLogo.jsx').then((module) => {
             const TopLogo = module.default;
-            const root = ReactDOM.createRoot(topLogoRoot);
-            root.render(React.createElement(TopLogo));
+            const root = ReactDOM.createRoot(mobileLogoRoot);
+            root.render(React.createElement(TopLogo, { mobile: true }));
           });
         });
       });
