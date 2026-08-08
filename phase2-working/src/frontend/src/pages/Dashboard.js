@@ -63,11 +63,11 @@ export function Dashboard() {
         <div class="surface-card card-reveal" style="padding:1.5rem;background:#050505;border:1px solid rgba(204,255,0,0.2);position:relative;">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;color:var(--md-sys-color-secondary);z-index:2;position:relative;">
             <span class="material-symbols-rounded">grain</span>
-            Live Thought Vortex
+            I am thinking
           </h3>
           <div style="position:relative; width:100%; height:250px; overflow:hidden; border-radius:8px;">
-            <canvas id="vortex-canvas" style="width:100%; height:100%; display:block;"></canvas>
-            <div id="vortex-tooltip" style="position:absolute; pointer-events:none; opacity:0; background:rgba(0,0,0,0.8); border:1px solid var(--md-sys-color-secondary); color:#fff; padding:8px 12px; border-radius:4px; font-size:12px; transition:opacity 0.2s; white-space:nowrap; max-width:200px; text-overflow:ellipsis; overflow:hidden; z-index:10; font-family:'JetBrains Mono',monospace;">
+            <canvas id="thinking-canvas" style="width:100%; height:100%; display:block;"></canvas>
+            <div id="thinking-tooltip" style="position:absolute; pointer-events:none; opacity:0; background:rgba(0,0,0,0.8); border:1px solid var(--md-sys-color-secondary); color:#fff; padding:8px 12px; border-radius:4px; font-size:12px; transition:opacity 0.2s; white-space:nowrap; max-width:200px; text-overflow:ellipsis; overflow:hidden; z-index:10; font-family:'JetBrains Mono',monospace;">
               Tooltip
             </div>
           </div>
@@ -80,12 +80,12 @@ export function Dashboard() {
 }
 
 async function loadDashboard(c) {
-  const [billing, memStats, cogData, driftData, vortexData] = await Promise.all([
+  const [billing, memStats, cogData, driftData, thinkingData] = await Promise.all([
     api.get('/billing/status'),
     api.get('/memory/stats'),
     api.get('/features/cognitive-load'),
     api.get('/features/drift-status'),
-    api.get('/features/thought-vortex')
+    api.get('/features/i-am-thinking')
   ]);
 
   // Stat cards
@@ -207,11 +207,11 @@ async function loadDashboard(c) {
     `;
   }
 
-  // Load Thought Vortex
-  const canvas = c.querySelector('#vortex-canvas');
-  if (canvas && vortexData && vortexData.nodes) {
+  // Load I am thinking visualization
+  const canvas = c.querySelector('#thinking-canvas');
+  if (canvas && thinkingData && thinkingData.nodes) {
     const ctx = canvas.getContext('2d');
-    const tooltip = c.querySelector('#vortex-tooltip');
+    const tooltip = c.querySelector('#thinking-tooltip');
     
     // Resize canvas
     const resize = () => {
@@ -252,7 +252,7 @@ async function loadDashboard(c) {
 
       hoveredNode = null;
 
-      vortexData.nodes.forEach(node => {
+      thinkingData.nodes.forEach(node => {
         // Apply rotation
         const cosR = Math.cos(rotation);
         const sinR = Math.sin(rotation);

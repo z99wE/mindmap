@@ -650,8 +650,8 @@ router.get('/drift-status', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/features/thought-vortex - Get memory nodes for vortex visualization
-router.get('/thought-vortex', authMiddleware, async (req, res) => {
+// GET /api/features/i-am-thinking - Get memory nodes for "I am thinking" visualization
+router.get('/i-am-thinking', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT id, content, tags FROM memories WHERE user_id = $1 ORDER BY created_at DESC LIMIT 300`,
