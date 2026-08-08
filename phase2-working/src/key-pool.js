@@ -14,8 +14,8 @@ class KeyPool {
   _loadKeys() {
     const providers = ['GROQ', 'OPENAI', 'ANTHROPIC', 'XAI', 'NVIDIA'];
     for (const provider of providers) {
-      // Check numbered keys: GROQ_KEY_1, GROQ_KEY_2, ...
-      for (let i = 1; i <= 10; i++) {
+      // Check numbered keys: GROQ_KEY_1, GROQ_KEY_2, ... (up to 100 per provider)
+      for (let i = 1; i <= 100; i++) {
         const key = process.env[`${provider}_KEY_${i}`];
         if (key) {
           this.keys.push({
@@ -131,9 +131,10 @@ class KeyPool {
     const result = { byo: {}, shared: {} };
 
     for (const [provider, keyData] of Object.entries(byoKeys)) {
-      if (keyData?.key) {
-        result.byo[provider] = { key: keyData.key, masked: keyData.masked || '****' };
-      }
+      const keyList = Array.isArray(keyData) ? keyData : (keyData ? [keyData] : []);
+      result.byo[provider] = keyList
+        .filter((k) => k?.key)
+        .map((k) => ({ key: k.key, masked: k.masked || '****' }));
     }
 
     // Always provide shared pool status

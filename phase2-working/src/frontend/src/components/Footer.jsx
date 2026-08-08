@@ -1,6 +1,7 @@
 import React from 'react';
 import ShinyText from './ShinyText';
 import GlassSurface from './GlassSurface';
+import Hyperspeed from './Hyperspeed';
 
 // Brand sign-off — a liquid-glass surface dissolves the app into the dark,
 // and the wordmark rides the glass with a quiet shine.
@@ -36,6 +37,46 @@ export default function Footer() {
           />
         </div>
       </GlassSurface>
+      {/* Hyperspeed road — sits just under the wordmark, very low opacity,
+          faded edges, brand-colored lights. Ambient only, never interactive. */}
+      <Hyperspeed
+        className="brand-signoff-speed"
+        effectOptions={{
+          distortion: 'mountainDistortion',
+          length: 400,
+          roadWidth: 9,
+          islandWidth: 2,
+          lanesPerRoad: 3,
+          fov: 90,
+          fovSpeedUp: 150,
+          speedUp: 2,
+          carLightsFade: 0.4,
+          totalSideLightSticks: 50,
+          lightPairsPerRoadWay: 50,
+          shoulderLinesWidthPercentage: 0.05,
+          brokenLinesWidthPercentage: 0.1,
+          brokenLinesLengthPercentage: 0.5,
+          lightStickWidth: [0.12, 0.5],
+          lightStickHeight: [1.3, 1.7],
+          movingAwaySpeed: [60, 80],
+          movingCloserSpeed: [-120, -160],
+          carLightsLength: [20, 60],
+          carLightsRadius: [0.05, 0.14],
+          carWidthPercentage: [0.3, 0.5],
+          carShiftX: [-0.2, 0.2],
+          carFloorSeparation: [0.05, 1],
+          colors: {
+            roadColor: 0x080808,
+            islandColor: 0x0a0a0a,
+            background: 0x000000,
+            shoulderLines: 0xFFFFFF,
+            brokenLines: 0xFFFFFF,
+            leftCars: [0xD856BF, 0x6750A2, 0xC247AC],
+            rightCars: [0x03B3C3, 0x0E5EA5, 0x324555],
+            sticks: 0x03B3C3,
+          }
+        }}
+      />
       <style>{`
         .brand-signoff {
           position: relative;
@@ -82,9 +123,22 @@ export default function Footer() {
           -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
           mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
         }
+        .brand-signoff-speed {
+          position: absolute;
+          left: 6%;
+          right: 6%;
+          bottom: 0.4rem;
+          height: clamp(84px, 15vw, 150px);
+          opacity: 0.20;
+          z-index: 0;
+          pointer-events: none;
+          -webkit-mask-image: radial-gradient(ellipse 66% 86% at 50% 100%, #000 18%, transparent 74%);
+          mask-image: radial-gradient(ellipse 66% 86% at 50% 100%, #000 18%, transparent 74%);
+        }
         @media (max-width: 640px) {
           .brand-signoff { min-height: 200px; }
           .brand-signoff-glass .glass-surface-content { padding: 3.5rem 1rem 1.5rem; }
+          .brand-signoff-speed { height: 64px; opacity: 0.16; }
         }
       `}</style>
     </section>

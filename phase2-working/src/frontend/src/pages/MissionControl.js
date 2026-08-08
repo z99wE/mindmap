@@ -82,19 +82,14 @@ export function MissionControl() {
             <div>
               <label class="mono-label" style="display:block;margin-bottom:0.35rem;">PROVIDER</label>
               <select id="key-provider" class="input-m3">
-                <option value="groq">Groq (Free tier available)</option>
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="nvidia">NVIDIA NIM</option>
-                <option value="ollama">Ollama (Local)</option>
-                <option value="tavily">Tavily (Web Search)</option>
-                <option value="firecrawl">Firecrawl (Web Scraping)</option>
+                <option value="groq">Loading providers…</option>
               </select>
             </div>
             <div>
               <label class="mono-label" style="display:block;margin-bottom:0.35rem;">API KEY</label>
               <input type="password" id="key-value" class="input-m3" placeholder="Paste your API key">
             </div>
+            <p id="key-provider-hint" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0;"></p>
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
               <button class="btn-m3 btn-text" onclick="document.getElementById('add-key-dialog').style.display='none';">Cancel</button>
               <button class="btn-m3 btn-filled" id="save-key-btn">Save Key</button>
@@ -163,6 +158,7 @@ export function MissionControl() {
   // Load all data
   loadChannels(container);
   loadKeys(container);
+  loadKeyRouterStatus(container);
   loadNotifPrefs(container);
   loadPrivacy(container);
   loadGeofences(container);
@@ -183,6 +179,10 @@ function channelsPanel() {
         </button>
       </div>
       <div id="channels-list"><div class="anim-shimmer" style="height:80px;"></div></div>
+      <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.9rem 0 0;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
+        <span class="material-symbols-rounded" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
+        <span>Connectivity and delivery depend on the channel provider you connect and your current usage limits with that provider — they do not depend on how Thought GPS functions.</span>
+      </p>
     </div>
     <div class="surface-card card-reveal" style="padding:1.5rem;margin-top:1rem;">
       <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">Delivery Routes</h2>
@@ -206,12 +206,23 @@ function keysPanel() {
           <span style="font:700 14px/1 'Space Grotesk';">+</span> Add Key
         </button>
       </div>
+      <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 0.9rem;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
+        <span class="material-symbols-rounded" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
+        <span>Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how Thought GPS functions.</span>
+      </p>
       <div id="keys-list"><div class="anim-shimmer" style="height:80px;"></div></div>
+    </div>
+    <div class="surface-card card-reveal" style="padding:1.5rem;margin-top:1rem;">
+      <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.25rem;">Key Router Status</h2>
+      <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 0.75rem;">
+        What's connected right now. Failed keys cool down for 60s and the router automatically tries the next key — or the next provider with the same function.
+      </p>
+      <div id="key-router-status"><div class="anim-shimmer" style="height:60px;"></div></div>
     </div>
     <div class="surface-card card-reveal" style="padding:1.5rem;margin-top:1rem;">
       <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Live Data Sources</h2>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">
-        Add API keys for web search and scraping. Free sources (DuckDuckGo, Wikipedia) are always available.
+        Add API keys for web search and scraping. DuckDuckGo and Wikipedia sources are always available.
       </p>
       <div id="live-data-status"></div>
     </div>`;
@@ -374,27 +385,31 @@ async function loadKeys(c) {
   const el = c.querySelector('#keys-list');
   const liveEl = c.querySelector('#live-data-status');
 
-  const llmProviders = ['groq', 'openai', 'anthropic', 'nvidia', 'ollama'];
-  const liveProviders = ['tavily', 'firecrawl'];
   const providerIcons = { groq: 'bolt', openai: 'auto_awesome', anthropic: 'psychology', nvidia: 'memory', ollama: 'dns', tavily: 'travel_explore', firecrawl: 'public' };
 
-  const allProviders = [...llmProviders, ...liveProviders];
-  const entries = allProviders.map(p => ({ provider: p, ...(keys[p] || null) }));
-  const hasKeys = entries.filter(e => e.masked);
+  // Flatten: each key (multiple per provider) becomes its own row
+  const rows = [];
+  for (const [provider, list] of Object.entries(keys)) {
+    const listArr = Array.isArray(list) ? list : [list];
+    listArr.forEach((info, i) => {
+      if (info && info.masked) rows.push({ provider, masked: info.masked, id: info.id, index: i, count: listArr.length });
+    });
+  }
 
-  if (hasKeys.length === 0) {
+  if (rows.length === 0) {
     el.innerHTML = '<div class="tg-state"><div class="tg-state-title">No keys in the vault</div><div class="tg-state-body">Add your first key to enable AI-powered responses. Keys stay encrypted and scoped to your account.</div></div>';
   } else {
-    el.innerHTML = hasKeys.map(k => `
+    el.innerHTML = rows.map(k => `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
         <div style="display:flex;align-items:center;gap:0.75rem;">
           <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-primary);">${k.provider.toUpperCase()}</span>
+          ${k.count > 1 ? `<span class="mono-label" style="font-size:9px;color:var(--md-sys-color-outline);">#${k.index + 1}</span>` : ''}
           <div>
             <div style="font:var(--md-sys-typescale-body-medium);text-transform:capitalize;">${k.provider}</div>
             <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);font-family:var(--font-mono);">${k.masked}</div>
           </div>
         </div>
-        <button class="btn-m3 btn-icon" onclick="deleteKey('${k.provider}')" title="Remove">
+        <button class="btn-m3 btn-icon" onclick="deleteKey('${k.provider}','${k.id}')" title="Remove">
           <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
         </button>
       </div>`).join('');
@@ -407,11 +422,11 @@ async function loadKeys(c) {
     <div style="display:flex;flex-direction:column;gap:0.5rem;">
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
         <span class="mono-label" style="font-size:9px;color:var(--color-success);">ACTIVE</span>
-        <span style="font:var(--md-sys-typescale-body-small);">DuckDuckGo (free, always available)</span>
+        <span style="font:var(--md-sys-typescale-body-small);">DuckDuckGo (always available)</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
         <span class="mono-label" style="font-size:9px;color:var(--color-success);">ACTIVE</span>
-        <span style="font:var(--md-sys-typescale-body-small);">Wikipedia (free, always available)</span>
+        <span style="font:var(--md-sys-typescale-body-small);">Wikipedia (always available)</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;">
         <span class="mono-label" style="font-size:9px;color:${tavilyKey ? 'var(--color-success)' : 'var(--md-sys-color-outline)'};">${tavilyKey ? 'ACTIVE' : 'OFFLINE'}</span>
@@ -422,6 +437,32 @@ async function loadKeys(c) {
         <span style="font:var(--md-sys-typescale-body-small);">Firecrawl ${firecrawlKey ? '(connected)' : '(add key above)'}</span>
       </div>
     </div>`;
+}
+
+async function loadKeyRouterStatus(c) {
+  const el = c.querySelector('#key-router-status');
+  if (!el) return;
+  try {
+    const data = await api.get('/keys/status');
+    const providers = data.providers || {};
+    const entries = Object.entries(providers);
+    if (entries.length === 0) {
+      el.innerHTML = '<div class="tg-state"><div class="tg-state-title">No keys connected</div><div class="tg-state-body">Shared pool keys serve requests automatically until you add your own.</div></div>';
+      return;
+    }
+    el.innerHTML = entries.map(([provider, info]) => `
+      <div style="padding:0.65rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;">
+          <span class="chip chip-success">${provider}</span>
+          <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">${info.count} key${info.count > 1 ? 's' : ''} connected</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">${(info.keys || []).map(k => `
+          <span class="mono-label" style="font-size:9px;padding:0.2rem 0.5rem;border-radius:6px;background:${k.coolingDown ? 'rgba(239,68,68,0.12)' : 'rgba(204,255,0,0.08)'};color:${k.coolingDown ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-on-surface-variant)'};">${k.masked}${k.coolingDown ? ' · cooling' : ''}</span>`).join('')}
+        </div>
+      </div>`).join('');
+  } catch {
+    el.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Router status unavailable.</p>';
+  }
 }
 
 async function loadNotifPrefs(c) {
@@ -526,6 +567,27 @@ function setupSaveHandlers(c) {
   // Initialize with default platform
   updateChannelDialogFields(c.querySelector('#channel-platform')?.value || 'telegram');
 
+  // Backend-driven provider list for the Add Key dialog
+  api.get('/keys/providers').then((data) => {
+    const select = c.querySelector('#key-provider');
+    if (!select) return;
+    const registry = data.providers || [];
+    select.innerHTML = '<option value="">Select a provider…</option>' + registry.map((p) =>
+      `<option value="${p.id}">${p.name}</option>`
+    ).join('');
+    select.addEventListener('change', () => {
+      const hint = c.querySelector('#key-provider-hint');
+      if (!hint) return;
+      const def = registry.find((p) => p.id === select.value);
+      hint.textContent = def ? (def.requiresKey
+        ? `${def.name}: ${def.note}. Keys stay AES-256 encrypted and never leave the server.`
+        : `${def.name}: ${def.note} — no key required; connectivity depends on your local server being reachable.`) : '';
+    });
+  }).catch(() => {
+    const select = c.querySelector('#key-provider');
+    if (select) select.innerHTML = '<option value="groq">Groq</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="nvidia">NVIDIA NIM</option>';
+  });
+
   c.querySelector('#channel-platform')?.addEventListener('change', (e) => {
     updateChannelDialogFields(e.target.value);
   });
@@ -585,6 +647,7 @@ function setupSaveHandlers(c) {
   c.querySelector('#save-key-btn')?.addEventListener('click', async () => {
     const provider = c.querySelector('#key-provider').value;
     const key = c.querySelector('#key-value').value.trim();
+    if (!provider) { toast.show('Select a provider first', 'error'); return; }
     if (!key) return;
     const result = await api.post('/keys', { provider, key });
     if (result.error) {
@@ -685,7 +748,7 @@ function setupSaveHandlers(c) {
 
 // ── Global handlers ────────────────────────────────────────────────────────
 window.deleteChannel = async (id) => { if (confirm('Disconnect?')) { await api.del(`/channels/${id}`); window.showPage?.('mission-control'); } };
-window.deleteKey = async (provider) => { if (confirm(`Remove ${provider} key?`)) { await api.del(`/keys/${provider}`); window.showPage?.('mission-control'); } };
+window.deleteKey = async (provider, keyId) => { if (!confirm(`Remove this ${provider} key?`)) return; await api.del(keyId ? `/keys/${provider}/${keyId}` : `/keys/${provider}`); window.showPage?.('mission-control'); };
 window.deleteGeofence = async (id) => { if (confirm('Remove this geo-fence?')) { await api.del(`/geofences/${id}`); window.showPage?.('mission-control'); } };
 
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

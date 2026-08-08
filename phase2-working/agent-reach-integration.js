@@ -7,6 +7,7 @@
 
 const https = require('https');
 const http = require('http');
+const { keyRouter } = require('./src/key-router');
 
 // ============================================
 // 1. LIVE INFO SYSTEM (Enhanced Web Scraping)
@@ -104,20 +105,32 @@ class LiveInfoSystem {
     } catch (error) { return { query, results: [], error: error.message }; }
   }
 
-  // ── Priority Search (uses best available source) ──────────────────────────
-  async searchPriority(query, userKeys = {}) {
-    if (userKeys.tavily) {
-      const r = await this.searchTavily(query, userKeys.tavily);
-      if (r.results?.length > 0) return r;
+  // ── Priority Search (Key Router driven, fully rotatable) ──────────────────
+  // The Key Router builds the ordered chain: EVERY Tavily key, then every
+  // Firecrawl key, then SearXNG, then keyless DuckDuckGo + Wikipedia. If one
+  // key fails it cools down for 60s and the next key — or the next provider
+  // with the same function — is tried automatically.
+  async searchPriority(query, user = {}) {
+    const chain = keyRouter.buildChain(user, 'search');
+    for (const route of chain) {
+      const provider = route.provider;
+      const call = provider === 'tavily' ? (q, k) => this.searchTavily(q, k)
+        : provider === 'firecrawl' ? (q, k) => this.searchFirecrawl(q, k)
+        : (q, k) => this.searchSearXNG(q, k);
+      for (const k of route.keys) {
+        const r = await call(query, k.key);
+        if (r.results?.length > 0) {
+          keyRouter.touch(user.id, provider, k.id);
+          return r;
+        }
+        if (r.error || r.rateLimited) {
+          console.log(`[Search] ${provider} key failed: ${r.error || 'rate-limited'} — cooling down`);
+          keyRouter.markCooldown(user.id, provider, k.id);
+        }
+      }
     }
-    if (userKeys.firecrawl) {
-      const r = await this.searchFirecrawl(query, userKeys.firecrawl);
-      if (r.results?.length > 0) return r;
-    }
-    if (userKeys.searxng_url) {
-      const r = await this.searchSearXNG(query, userKeys.searxng_url);
-      if (r.results?.length > 0) return r;
-    }
+
+    // Keyless fallback: DuckDuckGo + Wikipedia are always available
     const [ddgResult, wikiResult] = await Promise.all([
       this.searchWeb(query),
       this.searchWikipedia(this._extractKeyTerms(query)),

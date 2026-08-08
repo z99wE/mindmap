@@ -47,17 +47,17 @@ export function Memory() {
 
     if (showWarning) {
       warningEl.innerHTML = `
-        <div class="surface-card liquid-glass" style="margin-bottom:1.5rem; border: 1px solid var(--md-sys-color-error) !important; padding:1rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <div class="surface-card liquid-glass" style="margin-bottom:1.5rem; border:1px solid rgba(204,255,0,0.26) !important; padding:1rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; background:rgba(204,255,0,0.035);">
           <div style="flex:1;">
-            <div style="font-weight:bold; color:var(--md-sys-color-error); margin-bottom:0.25rem; display:flex; align-items:center; gap:0.5rem;">
-              <span class="material-symbols-rounded" style="font-size:18px;">warning</span>
+            <div style="font-weight:600; color:var(--color-analytical); margin-bottom:0.25rem; display:flex; align-items:center; gap:0.5rem; font-family:var(--font-heading); letter-spacing:-0.01em;">
+              <span class="material-symbols-rounded" style="font-size:18px;">archive</span>
               Storage Conservation Alert
             </div>
-            <div style="font:var(--md-sys-typescale-body-small); color:var(--md-sys-color-on-surface-variant);">
-              To keep server storage free under the 500MB limit, raw thoughts older than 7 days are periodically purged. Click Export to back up your full cognitive history to your local browser index.
+            <div style="font:var(--md-sys-typescale-body-small); color:var(--md-sys-color-on-surface-variant); line-height:1.6;">
+              Raw thoughts older than ~5 days are periodically purged. Click Export to back up your full cognitive history to your local browser index.
             </div>
           </div>
-          <button class="btn-m3 btn-tonal" id="warning-export-btn" style="background:rgba(239,68,68,0.2); color:#ff4d4d; border:1px solid rgba(239,68,68,0.3);">Backup Now</button>
+          <button class="btn-m3 btn-filled" id="warning-export-btn">Export</button>
         </div>`;
       warningEl.querySelector('#warning-export-btn').addEventListener('click', () => container.querySelector('#export-btn').click());
     } else {

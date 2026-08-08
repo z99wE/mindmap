@@ -58,3 +58,8 @@ temp/
 .env.local
 .env.*.local
 arweave-key.json
+
+# Tool artifacts
+.freebuff/
+.playwright-mcp/
+

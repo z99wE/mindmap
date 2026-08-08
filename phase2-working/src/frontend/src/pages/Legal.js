@@ -16,9 +16,9 @@ export function Legal() {
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-top:1.5rem;">
         <!-- Medical & Legal Disclaimer -->
-        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid var(--md-sys-color-error) !important;">
-          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--md-sys-color-error);">
-            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-error);box-shadow:0 0 8px rgba(239,68,68,0.3);vertical-align:middle;"></span>
+        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid rgba(204,255,0,0.26) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--color-analytical);">
+            <span class="dot" style="width:8px;height:8px;background:var(--color-analytical);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
             Medical &amp; Legal Disclaimer
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7; font-weight: 500;">
@@ -35,7 +35,7 @@ export function Legal() {
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
             The platform uses third-party LLM models, routing layers, memory graphs, and automated workflows to classify and organize thoughts.
           </p>
-          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-error);line-height:1.7;margin-top:0.75rem;font-weight:500;">
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--color-analytical);line-height:1.7;margin-top:0.75rem;font-weight:500;">
             AI systems can hallucinate and produce incorrect details. Always verify outputs before relying on them.
           </p>
         </div>
@@ -65,7 +65,7 @@ export function Legal() {
         <!-- Liability -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-error);box-shadow:0 0 8px rgba(239,68,68,0.3);vertical-align:middle;"></span>
+            <span class="dot" style="width:8px;height:8px;background:var(--color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
             Limitation of Liability
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">

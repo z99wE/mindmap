@@ -9,7 +9,6 @@ const { classifyHalfLife } = require('../../features/thought-half-life');
 const { detectCommitment } = require('../../features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('../../features/thought-interceptor');
 const { liveInfoSystem } = require('../../agent-reach-integration');
-const { getDecryptedKey } = require('./keys');
 const { callLLM } = require('../llm-provider');
 
 // POST /api/process/message - main thought processing endpoint
@@ -73,18 +72,14 @@ router.post('/message', authMiddleware, async (req, res) => {
     const relatedMemories = await searchRelatedMemories(userId, message);
     endSpan(memSpan, { count: relatedMemories.length });
 
-    // 3. Enrich with live data (if web search enabled)
+    // 3. Enrich with live data (if web search enabled). The Key Router builds
+    // the full ordered chain (every Tavily key → Firecrawl → SearXNG → keyless
+    // DuckDuckGo/Wikipedia) and handles cooldowns automatically.
     let liveContext = [];
     let sources = [];
     try {
-      const userKeys = {};
-      const byoKeys = user.api_keys || {};
-      if (byoKeys.tavily?.key) userKeys.tavily = require('./keys').getDecryptedKey ? await require('./keys').getDecryptedKey(userId, 'tavily') : null;
-      if (byoKeys.firecrawl?.key) userKeys.firecrawl = require('./keys').getDecryptedKey ? await require('./keys').getDecryptedKey(userId, 'firecrawl') : null;
-      if (byoKeys.searxng_url?.key) userKeys.searxng_url = require('./keys').getDecryptedKey ? await require('./keys').getDecryptedKey(userId, 'searxng_url') : null;
-
       if (liveInfoSystem.needsWebSearch(message)) {
-        const searchResult = await liveInfoSystem.searchPriority(message, userKeys);
+        const searchResult = await liveInfoSystem.searchPriority(message, user);
         liveContext = searchResult.results || [];
         sources = liveContext.map(r => ({ title: r.title, url: r.url, source: r.source }));
       }

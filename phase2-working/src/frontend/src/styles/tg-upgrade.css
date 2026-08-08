@@ -1427,6 +1427,42 @@ tr:hover td { background: rgba(255,255,255,0.022); }
 }
 .progress-bar > * { background: linear-gradient(90deg, #b8e600, #d9ff4d); }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Text containment safety — no label ever spills out of its control.
+   Presentation only: buttons/chips grow with their text (never the reverse),
+   descenders keep room inside small pills, and long words wrap inside boxes.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* 1) Interactive controls are never squeezed below their label's width by a
+   flex/grid parent — the box grows to fit the text, not the other way round. */
+.btn-m3, .btn-filled, .btn-tonal, .btn-outlined, .btn-text, .btn-neon,
+.tg-btn, .tg-topchip, .user-chip, .chip, .chip-m3, .btn-icon, .icon-btn,
+.tab, .auth-tab {
+  flex-shrink: 0;
+  min-width: max-content;
+}
+
+/* 2) Descenders (g, y, p) always have room inside small pills, badges, labels. */
+.badge, .chip, .chip-m3, .classification-chip, .mono-label, .status-tag,
+.tg-topchip, .user-chip, .tab, .auth-tab {
+  line-height: 1.5;
+}
+.btn-m3, .btn-neon, .btn-filled, .btn-tonal, .btn-outlined, .btn-text, .tg-btn {
+  line-height: 1.35;
+}
+
+/* 3) Long words and URLs wrap inside glass boxes instead of spilling out. */
+.surface-card, .glass, .glass-soft, .glass-strong, .liquid-glass,
+.tg-state, .stat-card, .neopop-card {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* 4) Children of icon buttons / chips stay centered and never clip. */
+.icon-btn > *, .btn-icon > *, .chip > *, .chip-m3 > * {
+  max-width: 100%;
+}
+
 /* ── Footer wordmark ─────────────────────────────────────────────────────── */
 /* styling lives in Footer.jsx (scoped) — no overrides here */
 

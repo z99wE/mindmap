@@ -14,7 +14,10 @@ function decrypt(ciphertext) {
 
 function maskKey(key) {
   if (!key || key.length < 8) return '****';
-  return key.substring(0, 4) + '****' + key.substring(key.length - 4);
+  const masked = key.substring(0, 4) + '****' + key.substring(key.length - 4);
+  // Masked fragments keep raw key characters — strip anything HTML-significant
+  // so masked values are always safe to render in the frontend.
+  return masked.replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
 
 module.exports = { encrypt, decrypt, maskKey, ENCRYPTION_KEY };
