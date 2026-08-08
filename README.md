@@ -137,13 +137,13 @@ npm run dev
 - **Runs limit**: 10 daily runs
 - **Channels**: Restricted to **Telegram** and **Email** only (Maximum 2 connected channels)
 - **Data storage**: 15-day server storage purge (automatic database pruning)
-- **Features**: Basic chat & local memory search (Advanced cognitive tabs are locked)
+- **Features**: Basic chat, local memory search, and the interactive **Mind Map** visualizer (Other advanced cognitive tabs are locked)
 
 ### PRO Tier ($15/month) - *Currently Waitlisted*
 - **Runs limit**: 500 daily runs
 - **Channels**: All integration channels enabled (WhatsApp, Slack, Discord, Twitter, Bluesky, Telegram, Email)
 - **Data storage**: Infinite server storage (never purged)
-- **Features**: Advanced cognitive features unlocked (Mind Map, Commitments, Afterlife, Cognitive Load, Archaeology, Brain Fragments, Memory Segments)
+- **Features**: Advanced cognitive features unlocked (Commitments, Afterlife, Cognitive Load, Archaeology, Brain Fragments, Memory Segments)
 - **Synchronization**: Seamless cross-device synchronization (laptop & phone)
 - **Keys**: Fallback system keys pool (no keys needed)
 
