@@ -18,7 +18,7 @@ export default function TopLogo({ mobile }) {
         <RippleGrid enableRainbow gridColor="#84CC16" mouseInteraction={false} />
       </div>
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <ShinyText text="Thought GPS" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 700 18px/1 var(--font-heading)', letterSpacing: '0.04em' }} />
+        <ShinyText text="Thought GPS" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 700 18px/1 var(--font-heading)', letterSpacing: '0.04em', paddingRight: '0.15em' }} />
       </div>
     </div>
   );
