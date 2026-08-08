@@ -374,17 +374,20 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/billing/waitlist - join managed tier waitlist
+// POST /api/billing/waitlist - join waitlist
 router.post('/waitlist', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, tier } = req.body;
     if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+    
+    const requestedTier = tier === 'pro' ? 'pro_tier' : 'managed_tier';
+
     // Store in a simple waitlist (using audit_log for zero extra infra)
     await pool.query(
-      "INSERT INTO audit_log (action, resource_type, resource_id, ip_address) VALUES ('WAITLIST_SIGNUP', 'managed_tier', $1, $2)",
-      [email.toLowerCase(), req.ip || 'unknown']
+      "INSERT INTO audit_log (action, resource_type, resource_id, ip_address) VALUES ('WAITLIST_SIGNUP', $1, $2, $3)",
+      [requestedTier, email.toLowerCase(), req.ip || 'unknown']
     );
-    res.json({ success: true, message: 'You\'re on the waitlist! We\'ll notify you when Managed tier launches.' });
+    res.json({ success: true, message: `You're on the waitlist! We'll notify you when the ${tier === 'pro' ? 'PRO' : 'Managed'} tier launches.` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
