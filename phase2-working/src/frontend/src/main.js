@@ -262,10 +262,10 @@ function renderPage(page) {
   document.documentElement.dataset.page = page;
   document.documentElement.dataset.auth = api.isLoggedIn() ? 'true' : 'false';
 
-  // Premium guard (Explorer Plus only) — skipped on local/dev instances,
+  // Premium guard (PRO only) — skipped on local/dev instances,
   // where every feature is unlocked so the app looks and behaves the same
   // for every account.
-  const premiumPages = ['map-my-mind', 'commitments', 'thought-afterlife', 'cognitive-load', 'archaeology', 'brain-fragments', 'memory-segments'];
+  const premiumPages = ['commitments', 'thought-afterlife', 'cognitive-load', 'archaeology', 'brain-fragments', 'memory-segments'];
   const userTier = user?.tier || 'free';
   if (premiumPages.includes(page) && userTier === 'free' && !api.isDev()) {
     currentPage = page;
@@ -274,13 +274,13 @@ function renderPage(page) {
       main.innerHTML = `
         <div class="page-shell">
           <div class="surface-card card-reveal neopop-card" style="padding:3rem;text-align:center;max-width:600px;margin:2rem auto;border: 1px solid var(--md-sys-color-primary) !important;">
-            <div class="mono-label" style="color:var(--md-sys-color-primary);font-size:14px;margin-bottom:0.5rem;">EXPLORER PLUS FEATURE</div>
+            <div class="mono-label" style="color:var(--md-sys-color-primary);font-size:14px;margin-bottom:0.5rem;">PRO FEATURE</div>
             <h2 class="neon-text-lime" style="font:var(--md-sys-typescale-headline-small);margin:0 0 1rem;">Unlock Advanced Co-Processing</h2>
             <p style="color:var(--md-sys-color-on-surface-variant);line-height:1.6;margin-bottom:2rem;">
-              The <strong>${info?.title || page}</strong> features are exclusive to the <strong>Explorer Plus</strong> tier. Upgrade to unlock seamless cross-device synchronization, infinite memory storage, and all cognitive visualizations.
+              The <strong>${info?.title || page}</strong> features are exclusive to the <strong>PRO</strong> tier. Upgrade to unlock seamless cross-device synchronization, infinite memory storage, and all cognitive visualizations.
             </p>
             <button class="btn-m3 btn-filled" onclick="showPage('credits')" style="width:100%;height:48px;font-weight:bold;">
-              Upgrade to Explorer Plus ($15/mo)
+              Upgrade to PRO ($15/mo)
             </button>
           </div>
         </div>`;
