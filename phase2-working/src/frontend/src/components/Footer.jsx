@@ -1,7 +1,7 @@
 import React from 'react';
 import ShinyText from './ShinyText';
 import GlassSurface from './GlassSurface';
-import GradientBlinds from './GradientBlinds';
+import Hyperspeed from './Hyperspeed';
 
 // Brand sign-off — a liquid-glass surface dissolves the app into the dark,
 // and the wordmark rides the glass with a quiet shine.
@@ -37,24 +37,44 @@ export default function Footer() {
           />
         </div>
       </GlassSurface>
-      <div className="brand-signoff-speed" style={{ width: '100%', height: '600px', position: 'relative' }}>
-        <GradientBlinds
-          gradientColors={['#FF9FFC', '#5227FF']}
-          angle={20}
-          noise={0.5}
-          blindCount={16}
-          blindMinWidth={60}
-          spotlightRadius={0.5}
-          spotlightSoftness={1}
-          spotlightOpacity={1}
-          mouseDampening={0.15}
-          distortAmount={0}
-          shineDirection="left"
-          mixBlendMode="lighten"
-          color1="#84CC16"
-          color2="#06B6D4"
-        />
-      </div>
+      <Hyperspeed
+        className="brand-signoff-speed"
+        effectOptions={{
+          distortion: 'xyDistortion',
+          length: 400,
+          roadWidth: 9,
+          islandWidth: 2,
+          lanesPerRoad: 3,
+          fov: 90,
+          fovSpeedUp: 150,
+          speedUp: 3,
+          carLightsFade: 0.4,
+          totalSideLightSticks: 50,
+          lightPairsPerRoadWay: 30,
+          shoulderLinesWidthPercentage: 0.05,
+          brokenLinesWidthPercentage: 0.1,
+          brokenLinesLengthPercentage: 0.5,
+          lightStickWidth: [0.02, 0.05],
+          lightStickHeight: [0.3, 0.7],
+          movingAwaySpeed: [20, 50],
+          movingCloserSpeed: [-150, -230],
+          carLightsLength: [20, 80],
+          carLightsRadius: [0.03, 0.08],
+          carWidthPercentage: [0.1, 0.5],
+          carShiftX: [-0.5, 0.5],
+          carFloorSeparation: [0, 0.1],
+          colors: {
+            roadColor: 0x080808,
+            islandColor: 0x0a0a0a,
+            background: 0x000000,
+            shoulderLines: 0x333333,
+            brokenLines: 0x444444,
+            leftCars: [0x888888, 0xbbbbbb, 0xffffff],
+            rightCars: [0x555555, 0x777777, 0x999999],
+            sticks: 0x666666
+          }
+        }}
+      />
       <style>{`
         .brand-signoff {
           position: relative;
@@ -107,7 +127,7 @@ export default function Footer() {
           right: 6%;
           bottom: 0.4rem;
           height: clamp(84px, 15vw, 150px);
-          opacity: 0.20;
+          opacity: 0.10;
           z-index: 0;
           pointer-events: none;
           -webkit-mask-image: radial-gradient(ellipse 66% 86% at 50% 100%, #000 18%, transparent 74%);
