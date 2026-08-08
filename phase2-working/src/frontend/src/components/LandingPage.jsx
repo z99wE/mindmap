@@ -43,6 +43,12 @@ const FEATURES = [
     title: 'Your nudges, your channel.',
     body: 'Telegram, Discord, Slack, Email, or browser push — bring your own bot or use ours. You control where your mind gets pinged.',
   },
+  {
+    id: 'thinking',
+    label: 'I AM THINKING',
+    title: 'A live map of your brain.',
+    body: 'Watch your thoughts swirl and cluster in real-time. Hover over the vortex to instantly see where your cognitive energy is focused.',
+  }
 ];
 
 const STATS = [
