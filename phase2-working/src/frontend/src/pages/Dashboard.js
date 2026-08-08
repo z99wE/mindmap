@@ -60,13 +60,16 @@ export function Dashboard() {
             <p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Analyzing cognitive patterns...</p>
           </div>
         </div>
-        <div class="surface-card card-reveal" style="padding:1.5rem;background:#000000;border:1px solid rgba(163,230,53,0.15);">
-          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;color:var(--md-sys-color-secondary);">
-            <span class="material-symbols-rounded">terminal</span>
-            Swarm Co-Processor Feed
+        <div class="surface-card card-reveal" style="padding:1.5rem;background:#050505;border:1px solid rgba(204,255,0,0.2);position:relative;">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;color:var(--md-sys-color-secondary);z-index:2;position:relative;">
+            <span class="material-symbols-rounded">grain</span>
+            Live Thought Vortex
           </h3>
-          <div id="swarm-feed" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#a3e635;height:120px;overflow-y:auto;line-height:1.5;display:flex;flex-direction:column;gap:4px;">
-            <div style="color:var(--md-sys-color-outline)">[System] Initializing Swarm Co-Processors...</div>
+          <div style="position:relative; width:100%; height:250px; overflow:hidden; border-radius:8px;">
+            <canvas id="vortex-canvas" style="width:100%; height:100%; display:block;"></canvas>
+            <div id="vortex-tooltip" style="position:absolute; pointer-events:none; opacity:0; background:rgba(0,0,0,0.8); border:1px solid var(--md-sys-color-secondary); color:#fff; padding:8px 12px; border-radius:4px; font-size:12px; transition:opacity 0.2s; white-space:nowrap; max-width:200px; text-overflow:ellipsis; overflow:hidden; z-index:10; font-family:'JetBrains Mono',monospace;">
+              Tooltip
+            </div>
           </div>
         </div>
       </div>
@@ -77,12 +80,12 @@ export function Dashboard() {
 }
 
 async function loadDashboard(c) {
-  const [billing, memStats, cogData, driftData, swarmLogsData] = await Promise.all([
+  const [billing, memStats, cogData, driftData, vortexData] = await Promise.all([
     api.get('/billing/status'),
     api.get('/memory/stats'),
     api.get('/features/cognitive-load'),
     api.get('/features/drift-status'),
-    api.get('/features/swarm-logs')
+    api.get('/features/thought-vortex')
   ]);
 
   // Stat cards
@@ -204,40 +207,87 @@ async function loadDashboard(c) {
     `;
   }
 
-  // Load Swarm feed simulator
-  const swarmFeed = c.querySelector('#swarm-feed');
-  if (swarmFeed) {
-    if (!swarmLogsData || swarmLogsData.error || !swarmLogsData.logs) {
-      swarmFeed.innerHTML = '<div style="color:var(--md-sys-color-outline)">[System] Initializing Swarm Co-Processors...</div>';
-    } else {
-      swarmFeed.innerHTML = '';
-      swarmLogsData.logs.reverse().forEach(log => {
-        const timestamp = new Date(log.timestamp).toLocaleTimeString();
-        const div = document.createElement('div');
-        div.innerHTML = `<span style="color:var(--md-sys-color-outline)">[${timestamp}]</span> <span style="color:var(--md-sys-color-primary)">[${log.agent}]</span> ${log.message}`;
-        swarmFeed.appendChild(div);
-      });
-      swarmFeed.scrollTop = swarmFeed.scrollHeight;
-    }
+  // Load Thought Vortex
+  const canvas = c.querySelector('#vortex-canvas');
+  if (canvas && vortexData && vortexData.nodes) {
+    const ctx = canvas.getContext('2d');
+    const tooltip = c.querySelector('#vortex-tooltip');
+    
+    // Resize canvas
+    const resize = () => {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
 
-    // Lightweight polling every 30 seconds
-    const intervalId = setInterval(async () => {
-      if (!document.body.contains(swarmFeed)) {
-        clearInterval(intervalId);
-        return;
-      }
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let hoveredNode = null;
+    let rotation = 0;
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      mouseX = -1000;
+      mouseY = -1000;
+      tooltip.style.opacity = '0';
+      hoveredNode = null;
+    });
+
+    const draw = () => {
+      if (!document.body.contains(canvas)) return; // stop loop if unmounted
       
-      const newLogs = await api.get('/features/swarm-logs');
-      if (newLogs && newLogs.logs) {
-        swarmFeed.innerHTML = '';
-        newLogs.logs.reverse().forEach(log => {
-          const timestamp = new Date(log.timestamp).toLocaleTimeString();
-          const div = document.createElement('div');
-          div.innerHTML = `<span style="color:var(--md-sys-color-outline)">[${timestamp}]</span> <span style="color:var(--md-sys-color-primary)">[${log.agent}]</span> ${log.message}`;
-          swarmFeed.appendChild(div);
-        });
-        swarmFeed.scrollTop = swarmFeed.scrollHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      
+      if (!hoveredNode) {
+        rotation += 0.002; // slow ambient rotation
       }
-    }, 30000);
+
+      hoveredNode = null;
+
+      vortexData.nodes.forEach(node => {
+        // Apply rotation
+        const cosR = Math.cos(rotation);
+        const sinR = Math.sin(rotation);
+        const nx = node.x * cosR - node.y * sinR + cx;
+        const ny = node.x * sinR + node.y * cosR + cy;
+
+        // Check hover
+        const dist = Math.hypot(nx - mouseX, ny - mouseY);
+        if (dist < 6) {
+          hoveredNode = { ...node, drawX: nx, drawY: ny };
+        }
+
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(nx, ny, dist < 6 ? 4 : 2, 0, Math.PI * 2);
+        ctx.fillStyle = node.color;
+        ctx.shadowBlur = dist < 6 ? 10 : 4;
+        ctx.shadowColor = node.color;
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+      });
+
+      // Show tooltip if hovering
+      if (hoveredNode) {
+        tooltip.innerHTML = `<strong style="color:${hoveredNode.color}">${hoveredNode.tag}</strong><br/>${hoveredNode.content}`;
+        tooltip.style.left = (hoveredNode.drawX + 10) + 'px';
+        tooltip.style.top = (hoveredNode.drawY + 10) + 'px';
+        tooltip.style.opacity = '1';
+      } else {
+        tooltip.style.opacity = '0';
+      }
+
+      requestAnimationFrame(draw);
+    };
+
+    draw();
   }
 }

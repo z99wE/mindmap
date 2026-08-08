@@ -650,4 +650,59 @@ router.get('/drift-status', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/features/thought-vortex - Get memory nodes for vortex visualization
+router.get('/thought-vortex', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, content, tags FROM memories WHERE user_id = $1 ORDER BY created_at DESC LIMIT 300`,
+      [req.user.userId]
+    );
+
+    const brandColors = [
+      '#a3e635', '#ccff00', '#ffffff', '#94a3b8', '#38bdf8', '#f472b6', '#fbbf24', '#c084fc', '#f87171'
+    ];
+
+    // Seeded random function based on string
+    const seededRandom = (str) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+      return () => {
+        hash = Math.imul(741103597, hash) + 1957655071 | 0;
+        return (hash >>> 0) / 4294967296;
+      };
+    };
+
+    const nodes = result.rows.map(row => {
+      const tag = (row.tags && row.tags.length > 0) ? row.tags[0].toLowerCase() : 'casual_chat';
+      const rng = seededRandom(tag);
+      const nodeRng = seededRandom(row.id.toString());
+      
+      // Hash tag to an angle (hub)
+      const baseAngle = rng() * Math.PI * 2;
+      const colorIndex = Math.floor(rng() * brandColors.length);
+      
+      // Scatter point around hub
+      const distance = 40 + (nodeRng() * 100); // 40 to 140 radius from center
+      const angleOffset = (nodeRng() - 0.5) * 0.8; // jitter around the base angle
+      
+      const finalAngle = baseAngle + angleOffset;
+      const x = Math.cos(finalAngle) * distance;
+      const y = Math.sin(finalAngle) * distance;
+
+      return {
+        id: row.id,
+        content: row.content.length > 60 ? row.content.substring(0, 60) + '...' : row.content,
+        tag: tag,
+        x: x,
+        y: y,
+        color: brandColors[colorIndex]
+      };
+    });
+
+    res.json({ nodes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
