@@ -142,11 +142,11 @@ router.get('/:id/traces', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/memory/export - export all memories as JSON or CSV
+// GET /api/memory/export - export all memories as JSON, CSV, Markdown, or Vortex map
 router.get('/export', authMiddleware, async (req, res) => {
   try {
     const { format = 'json', category, status } = req.query;
-    let query = 'SELECT id, content, category, importance, intent, half_life_hours, urgency_tier, action_verb, is_actionable, expires_at, status, archived, witness_contact, created_at FROM memory_graph WHERE user_id = $1';
+    let query = 'SELECT id, content, category, importance, intent, half_life_hours, urgency_tier, action_verb, is_actionable, expires_at, status, archived, witness_contact, created_at, brain_area, emotional_tone, decay_status FROM memory_graph WHERE user_id = $1';
     const params = [req.user.userId];
     if (category) { query += ` AND category = $${params.length + 1}`; params.push(category); }
     if (status) { query += ` AND status = $${params.length + 1}`; params.push(status); }
@@ -162,6 +162,38 @@ router.get('/export', authMiddleware, async (req, res) => {
       res.setHeader('Content-Disposition', 'attachment; filename=thought-gps-export.csv');
       return res.send(header + rows);
     }
+    
+    if (format === 'markdown') {
+      let md = '# Thought GPS Export\n\n';
+      md += `*Exported on ${new Date().toLocaleString()}*\n\n`;
+      result.rows.forEach(r => {
+        md += `## ${r.category ? r.category.toUpperCase() : 'GENERAL'}\n`;
+        md += `**Status:** ${r.status} | **Created:** ${r.created_at.toLocaleString()}\n\n`;
+        md += `> ${r.content}\n\n---\n\n`;
+      });
+      res.setHeader('Content-Type', 'text/markdown');
+      res.setHeader('Content-Disposition', 'attachment; filename=thought-gps-export.md');
+      return res.send(md);
+    }
+    
+    if (format === 'vortex') {
+      return res.json({
+        type: 'ThoughtVortexMap',
+        exportedAt: new Date().toISOString(),
+        nodes: result.rows.map(r => ({
+          id: r.id,
+          label: r.content.substring(0, 100),
+          category: r.category,
+          brainArea: r.brain_area,
+          emotionalTone: r.emotional_tone,
+          decayStatus: r.decay_status,
+          intensity: r.importance,
+          timestamp: r.created_at
+        })),
+        edges: [] // Simplification: edges can be computed locally by the client if needed
+      });
+    }
+
     res.json({
       memories: result.rows.map(r => ({
         id: r.id,

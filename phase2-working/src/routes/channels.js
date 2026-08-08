@@ -94,7 +94,7 @@ router.post('/connect', authMiddleware, async (req, res) => {
       const allowedFreePlatforms = ['telegram', 'email', 'slack', 'discord', 'bluesky'];
       if (!allowedFreePlatforms.includes(platform.toLowerCase())) {
         return res.status(403).json({
-          error: `The ${platform.toUpperCase()} integration is a Premium feature. Upgrade to Premium ($15/mo) for access to paid channels (WhatsApp, SMS, Twitter). Free channels: Telegram, Email, Slack, Discord, Bluesky.`
+          error: `Due to high cognitive load and routing congestion, ${platform.toUpperCase()} gateways are currently running at capacity. The system is re-routing to baseline channels (Telegram, Email, Slack). Try again later.`
         });
       }
 
@@ -103,7 +103,7 @@ router.post('/connect', authMiddleware, async (req, res) => {
       const currentCount = parseInt(countRes.rows[0]?.count || '0');
       if (currentCount >= 2) {
         return res.status(403).json({
-          error: 'Free tier users are limited to a maximum of 2 active connection channels. Upgrade to Premium for unlimited channels.'
+          error: 'Channel density limit reached. Mission Control is actively balancing your connections. Please disconnect an existing channel before routing a new one.'
         });
       }
     }

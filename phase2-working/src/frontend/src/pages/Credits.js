@@ -72,10 +72,10 @@ export function Credits() {
         </div>
  
         <!-- Pro Tier -->
-        <div class="surface-card card-reveal" style="padding:2rem;position:relative;overflow:hidden;${currentTier === 'pro' || currentTier === 'premium' || currentTier === 'explorer plus' ? 'border-color:rgba(204,255,0,0.5);box-shadow:0 0 30px rgba(204,255,0,0.12);' : ''}">
+        <div class="surface-card card-reveal" style="padding:2rem;position:relative;overflow:hidden;${currentTier === 'pro' || currentTier === 'premium' ? 'border-color:rgba(204,255,0,0.5);box-shadow:0 0 30px rgba(204,255,0,0.12);' : ''}">
           <div style="position:absolute;top:0;right:0;background:var(--md-sys-color-primary);color:#000;font:var(--md-sys-typescale-label-small);padding:4px 14px;border-radius:0 0 0 var(--md-sys-shape-small);letter-spacing:0.08em;">BEST VALUE</div>
-          ${currentTier === 'pro' || currentTier === 'premium' || currentTier === 'explorer plus' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">CURRENT PLAN</div>' : ''}
-          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Explorer Plus</h3>
+          ${currentTier === 'pro' || currentTier === 'premium' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">CURRENT PLAN</div>' : ''}
+          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">PRO</h3>
           <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Cross-device cognitive co-processing</p>
           <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">$15<span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-outline);">/month</span></div>
           <ul style="list-style:none;padding:0;margin:1.25rem 0;display:flex;flex-direction:column;gap:0.6rem;">
@@ -98,7 +98,7 @@ export function Credits() {
               <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Live web search (Tavily/Firecrawl)
             </li>
           </ul>
-          ${currentTier !== 'pro' && currentTier !== 'premium' && currentTier !== 'explorer plus' ? '<button class="btn-m3 btn-filled" style="width:100%;" onclick="subscribePro()">Upgrade to Explorer Plus</button>' : '<button class="btn-m3 btn-filled" style="width:100%;opacity:0.6;" disabled>Current Plan</button>'}
+          ${currentTier !== 'pro' && currentTier !== 'premium' ? '<button class="btn-m3 btn-filled" style="width:100%;" onclick="subscribePro()">Upgrade to PRO</button>' : '<button class="btn-m3 btn-filled" style="width:100%;opacity:0.6;" disabled>Current Plan</button>'}
         </div>
 
         <!-- Managed Tier (Coming Soon) -->
@@ -280,7 +280,7 @@ export function Credits() {
       alert(result.error);
       return;
     }
-    alert('Upgraded to Explorer Plus! Refreshing...');
+    alert('Upgraded to PRO! Refreshing...');
     const me = await api.get('/auth/me');
     if (me.id) api.setUser(me);
     window.showPage?.('credits');

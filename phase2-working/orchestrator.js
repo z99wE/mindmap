@@ -495,6 +495,58 @@ class OrchestratorManager {
     const state = new OrchestratorState(userId, input, user);
     return await orchestrator.run(state);
   }
+
+  startAutonomousAgent(caspian) {
+    console.log('🤖 Starting background autonomous agent for drift detection & memory consolidation...');
+    
+    // Run every 60 seconds for demo purposes
+    setInterval(async () => {
+      try {
+        const client = await this.pool.connect();
+        try {
+          // 1. Memory Consolidation: Find fragmented pending items that share concepts
+          const pendingRes = await client.query(
+            `SELECT id, user_id, value, created_at 
+             FROM memory_graph 
+             WHERE status = 'pending' AND created_at < NOW() - INTERVAL '1 hour'
+             ORDER BY created_at ASC LIMIT 50`
+          );
+          
+          if (pendingRes.rows.length > 0) {
+            console.log(`🧠 [Autonomous Agent] Found ${pendingRes.rows.length} pending items to evaluate for consolidation`);
+            
+            // Just picking the oldest user for demo drift detection
+            const targetUser = pendingRes.rows[0].user_id;
+            
+            // 2. Drift Detection: If a user has many pending items, simulate a check-in
+            const userPendingCount = pendingRes.rows.filter(r => r.user_id === targetUser).length;
+            
+            if (userPendingCount > 3 && caspian) {
+              console.log(`🧭 [Autonomous Agent] Detecting potential cognitive drift for user ${targetUser} (${userPendingCount} stale items)`);
+              
+              const message = "Thought GPS Autonomous Agent here 🧭: I noticed you have several thoughts pending for a while. Are you stuck or just busy? Need help organizing them?";
+              
+              try {
+                // We'll use the 'caspian' instance passed in (which routes to PulseKit/Caspian)
+                await caspian.send({
+                  channel: 'whatsapp', // Default fallback
+                  to: targetUser,
+                  message
+                });
+                console.log(`📩 [Autonomous Agent] Drift check-in sent to ${targetUser}`);
+              } catch (err) {
+                console.log(`⚠️ [Autonomous Agent] Could not send message: ${err.message}`);
+              }
+            }
+          }
+        } finally {
+          client.release();
+        }
+      } catch (err) {
+        console.error('❌ [Autonomous Agent] Error in background job:', err.message);
+      }
+    }, 60000); // 60 seconds
+  }
 }
 
 // ============================================

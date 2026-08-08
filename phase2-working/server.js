@@ -308,6 +308,11 @@ async function start() {
 
     console.log('[Cognitive Crons] Native Vercel/GitHub Action cron endpoint mounted at /api/cron/tick');
 
+    // Start background autonomous agent (Phase 4 requirement)
+    const { OrchestratorManager } = require('./orchestrator');
+    const orchestratorManager = new OrchestratorManager(pool, keyPool);
+    orchestratorManager.startAutonomousAgent(caspian);
+
     app.listen(PORT, () => {
       console.log(`[Thought GPS] Server running on port ${PORT}`);
       console.log(`[Thought GPS] Frontend: http://localhost:${PORT}`);

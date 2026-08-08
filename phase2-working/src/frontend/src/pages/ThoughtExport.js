@@ -20,7 +20,7 @@ export function ThoughtExport() {
         <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:1rem;">Filter Thoughts</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
           <div>
-            <label style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);display:block;margin-bottom:0.35rem;">Category</label>
+            <label for="filter-category" style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);display:block;margin-bottom:0.35rem;">Category</label>
             <select id="filter-category" class="input-m3">
               <option value="">All Categories</option>
               <option value="health">Health</option>
@@ -32,7 +32,7 @@ export function ThoughtExport() {
             </select>
           </div>
           <div>
-            <label style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);display:block;margin-bottom:0.35rem;">Status</label>
+            <label for="filter-status" style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);display:block;margin-bottom:0.35rem;">Status</label>
             <select id="filter-status" class="input-m3">
               <option value="">All Statuses</option>
               <option value="pending">Pending</option>
@@ -41,19 +41,19 @@ export function ThoughtExport() {
             </select>
           </div>
           <div>
-            <label style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);display:block;margin-bottom:0.35rem;">Format</label>
+            <label for="filter-format" style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);display:block;margin-bottom:0.35rem;">Format</label>
             <select id="filter-format" class="input-m3">
               <option value="json">JSON</option>
               <option value="csv">CSV</option>
+              <option value="markdown">Markdown (.md)</option>
+              <option value="vortex">I am thinking (Vortex JSON)</option>
             </select>
           </div>
         </div>
+        </div>
         <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
-          <button class="btn-m3 btn-filled" id="btn-preview">
-            Preview
-          </button>
-          <button class="btn-m3 btn-tonal" id="btn-download">
-            Download
+          <button class="btn-m3 btn-filled" id="btn-download" aria-label="Download exported thoughts">
+            Download Export
           </button>
         </div>
       </div>
@@ -70,38 +70,8 @@ export function ThoughtExport() {
         </div>
       </div>
 
-      <!-- Preview -->
-      <div id="preview-section" class="card-reveal" style="margin-top:1.5rem;display:none;">
-        <h2 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.75rem;">Preview</h2>
-        <pre id="export-preview" class="export-preview" style="max-height:400px;overflow:auto;"></pre>
-      </div>
+      <!-- Preview section removed -->
     </div>`;
-
-  let cachedData = null;
-
-  async function loadPreview() {
-    const category = container.querySelector('#filter-category').value;
-    const status = container.querySelector('#filter-status').value;
-    const params = new URLSearchParams({ format: 'json' });
-    if (category) params.set('category', category);
-    if (status) params.set('status', status);
-
-    const data = await api.get(`/memory/export?${params}`);
-    if (data.error) {
-      container.querySelector('#preview-section').style.display = 'block';
-      container.querySelector('#export-preview').textContent = `Error: ${data.error}`;
-      return;
-    }
-
-    cachedData = data;
-    container.querySelector('#export-stats').style.display = 'block';
-    container.querySelector('#stat-total').textContent = data.total || 0;
-    container.querySelector('#stat-exported').textContent = new Date(data.exportedAt).toLocaleString();
-
-    container.querySelector('#preview-section').style.display = 'block';
-    const preview = (data.memories || []).slice(0, 20);
-    container.querySelector('#export-preview').textContent = JSON.stringify(preview, null, 2);
-  }
 
   async function downloadExport() {
     const category = container.querySelector('#filter-category').value;
@@ -111,9 +81,10 @@ export function ThoughtExport() {
     if (category) params.set('category', category);
     if (status) params.set('status', status);
 
-    if (format === 'csv') {
-      // Download CSV via fetch
-      const token = localStorage.getItem('tg_token');
+    const token = localStorage.getItem('tg_token');
+    
+    // For CSV and Markdown, download directly via fetch
+    if (format === 'csv' || format === 'markdown') {
       const resp = await fetch(`/api/memory/export?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -121,28 +92,29 @@ export function ThoughtExport() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'thought-gps-export.csv';
+      a.download = \`thought-gps-export.\${format === 'markdown' ? 'md' : 'csv'}\`;
       a.click();
       URL.revokeObjectURL(url);
     } else {
-      // JSON download
-      if (!cachedData) {
-        cachedData = await api.get(`/memory/export?${params}`);
+      // JSON and Vortex download
+      const data = await api.get(\`/memory/export?\${params}\`);
+      if (data.error) {
+        alert(\`Export failed: \${data.error}\`);
+        return;
       }
-      const blob = new Blob([JSON.stringify(cachedData, null, 2)], { type: 'application/json' });
+      
+      const fileName = format === 'vortex' ? 'thought-gps-vortex-map.json' : 'thought-gps-export.json';
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'thought-gps-export.json';
+      a.download = fileName;
       a.click();
       URL.revokeObjectURL(url);
     }
   }
 
-  container.querySelector('#btn-preview')?.addEventListener('click', loadPreview);
   container.querySelector('#btn-download')?.addEventListener('click', downloadExport);
 
-  // Auto-load preview on mount
-  loadPreview();
   return container;
 }

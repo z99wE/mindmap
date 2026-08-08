@@ -41,12 +41,12 @@ export function MissionControl() {
       </div>
 
       <!-- Add Channel Dialog -->
-      <div id="add-channel-dialog" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+      <div id="add-channel-dialog" role="dialog" aria-modal="true" aria-labelledby="add-channel-title" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
         <div class="glass-strong" style="width:100%;max-width:440px;border-radius:var(--md-sys-shape-extra-large);padding:2rem;">
-          <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Connect Channel</h2>
+          <h2 id="add-channel-title" style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Connect Channel</h2>
           <div style="display:flex;flex-direction:column;gap:1rem;">
             <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">PLATFORM</label>
+              <label for="channel-platform" class="mono-label" style="display:block;margin-bottom:0.35rem;">PLATFORM</label>
               <select id="channel-platform" class="input-m3">
                 <option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option>
                 <option value="slack">Slack</option><option value="discord">Discord</option>
@@ -55,11 +55,11 @@ export function MissionControl() {
             </div>
             <div id="channel-token-container">
               <div>
-                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">TOKEN / API KEY</label>
+                <label for="channel-token" class="mono-label" style="display:block;margin-bottom:0.35rem;">TOKEN / API KEY</label>
                 <input type="password" id="channel-token" class="input-m3" placeholder="Your bot token or API key">
               </div>
               <div style="margin-top:1rem;">
-                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">CHANNEL / CHAT ID (Optional)</label>
+                <label for="channel-id" class="mono-label" style="display:block;margin-bottom:0.35rem;">CHANNEL / CHAT ID (Optional)</label>
                 <input type="text" id="channel-id" class="input-m3" placeholder="Channel or chat identifier">
               </div>
             </div>
@@ -67,63 +67,63 @@ export function MissionControl() {
               <p style="font:var(--md-sys-typescale-body-medium);margin:0;color:var(--md-sys-color-primary);">This platform requires OAuth authentication. Click Connect to be redirected to the provider.</p>
             </div>
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
-              <button class="btn-m3 btn-text" onclick="document.getElementById('add-channel-dialog').style.display='none';">Cancel</button>
-              <button class="btn-m3 btn-filled" id="save-channel-btn">Connect</button>
+              <button class="btn-m3 btn-text" onclick="document.getElementById('add-channel-dialog').style.display='none';" aria-label="Cancel connecting channel">Cancel</button>
+              <button class="btn-m3 btn-filled" id="save-channel-btn" aria-label="Connect channel">Connect</button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Add Key Dialog -->
-      <div id="add-key-dialog" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+      <div id="add-key-dialog" role="dialog" aria-modal="true" aria-labelledby="add-key-title" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
         <div class="glass-strong" style="width:100%;max-width:440px;border-radius:var(--md-sys-shape-extra-large);padding:2rem;">
-          <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Add API Key</h2>
+          <h2 id="add-key-title" style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Add API Key</h2>
           <div style="display:flex;flex-direction:column;gap:1rem;">
             <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">PROVIDER</label>
+              <label for="key-provider" class="mono-label" style="display:block;margin-bottom:0.35rem;">PROVIDER</label>
               <select id="key-provider" class="input-m3">
                 <option value="groq">Loading providers…</option>
               </select>
             </div>
             <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">API KEY</label>
+              <label for="key-value" class="mono-label" style="display:block;margin-bottom:0.35rem;">API KEY</label>
               <input type="password" id="key-value" class="input-m3" placeholder="Paste your API key">
             </div>
             <p id="key-provider-hint" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0;"></p>
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
-              <button class="btn-m3 btn-text" onclick="document.getElementById('add-key-dialog').style.display='none';">Cancel</button>
-              <button class="btn-m3 btn-filled" id="save-key-btn">Save Key</button>
+              <button class="btn-m3 btn-text" onclick="document.getElementById('add-key-dialog').style.display='none';" aria-label="Cancel adding key">Cancel</button>
+              <button class="btn-m3 btn-filled" id="save-key-btn" aria-label="Save API key">Save Key</button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Add Geofence Dialog -->
-      <div id="add-geofence-dialog" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+      <div id="add-geofence-dialog" role="dialog" aria-modal="true" aria-labelledby="add-geofence-title" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
         <div class="glass-strong" style="width:100%;max-width:440px;border-radius:var(--md-sys-shape-extra-large);padding:2rem;">
-          <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Add Geo-fence</h2>
+          <h2 id="add-geofence-title" style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Add Geo-fence</h2>
           <form id="geofence-form" style="display:flex;flex-direction:column;gap:1rem;">
             <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">NAME</label>
+              <label for="gf-name" class="mono-label" style="display:block;margin-bottom:0.35rem;">NAME</label>
               <input type="text" id="gf-name" class="input-m3" placeholder="e.g., Office, Home, Gym" required>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
               <div>
-                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">LATITUDE</label>
+                <label for="gf-lat" class="mono-label" style="display:block;margin-bottom:0.35rem;">LATITUDE</label>
                 <input type="number" step="any" id="gf-lat" class="input-m3" placeholder="40.7128" required>
               </div>
               <div>
-                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">LONGITUDE</label>
+                <label for="gf-lng" class="mono-label" style="display:block;margin-bottom:0.35rem;">LONGITUDE</label>
                 <input type="number" step="any" id="gf-lng" class="input-m3" placeholder="-74.0060" required>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
               <div>
-                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">RADIUS (METERS)</label>
+                <label for="gf-radius" class="mono-label" style="display:block;margin-bottom:0.35rem;">RADIUS (METERS)</label>
                 <input type="number" id="gf-radius" class="input-m3" placeholder="200" value="200" required>
               </div>
               <div>
-                <label class="mono-label" style="display:block;margin-bottom:0.35rem;">TRIGGER</label>
+                <label for="gf-trigger" class="mono-label" style="display:block;margin-bottom:0.35rem;">TRIGGER</label>
                 <select id="gf-trigger" class="input-m3">
                   <option value="arrival">On Arrival</option>
                   <option value="departure">On Departure</option>
@@ -132,12 +132,12 @@ export function MissionControl() {
               </div>
             </div>
             <div>
-              <label class="mono-label" style="display:block;margin-bottom:0.35rem;">LINKED TASKS (OPTIONAL)</label>
+              <label for="gf-tasks" class="mono-label" style="display:block;margin-bottom:0.35rem;">LINKED TASKS (OPTIONAL)</label>
               <input type="text" id="gf-tasks" class="input-m3" placeholder="e.g., Buy milk, Pick up package">
             </div>
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
-              <button type="button" class="btn-m3 btn-text" onclick="document.getElementById('add-geofence-dialog').style.display='none';">Cancel</button>
-              <button type="submit" class="btn-m3 btn-filled">Save Geo-fence</button>
+              <button type="button" class="btn-m3 btn-text" onclick="document.getElementById('add-geofence-dialog').style.display='none';" aria-label="Cancel adding geo-fence">Cancel</button>
+              <button type="submit" class="btn-m3 btn-filled" aria-label="Save geo-fence">Save Geo-fence</button>
             </div>
           </form>
         </div>
@@ -180,7 +180,7 @@ function channelsPanel() {
       </div>
       <div id="channels-list"><div class="anim-shimmer" style="height:80px;"></div></div>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.9rem 0 0;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
-        <span class="material-symbols-rounded" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
         <span>Connectivity and delivery depend on the channel provider you connect and your current usage limits with that provider — they do not depend on how Thought GPS functions.</span>
       </p>
     </div>
@@ -207,7 +207,7 @@ function keysPanel() {
         </button>
       </div>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 0.9rem;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
-        <span class="material-symbols-rounded" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
         <span>Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how Thought GPS functions.</span>
       </p>
       <div id="keys-list"><div class="anim-shimmer" style="height:80px;"></div></div>
@@ -744,6 +744,21 @@ function setupSaveHandlers(c) {
       toast.show(result.error, 'error');
     }
   });
+
+  // Accessibility: Close modals on Escape key
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      const modals = ['add-channel-dialog', 'add-key-dialog', 'add-geofence-dialog'];
+      modals.forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal && modal.style.display !== 'none') {
+          modal.style.display = 'none';
+        }
+      });
+    }
+  };
+  document.addEventListener('keydown', handleKeyDown);
+  // Cleanup when container is removed from DOM (handled generically if possible, but safe to attach)
 }
 
 // ── Global handlers ────────────────────────────────────────────────────────
