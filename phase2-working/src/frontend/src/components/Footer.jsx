@@ -1,7 +1,7 @@
 import React from 'react';
 import ShinyText from './ShinyText';
 import GlassSurface from './GlassSurface';
-import Hyperspeed from './Hyperspeed';
+import GradientBlinds from './GradientBlinds';
 
 // Brand sign-off — a liquid-glass surface dissolves the app into the dark,
 // and the wordmark rides the glass with a quiet shine.
@@ -37,46 +37,24 @@ export default function Footer() {
           />
         </div>
       </GlassSurface>
-      {/* Hyperspeed road — sits just under the wordmark, very low opacity,
-          faded edges, brand-colored lights. Ambient only, never interactive. */}
-      <Hyperspeed
-        className="brand-signoff-speed"
-        effectOptions={{
-          distortion: 'mountainDistortion',
-          length: 400,
-          roadWidth: 9,
-          islandWidth: 2,
-          lanesPerRoad: 3,
-          fov: 90,
-          fovSpeedUp: 150,
-          speedUp: 2,
-          carLightsFade: 0.4,
-          totalSideLightSticks: 50,
-          lightPairsPerRoadWay: 50,
-          shoulderLinesWidthPercentage: 0.05,
-          brokenLinesWidthPercentage: 0.1,
-          brokenLinesLengthPercentage: 0.5,
-          lightStickWidth: [0.12, 0.5],
-          lightStickHeight: [1.3, 1.7],
-          movingAwaySpeed: [60, 80],
-          movingCloserSpeed: [-120, -160],
-          carLightsLength: [20, 60],
-          carLightsRadius: [0.05, 0.14],
-          carWidthPercentage: [0.3, 0.5],
-          carShiftX: [-0.2, 0.2],
-          carFloorSeparation: [0.05, 1],
-          colors: {
-            roadColor: 0x080808,
-            islandColor: 0x0a0a0a,
-            background: 0x000000,
-            shoulderLines: 0xFFFFFF,
-            brokenLines: 0xFFFFFF,
-            leftCars: [0xD856BF, 0x6750A2, 0xC247AC],
-            rightCars: [0x03B3C3, 0x0E5EA5, 0x324555],
-            sticks: 0x03B3C3,
-          }
-        }}
-      />
+      <div className="brand-signoff-speed" style={{ width: '100%', height: '600px', position: 'relative' }}>
+        <GradientBlinds
+          gradientColors={['#FF9FFC', '#5227FF']}
+          angle={20}
+          noise={0.5}
+          blindCount={16}
+          blindMinWidth={60}
+          spotlightRadius={0.5}
+          spotlightSoftness={1}
+          spotlightOpacity={1}
+          mouseDampening={0.15}
+          distortAmount={0}
+          shineDirection="left"
+          mixBlendMode="lighten"
+          color1="#84CC16"
+          color2="#06B6D4"
+        />
+      </div>
       <style>{`
         .brand-signoff {
           position: relative;
