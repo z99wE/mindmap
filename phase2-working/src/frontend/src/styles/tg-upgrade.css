@@ -340,10 +340,9 @@ a .material-icons,
   display: inline-block !important;
 }
 
-/* status now reads as type + hairline, never as a rounded chip */
+/* status now reads as type + hairline for status badges */
 .status-tag,
 .badge,
-.chip,
 .pill,
 .tag {
   background: transparent !important;

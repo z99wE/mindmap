@@ -32,7 +32,7 @@ export function InteractiveSpace() {
         <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
           <div id="attachment-preview" style="display:none;background:rgba(255,255,255,0.05);padding:0.5rem 1rem;border-radius:var(--md-sys-shape-small);font-size:12px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,0.1);">
             <span id="attachment-name" style="color:var(--md-sys-color-primary);"></span>
-            <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0;min-width:auto;height:auto;color:var(--md-sys-color-error);">REMOVE</button>
+            <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0.2rem 0.5rem;min-width:auto;height:auto;font-size:11px;color:var(--md-sys-color-error);">REMOVE</button>
           </div>
           <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." style="resize:vertical;min-height:48px;"></textarea>
         </div>
