@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../db');
 const { authMiddleware } = require('../auth');
+const { asyncHandler } = require('../middleware/errorHandler');
 const { keyPool } = require('../key-pool');
 const { createTrace, createSpan, endSpan } = require('../thought-tracer');
 const { classifyHalfLife } = require('../../features/thought-half-life');
@@ -22,15 +23,18 @@ const processLimiter = rateLimit({
 });
 
 // POST /api/process/message - main thought processing endpoint
-router.post('/message', authMiddleware, processLimiter, async (req, res) => {
+router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req, res) => {
   const startTime = Date.now();
+  const client = await pool.connect();
+  
   try {
+    await client.query('BEGIN');
     const userId = req.user.userId;
     const { message, localMemories, attachment } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
 
     // Check daily run limit
-    const userRes = await pool.query(
+    const userRes = await client.query(
       'SELECT daily_runs_used, daily_runs_limit, tier, api_keys, data_sharing FROM users WHERE id = $1',
       [userId]
     );
@@ -42,7 +46,7 @@ router.post('/message', authMiddleware, processLimiter, async (req, res) => {
 
     if (user.daily_runs_used >= user.daily_runs_limit) {
       // Fallback check: do they have unexpired booster top-up runs?
-      const boosterRes = await pool.query(
+      const boosterRes = await client.query(
         `SELECT id, total_runs, runs_used FROM user_boosters 
          WHERE user_id = $1 AND expires_at > NOW() AND runs_used < total_runs 
          ORDER BY expires_at LIMIT 1`,
@@ -119,7 +123,8 @@ router.post('/message', authMiddleware, processLimiter, async (req, res) => {
 
     // 5. Run cognitive classifiers + store enriched memory
     const storeSpan = createSpan(trace, 'update_memory', { message });
-    const classification = await storeMemoryEnriched(userId, message, intent, llmResponse, unanchoredResult, liveContext);
+    // Pass client down so it uses the transaction
+    const classification = await storeMemoryEnriched(client, userId, message, intent, llmResponse, unanchoredResult, liveContext);
     if (classification.memoryId) {
       trace.updateThoughtId(classification.memoryId);
     }
@@ -127,22 +132,24 @@ router.post('/message', authMiddleware, processLimiter, async (req, res) => {
 
     // Increment run counter
     if (usingBooster && activeBoosterId) {
-      await pool.query(
+      await client.query(
         'UPDATE user_boosters SET runs_used = runs_used + 1 WHERE id = $1',
         [activeBoosterId]
       );
     } else {
-      await pool.query(
+      await client.query(
         'UPDATE users SET daily_runs_used = daily_runs_used + 1, updated_at = NOW() WHERE id = $1',
         [userId]
       );
     }
 
+    await client.query('COMMIT'); // Success! Commit transaction (debts run)
+
     const latency = Date.now() - startTime;
     
     let runsRemaining = Math.max(0, user.daily_runs_limit - user.daily_runs_used - (usingBooster ? 0 : 1));
     if (usingBooster) {
-      const bLeft = await pool.query(
+      const bLeft = await client.query(
         'SELECT SUM(total_runs - runs_used) as left FROM user_boosters WHERE user_id = $1 AND expires_at > NOW()',
         [userId]
       );
@@ -174,13 +181,15 @@ router.post('/message', authMiddleware, processLimiter, async (req, res) => {
       sources: sources.length > 0 ? sources.slice(0, 5) : undefined,
     });
   } catch (err) {
-    console.error('[Process] Error:', err.message);
-    res.status(500).json({ error: 'Processing failed: ' + err.message });
+    await client.query('ROLLBACK'); // LLM failed, rollback memory and run deduction
+    throw err; // Pass to globalErrorHandler to mask
+  } finally {
+    client.release();
   }
-});
+}));
 
 // Run all classifiers and store enriched memory
-async function storeMemoryEnriched(userId, message, intent, llmResponse, unanchoredResult, liveContext = []) {
+async function storeMemoryEnriched(client, userId, message, intent, llmResponse, unanchoredResult, liveContext = []) {
   // Half-life classifier
   const halfLife = classifyHalfLife(message);
 
@@ -200,7 +209,7 @@ async function storeMemoryEnriched(userId, message, intent, llmResponse, unancho
   if (unanchoredResult?.is_unanchored) status = 'pending_clarification';
 
   try {
-    const result = await pool.query(
+    const result = await client.query(
       `INSERT INTO memory_graph (
         user_id, content, category, source,
         intent, llm_response, importance,
@@ -234,7 +243,7 @@ async function storeMemoryEnriched(userId, message, intent, llmResponse, unancho
     // Schedule revival if unanchored
     if (unanchoredResult?.is_unanchored && result.rows[0]?.id) {
       await scheduleRevival(
-        pool,
+        client,
         userId,
         result.rows[0].id,
         message,

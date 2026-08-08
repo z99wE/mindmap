@@ -17,8 +17,8 @@ const { createClassificationEndpoints } = require('./features/thought-classifica
 const { createInvisibleChecklistEndpoints } = require('./features/invisible-checklist');
 const { createDoorRuleEndpoints } = require('./features/door-rule');
 const { auditMiddleware, sanitizeBody } = require('./src/middleware');
+const { globalErrorHandler } = require('./src/middleware/errorHandler');
 const { KeyPool } = require('./src/key-pool');
-const https = require('https');
 
 // ── Web Push (VAPID) Setup ────────────────────────────────────────────────
 const webpush = require('web-push');
@@ -154,10 +154,7 @@ app.get('*', (req, res) => {
 });
 
 // ── Error Handler ───────────────────────────────────────────────────────────
-app.use((err, req, res, _next) => {
-  console.error('[Server] Error:', err.message);
-  res.status(500).json({ error: 'Internal server error' });
-});
+app.use(globalErrorHandler);
 
 // ── Start ───────────────────────────────────────────────────────────────────
 async function start() {
