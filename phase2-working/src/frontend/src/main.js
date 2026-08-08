@@ -158,7 +158,7 @@ function renderNavRail() {
 
   if (!document.getElementById('nav-wheel-root') || !document.getElementById('desktop-logo-root')) {
     rail.innerHTML = `
-      <div id="desktop-logo-root" style="width:100%; height:65px; flex-shrink:0;"></div>
+      <div id="desktop-logo-root" style="width:100%; height:76px; flex-shrink:0;"></div>
       <div class="nav-wheel-host" id="nav-wheel-root" style="flex:1;"></div>
     `;
     rail.dataset.wheelMounted = '1';
