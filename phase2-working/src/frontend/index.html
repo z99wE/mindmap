@@ -327,11 +327,11 @@
   <div class="aurora-band" aria-hidden="true"></div>
 
   <!-- Glow Spheres -->
-  <div class="ambient-orb orb-primary"></div>
-  <div class="ambient-orb orb-secondary"></div>
-  <div class="ambient-orb orb-tertiary"></div>
-  <div class="ambient-orb orb-violet" style="left: 40%; top: -8rem; width: 26rem; height: 26rem;"></div>
-  <div class="ambient-orb orb-yoyo" style="right: -8rem; bottom: -6rem; width: 24rem; height: 24rem;"></div>
+  <div class="ambient-orb orb-primary" aria-hidden="true"></div>
+  <div class="ambient-orb orb-secondary" aria-hidden="true"></div>
+  <div class="ambient-orb orb-tertiary" aria-hidden="true"></div>
+  <div class="ambient-orb orb-violet" style="left: 40%; top: -8rem; width: 26rem; height: 26rem;" aria-hidden="true"></div>
+  <div class="ambient-orb orb-yoyo" style="right: -8rem; bottom: -6rem; width: 24rem; height: 24rem;" aria-hidden="true"></div>
 
   <div id="app-root">
     <div class="app-shell">
@@ -358,9 +358,9 @@
               <span class="tg-topchip-label">Notifications</span>
               <span class="badge" id="notif-badge" style="display:none;">0</span>
             </button>
-            <div class="user-chip" id="user-chip" onclick="handleUserClick()" role="button" aria-label="User account">
+            <button class="user-chip" id="user-chip" onclick="handleUserClick()" aria-label="User account">
               <span id="user-name" style="font:500 13px/1 'Space Grotesk',sans-serif;">Sign In</span>
-            </div>
+            </button>
           </div>
         </header>
 

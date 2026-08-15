@@ -24,7 +24,7 @@ export function Memory() {
         <div class="glass-strong" style="width:100%;max-width:600px;max-height:80vh;overflow-y:auto;border-radius:var(--md-sys-shape-extra-large);padding:2rem;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
             <h2 style="font:var(--md-sys-typescale-title-large);margin:0;">Cognitive Trace</h2>
-            <button class="icon-btn" onclick="document.getElementById('trace-modal').style.display='none'"><span class="material-symbols-rounded">close</span></button>
+            <button class="icon-btn" onclick="document.getElementById('trace-modal').style.display='none'" aria-label="Close trace modal"><span class="material-symbols-rounded">close</span></button>
           </div>
           <div id="trace-timeline" style="display:flex;flex-direction:column;gap:1rem;"></div>
         </div>

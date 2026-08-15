@@ -1,6 +1,8 @@
 // Dashboard - Real stats from backend with Obsidian/Orange-Red design
 import api from '../lib/api.js';
 
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 export function Dashboard() {
   const container = document.createElement('div');
   container.innerHTML = `
@@ -277,7 +279,7 @@ async function loadDashboard(c) {
 
       // Show tooltip if hovering
       if (hoveredNode) {
-        tooltip.innerHTML = `<strong style="color:${hoveredNode.color}">${hoveredNode.tag}</strong><br/>${hoveredNode.content}`;
+        tooltip.innerHTML = `<strong style="color:${hoveredNode.color}">${escHtml(hoveredNode.tag)}</strong><br/>${escHtml(hoveredNode.content)}`;
         tooltip.style.left = (hoveredNode.drawX + 10) + 'px';
         tooltip.style.top = (hoveredNode.drawY + 10) + 'px';
         tooltip.style.opacity = '1';

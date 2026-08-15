@@ -1,6 +1,8 @@
 // Thought Afterlife - Half-life decay visualization
 import api from '../lib/api.js';
 
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 export function ThoughtAfterlife() {
   const container = document.createElement('div');
 
@@ -129,16 +131,16 @@ export function ThoughtAfterlife() {
               ${escLevel >= 2 ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-error);background:rgba(255,138,158,.1);padding:2px 8px;border-radius:var(--md-sys-shape-full);">ESCALATED x${escLevel}</span>` : ''}
               ${t.urgencyTier ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${t.urgencyTier}</span>` : ''}
             </div>
-            <p style="font:var(--md-sys-typescale-body-large);margin:0 0 0.5rem;">${t.content || 'Untitled thought'}</p>
+            <p style="font:var(--md-sys-typescale-body-large);margin:0 0 0.5rem;">${escHtml(t.content || 'Untitled thought')}</p>
             <div style="display:flex;gap:1rem;font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">
-              ${t.category ? `<span>${t.category}</span>` : ''}
-              ${t.actionVerb ? `<span>Action: ${t.actionVerb}</span>` : ''}
+              ${t.category ? `<span>${escHtml(t.category)}</span>` : ''}
+              ${t.actionVerb ? `<span>Action: ${escHtml(t.actionVerb)}</span>` : ''}
               ${t.halfLifeHours ? `<span>Half-life: ${t.halfLifeHours}h</span>` : ''}
             </div>
           </div>
           <div style="text-align:right;min-width:100px;">
             <div style="font:var(--md-sys-typescale-title-small);color:${tierColor};">${hrs < 1 ? '< 1h' : `${Math.round(hrs)}h`}</div>
-            <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">remaining</div>
+            <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">remaining</div>
             ${t.expiresAt ? `<div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);margin-top:2px;" title="Expires: ${new Date(t.expiresAt).toLocaleString()}">⏱ ${formatCountdown(t.expiresAt)}</div>` : ''}
           </div>
         </div>
@@ -171,10 +173,10 @@ export function ThoughtAfterlife() {
       return;
     }
     list.innerHTML = archived.slice(0, 20).map(t =>
-      `<div class="surface-card" style="padding:0.75rem 1rem;opacity:0.7;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font:var(--md-sys-typescale-body-medium);">${t.content || 'Untitled'}</span>
-          <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">${t.category || ''}</span>
+      `<div class="surface-card" style="padding:1rem;display:flex;justify-content:space-between;align-items:center;">
+        <div style="flex:1;overflow:hidden;">
+          <div style="font:var(--md-sys-typescale-body-large);margin-bottom:0.25rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">${escHtml(t.content || 'Untitled')}</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">${escHtml(t.category || 'Archived')}</div>
         </div>
       </div>`
     ).join('');
