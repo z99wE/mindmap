@@ -33,7 +33,10 @@ RUN npm ci --omit=dev
 COPY server.js .
 COPY package.json .
 COPY orchestrator.js .
+COPY memory-graph.js .
+COPY agent-reach-integration.js .
 COPY src/ ./src/
+COPY features/ ./features/
 
 # Copy built frontend assets from STAGE 1
 COPY --from=frontend-builder /app/frontend/dist ./src/frontend/dist

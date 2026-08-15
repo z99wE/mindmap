@@ -195,22 +195,29 @@ async function createCaspianClient(dbPool) {
         }
       }
 
+      // Query user's custom configured channels from DB
+      let targetCh = null;
+      let activeChannelName = channelLower;
+      try {
+        const chResult = await _pool.query(
+          'SELECT platform, credentials, display_name FROM channels WHERE user_id = $1 AND is_active = true',
+          [to]
+        );
+        if (chResult.rows.length > 0) {
+          // Find the requested channel, or fallback to the first active custom channel
+          targetCh = chResult.rows.find(c => c.platform.toLowerCase() === channelLower) || chResult.rows[0];
+          activeChannelName = targetCh.platform.toLowerCase();
+        }
+      } catch (e) {
+        console.warn(`[Caspian] Failed to query user channels:`, e.message);
+      }
+
       // ── Try real Caspian delivery ──────────────────────────────────────
+      let caspianFailed = false;
       if (isLive && client) {
         try {
-          // Query user's custom configured channels from DB
           let customConn = null;
-          let activeChannelName = channelLower;
-          const chResult = await _pool.query(
-            'SELECT platform, credentials FROM channels WHERE user_id = $1 AND is_active = true',
-            [to]
-          ).catch(() => ({ rows: [] }));
-
-          if (chResult.rows.length > 0) {
-            // Find the requested channel, or fallback to the first active custom channel
-            const targetCh = chResult.rows.find(c => c.platform.toLowerCase() === channelLower) || chResult.rows[0];
-            activeChannelName = targetCh.platform.toLowerCase();
-            
+          if (targetCh) {
             try {
               const credsStr = decrypt(targetCh.credentials);
               const creds = JSON.parse(credsStr);
@@ -247,26 +254,48 @@ async function createCaspianClient(dbPool) {
               return;
             } catch (fallbackErr) {
               console.warn(`[Caspian] Fallback ${fallbackChannel} failed:`, fallbackErr.message);
+              caspianFailed = true;
             }
           }
         } catch (e) {
           console.warn(`[Caspian] Delivery failed for ${channelLower}:`, e.message);
-          // Fall through to stub mode
+          caspianFailed = true;
         }
       }
 
-      // ── Stub mode fallback (same as original server.js stub) ───────────
-      try {
-        // Query user's active channels from DB for logging
-        const chResult = await _pool.query(
-          'SELECT platform, display_name FROM channels WHERE user_id = $1 AND is_active = true',
-          [to]
-        ).catch(() => ({ rows: [] }));
+      // ── NATIVE GRACEFUL FALLBACK (BYOK) ────────────────────────────────
+      // If Caspian SDK is not live, or it failed (exhausted credits, invalid key),
+      // we fall back to native sending using the user's provided API credentials.
+      if (!isLive || caspianFailed) {
+        if (targetCh) {
+          try {
+            const credsStr = decrypt(targetCh.credentials);
+            const creds = JSON.parse(credsStr);
+            console.log(`[Native Fallback] Attempting direct native delivery via ${activeChannelName} for user ${to}`);
+            
+            let sentNatively = false;
+            if (activeChannelName === 'telegram' && creds.bot_token && creds.chat_id) {
+              sentNatively = await _sendNativeTelegram(creds.bot_token, creds.chat_id, message);
+            } else if (activeChannelName === 'slack' && creds.bot_token && creds.channel_id) {
+              sentNatively = await _sendNativeSlack(creds.bot_token, creds.channel_id, message);
+            } else if (activeChannelName === 'email' && creds.smtp_host && creds.email) {
+              sentNatively = await _sendNativeEmail(creds, to, message);
+            }
 
-        if (chResult.rows.length > 0) {
-          for (const ch of chResult.rows) {
-            console.log(`[Caspian:stub] ${ch.platform} → ${to}: ${message.slice(0, 80)}`);
+            if (sentNatively) {
+              await _storeNotification(_pool, to, activeChannelName, message);
+              return;
+            }
+          } catch (e) {
+            console.warn(`[Native Fallback] Native delivery failed for ${activeChannelName}:`, e.message);
           }
+        }
+      }
+
+      // ── Final Stub mode fallback (Browser/DB push) ───────────
+      try {
+        if (targetCh) {
+          console.log(`[Caspian:stub] ${activeChannelName} → ${to}: ${message.slice(0, 80)}`);
         } else {
           console.log(`[Caspian:stub] browser → ${to}: ${message.slice(0, 80)}`);
         }
@@ -351,6 +380,82 @@ async function createCaspianClient(dbPool) {
   };
 
   return adapter;
+}
+
+/**
+ * Native Telegram Sender
+ */
+async function _sendNativeTelegram(botToken, chatId, message) {
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: message })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.description || 'Telegram API Error');
+    console.log(`[Native Fallback] ✅ Telegram sent natively`);
+    return true;
+  } catch (err) {
+    throw err;
+  }
+}
+
+/**
+ * Native Slack Sender
+ */
+async function _sendNativeSlack(botToken, channelId, message) {
+  try {
+    const res = await fetch(`https://slack.com/api/chat.postMessage`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${botToken}`
+      },
+      body: JSON.stringify({ channel: channelId, text: message })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Slack API Error');
+    console.log(`[Native Fallback] ✅ Slack sent natively`);
+    return true;
+  } catch (err) {
+    throw err;
+  }
+}
+
+/**
+ * Native Email Sender
+ */
+async function _sendNativeEmail(creds, userId, message) {
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: creds.smtp_host,
+      port: parseInt(creds.smtp_port) || 587,
+      secure: parseInt(creds.smtp_port) === 465,
+      auth: {
+        user: creds.email,
+        pass: creds.password
+      }
+    });
+
+    // Query user email to send it to them
+    const { pool: localPool } = require('./db');
+    const userRes = await localPool.query('SELECT email FROM users WHERE id = $1', [userId]);
+    if (userRes.rows.length === 0) throw new Error('User email not found');
+    const userEmail = userRes.rows[0].email;
+
+    await transporter.sendMail({
+      from: `"Thought GPS" <${creds.email}>`,
+      to: userEmail,
+      subject: 'Cognitive Nudge',
+      text: message
+    });
+    console.log(`[Native Fallback] ✅ Email sent natively to ${userEmail}`);
+    return true;
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**

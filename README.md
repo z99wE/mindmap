@@ -1,91 +1,100 @@
-# Thought GPS (Cognitive Coprocessor)
+# 🧠 Thought GPS (Cognitive Coprocessor)
+
+[![Render](https://img.shields.io/badge/Render-Deployed-success?logo=render)](https://render.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](#)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-blue?logo=postgresql)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **A Multi-Channel Autonomous Memory Graph & Behavioral Coprocessor for ADHD & Neuro-Diverse Minds.**
 
----
+Traditional productivity platforms (Todoist, Notion, calendars) assume a **neurotypical baseline** of executive function. For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms fail because once a thought is written down in a closed app, it disappears from short-term working memory, leading to immediate task abandonment.
 
-## 💡 The Problem Statement (Why We Exist)
-Traditional productivity platforms (Todoist, Notion, calendars) assume a **neurotypical baseline** of executive function. For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms fail due to:
-1. **The ADHD Tax & Out-of-Sight, Out-of-Mind**: Once a thought is written down in a closed app, it disappears from short-term working memory, leading to immediate task abandonment.
-2. **Cognitive Stagnation & Time Blindness**: Estimating travel times, transition overheads, or recognizing when one is stuck in a dopamine loop (stagnant in a single location) is a severe bottleneck.
-3. **Accountability Erosion**: Personal commitments fail when there is no social enforcement mechanism or "witness" to check in when a deadline passes.
-
-**Thought GPS is a Cognitive Coprocessor.** It operates as an invisible, zero-friction layer that captures, classifies, updates, and escalates thoughts across real-world messaging channels (WhatsApp, Signal, Telegram) using vector memory, OSRM routing, and autonomous agent loops.
+**Thought GPS is a Cognitive Coprocessor.** It operates as an invisible, zero-friction layer that captures, classifies, updates, and escalates thoughts across real-world messaging channels (Telegram, Slack, Email) using vector memory, OSRM routing, and autonomous agent loops.
 
 ---
 
-## 🦄 Novel Features & Innovation Modes
+## ✨ Core Features (Production Ready)
 
-### 1. The Thought Half-Life Engine (Decay Mode)
-Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an active **Half-Life Decay Rate** based on their category (Health, Finance, Work).
+### 1. Autonomous Memory Graph (pgvector)
+Thoughts are not just text. They are vectorized and mapped into a multidimensional Knowledge Graph. Relationships between thoughts, locations, and people are mapped dynamically.
 
-### 2. Commitment Witness (Accountability Mode)
-A novel social-proofing system built directly into the pgvector memory graph to prevent self-sabotage.
+### 2. Multi-Tenant Native Fallback (Zero API Costs)
+Thought GPS completely sidesteps expensive third-party notification APIs. It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture. 
+If one channel fails, the system automatically degrades gracefully across your connected channels (Telegram → Slack → Email → Web Push) to ensure you never miss a cognitive nudge.
 
-### 3. Thought Archaeology (Regret Ledger Mode)
-Weekly zero-judgment cognitive ledgers sent every Sunday at 8 PM.
+### 3. OmniRoute (Multi-LLM Intelligence)
+Enterprise-grade operations running at a **$0 operational budget** using OmniRoute, automatically routing your requests across 90+ free AI providers for intelligent thought classification and processing.
 
-### 4. Zero-Cost Intelligence (OmniRoute & SearXNG Mode)
-Enterprise-grade operations running at a **$0 operational budget** using OmniRoute and public SearXNG instances.
+### 4. The Thought Half-Life Engine (Decay Mode)
+Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an active **Half-Life Decay Rate** based on their category. Actionable items decay faster and escalate across your channels before they expire.
 
-### 5. Time-Blindness & Location Drift Compensation
-Active location-aware assistance using geofencing.
-
----
-
-## 📁 Project Structure
-
-```
-phase2-working/
-├── server.js                    # Main API server
-├── llm-router.js                # 5-level LLM routing
-├── paywall-system.js            # 3-tier monetization
-├── memory-graph.js              # PostgreSQL/pgvector graph
-├── omni-route-integration.js    # 90+ free LLM providers
-├── web-scraper.js               # Real web scraping (free)
-├── orchestrator.js              # DAG workflow engine
-├── admin-dashboard.js           # Admin console
-├── tts-engine.js                # Text-to-speech
-├── agent-reach-integration.js   # Live thought processing
-├── api-gateway/                 # Main API endpoints
-└── src/frontend/                # Sci-Fi UI (Carbon Design)
-```
+### 5. Commitment Witness (Accountability Mode)
+A novel social-proofing system built directly into the memory graph. It automatically triggers notifications to designated witness contacts when you miss a self-imposed deadline, preventing self-sabotage.
 
 ---
 
-## 🛠️ Tech Stack
+## 🔌 Connected Channels & Integrations
 
-- **Runtime**: Node.js 18+
-- **Language**: JavaScript (no TypeScript overhead)
-- **Database**: PostgreSQL + pgvector (FREE)
-- **Memory**: Knowledge Graph (triple-based storage)
-- **Channels**: Caspian SDK (WhatsApp, Telegram, Slack, etc.)
-- **LLM**: OmniRoute (90+ free providers), OpenAI, Anthropic
-- **Voice**: Assembly AI, Deepgram, Servum, Piper (all free)
-- **Hosting**: Render (free PostgreSQL tier)
-- **Frontend**: Vite + Vanilla JS (no React)
+Thought GPS seamlessly bridges the gap between the app and the platforms you already use every day. Users can connect the following channels in the **Connected Channels** dashboard:
+
+- **Telegram**: Native integration (Requires Bot Token & Chat ID).
+- **Slack**: Native integration (Requires Bot Token & Channel ID).
+- **Email (SMTP)**: Native delivery (Requires standard SMTP credentials).
+- **Web Push**: Browser-native push notifications fallback.
+- **Discord, WhatsApp, SMS, Signal, Bluesky, Twitter (X)**: Supported via the Caspian SDK or webhooks.
 
 ---
 
-## 🚀 Quick Deploy
+## 🚀 Easy Installation (1-Click Ready)
 
-### 1. Start Backend
+Thought GPS is built to be deployed seamlessly. Follow these instructions to get it running locally or on the cloud.
 
+### Option 1: Cloud Deployment (Render & Docker) - Recommended
+
+We've provided a fully-configured `render.yaml` and `Dockerfile` for instant deployment on [Render](https://render.com) (or any Docker-compatible platform).
+
+1. Fork or clone this repository.
+2. Sign in to Render and select **Blueprints** -> **New Blueprint Instance**.
+3. Connect your GitHub repository.
+4. Render will automatically detect the `render.yaml` and spin up both your web service and a free PostgreSQL database.
+5. In your Render Dashboard, set your environment variables (see `.env.example`).
+
+### Option 2: Local Development Setup
+
+#### Prerequisites
+- Node.js (v20+ recommended)
+- PostgreSQL (with the `pgvector` extension installed)
+
+#### 1. Clone & Install
 ```bash
-cd phase2-working
+git clone https://github.com/yourusername/Thought-GPS.git
+cd Thought-GPS/phase2-working
+
+# Install Backend Dependencies
 npm install
-npm run dev
-# Or use: node server.js
-# API runs on http://localhost:3333
+
+# Install Frontend Dependencies
+cd src/frontend
+npm install
+cd ../..
 ```
 
-### 2. Start Frontend (Sci-Fi UI)
-
+#### 2. Configure Environment
+Copy the example environment file and fill in your database credentials:
 ```bash
-cd phase2-working/src/frontend
-npm install
-npm run dev
-# Frontend runs on http://localhost:3331
+cp .env.example .env
 ```
+Make sure to set `DATABASE_URL` pointing to your local Postgres instance with `pgvector` enabled.
+
+#### 3. Run the App
+Start the full stack with a single command:
+```bash
+npm run dev
+```
+- **Backend API**: Runs on `http://localhost:3001` (by default)
+- **Frontend UI**: Runs on `http://localhost:3331` (Vite)
+
+Navigate to the frontend URL to start building your external brain!
 
 ---
 
@@ -93,25 +102,14 @@ npm run dev
 
 | Component | Cost |
 |-----------|------|
-| PostgreSQL (Render) | $0 (free tier) |
-| Redis (Upstash) | $0 (free tier) |
-| Web Scraping | $0 (SearXNG public) |
-| Agent-Reach | $0 (self-hosted) |
-| OmniRoute | $0 (90+ free providers) |
-| **Total** | **$0/month** |
-
----
-
-## 📡 Caspian SDK Integration (Communication Core)
-
-Caspian is the backbone of the platform's multi-channel alert delivery. It functions as the secure outbound gateway to bridge local automated triggers with real-world notifications:
-* **How It Is Used**:
-  * **Thought Half-Life nudges**: Escalates alerts (e.g., from silent queue to direct WhatsApp notifications) when actionable thoughts approach their expiration threshold.
-  * **Commitment Witness alerts**: Automatically checks active database deadlines, triggers notifications to designated witness contacts when commitment time limits expire, and prompts accountability updates.
-  * **Geofence & Departure rules**: Integrates with local geo-monitoring (monitored by background check loops) to send real-time warnings to WhatsApp and email.
+| **Database** (PostgreSQL / Render Free Tier) | $0/month |
+| **Notifications** (Telegram/Slack/Email via Native Fallback) | $0/month |
+| **AI Processing** (OmniRoute 90+ Free Models) | $0/month |
+| **Web Scraping** (Public SearXNG) | $0/month |
+| **Hosting** (Render Free Tier) | $0/month |
+| **Total Operational Cost** | **$0/month** |
 
 ---
 
 ## 📄 License
-
-MIT
+MIT License
