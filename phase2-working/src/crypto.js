@@ -8,8 +8,15 @@ function encrypt(text) {
 }
 
 function decrypt(ciphertext) {
-  const bytes = CryptoJS.AES.decrypt(ciphertext, ENCRYPTION_KEY);
-  return bytes.toString(CryptoJS.enc.Utf8);
+  try {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    // If decryption yields nothing, it might be raw unencrypted JSON
+    return decrypted || ciphertext;
+  } catch (e) {
+    // If decryption fails (e.g. Malformed UTF-8), fallback to raw text
+    return ciphertext;
+  }
 }
 
 function maskKey(key) {
