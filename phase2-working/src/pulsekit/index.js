@@ -26,6 +26,7 @@ const { createTelegramChannel } = require('./channels/telegram');
 const { createEmailChannel }    = require('./channels/email');
 const { createDiscordChannel }  = require('./channels/discord');
 const { createSlackChannel }    = require('./channels/slack');
+const { createWhatsappChannel } = require('./channels/whatsapp');
 const { createWebPushChannel }  = require('./channels/webpush');
 const { PulseQueue }            = require('./queue');
 const { decrypt }               = require('../crypto');
@@ -83,6 +84,15 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
     globalChannels.set('slack', sl);
   } catch (e) {
     console.warn('[PulseKit] Slack init failed:', e.message);
+  }
+
+  // WhatsApp global listener (webhook-only if no token)
+  try {
+    const wa = createWhatsappChannel({ token: null, phoneId: null });
+    await wa.init();
+    globalChannels.set('whatsapp', wa);
+  } catch (e) {
+    console.warn('[PulseKit] WhatsApp init failed:', e.message);
   }
 
   // Email (SMTP / nodemailer)
@@ -162,6 +172,10 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           user: creds.smtp_user, pass: creds.smtp_pass,
           from: creds.smtp_from || creds.smtp_user,
         });
+        await driver.init();
+      } else if (platform === 'whatsapp' && creds.bot_token && creds.chat_id) {
+        // chat_id is used as phoneId for WhatsApp Cloud API
+        driver = createWhatsappChannel({ token: creds.bot_token, phoneId: creds.chat_id });
         await driver.init();
       }
     } catch (e) {
@@ -335,10 +349,25 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
     },
 
     /**
+     * HANDLE_WEBHOOK_EVENT — proxy HTTP webhook payloads to the correct channel driver.
+     */
+    handleWebhookEvent: async (channel, payload) => {
+      // 1. Check global channel
+      if (globalChannels.has(channel)) {
+        const driver = globalChannels.get(channel);
+        if (typeof driver.handleWebhook === 'function') {
+          return await driver.handleWebhook(payload);
+        }
+      }
+      return null;
+    },
+
+    /**
      * START_LISTENING — begin polling/webhook for inbound messages.
      * Non-blocking — runs as background loop.
      */
     startListening: async () => {
+      // Start global listeners
       for (const [name, driver] of globalChannels.entries()) {
         if (typeof driver.startPolling === 'function') {
           try {
@@ -349,17 +378,36 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           }
         }
       }
-    },
 
-    /**
-     * HANDLE_WEBHOOK_EVENT — proxy HTTP webhook payloads to the correct channel driver.
-     */
-    handleWebhookEvent: async (platform, payload) => {
-      const driver = globalChannels.get(platform);
-      if (driver && typeof driver.handleWebhook === 'function') {
-        return await driver.handleWebhook(payload);
-      } else {
-        console.warn(`[PulseKit] Webhook received for ${platform}, but channel is not active or has no handleWebhook method.`);
+      // Start user-specific listeners (e.g. IMAP polling)
+      try {
+        const result = await _pool.query('SELECT user_id, platform, credentials FROM channels WHERE is_active = true');
+        for (const row of result.rows) {
+          try {
+            const creds = JSON.parse(decrypt(row.credentials));
+            const driver = await getUserDriver(row.user_id, row.platform, creds);
+            if (driver) {
+              // Wire user inbound messages to the main inbound handlers
+              driver.onMessage(async (msg) => {
+                for (const handler of inboundHandlers) {
+                  try {
+                    await handler({ from: msg.from, message: msg.text, channel: row.platform, reply: msg.reply });
+                  } catch (e) {
+                    console.error(`[PulseKit] User inbound handler error on ${row.platform}:`, e.message);
+                  }
+                }
+              });
+
+              if (typeof driver.startPolling === 'function') {
+                await driver.startPolling();
+              }
+            }
+          } catch (e) {
+            console.warn(`[PulseKit] Could not start polling for user ${row.user_id} on ${row.platform}:`, e.message);
+          }
+        }
+      } catch (e) {
+        console.warn(`[PulseKit] Failed to load user channels for polling:`, e.message);
       }
     },
 

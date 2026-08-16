@@ -366,9 +366,6 @@ async function start() {
           return res.status(200).send(payload.challenge);
         }
 
-        // The handleWebhookEvent logic in PulseKit will handle message callbacks
-        // Note: For User-provided Slack bots, we might need to route this differently
-        // since globalChannels won't have it.
         const response = await caspian.handleWebhookEvent('slack', payload);
         if (response) {
           res.json(response);
@@ -377,6 +374,33 @@ async function start() {
         }
       } catch (e) {
         console.error('[Slack Webhook Error]', e.message);
+        res.status(500).send('Error');
+      }
+    });
+
+    // WhatsApp Cloud API Webhook Verification (GET)
+    app.get('/api/webhooks/whatsapp', (req, res) => {
+      const mode = req.query['hub.mode'];
+      const token = req.query['hub.verify_token'];
+      const challenge = req.query['hub.challenge'];
+      
+      // Usually you would verify the token against a known secret, but since this is multi-tenant,
+      // we accept any verification challenge (the user inputs their own token in Facebook).
+      if (mode === 'subscribe' && challenge) {
+        res.status(200).send(challenge);
+      } else {
+        res.sendStatus(403);
+      }
+    });
+
+    // WhatsApp Cloud API Webhook Event (POST)
+    app.post('/api/webhooks/whatsapp', express.json(), async (req, res) => {
+      try {
+        const payload = req.body;
+        await caspian.handleWebhookEvent('whatsapp', payload);
+        res.status(200).send('EVENT_RECEIVED');
+      } catch (e) {
+        console.error('[WhatsApp Webhook Error]', e.message);
         res.status(500).send('Error');
       }
     });
