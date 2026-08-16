@@ -37,14 +37,31 @@ function validateEmailPassword(email, password) {
 // POST /api/auth/register
 router.post('/register', registerLimiter, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName, username, profession, country } = req.body;
     const validationError = validateEmailPassword(email, password);
     if (validationError) return res.status(400).json({ error: validationError });
-    const user = await register(email, password);
+
+    // Optional: validate username format
+    if (username && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      return res.status(400).json({ error: 'Username must be 3–20 characters (letters, numbers, underscores only)' });
+    }
+
+    const user = await register(email, password, { firstName, lastName, username, profession, country });
     const token = signToken(user);
     const refreshToken = signRefreshToken(user);
+
+    // Send welcome email (non-blocking)
+    try {
+      const { sendWelcomeEmail } = require('../mailer');
+      sendWelcomeEmail({ email: user.email, firstName: user.first_name }).catch(() => {});
+    } catch (e) { /* mailer unavailable */ }
+
     res.status(201).json({
-      user: { id: user.id, email: user.email, tier: user.tier },
+      user: {
+        id: user.id, email: user.email, tier: user.tier,
+        firstName: user.first_name, lastName: user.last_name,
+        username: user.username, profession: user.profession, country: user.country,
+      },
       token,
       refreshToken,
     });
@@ -95,7 +112,8 @@ router.get('/me', authMiddleware, async (req, res) => {
     const { pool } = require('../db');
     const result = await pool.query(
       `SELECT id, email, tier, is_admin, daily_runs_used, daily_runs_limit,
-              total_credits, notification_prefs, witness_contacts, data_sharing, web_search, created_at
+              total_credits, notification_prefs, witness_contacts, data_sharing, web_search,
+              first_name, last_name, username, profession, country, created_at
        FROM users WHERE id = $1`,
       [req.user.userId]
     );
@@ -113,6 +131,11 @@ router.get('/me', authMiddleware, async (req, res) => {
       witnessContacts: u.witness_contacts,
       dataSharing: u.data_sharing,
       webSearch: u.web_search,
+      firstName: u.first_name,
+      lastName: u.last_name,
+      username: u.username,
+      profession: u.profession,
+      country: u.country,
       createdAt: u.created_at,
     });
   } catch (err) {
@@ -138,6 +161,51 @@ router.post('/refresh', async (req, res) => {
     res.json({ token, refreshToken: newRefresh });
   } catch (err) {
     res.status(401).json({ error: 'Invalid refresh token' });
+  }
+});
+
+// PUT /api/auth/profile — update user profile fields
+router.put('/profile', authMiddleware, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    const { firstName, lastName, username, profession, country } = req.body;
+
+    if (username && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      return res.status(400).json({ error: 'Username must be 3–20 characters (letters, numbers, underscores only)' });
+    }
+
+    // Check username uniqueness if provided
+    if (username) {
+      const existing = await pool.query(
+        'SELECT id FROM users WHERE lower(username) = lower($1) AND id != $2',
+        [username, req.user.userId]
+      );
+      if (existing.rows.length > 0) return res.status(409).json({ error: 'Username already taken' });
+    }
+
+    const result = await pool.query(
+      `UPDATE users SET
+        first_name = COALESCE($1, first_name),
+        last_name  = COALESCE($2, last_name),
+        username   = COALESCE($3, username),
+        profession = COALESCE($4, profession),
+        country    = COALESCE($5, country),
+        updated_at = NOW()
+       WHERE id = $6
+       RETURNING id, email, tier, first_name, last_name, username, profession, country`,
+      [firstName || null, lastName || null, username || null, profession || null, country || null, req.user.userId]
+    );
+    const u = result.rows[0];
+    res.json({
+      success: true,
+      firstName: u.first_name,
+      lastName: u.last_name,
+      username: u.username,
+      profession: u.profession,
+      country: u.country,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

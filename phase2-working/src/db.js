@@ -224,10 +224,32 @@ async function runMigrations(retries = 5) {
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS location_tag VARCHAR(255)',
       // Booster columns
       'ALTER TABLE user_boosters ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL \'30 days\'',
+      // ── User Profile columns ──────────────────────────────────────────────────
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR(100)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR(100)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(50)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS profession VARCHAR(100)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR(100)',
     ];
     for (const sql of alterCols) {
       await client.query(sql).catch(() => {});
     }
+
+    // Unique index on username (case-insensitive)
+    await client.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(lower(username)) WHERE username IS NOT NULL').catch(() => {});
+
+    // ── Waitlist table (early access signups from pricing page) ──────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS waitlist (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(255),
+        plan VARCHAR(50) DEFAULT 'pro',
+        email_sent BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `).catch(() => {});
+    await client.query('CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email)').catch(() => {});
 
     // ── Audit log table (tracks sensitive operations) ─────────────────────────
     await client.query(`

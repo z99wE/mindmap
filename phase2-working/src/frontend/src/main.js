@@ -20,6 +20,7 @@ import { NotificationsLog } from './pages/NotificationsLog.js';
 import { AdminDashboard } from './pages/AdminDashboard.js';
 import { Legal } from './pages/Legal.js';
 import { MapMyMind } from './pages/MapMyMind.js';
+import { Profile } from './pages/Profile.js';
 import { initSpecularButtons } from './components/specularButton.js';
 import { initEnhancements } from './enhance.js';
 
@@ -58,6 +59,8 @@ const pageRegistry = {
 
   // Admin
   admin:               { title: 'Admin',           icon: 'admin_panel_settings', auth: true, section: 'admin', adminOnly: true },
+  // Hidden utility pages
+  profile:             { title: 'My Profile',      icon: 'account_circle',  auth: true,  section: 'hidden' },
 };
 
 const pageFactories = {
@@ -72,6 +75,7 @@ const pageFactories = {
   notifications: NotificationsLog,
   admin: AdminDashboard, legal: Legal,
   'map-my-mind': MapMyMind,
+  profile: Profile,
 };
 
 // ── Navigation Rendering ─────────────────────────────────────────────────────
@@ -226,11 +230,18 @@ function updateUserChip() {
   const chip = document.getElementById('user-name');
   if (!chip) return;
   if (user) {
-    chip.textContent = user.email?.split('@')[0] || 'User';
+    // Priority: firstName > username > email prefix
+    const displayName = user.firstName || user.username || user.email?.split('@')[0] || 'User';
+    chip.textContent = displayName;
+    // Tooltip with full name + email
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+    chip.title = fullName ? `${fullName}\n${user.email}` : user.email;
   } else {
     chip.textContent = 'Sign In';
+    chip.title = '';
   }
 }
+window.__updateUserChip = () => { user = api.getUser(); updateUserChip(); };
 
 async function updateNotifBadge() {
   if (!api.isLoggedIn()) return;
@@ -348,11 +359,7 @@ window.showPage = (page) => {
 
 window.handleUserClick = () => {
   if (api.isLoggedIn()) {
-    if (confirm('Sign out?')) {
-      api.clearAuth();
-      user = null;
-      renderPage('home');
-    }
+    renderPage('profile');
   } else {
     renderPage('auth');
   }

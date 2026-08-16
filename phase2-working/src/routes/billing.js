@@ -377,17 +377,36 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
 // POST /api/billing/waitlist - join waitlist
 router.post('/waitlist', async (req, res) => {
   try {
-    const { email, tier } = req.body;
+    const { email, tier, name } = req.body;
     if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
     
     const requestedTier = tier === 'pro' ? 'pro_tier' : 'managed_tier';
 
-    // Store in a simple waitlist (using audit_log for zero extra infra)
-    await pool.query(
-      "INSERT INTO audit_log (action, resource_type, resource_id, ip_address) VALUES ('WAITLIST_SIGNUP', $1, $2, $3)",
-      [requestedTier, email.toLowerCase(), req.ip || 'unknown']
+    // Store in proper waitlist table and send confirmation email
+    const insertResult = await pool.query(
+      `INSERT INTO waitlist (email, name, plan)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (email) DO UPDATE SET plan = EXCLUDED.plan, name = COALESCE(EXCLUDED.name, waitlist.name)
+       RETURNING id, email_sent`,
+      [email.toLowerCase(), name || null, requestedTier]
     );
-    res.json({ success: true, message: `You're on the waitlist! We'll notify you when the ${tier === 'pro' ? 'PRO' : 'Managed'} tier launches.` });
+
+    // Send confirmation email via Brevo (non-blocking)
+    if (!insertResult.rows[0]?.email_sent) {
+      try {
+        const { sendWaitlistConfirmation } = require('../mailer');
+        sendWaitlistConfirmation({ email: email.toLowerCase(), name, plan: requestedTier })
+          .then(async () => {
+            await pool.query('UPDATE waitlist SET email_sent = true WHERE email = $1', [email.toLowerCase()]).catch(() => {});
+          })
+          .catch((e) => console.error('[Waitlist] Email failed:', e.message));
+      } catch (e) { /* mailer unavailable */ }
+    }
+
+    res.json({
+      success: true,
+      message: `You're on the waitlist! Check your email — we'll let you know the moment ${requestedTier === 'managed' ? 'Managed' : 'Explorer Plus'} launches.`,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
