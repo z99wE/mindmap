@@ -314,6 +314,48 @@ async function start() {
     const orchestratorManager = new OrchestratorManager(pool, keyPool);
     orchestratorManager.startAutonomousAgent(caspian);
 
+    // Start listening for inbound messages (Telegram polling, etc.)
+    caspian.startListening();
+
+    caspian.onInbound(async ({ from, message, channel, reply }) => {
+      console.log(`[Inbound] ${channel} message from ${from}: ${message}`);
+      
+      try {
+        const result = await pool.query('SELECT user_id, credentials FROM channels WHERE platform = $1 AND is_active = true', [channel]);
+        
+        let userId = null;
+        for (const row of result.rows) {
+          try {
+            const { decrypt } = require('./src/crypto');
+            const creds = JSON.parse(decrypt(row.credentials));
+            if (creds.recipient_id === from || creds.channel_id === from) {
+              userId = row.user_id;
+              break;
+            }
+          } catch (e) { /* ignore */ }
+        }
+
+        if (userId) {
+          const userRes = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+          if (userRes.rows.length > 0) {
+            const userObj = userRes.rows[0];
+            await reply(`Processing thought...`);
+            const finalState = await orchestratorManager.runWorkflow(userId, message, userObj);
+            if (finalState.finalResponse) {
+               await reply(finalState.finalResponse);
+            } else {
+               await reply(`Thought logged to memory graph.`);
+            }
+          }
+        } else {
+          console.log(`[Inbound] Unknown sender ${from} on ${channel}`);
+          await reply(`UnZonko: I don't recognize this channel/user ID (${from}). Please connect this ID in your Mission Control.`);
+        }
+      } catch (err) {
+        console.error('[Inbound Error]', err.message);
+      }
+    });
+
     app.listen(PORT, () => {
       console.log(`[UnZonko] Server running on port ${PORT}`);
       console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);

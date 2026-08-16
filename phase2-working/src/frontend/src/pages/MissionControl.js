@@ -190,6 +190,9 @@ function channelsPanel() {
       <button class="btn-m3 btn-outlined" style="margin-top:1rem;width:100%;" id="test-all-channels">
         <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-primary);">TEST</span> Test All Channels
       </button>
+      <button class="btn-m3 btn-filled" style="margin-top:1rem;width:100%;" id="trigger-digest-btn">
+        <span class="mono-label" style="font-size:9px;color:var(--md-sys-color-on-primary);">SYNC</span> Trigger Manual Digest
+      </button>
       <div id="test-results" style="margin-top:1rem;display:none;"></div>
     </div>`;
 }
@@ -376,6 +379,24 @@ async function loadChannels(c) {
         <span class="mono-label" style="font-size:9px;color:${r.success ? 'var(--color-success)' : 'var(--md-sys-color-error)'};">${r.success ? 'PASS' : 'FAIL'}</span>
         <span style="font:var(--md-sys-typescale-body-small);">${r.platform}: ${r.message}</span>
       </div>`).join('');
+  });
+
+  // Manual digest trigger
+  c.querySelector('#trigger-digest-btn')?.addEventListener('click', async () => {
+    const btn = c.querySelector('#trigger-digest-btn');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-color:var(--md-sys-color-on-primary);border-top-color:transparent;display:inline-block;vertical-align:middle;margin-right:8px;"></div><span class="mono-label" style="font-size:9px;color:var(--md-sys-color-on-primary);">SYNCING...</span>';
+    
+    const r = await api.post('/channels/digest', {});
+    if (r.error) {
+      toast.show(r.error, 'error');
+    } else if (r.success) {
+      toast.show(r.message, 'success');
+    } else {
+      toast.show('Failed to trigger digest', 'error');
+    }
+    
+    btn.innerHTML = oldText;
   });
 }
 

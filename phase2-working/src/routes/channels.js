@@ -207,4 +207,32 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
   }
 });
 
+// POST /api/channels/digest - Trigger a manual digest
+router.post('/digest', authMiddleware, async (req, res) => {
+  try {
+    const memResult = await pool.query(
+      "SELECT value FROM memory_graph WHERE user_id = $1 AND status = 'pending' ORDER BY created_at DESC LIMIT 5",
+      [req.user.userId]
+    );
+    
+    if (memResult.rows.length === 0) {
+      return res.json({ success: true, message: "No active thoughts to digest." });
+    }
+
+    const digestText = memResult.rows.map(r => `• ${r.value}`).join('\n');
+    const message = `🧠 Your Cognitive Digest:\n\n${digestText}\n\nYou have ${memResult.rows.length} recent active threads.`;
+
+    const caspianClient = req.app.get('caspian');
+    if (caspianClient && caspianClient.isLive) {
+      // Send to their primary channel (or let caspian route it)
+      await caspianClient.send({ to: req.user.userId, message, title: 'UnZonko Digest' });
+      res.json({ success: true, message: "Digest dispatched to your channels." });
+    } else {
+      res.json({ success: false, message: "No channels are live to send the digest." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
