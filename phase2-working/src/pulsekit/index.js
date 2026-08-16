@@ -258,7 +258,8 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
     send: async ({ channel, to, message, title, meta = {}, notifId }) => {
       if (!message || !to) return;
 
-      const requested = (channel || 'webpush').toLowerCase();
+      const requested = channel || 'db';
+      const fallbackErrors = [];
 
       // Guard: block paid channels unless explicitly enabled
       if (PAID_CHANNELS.has(requested)) {
@@ -285,10 +286,13 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
             await driver.send({ to: target.creds.recipient_id || target.creds.channel_id || to, message, title });
             console.log(`[PulseKit] ✉ ${target.platform} (user) → ${to}: ${message.slice(0, 80)}`);
             await markDelivered(notifId);
-            return { delivered: true, channel: target.platform, via: 'user' };
+            return { delivered: true, channel: target.platform, via: 'user', errors: fallbackErrors };
           } catch (e) {
             console.warn(`[PulseKit] User channel ${target.platform} failed, trying global:`, e.message);
+            fallbackErrors.push(`User bot failed: ${e.message}`);
           }
+        } else {
+           fallbackErrors.push(`User bot failed to initialize. Check token.`);
         }
       }
 
@@ -299,9 +303,10 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           await driver.send({ to, message, title });
           console.log(`[PulseKit] ✉ ${requested} (global) → ${to}: ${message.slice(0, 80)}`);
           await markDelivered(notifId);
-          return { delivered: true, channel: requested, via: 'global' };
+          return { delivered: true, channel: requested, via: 'global', errors: fallbackErrors };
         } catch (e) {
           console.warn(`[PulseKit] Global ${requested} failed:`, e.message);
+          fallbackErrors.push(`Global bot failed: ${e.message}`);
         }
       }
 
@@ -314,15 +319,16 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           await driver.send({ to, message, title });
           console.log(`[PulseKit] ✉ ${ch} (fallback) → ${to}: ${message.slice(0, 80)}`);
           await markDelivered(notifId);
-          return { delivered: true, channel: ch, via: 'fallback' };
+          return { delivered: true, channel: ch, via: 'fallback', errors: fallbackErrors };
         } catch (e) {
           console.warn(`[PulseKit] Fallback ${ch} failed:`, e.message);
+          fallbackErrors.push(`Fallback ${ch} failed: ${e.message}`);
         }
       }
 
-      // ── DB only: in-app feed always there ────────────────────────────
+      // ── Attempt 4: DB-only fallback ─────────────────────────────────────
       console.log(`[PulseKit] 📋 DB-only → ${to}: ${message.slice(0, 80)}`);
-      return { delivered: false, channel: 'db', via: 'db-only' };
+      return { delivered: false, channel: 'db', via: 'db-only', errors: fallbackErrors };
     },
 
     /**

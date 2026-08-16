@@ -196,10 +196,17 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
     const caspianClient = req.app.get('caspian');
     if (caspianClient && caspianClient.isLive) {
       try {
-        const res = await caspianClient.send({ channel: channel.platform, to: req.user.userId, message: testMessage });
-        if (res && res.delivered === false) {
-           return res.status(400).json({ error: 'Delivery failed. The credentials might be invalid or the bot lacks permissions.' });
+        const response = await caspianClient.send({ channel: channel.platform, to: req.user.userId, message: testMessage });
+        
+        if (response && response.delivered === false) {
+           const errStr = response.errors ? `\nDetails: ${response.errors.join(' | ')}` : '';
+           return res.status(400).json({ error: `Delivery failed. The credentials might be invalid or the bot lacks permissions.${errStr}` });
         }
+        if (response && response.channel !== channel.platform) {
+           const errStr = response.errors ? `\nDetails: ${response.errors.join(' | ')}` : '';
+           return res.status(400).json({ error: `Failed to deliver via ${channel.platform}. Message was routed to ${response.channel} instead. Check your bot token and channel ID.${errStr}` });
+        }
+        return res.json({ success: true, message: `Test message sent to ${channel.platform}` });
       } catch (e) {
         console.warn(`[Channel Test] Caspian delivery failed:`, e.message);
         return res.status(400).json({ error: 'Delivery failed: ' + e.message });
