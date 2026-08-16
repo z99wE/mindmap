@@ -246,9 +246,11 @@ async function runMigrations(retries = 5) {
         name VARCHAR(255),
         plan VARCHAR(50) DEFAULT 'pro',
         email_sent BOOLEAN DEFAULT false,
+        country VARCHAR(100),
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `).catch(() => {});
+    await client.query('ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS country VARCHAR(100)').catch(() => {});
     await client.query('CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email)').catch(() => {});
 
     // ── Audit log table (tracks sensitive operations) ─────────────────────────

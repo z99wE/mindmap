@@ -43,11 +43,21 @@ async function sendEmail({ to, toName, subject, htmlContent }) {
 
 function waitlistTemplate({ name, plan }) {
   const displayName = name ? name.split(' ')[0] : 'there';
-  const planLabel = plan === 'managed' ? 'Managed / Enterprise' : 'Explorer Plus';
+  const isUpdates = plan === 'updates' || plan === 'newsletter';
+  const planLabel = plan === 'managed_tier' ? 'Managed / Enterprise' : 'Explorer Plus';
+  
+  const eyebrow = isUpdates ? 'Newsletter & Updates' : 'Early Access';
+  const headline = isUpdates 
+    ? `You're subscribed, ${displayName} 🚀`
+    : `You're on the list, ${displayName} 🧠`;
+  const bodyText = isUpdates
+    ? `Thank you for subscribing to updates and news from <strong style="color:#ccff00;">Thought GPS</strong>. We'll keep you in the loop with new features, cognitive science deep-dives, and product releases.`
+    : `We've reserved your spot for <strong style="color:#ccff00;">${planLabel}</strong>. You'll be among the first to experience Thought GPS when we open access.`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>You're on the Thought GPS waitlist</title></head>
+<title>You're on the list</title></head>
 <body style="margin:0;padding:0;background:#080a0f;font-family:'Inter',system-ui,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#080a0f;padding:40px 16px;">
     <tr><td align="center">
@@ -57,14 +67,20 @@ function waitlistTemplate({ name, plan }) {
           <span style="font:700 18px/40px Inter,system-ui;color:#f0f4ee;letter-spacing:-0.02em;vertical-align:top;margin-left:10px;">Thought GPS</span>
         </td></tr>
         <tr><td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:20px;padding:40px 36px;">
-          <p style="margin:0 0 8px;font:700 11px/1 Inter;letter-spacing:0.12em;color:#ccff00;text-transform:uppercase;">Early Access</p>
-          <h1 style="margin:0 0 16px;font:700 28px/1.2 Inter,system-ui;color:#f0f4ee;letter-spacing:-0.03em;">You're on the list, ${displayName} &#x1F9E0;</h1>
-          <p style="margin:0 0 24px;font:400 16px/1.6 Inter,system-ui;color:rgba(240,244,238,0.7);">We've reserved your spot for <strong style="color:#ccff00;">${planLabel}</strong>. You'll be among the first to experience Thought GPS when we open access.</p>
+          <p style="margin:0 0 8px;font:700 11px/1 Inter;letter-spacing:0.12em;color:#ccff00;text-transform:uppercase;">${eyebrow}</p>
+          <h1 style="margin:0 0 16px;font:700 28px/1.2 Inter,system-ui;color:#f0f4ee;letter-spacing:-0.03em;">${headline}</h1>
+          <p style="margin:0 0 24px;font:400 16px/1.6 Inter,system-ui;color:rgba(240,244,238,0.7);">${bodyText}</p>
           <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:24px 0;">
-          <p style="margin:0 0 12px;font:600 13px/1 Inter;color:rgba(240,244,238,0.9);letter-spacing:0.04em;text-transform:uppercase;">What happens next</p>
+          <p style="margin:0 0 12px;font:600 13px/1 Inter;color:rgba(240,244,238,0.9);letter-spacing:0.04em;text-transform:uppercase;">What to expect</p>
+          ${isUpdates ? `
+          <p style="margin:0 0 6px;font:400 14px/1.6 Inter;color:rgba(240,244,238,0.7);">&#x2022; Product announcements and early feature previews</p>
+          <p style="margin:0 0 6px;font:400 14px/1.6 Inter;color:rgba(240,244,238,0.7);">&#x2022; Tips for optimizing focus and navigating ADHD workflow</p>
+          <p style="margin:0 0 24px;font:400 14px/1.6 Inter;color:rgba(240,244,238,0.7);">&#x2022; We promise never to spam or clutter your inbox</p>
+          ` : `
           <p style="margin:0 0 6px;font:400 14px/1.6 Inter;color:rgba(240,244,238,0.7);">&#x2022; We'll email you the moment your access is ready</p>
           <p style="margin:0 0 6px;font:400 14px/1.6 Inter;color:rgba(240,244,238,0.7);">&#x2022; Early access users get a discount on the first month</p>
           <p style="margin:0 0 24px;font:400 14px/1.6 Inter;color:rgba(240,244,238,0.7);">&#x2022; Your cognitive coprocessor will be ready to help you think</p>
+          `}
           <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:24px 0;">
           <p style="margin:0 0 20px;font:400 14px/1.5 Inter;color:rgba(240,244,238,0.6);">In the meantime, you can start using the free tier — 10 runs/day, no card required.</p>
           <a href="https://thought-gps.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter,system-ui;padding:14px 28px;border-radius:100px;text-decoration:none;">Try the Free Tier &#x2192;</a>

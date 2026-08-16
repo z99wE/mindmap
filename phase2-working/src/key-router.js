@@ -102,10 +102,20 @@ class KeyRouter {
     // Shared env-key pool fallback (LLM group only)
     if (group === 'llm') {
       for (const provider of cfg.poolFallback) {
-        const poolKey = keyPool.getNextKey(provider);
-        if (poolKey) {
-          chain.push({ provider: poolKey.provider, type: 'shared', keys: [{ id: poolKey.id, masked: poolKey.id, key: poolKey.key }] });
-          break; // one pool route is enough; pool itself round-robins
+        const poolKeys = keyPool.keys.filter(k =>
+          k.provider === provider &&
+          !keyPool._isCoolingDown(k.id) &&
+          !keyPool._isRateLimited(k.id)
+        );
+        if (poolKeys.length > 0) {
+          const start = keyPool.currentIndex % poolKeys.length;
+          keyPool.currentIndex = (keyPool.currentIndex + 1) % poolKeys.length;
+          const rotated = [...poolKeys.slice(start), ...poolKeys.slice(0, start)];
+          chain.push({
+            provider,
+            type: 'shared',
+            keys: rotated.map(pk => ({ id: pk.id, masked: pk.id, key: pk.key }))
+          });
         }
       }
     }

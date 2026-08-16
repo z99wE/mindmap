@@ -41,13 +41,27 @@ export function Legal() {
         </div>
 
         <!-- Privacy -->
-        <div class="surface-card card-reveal" style="padding:1.5rem;">
-          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
+        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid rgba(163,230,53,0.2) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--md-sys-color-secondary);">
             <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
             Privacy &amp; Key Storage
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
             API keys are stored with AES-256 encryption and used only for provider communication on your behalf. Your thoughts and memories are isolated per-user with JWT-verified queries.
+          </p>
+        </div>
+
+        <!-- Waitlist & Email Collection Disclaimer -->
+        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid rgba(204,255,0,0.26) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--color-analytical);">
+            <span class="dot" style="width:8px;height:8px;background:var(--color-analytical);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
+            Data Collection &amp; Consent
+          </h2>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
+            We collect basic contact info (including email, name, and country location) when you register, subscribe to our newsletter, or join the early access waitlist. 
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            This data is used solely to manage your early access spot and send news and updates. Subscribing represents active consent. You can unsubscribe at any time using the link in the email or by contacting support.
           </p>
         </div>
 

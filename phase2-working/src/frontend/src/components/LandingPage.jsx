@@ -71,6 +71,13 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
   const stageRef = useRef(null);
   const reduce = useReducedMotion();
 
+  // Updates Form State
+  const [subEmail, setSubEmail] = useState('');
+  const [subName, setSubName] = useState('');
+  const [subCountry, setSubCountry] = useState('');
+  const [subStatus, setSubStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [subMsg, setSubMsg] = useState('');
+
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
@@ -319,6 +326,130 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* ── UPDATES & NEWSLETTER SIGNUP ── */}
+      <section className="tg-landing-section" style={{ padding: '4rem 1rem', maxWidth: '640px', margin: '0 auto' }}>
+        <motion.div
+          className="glass-strong card-reveal"
+          style={{
+            borderRadius: 'var(--md-sys-shape-extra-large)',
+            padding: '2.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.8, ease: EASE }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <span style={{ display: 'inline-block', font: '700 11px/1 Inter', letterSpacing: '0.12em', color: '#ccff00', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Stay Synced</span>
+            <h2 style={{ font: 'var(--md-sys-typescale-headline-small)', margin: '0 0 0.5rem', color: '#f0f4ee' }}>Get News & Cognitive Science Updates</h2>
+            <p style={{ font: 'var(--md-sys-typescale-body-medium)', color: 'var(--md-sys-color-on-surface-variant)', margin: 0 }}>Subscribe to product releases, cognitive hacks, and feature previews.</p>
+          </div>
+
+          {subStatus === 'success' ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(204,255,0,0.06)', borderRadius: 'var(--md-sys-shape-medium)', border: '1px solid rgba(204,255,0,0.2)' }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: '36px', color: '#ccff00', marginBottom: '0.5rem' }}>mark_email_read</span>
+              <p style={{ font: 'var(--md-sys-typescale-body-large)', color: '#f0f4ee', margin: '0 0 4px', fontWeight: 'bold' }}>You're on the list!</p>
+              <p style={{ font: 'var(--md-sys-typescale-body-medium)', color: 'var(--md-sys-color-on-surface-variant)', margin: 0 }}>{subMsg || 'Check your email for confirmation.'}</p>
+            </motion.div>
+          ) : (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!subEmail || !subEmail.includes('@')) {
+                  setSubStatus('error');
+                  setSubMsg('Please enter a valid email address.');
+                  return;
+                }
+                setSubStatus('loading');
+                try {
+                  const resp = await api.post('/billing/waitlist', {
+                    email: subEmail,
+                    name: subName || undefined,
+                    country: subCountry || undefined,
+                    tier: 'updates'
+                  });
+                  if (resp.error) {
+                    setSubStatus('error');
+                    setSubMsg(resp.error);
+                  } else {
+                    setSubStatus('success');
+                    setSubMsg(resp.message);
+                  }
+                } catch (err) {
+                  setSubStatus('error');
+                  setSubMsg(err.message || 'Something went wrong.');
+                }
+              }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ font: 'var(--md-sys-typescale-label-medium)', color: 'var(--md-sys-color-on-surface-variant)', display: 'block', marginBottom: '0.35rem' }}>Name</label>
+                  <input
+                    type="text"
+                    className="input-m3"
+                    placeholder="Jane Doe"
+                    value={subName}
+                    onChange={(e) => setSubName(e.target.value)}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ font: 'var(--md-sys-typescale-label-medium)', color: 'var(--md-sys-color-on-surface-variant)', display: 'block', marginBottom: '0.35rem' }}>Country</label>
+                  <input
+                    type="text"
+                    className="input-m3"
+                    placeholder="United States"
+                    value={subCountry}
+                    onChange={(e) => setSubCountry(e.target.value)}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ font: 'var(--md-sys-typescale-label-medium)', color: 'var(--md-sys-color-on-surface-variant)', display: 'block', marginBottom: '0.35rem' }}>Email <span style={{ color: 'var(--md-sys-color-error)' }}>*</span></label>
+                <input
+                  type="email"
+                  required
+                  className="input-m3"
+                  placeholder="jane@example.com"
+                  value={subEmail}
+                  onChange={(e) => setSubEmail(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}
+                />
+              </div>
+
+              {subStatus === 'error' && (
+                <div style={{ padding: '0.75rem', borderRadius: 'var(--md-sys-shape-small)', background: 'rgba(255,138,158,.1)', color: 'var(--md-sys-color-error)', font: 'var(--md-sys-typescale-body-small)' }}>
+                  {subMsg}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="btn-m3 btn-filled lg-hover"
+                disabled={subStatus === 'loading'}
+                style={{ width: '100%', height: '48px', fontWeight: 'bold', marginTop: '0.5rem' }}
+              >
+                {subStatus === 'loading' ? 'Subscribing...' : 'Keep Me Updated'}
+              </button>
+
+              <p style={{ font: 'var(--md-sys-typescale-body-small)', color: 'var(--md-sys-color-outline)', margin: '0.5rem 0 0', textAlign: 'center', fontSize: '11px', lineHeight: '1.4' }}>
+                By subscribing, you agree to our <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('legal'); }} style={{ textDecoration: 'underline', color: 'var(--md-sys-color-primary)' }}>Privacy Policy & Disclaimers</a>. We collect names, emails, and country details solely for communications, news, and waitlist management.
+              </p>
+            </form>
+          )}
+        </motion.div>
       </section>
 
       {/* ── CLOSING ── */}

@@ -374,21 +374,26 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/billing/waitlist - join waitlist
+// POST /api/billing/waitlist - join waitlist / newsletter updates
 router.post('/waitlist', async (req, res) => {
   try {
-    const { email, tier, name } = req.body;
+    const { email, tier, name, country } = req.body;
     if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
     
-    const requestedTier = tier === 'pro' ? 'pro_tier' : 'managed_tier';
+    let requestedTier = 'updates';
+    if (tier === 'pro') requestedTier = 'pro_tier';
+    else if (tier === 'managed') requestedTier = 'managed_tier';
 
     // Store in proper waitlist table and send confirmation email
     const insertResult = await pool.query(
-      `INSERT INTO waitlist (email, name, plan)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (email) DO UPDATE SET plan = EXCLUDED.plan, name = COALESCE(EXCLUDED.name, waitlist.name)
+      `INSERT INTO waitlist (email, name, plan, country)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (email) DO UPDATE SET 
+         plan = EXCLUDED.plan, 
+         name = COALESCE(EXCLUDED.name, waitlist.name),
+         country = COALESCE(EXCLUDED.country, waitlist.country)
        RETURNING id, email_sent`,
-      [email.toLowerCase(), name || null, requestedTier]
+      [email.toLowerCase(), name || null, requestedTier, country || null]
     );
 
     // Send confirmation email via Brevo (non-blocking)
@@ -403,9 +408,16 @@ router.post('/waitlist', async (req, res) => {
       } catch (e) { /* mailer unavailable */ }
     }
 
+    let successMsg = `You're on the list! Check your email — we'll keep you updated with the latest news.`;
+    if (requestedTier === 'pro_tier') {
+      successMsg = `You're on the waitlist! Check your email — we'll let you know the moment Explorer Plus launches.`;
+    } else if (requestedTier === 'managed_tier') {
+      successMsg = `You're on the waitlist! Check your email — we'll let you know the moment Managed launches.`;
+    }
+
     res.json({
       success: true,
-      message: `You're on the waitlist! Check your email — we'll let you know the moment ${requestedTier === 'managed' ? 'Managed' : 'Explorer Plus'} launches.`,
+      message: successMsg,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
