@@ -76,6 +76,7 @@ async function runMigrations(retries = 5) {
         half_life_hours FLOAT,
         urgency_tier VARCHAR(20),
         decay_status VARCHAR(20) DEFAULT 'active',
+        expires_at TIMESTAMPTZ,
         escalated_at TIMESTAMPTZ,
         commitment_deadline TIMESTAMPTZ,
         commitment_witness TEXT,
