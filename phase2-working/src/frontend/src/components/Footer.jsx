@@ -41,9 +41,7 @@ export default function Footer() {
             pauseOnHover={false}
             disabled={false}
           />
-          <p style={{ font: "var(--md-sys-typescale-body-medium)", color: "var(--md-sys-color-outline)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Clear the Mental fog
-          </p>
+
         </div>
       </div>
 

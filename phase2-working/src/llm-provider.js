@@ -103,7 +103,7 @@ async function callLLM(user, message, relatedMemories, intent, liveContext = [],
     ? `\n\nLive web context (Real-time live information):\n${liveContext.slice(0, 3).map(r => `- [${r.source}] ${r.content}`).join('\n')}`
     : '';
 
-  const systemPrompt = `You are UnZonko, a cognitive coprocessor for ADHD/neurodiverse users. You help Clear the Mental fog.
+  const systemPrompt = `You are UnZonko, a cognitive coprocessor for ADHD/neurodiverse users.
 You help organize thoughts, track commitments, detect patterns, and navigate cognitive load.
 Current intent: ${intent}.${contextStr}${localStr}${liveStr}
 ${liveContext.length > 0 ? '\nIMPORTANT: Real-time search results are provided above. Prioritize this live web context for any current news, status, or date-sensitive facts. Do NOT output outdated facts if the live context contains fresh information.\n' : ''}

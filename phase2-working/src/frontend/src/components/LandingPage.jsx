@@ -177,23 +177,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             ))}
           </motion.h1>
 
-          <motion.p
-            style={{
-              font: 'var(--md-sys-typescale-body-large)',
-              color: 'var(--md-sys-color-outline)',
-              marginTop: '1.5rem',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              textAlign: 'center',
-              zIndex: 2,
-              position: 'relative'
-            }}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
-          >
-            Clear the Mental fog
-          </motion.p>
+
 
           <motion.div
             className="tg-landing-ctas"
