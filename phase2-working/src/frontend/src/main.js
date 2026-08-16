@@ -33,7 +33,7 @@ const pageRegistry = {
   home:                { title: 'Home',            icon: 'home',           auth: false, section: 'main' },
   dashboard:           { title: 'Dashboard',       icon: 'dashboard',      auth: true,  section: 'main' },
   'interactive-space': { title: 'Chat',            icon: 'psychology',     auth: true,  section: 'main' },
-  'map-my-mind':       { title: 'Unzonk',          icon: 'explore',        auth: true,  section: 'main' },
+  'map-my-mind':       { title: 'Mind Map',        icon: 'explore',        auth: true,  section: 'main' },
   'mission-control':   { title: 'Mission Control', icon: 'settings_suggest',auth: true, section: 'main' },
 
   // Secondary (Cognitive Features)
@@ -217,10 +217,10 @@ function renderMobileDrawer() {
   }).join('');
   content.innerHTML = `
     <div class="nav-logo">
-      <div class="nav-logo-icon">U</div>
+      <div class="nav-logo-icon">T</div>
       <div>
-        <div class="nav-logo-text">Unzonk</div>
-        <div class="nav-logo-sub">Clear the Mental fog</div>
+        <div class="nav-logo-text">UnZonko</div>
+        <div class="nav-logo-sub">Cognitive Coprocessor</div>
       </div>
     </div>
     ${items}`;
@@ -315,7 +315,7 @@ function renderPage(page) {
 
   // Set page title
   const titleEl = document.getElementById('page-title');
-  if (titleEl) titleEl.textContent = pageRegistry[page]?.title || 'Unzonk';
+  if (titleEl) titleEl.textContent = pageRegistry[page]?.title || 'UnZonko';
 
   // Render page content
   if (factory) {

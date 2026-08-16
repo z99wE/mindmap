@@ -54,7 +54,7 @@ export function Home() {
           <div class="surface-card" style="padding:1.5rem;cursor:pointer;" onclick="showPage('map-my-mind')">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
               <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);"></span>
-              <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Unzonk</h2>
+              <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Mind Navigation</h2>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
               Navigate your mental landscape. See thoughts grouped by theme and connections.

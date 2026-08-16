@@ -307,7 +307,7 @@ async function createCaspianClient(dbPool) {
         try {
           const { sendWebPush } = require('./routes/notifications');
           await sendWebPush(to, {
-            title: 'Thought GPS',
+            title: 'UnZonko',
             body: message.slice(0, 200) || 'New cognitive nudge',
             tag: 'cognitive-nudge',
             data: { url: '/' },
@@ -446,7 +446,7 @@ async function _sendNativeEmail(creds, userId, message) {
     const userEmail = userRes.rows[0].email;
 
     await transporter.sendMail({
-      from: `"Thought GPS" <${creds.email}>`,
+      from: `"UnZonko" <${creds.email}>`,
       to: userEmail,
       subject: 'Cognitive Nudge',
       text: message

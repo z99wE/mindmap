@@ -159,12 +159,12 @@ router.get('/export', authMiddleware, async (req, res) => {
         `"${r.id}","${(r.content || '').replace(/"/g, '""')}","${r.category || ''}",${r.half_life_hours || ''},"${r.urgency_tier || ''}","${r.status || ''}","${r.created_at}"`
       ).join('\n');
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename=unzonk-export.csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=unzonko-export.csv');
       return res.send(header + rows);
     }
     
     if (format === 'markdown') {
-      let md = '# Unzonk Export\n\n';
+      let md = '# UnZonko Export\n\n';
       md += `*Exported on ${new Date().toLocaleString()}*\n\n`;
       result.rows.forEach(r => {
         md += `## ${r.category ? r.category.toUpperCase() : 'GENERAL'}\n`;
@@ -172,7 +172,7 @@ router.get('/export', authMiddleware, async (req, res) => {
         md += `> ${r.content}\n\n---\n\n`;
       });
       res.setHeader('Content-Type', 'text/markdown');
-      res.setHeader('Content-Disposition', 'attachment; filename=unzonk-export.md');
+      res.setHeader('Content-Disposition', 'attachment; filename=unzonko-export.md');
       return res.send(md);
     }
     

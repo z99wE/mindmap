@@ -42,7 +42,7 @@ function createEmailChannel({ host, port = 587, secure = false, user, pass, from
       await transporter.sendMail({
         from: from || user,
         to,
-        subject: title || 'Thought GPS — New Nudge',
+        subject: title || 'UnZonko — New Nudge',
         text: message,
         html: html || `<p>${message.replace(/\n/g, '<br/>')}</p>`,
       });

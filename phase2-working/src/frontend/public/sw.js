@@ -1,7 +1,7 @@
-// Unzonk - Service Worker for Web Push Notifications
+// UnZonko - Service Worker for Web Push Notifications
 // This SW handles push events and notification interactions
 
-const CACHE_NAME = 'unzonk-v1';
+const CACHE_NAME = 'thought-gps-v1';
 
 // Install: skip waiting immediately
 self.addEventListener('install', (event) => {
@@ -16,7 +16,7 @@ self.addEventListener('activate', (event) => {
 // Push event: show notification from server payload
 self.addEventListener('push', (event) => {
   let data = {
-    title: 'Unzonk',
+    title: 'UnZonko',
     body: 'You have a new notification',
     icon: '/icon-192.png',
     badge: '/badge-72.png',

@@ -1,7 +1,7 @@
 {
-  "name": "Unzonk — Clear the Mental fog",
-  "short_name": "Unzonk",
-  "description": "Your personal cognitive companion. A local-first, privacy-focused AI companion to clear the mental fog.",
+  "name": "UnZonko — Clear the Mental Fog",
+  "short_name": "UnZonko",
+  "description": "Your personal cognitive coprocessor. A local-first, privacy-focused AI companion.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0b0e",

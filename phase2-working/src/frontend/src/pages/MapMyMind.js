@@ -1,4 +1,4 @@
-// Thought GPS - Navigation-style thought visualization
+// UnZonko - Navigation-style thought visualization
 import api from '../lib/api.js';
 import { renderErrorState } from '../components/ErrorState.js';
 
@@ -8,7 +8,7 @@ export function MapMyMind() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">NAVIGATION</div>
-        <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0 0 0.25rem;">Unzonk</h1>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0 0 0.25rem;">Mind Navigation</h1>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
           Where are your thoughts heading? Navigate your mental landscape by theme, urgency, and connections.
         </p>

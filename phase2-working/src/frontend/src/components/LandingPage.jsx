@@ -177,6 +177,24 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
             ))}
           </motion.h1>
 
+          <motion.p
+            style={{
+              font: 'var(--md-sys-typescale-body-large)',
+              color: 'var(--md-sys-color-outline)',
+              marginTop: '1.5rem',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+              zIndex: 2,
+              position: 'relative'
+            }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
+          >
+            Clear the Mental fog
+          </motion.p>
+
           <motion.div
             className="tg-landing-ctas"
             initial={{ opacity: 0, y: 12 }}
@@ -347,7 +365,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
         >
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <span style={{ display: 'inline-block', font: '700 11px/1 Inter', letterSpacing: '0.12em', color: '#ccff00', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Stay Synced</span>
-            <h2 style={{ font: 'var(--md-sys-typescale-headline-small)', margin: '0 0 0.5rem', color: '#f0f4ee' }}>Get News & Unzonk updates</h2>
+            <h2 style={{ font: 'var(--md-sys-typescale-headline-small)', margin: '0 0 0.5rem', color: '#f0f4ee' }}>Get News & UnZonko updates</h2>
             <p style={{ font: 'var(--md-sys-typescale-body-medium)', color: 'var(--md-sys-color-on-surface-variant)', margin: 0 }}>Subscribe to product releases, cognitive hacks, and feature previews.</p>
           </div>
 

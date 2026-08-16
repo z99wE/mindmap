@@ -1,4 +1,4 @@
-// Thought GPS - Server Shell
+// UnZonko - Server Shell
 // Thin app shell that mounts route modules
 require('dotenv').config();
 const express = require('express');
@@ -146,7 +146,7 @@ app.get('*', (req, res) => {
   // SPA fallback: serve index.html for non-API routes
   if (!req.path.startsWith('/api/')) {
     res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
-      if (err) res.status(200).json({ status: 'Thought GPS API running', version: '3.0.0' });
+      if (err) res.status(200).json({ status: 'UnZonko API running', version: '3.0.0' });
     });
   } else {
     // Unknown API route → 404 JSON instead of hanging
@@ -315,9 +315,9 @@ async function start() {
     orchestratorManager.startAutonomousAgent(caspian);
 
     app.listen(PORT, () => {
-      console.log(`[Unzonk] Server running on port ${PORT}`);
-      console.log(`[Unzonk] Frontend: http://localhost:${PORT}`);
-      console.log(`[Unzonk] API: http://localhost:${PORT}/api/health`);
+      console.log(`[UnZonko] Server running on port ${PORT}`);
+      console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);
+      console.log(`[UnZonko] API: http://localhost:${PORT}/api/health`);
 
       // Start background keep-alive ping loop for Render free tier
       const externalUrl = process.env.RENDER_EXTERNAL_URL;
@@ -334,26 +334,26 @@ async function start() {
       }
     });
   } catch (err) {
-    console.error('[Unzonk] Startup failed:', err.message);
+    console.error('[UnZonko] Startup failed:', err.message);
     if (process.env.NODE_ENV === 'production') {
-      console.error('[Unzonk] Fatal error in production. Exiting.');
+      console.error('[UnZonko] Fatal error in production. Exiting.');
       process.exit(1);
     }
     // Start without DB in dev mode
     app.listen(PORT, () => {
-      console.log(`[Unzonk] Server running (no DB) on port ${PORT}`);
+      console.log(`[UnZonko] Server running (no DB) on port ${PORT}`);
     });
   }
 }
 
 // Global unhandled promise rejection handler
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('[Unzonk] Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('[UnZonko] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('[Unzonk] Shutting down...');
+  console.log('[UnZonko] Shutting down...');
   await flush();
   process.exit(0);
 });
