@@ -1,7 +1,7 @@
 # ==========================================
 # STAGE 1: Build Frontend
 # ==========================================
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
@@ -17,7 +17,7 @@ RUN npm run build
 # ==========================================
 # STAGE 2: Build Backend & Production Image
 # ==========================================
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
@@ -46,7 +46,7 @@ EXPOSE 3001
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3001}/api/health || exit 1
 
 # Start the application securely (avoid running as root if possible, but keeping it simple here)
 CMD ["node", "server.js"]
