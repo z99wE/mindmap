@@ -125,6 +125,11 @@ router.post('/connect', authMiddleware, async (req, res) => {
       [req.user.userId, platform, displayName || platformDef.name, encrypted, webhookUrl || null]
     );
 
+    const caspianClient = req.app.get('caspian');
+    if (caspianClient && typeof caspianClient.invalidateUserDriver === 'function') {
+      await caspianClient.invalidateUserDriver(req.user.userId, platform);
+    }
+
     res.status(201).json({ channel: result.rows[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -149,10 +154,16 @@ router.put('/:id/toggle', authMiddleware, async (req, res) => {
 // DELETE /api/channels/:id - disconnect a channel
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    await pool.query(
-      'DELETE FROM channels WHERE id = $1 AND user_id = $2',
+    const result = await pool.query(
+      'DELETE FROM channels WHERE id = $1 AND user_id = $2 RETURNING platform',
       [req.params.id, req.user.userId]
     );
+    if (result.rows.length > 0) {
+      const caspianClient = req.app.get('caspian');
+      if (caspianClient && typeof caspianClient.invalidateUserDriver === 'function') {
+        await caspianClient.invalidateUserDriver(req.user.userId, result.rows[0].platform);
+      }
+    }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

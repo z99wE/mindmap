@@ -433,6 +433,22 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
       }
     },
 
+    /**
+     * INVALIDATE_USER_DRIVER — remove a cached user driver so it reloads from DB on next use.
+     * Useful when a user updates their token or channel ID in the UI.
+     */
+    invalidateUserDriver: async (userId, platform) => {
+      const key = `${userId}_${platform}`;
+      if (userDriverCache.has(key)) {
+        const driver = userDriverCache.get(key);
+        if (typeof driver.destroy === 'function') {
+          try { await driver.destroy(); } catch (e) {}
+        }
+        userDriverCache.delete(key);
+        console.log(`[PulseKit] Invalidated cached driver for ${key}`);
+      }
+    },
+
     /** Health report — useful for admin dashboard */
     status: () => ({
       channels: [...globalChannels.keys()],
