@@ -97,7 +97,8 @@ async function runMigrations(retries = 5) {
     await client.query('CREATE INDEX IF NOT EXISTS idx_memory_category ON memory_graph(user_id, category)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_memory_decay ON memory_graph(user_id, decay_status)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_memory_commitment ON memory_graph(user_id, commitment_deadline)');
-    await client.query('CREATE INDEX IF NOT EXISTS idx_memory_expires ON memory_graph(user_id, expires_at)');
+    await client.query('ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ').catch(() => {});
+    await client.query('CREATE INDEX IF NOT EXISTS idx_memory_expires ON memory_graph(user_id, expires_at)').catch(() => {});
 
     // Create vector index for similarity search (ivfflat, requires at least 1000 rows to be effective)
     await client.query(`
