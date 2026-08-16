@@ -82,7 +82,7 @@ function waitlistTemplate({ name, plan }) {
           `}
           <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:24px 0;">
           <p style="margin:0 0 20px;font:400 14px/1.5 Inter;color:rgba(240,244,238,0.6);">In the meantime, you can start using the free tier — 10 runs/day, no card required.</p>
-          <a href="https://thought-gps.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter,system-ui;padding:14px 28px;border-radius:100px;text-decoration:none;">Try the Free Tier &#x2192;</a>
+          <a href="https://unzonko.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter,system-ui;padding:14px 28px;border-radius:100px;text-decoration:none;">Try the Free Tier &#x2192;</a>
         </td></tr>
         <tr><td style="padding-top:24px;text-align:center;">
           <p style="margin:0;font:400 12px/1.6 Inter;color:rgba(240,244,238,0.3);">UnZonko &#x2014; Your cognitive coprocessor<br>You're receiving this because you joined the waitlist.</p>
@@ -110,7 +110,7 @@ function welcomeTemplate({ firstName, email }) {
           <p style="margin:0 0 8px;font:700 11px/1 Inter;letter-spacing:0.12em;color:#ccff00;text-transform:uppercase;">Welcome</p>
           <h1 style="margin:0 0 16px;font:700 28px/1.2 Inter;color:#f0f4ee;letter-spacing:-0.03em;">Hello, ${name} &#x1F44B;</h1>
           <p style="margin:0 0 24px;font:400 16px/1.6 Inter;color:rgba(240,244,238,0.7);">Your UnZonko account is ready. Start capturing thoughts and letting your cognitive coprocessor do the heavy lifting.</p>
-          <a href="https://thought-gps.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter;padding:14px 28px;border-radius:100px;text-decoration:none;">Open UnZonko &#x2192;</a>
+          <a href="https://unzonko.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter;padding:14px 28px;border-radius:100px;text-decoration:none;">Open UnZonko &#x2192;</a>
         </td></tr>
         <tr><td style="padding-top:24px;text-align:center;">
           <p style="margin:0;font:400 12px/1.6 Inter;color:rgba(240,244,238,0.3);">UnZonko &#x2014; Your cognitive coprocessor</p>
