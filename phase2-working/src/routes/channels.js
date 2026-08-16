@@ -171,7 +171,12 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
 
     // Decrypt credentials for test
     const decrypted = decrypt(channel.credentials);
-    const creds = JSON.parse(decrypted);
+    let creds;
+    try {
+      creds = JSON.parse(decrypted);
+    } catch (e) {
+      return res.status(400).json({ error: 'Failed to decrypt credentials. The encryption key on the server may have changed. Please delete and re-add this channel.' });
+    }
 
     // Actual test send: log and store notification
     const testMessage = `[UnZonko Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
