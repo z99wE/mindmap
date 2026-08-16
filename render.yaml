@@ -9,7 +9,9 @@ services:
     dockerfilePath: Dockerfile
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: thought-gps-db
+          property: connectionString
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -30,3 +32,14 @@ services:
         sync: false
       - key: LIGHTNING_API_KEY
         sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: API_KEY_ENCRYPTION_SECRET
+        generateValue: true
+
+databases:
+  - name: thought-gps-db
+    databaseName: thought_gps
+    user: thought_gps_user
+    plan: free
+    region: oregon
