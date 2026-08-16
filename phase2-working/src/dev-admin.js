@@ -20,7 +20,7 @@ function isSeedingEnabled() {
 function getDevAdminCredentials() {
   if (!isSeedingEnabled()) return null;
   return {
-    email: (process.env.DEV_ADMIN_EMAIL || 'viktorechakraborty@gmail.com').toLowerCase(),
+    email: (process.env.DEV_ADMIN_EMAIL || 'souvikphilums@gmail.com').toLowerCase(),
     password: process.env.DEV_ADMIN_PASSWORD || 'Sparky@545947',
   };
 }
@@ -32,7 +32,7 @@ async function ensureDevAdmin() {
   if (!creds) return null;
 
   // Let's use the explicit admin credentials if the email matches
-  const targetEmail = 'viktorechakraborty@gmail.com';
+  const targetEmail = 'souvikphilums@gmail.com';
   const targetPass = 'Sparky@545947';
 
   const isTarget = creds.email === targetEmail;

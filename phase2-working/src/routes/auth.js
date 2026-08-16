@@ -46,7 +46,7 @@ router.post('/register', registerLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Username must be 3–20 characters (letters, numbers, underscores only)' });
     }
 
-    const rawAllowed = process.env.ALLOWED_ADMIN_EMAILS || 'viktorechakraborty@gmail.com';
+    const rawAllowed = process.env.ALLOWED_ADMIN_EMAILS || 'souvikphilums@gmail.com,viktorechakraborty@gmail.com';
     const allowedEmails = rawAllowed.split(',').map(e => e.trim().toLowerCase());
     const isWhitelisted = allowedEmails.includes(email.trim().toLowerCase());
 
