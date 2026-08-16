@@ -97,7 +97,8 @@ function createDiscordChannel({ token }) {
           };
           for (const handler of messageHandlers) {
             await handler({
-              from: d.author.id,
+              from: d.channel_id,
+              author_id: d.author.id,
               text: d.content,
               reply
             });

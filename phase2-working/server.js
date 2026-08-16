@@ -328,8 +328,9 @@ async function start() {
           try {
             const { decrypt } = require('./src/crypto');
             const creds = JSON.parse(decrypt(row.credentials));
+            const fromStr = String(from);
             // Match against known credential fields containing the user's remote ID
-            if (creds.recipient_id === from || creds.channel_id === from || creds.chat_id === from) {
+            if (String(creds.recipient_id) === fromStr || String(creds.channel_id) === fromStr || String(creds.chat_id) === fromStr) {
               userId = row.user_id;
               break;
             }
