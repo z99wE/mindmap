@@ -1,44 +1,18 @@
-// Brevo Transactional Email — REST API (no extra npm packages needed)
-// Docs: https://developers.brevo.com/reference/sendtransacemail
+// Resend Transactional Email — REST API
+// Docs: https://resend.com/docs/api-reference/emails/send-email
 'use strict';
-
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'noreply@thought-gps.com';
-const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || 'Thought GPS';
-const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_SENDER_EMAIL = process.env.RESEND_SENDER_EMAIL || 'onboarding@resend.dev';
 const RESEND_SENDER_NAME = process.env.RESEND_SENDER_NAME || 'Thought GPS';
-const RESEND_URL = 'https://api.resend.com/emails';
+const API_URL = 'https://api.resend.com/emails';
 
-async function sendEmailViaBrevo({ to, toName, subject, htmlContent }) {
-  const body = JSON.stringify({
-    sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
-    to: [{ email: to, name: toName || to }],
-    subject,
-    htmlContent,
-  });
-
-  const resp = await fetch(BREVO_URL, {
-    method: 'POST',
-    headers: {
-      'api-key': BREVO_API_KEY,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body,
-  });
-
-  const data = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    throw new Error(data.message || `Brevo API error ${resp.status}`);
+async function sendEmail({ to, toName, subject, htmlContent }) {
+  if (!RESEND_API_KEY) {
+    console.warn('[Mailer] RESEND_API_KEY not set — skipping email to', to);
+    return { skipped: true };
   }
-  console.log('[Mailer] Email sent via Brevo to', to, '| messageId:', data.messageId);
-  return data;
-}
 
-async function sendEmailViaResend({ to, toName, subject, htmlContent }) {
   const body = JSON.stringify({
     from: `${RESEND_SENDER_NAME} <${RESEND_SENDER_EMAIL}>`,
     to: [to],
@@ -46,7 +20,7 @@ async function sendEmailViaResend({ to, toName, subject, htmlContent }) {
     html: htmlContent,
   });
 
-  const resp = await fetch(RESEND_URL, {
+  const resp = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${RESEND_API_KEY}`,
@@ -57,36 +31,11 @@ async function sendEmailViaResend({ to, toName, subject, htmlContent }) {
 
   const data = await resp.json().catch(() => ({}));
   if (!resp.ok) {
-    throw new Error(data.message || `Resend error ${resp.status}`);
+    console.error('[Mailer] Resend error:', resp.status, data);
+    throw new Error(data.message || `Resend API error ${resp.status}`);
   }
-  console.log('[Mailer] Email sent via Resend to', to, '| id:', data.id);
+  console.log('[Mailer] Email sent via Resend to', to, '| messageId:', data.id);
   return data;
-}
-
-async function sendEmail({ to, toName, subject, htmlContent }) {
-  // Try Brevo first
-  if (BREVO_API_KEY) {
-    try {
-      const data = await sendEmailViaBrevo({ to, toName, subject, htmlContent });
-      return data;
-    } catch (e) {
-      console.warn('[Mailer] Brevo send failed, trying Resend fallback:', e.message);
-    }
-  }
-
-  // Fallback to Resend
-  if (RESEND_API_KEY) {
-    try {
-      const data = await sendEmailViaResend({ to, toName, subject, htmlContent });
-      return data;
-    } catch (e) {
-      console.error('[Mailer] Resend send failed:', e.message);
-      throw e;
-    }
-  }
-
-  console.warn('[Mailer] Neither Brevo nor Resend keys are set — skipping email to', to);
-  return { skipped: true };
 }
 
 // ── Email Templates ──────────────────────────────────────────────────────────

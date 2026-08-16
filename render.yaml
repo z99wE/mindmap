@@ -36,13 +36,6 @@ services:
         generateValue: true
       - key: API_KEY_ENCRYPTION_SECRET
         generateValue: true
-      # Email (Brevo) — values set via Render API, not synced from yaml
-      - key: BREVO_API_KEY
-        sync: false
-      - key: BREVO_SENDER_EMAIL
-        sync: false
-      - key: BREVO_SENDER_NAME
-        sync: false
       # Email (Resend) — alternative provider/fallback
       - key: RESEND_API_KEY
         sync: false
