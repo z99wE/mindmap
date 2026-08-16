@@ -108,7 +108,7 @@ export function HowItWorks() {
                 <span style="color:#ea4335;font:700 14px/1 'Space Grotesk';">✉️</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">System Alert</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">thought-gps-email</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Email / Browser</div>
               </div>
             </div>
