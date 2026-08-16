@@ -218,7 +218,12 @@ export function InteractiveSpace() {
     }
 
     if (result.error) {
-      chatArea.innerHTML += `<div style="padding:0.75rem;border-radius:var(--md-sys-shape-small);background:rgba(255,138,158,.1);color:var(--md-sys-color-error);margin-bottom:0.75rem;">${escHtml(result.error)}</div>`;
+      let errorHtml = `<div style="padding:0.75rem;border-radius:var(--md-sys-shape-small);background:rgba(255,138,158,.1);color:var(--md-sys-color-error);margin-bottom:0.75rem;">${escHtml(result.error)}`;
+      if (result.upgradeUrl) {
+        errorHtml += `<div style="margin-top:0.75rem;"><button class="btn-m3 btn-filled" onclick="showPage('credits')" style="font-size:12px;height:32px;">ADD API KEY OR GET CREDITS</button></div>`;
+      }
+      errorHtml += `</div>`;
+      chatArea.innerHTML += errorHtml;
     } else {
       // AI response bubble
       const classStrip = buildClassificationStrip(result);

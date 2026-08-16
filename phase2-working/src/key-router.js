@@ -100,7 +100,7 @@ class KeyRouter {
     }
 
     // Shared env-key pool fallback (LLM group only)
-    if (group === 'llm' && user?.tier !== 'free') {
+    if (group === 'llm') {
       for (const provider of cfg.poolFallback) {
         const poolKey = keyPool.getNextKey(provider);
         if (poolKey) {

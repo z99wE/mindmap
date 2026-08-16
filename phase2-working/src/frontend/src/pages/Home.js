@@ -139,7 +139,11 @@ function setupQuickCapture(container) {
     resultEl.style.display = 'block';
 
     if (result.error) {
-      resultEl.innerHTML = `<div style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-medium);">${escHtml(result.error)}</div>`;
+      let errorHtml = `<div style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-medium);">${escHtml(result.error)}</div>`;
+      if (result.upgradeUrl) {
+        errorHtml += `<div style="margin-top:0.75rem;"><button class="btn-m3 btn-filled" onclick="showPage('credits')" style="font-size:12px;height:32px;">ADD API KEY OR GET CREDITS</button></div>`;
+      }
+      resultEl.innerHTML = errorHtml;
     } else {
       const c = result.classification || {};
       resultEl.innerHTML = `
