@@ -143,6 +143,12 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           return null;
         }
       }).filter(Boolean);
+    } catch (e) {
+      console.warn(`[PulseKit] Error getting user channels for ${userId}:`, e.message);
+      return [];
+    }
+  }
+
   // ── Helper: get or create a per-user channel driver (cached in memory) ────
   const userDriverCache = new Map(); // `${userId}_${platform}` → driver
 
