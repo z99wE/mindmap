@@ -318,6 +318,20 @@ async function start() {
       console.log(`[Thought GPS] Server running on port ${PORT}`);
       console.log(`[Thought GPS] Frontend: http://localhost:${PORT}`);
       console.log(`[Thought GPS] API: http://localhost:${PORT}/api/health`);
+
+      // Start background keep-alive ping loop for Render free tier
+      const externalUrl = process.env.RENDER_EXTERNAL_URL;
+      if (externalUrl) {
+        console.log(`[Keep-Alive] Render host detected: ${externalUrl}. Starting self-ping loop...`);
+        setInterval(async () => {
+          try {
+            const res = await fetch(`${externalUrl}/api/health`);
+            console.log(`[Keep-Alive] Self-ping status: ${res.status}`);
+          } catch (e) {
+            console.error(`[Keep-Alive] Self-ping failed:`, e.message);
+          }
+        }, 10 * 60 * 1000); // Ping every 10 minutes (Render sleep threshold is 15 minutes)
+      }
     });
   } catch (err) {
     console.error('[Thought GPS] Startup failed:', err.message);
