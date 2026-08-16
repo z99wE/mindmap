@@ -21,7 +21,7 @@ async function runMigrations(retries = 5) {
       client = await pool.connect();
       break; // Successfully connected
     } catch (err) {
-      console.error(`[DB] Connection failed (error: ${err.message}), retries left: ${retries - 1}`);
+      console.error('[DB] Connection failed:', err);
       retries -= 1;
       if (retries === 0) throw err;
       await new Promise(res => setTimeout(res, 5000)); // wait 5s before retrying
