@@ -57,7 +57,7 @@ router.post('/register', registerLimiter, async (req, res) => {
     // Lock registration in production to whitelisted admin/beta emails only
     const isProd = process.env.NODE_ENV === 'production';
     if (isProd && !isWhitelisted && !isBetaWhitelisted) {
-      return res.status(403).json({ error: 'Thought GPS is currently in private beta. Registration is restricted.' });
+      return res.status(403).json({ error: 'Unzonk is currently in private beta. Registration is restricted.' });
     }
 
     // Auto-promote whitelisted admin registrations; normal registrations get free tier

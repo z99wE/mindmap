@@ -8,7 +8,7 @@ import RippleGrid from './RippleGrid';
 
 export default function Footer() {
   return (
-    <section className="brand-signoff" aria-label="Thought GPS">
+    <section className="brand-signoff" aria-label="Unzonk">
       {/* Grid in background */}
       <div style={{ width: '100%', height: '500px', position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
         <RippleGrid
@@ -28,10 +28,10 @@ export default function Footer() {
       </div>
 
       {/* Text in foreground */}
-      <div style={{ position: 'relative', zIndex: 1, height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', zIndex: 1, height: '500px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
         <div className="brand-signoff-mark" style={{ width: "100%", textAlign: "center" }}>
           <ShinyText
-            text="Thought GPS"
+            text="Unzonk"
             speed={2}
             color="#b5b5b5"
             shineColor="#ffffff"
@@ -41,6 +41,9 @@ export default function Footer() {
             pauseOnHover={false}
             disabled={false}
           />
+        </div>
+        <div style={{ font: 'italic 400 16px/1 var(--font-heading)', color: 'rgba(240,244,238,0.4)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Clear the Mental fog
         </div>
       </div>
 

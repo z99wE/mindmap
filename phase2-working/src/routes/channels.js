@@ -174,7 +174,7 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
     const creds = JSON.parse(decrypted);
 
     // Actual test send: log and store notification
-    const testMessage = `[Thought GPS Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
+    const testMessage = `[Unzonk Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
 
     // Use real Caspian delivery if client is available
     const caspianClient = req.app.get('caspian');

@@ -6,8 +6,8 @@ export default function TopLogo({ mobile }) {
   if (mobile) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content' }}>
-        <div className="nav-logo-icon" style={{ width: '28px', height: '28px', fontSize: '14px' }}>T</div>
-        <ShinyText text="Thought GPS" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 700 16px/1 var(--font-heading)' }} />
+        <div className="nav-logo-icon" style={{ width: '28px', height: '28px', fontSize: '14px' }}>U</div>
+        <ShinyText text="Unzonk" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 700 16px/1 var(--font-heading)' }} />
       </div>
     );
   }
@@ -18,7 +18,7 @@ export default function TopLogo({ mobile }) {
         <RippleGrid enableRainbow gridColor="#84CC16" mouseInteraction={false} gridSize={8.0} gridThickness={12.0} />
       </div>
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-        <ShinyText text="Thought GPS" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 800 20px/1 var(--font-heading)', letterSpacing: '0.05em' }} />
+        <ShinyText text="Unzonk" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 800 20px/1 var(--font-heading)', letterSpacing: '0.05em' }} />
       </div>
     </div>
   );

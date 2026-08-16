@@ -5,7 +5,7 @@ export function HowItWorks() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;text-align:center;">
         <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">DEMO</div>
-        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0 0 0.5rem;">See Thought GPS in Action</h1>
+        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0 0 0.5rem;">See Unzonk in Action</h1>
         <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin:0;max-width:600px;margin:0 auto;">
           Your cognitive navigator delivers through the apps you already use. Watch how nudges, briefs, and route updates arrive in real-time.
         </p>
@@ -18,10 +18,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#075e54;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#25d366;display:grid;place-items:center;">
-                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">T</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">Thought GPS</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">Unzonk</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">WhatsApp</div>
               </div>
             </div>
@@ -38,10 +38,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#2b5278;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#0088cc;display:grid;place-items:center;">
-                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">T</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">Thought GPS Bot</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">Unzonk Bot</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Telegram</div>
               </div>
             </div>
@@ -58,7 +58,7 @@ export function HowItWorks() {
                 <span style="color:#fff;font:bold 14px/1 system-ui;">#</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">#thought-gps</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">#unzonk</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Slack</div>
               </div>
             </div>
@@ -72,10 +72,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#ccff00;display:grid;place-items:center;">
-                <span style="color:#000;font:700 14px/1 'Space Grotesk';">T</span>
+                <span style="color:#000;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Thought GPS</div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Unzonk</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Navigate</div>
               </div>
             </div>
@@ -89,10 +89,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#10b981;display:grid;place-items:center;">
-                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">T</span>
+                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Thought GPS</div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Unzonk</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Push</div>
               </div>
             </div>
@@ -205,9 +205,9 @@ export function HowItWorks() {
       return `<div style="padding:0.5rem 0.6rem;border-left:3px solid #611f69;max-width:90%;">
         <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.25rem;">
           <div style="width:18px;height:18px;border-radius:4px;background:#611f69;display:grid;place-items:center;">
-            <span style="color:#fff;font:700 9px/1 'Space Grotesk';">T</span>
+            <span style="color:#fff;font:700 9px/1 'Space Grotesk';">U</span>
           </div>
-          <span style="font:bold 11px/1 system-ui;color:#111;">Thought GPS</span>
+          <span style="font:bold 11px/1 system-ui;color:#111;">Unzonk</span>
           <span style="font:9px/1 system-ui;color:#999;">${msg.time}</span>
         </div>
         <div style="font:12px/1.5 system-ui;color:#333;">${msg.text}</div>

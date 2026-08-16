@@ -315,9 +315,9 @@ async function start() {
     orchestratorManager.startAutonomousAgent(caspian);
 
     app.listen(PORT, () => {
-      console.log(`[Thought GPS] Server running on port ${PORT}`);
-      console.log(`[Thought GPS] Frontend: http://localhost:${PORT}`);
-      console.log(`[Thought GPS] API: http://localhost:${PORT}/api/health`);
+      console.log(`[Unzonk] Server running on port ${PORT}`);
+      console.log(`[Unzonk] Frontend: http://localhost:${PORT}`);
+      console.log(`[Unzonk] API: http://localhost:${PORT}/api/health`);
 
       // Start background keep-alive ping loop for Render free tier
       const externalUrl = process.env.RENDER_EXTERNAL_URL;
@@ -334,26 +334,26 @@ async function start() {
       }
     });
   } catch (err) {
-    console.error('[Thought GPS] Startup failed:', err.message);
+    console.error('[Unzonk] Startup failed:', err.message);
     if (process.env.NODE_ENV === 'production') {
-      console.error('[Thought GPS] Fatal error in production. Exiting.');
+      console.error('[Unzonk] Fatal error in production. Exiting.');
       process.exit(1);
     }
     // Start without DB in dev mode
     app.listen(PORT, () => {
-      console.log(`[Thought GPS] Server running (no DB) on port ${PORT}`);
+      console.log(`[Unzonk] Server running (no DB) on port ${PORT}`);
     });
   }
 }
 
 // Global unhandled promise rejection handler
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('[Thought GPS] Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('[Unzonk] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('[Thought GPS] Shutting down...');
+  console.log('[Unzonk] Shutting down...');
   await flush();
   process.exit(0);
 });

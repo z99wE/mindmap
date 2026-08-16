@@ -30,7 +30,7 @@ export function APIKeys() {
         <div style="display:flex;gap:0.6rem;align-items:flex-start;">
           <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
           <p id="usage-disclaimer" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin:0;line-height:1.5;">
-            Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how Thought GPS functions.
+            Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how Unzonk functions.
           </p>
         </div>
       </div>

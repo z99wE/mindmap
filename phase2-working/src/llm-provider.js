@@ -46,8 +46,8 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
   }
 
   if (provider === 'openrouter') {
-    headers['HTTP-Referer'] = 'https://thoughtgps.local';
-    headers['X-Title'] = 'Thought GPS';
+    headers['HTTP-Referer'] = 'https://unzonk.local';
+    headers['X-Title'] = 'Unzonk';
   }
 
   let body;
@@ -103,7 +103,7 @@ async function callLLM(user, message, relatedMemories, intent, liveContext = [],
     ? `\n\nLive web context (Real-time live information):\n${liveContext.slice(0, 3).map(r => `- [${r.source}] ${r.content}`).join('\n')}`
     : '';
 
-  const systemPrompt = `You are Thought GPS, a cognitive coprocessor for ADHD/neurodiverse users.
+  const systemPrompt = `You are Unzonk, a cognitive companion built to clear the mental fog for ADHD/neurodiverse users.
 You help organize thoughts, track commitments, detect patterns, and navigate cognitive load.
 Current intent: ${intent}.${contextStr}${localStr}${liveStr}
 ${liveContext.length > 0 ? '\nIMPORTANT: Real-time search results are provided above. Prioritize this live web context for any current news, status, or date-sensitive facts. Do NOT output outdated facts if the live context contains fresh information.\n' : ''}

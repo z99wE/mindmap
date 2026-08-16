@@ -362,7 +362,7 @@ function classifyIntent(text) {
 }
 
 function buildSystemPrompt(state) {
-  let prompt = `You are Thought GPS, a cognitive coprocessor that helps organize thoughts, identify patterns, and surface insights.
+  let prompt = `You are Unzonk, a cognitive companion built to clear the mental fog, help organize thoughts, identify patterns, and surface insights.
 
 Your role:
 - Analyze the user's input and provide thoughtful, actionable responses
@@ -524,7 +524,7 @@ class OrchestratorManager {
             if (userPendingCount > 3 && caspian) {
               console.log(`🧭 [Autonomous Agent] Detecting potential cognitive drift for user ${targetUser} (${userPendingCount} stale items)`);
               
-              const message = "Thought GPS Autonomous Agent here 🧭: I noticed you have several thoughts pending for a while. Are you stuck or just busy? Need help organizing them?";
+              const message = "Unzonk Autonomous Agent here 🧭: I noticed you have several thoughts pending for a while. Are you stuck or just busy? Need help organizing them?";
               
               try {
                 // We'll use the 'caspian' instance passed in (which routes to PulseKit/Caspian)

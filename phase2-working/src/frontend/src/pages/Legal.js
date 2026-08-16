@@ -9,9 +9,10 @@ export function Legal() {
           <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-on-surface-variant);box-shadow:0 0 12px rgba(204,255,0,0.2);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Legal Notice</h1>
         </div>
-        <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-          AI disclaimer, terms summary, and privacy information for Thought GPS.
-        </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            AI disclaimer, terms summary, and privacy information for Unzonk.
+          </p>
+        </div>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-top:1.5rem;">
@@ -22,7 +23,7 @@ export function Legal() {
             Medical &amp; Legal Disclaimer
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7; font-weight: 500;">
-            This is NOT a medical, legal, psychiatric, or mental wellness tool. It is provided strictly for educational, productivity, and entertainment purposes. Thought GPS does not diagnose, treat, or prevent ADHD, anxiety, depression, or any other cognitive condition. Consult a licensed professional for medical or psychiatric advice.
+            This is NOT a medical, legal, psychiatric, or mental wellness tool. It is provided strictly for educational, productivity, and entertainment purposes. Unzonk does not diagnose, treat, or prevent ADHD, anxiety, depression, or any other cognitive condition. Consult a licensed professional for medical or psychiatric advice.
           </p>
         </div>
 

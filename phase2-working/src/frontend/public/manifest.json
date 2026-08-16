@@ -1,7 +1,7 @@
 {
-  "name": "Thought GPS — Cognitive Coprocessor",
-  "short_name": "Thought GPS",
-  "description": "Your personal cognitive coprocessor. A local-first, privacy-focused AI companion.",
+  "name": "Unzonk — Clear the Mental fog",
+  "short_name": "Unzonk",
+  "description": "Your personal cognitive companion. A local-first, privacy-focused AI companion to clear the mental fog.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0b0e",
