@@ -48,9 +48,17 @@ function createSlackChannel({ token }) {
     name: 'slack',
 
     async init() {
-      const res = await slackRequest(token, 'auth.test', {});
-      botInfo = res;
-      console.log(`[PulseKit:Slack] Bot: ${res.user} in workspace ${res.team}`);
+      if (!token) {
+        console.log(`[PulseKit:Slack] Initialized in webhook-only mode (no global token).`);
+        return;
+      }
+      try {
+        const res = await slackRequest(token, 'auth.test', {});
+        botInfo = res;
+        console.log(`[PulseKit:Slack] Bot: ${res.user} in workspace ${res.team}`);
+      } catch (e) {
+        console.warn(`[PulseKit:Slack] auth.test failed: ${e.message}`);
+      }
     },
 
     /**

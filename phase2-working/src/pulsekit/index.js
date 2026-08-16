@@ -76,16 +76,13 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
     }
   }
 
-  // Slack global bot (if configured)
-  if (process.env.SLACK_BOT_TOKEN) {
-    try {
-      const sl = createSlackChannel({ token: process.env.SLACK_BOT_TOKEN });
-      await sl.init();
-      globalChannels.set('slack', sl);
-      console.log('[PulseKit] ✅ Slack global bot ready');
-    } catch (e) {
-      console.warn('[PulseKit] Slack init failed:', e.message);
-    }
+  // Slack global bot (or webhook-only listener if no token)
+  try {
+    const sl = createSlackChannel({ token: process.env.SLACK_BOT_TOKEN || null });
+    await sl.init();
+    globalChannels.set('slack', sl);
+  } catch (e) {
+    console.warn('[PulseKit] Slack init failed:', e.message);
   }
 
   // Email (SMTP / nodemailer)

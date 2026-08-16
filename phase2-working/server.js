@@ -360,7 +360,15 @@ async function start() {
     app.post('/api/webhooks/slack', express.json(), async (req, res) => {
       try {
         const payload = req.body;
-        // The handleWebhookEvent logic in PulseKit will handle url_verification and message callbacks
+        
+        // Always respond to the URL verification challenge immediately
+        if (payload.type === 'url_verification') {
+          return res.status(200).send(payload.challenge);
+        }
+
+        // The handleWebhookEvent logic in PulseKit will handle message callbacks
+        // Note: For User-provided Slack bots, we might need to route this differently
+        // since globalChannels won't have it.
         const response = await caspian.handleWebhookEvent('slack', payload);
         if (response) {
           res.json(response);
