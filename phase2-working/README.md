@@ -9,7 +9,7 @@ UnZonko is an intelligent, omni-channel cognitive coprocessor designed to captur
 
 - **Omni-Channel Ingestion (PulseKit):** Send thoughts via Telegram, Discord, Slack, Email, or WebPush. The system unifies all inbound data streams effortlessly.
 - **Memory Graph Processing:** Thoughts are not just stored; they are semantically chunked, embedded, and mapped in a relational graph, establishing deep connections between isolated ideas over time.
-- **PicoClaw Autonomous Engine:** A zero-dependency, native ReAct (Reason-Act) background agent that wakes up periodically to consolidate fragmented memories, proactively resolve pending tasks, and nudge you with digests.
+- **Autonomous Agent Engine:** A zero-dependency, native ReAct (Reason-Act) background loop that wakes up periodically to consolidate fragmented memories, proactively resolve pending tasks, and nudge you with digests.
 - **Multi-Tenant Safety:** Strictly partitioned architecture ensures LLMs only ever see context bound to your specific `user_id`.
 - **BYOK (Bring Your Own Keys):** Users can input their own OpenAI or Groq API keys, avoiding massive centralized infrastructure costs.
 - **Render-Optimized (Zero Bloat):** Specifically engineered to run smoothly within a 512MB RAM budget on Render's free tier, avoiding heavy python/agent frameworks in favor of tightly-coupled native JS pipelines.
@@ -27,8 +27,8 @@ PulseKit replaces heavy third-party messaging wrappers (like Caspian) with nativ
 - Emits unified `{ from, message, channel, reply }` events into the Orchestrator.
 - Gracefully handles Webhooks for platforms like Slack and WhatsApp.
 
-### 3. PicoClaw Agent Loop
-Instead of importing Langchain or CrewAI, UnZonko ships with **PicoClaw** — a native ReAct loop embedded within the `OrchestratorManager`. 
+### 3. Autonomous Agent Loop
+Instead of importing Langchain or CrewAI, UnZonko ships with a native ReAct loop embedded within the `OrchestratorManager`. 
 - **Operation:** Every 10 minutes, the engine queries the database for users with 3 or more "pending" unstructured thoughts.
 - **Agentic Capability:** It spawns an isolated LLM loop equipped with a tool registry (e.g. `consolidate_memories`, `send_message`).
 - **Cost-Bound:** The loop is hard-capped at 3 iterations to prevent runaway token expenditure.
