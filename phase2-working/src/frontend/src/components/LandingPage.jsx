@@ -1,3 +1,6 @@
+// Landing page — premium liquid-glass facelift.
+// Behaviour is unchanged: same props, same navigation targets, same feature copy.
+// Presentation only: one accent, no icons, no pill tags, scroll-linked hero.
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import RippleDistortion from './RippleDistortion';
