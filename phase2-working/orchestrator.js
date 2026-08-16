@@ -497,61 +497,155 @@ class OrchestratorManager {
   }
 
   startAutonomousAgent(caspian) {
-    console.log('🤖 Starting background autonomous agent for drift detection & memory consolidation...');
+    console.log('🤖 Starting background autonomous agent (PicoClaw native loop)...');
     
-    // Run every 60 seconds for demo purposes
+    // Run every 10 minutes in production for free tier safety
     setInterval(async () => {
       try {
         const client = await this.pool.connect();
         try {
-          // 1. Memory Consolidation: Find fragmented pending items that share concepts
+          // Find users with 3 or more pending items older than 10 minutes
           const pendingRes = await client.query(
-            `SELECT id, user_id, value, created_at 
+            `SELECT user_id, COUNT(*) as count 
              FROM memory_graph 
-             WHERE status = 'pending' AND created_at < NOW() - INTERVAL '1 hour'
-             ORDER BY created_at ASC LIMIT 50`
+             WHERE status = 'pending' AND created_at < NOW() - INTERVAL '10 minutes'
+             GROUP BY user_id HAVING COUNT(*) >= 3 LIMIT 10`
           );
           
-          if (pendingRes.rows.length > 0) {
-            console.log(`🧠 [Autonomous Agent] Found ${pendingRes.rows.length} pending items to evaluate for consolidation`);
-            
-            // Just picking the oldest user for demo drift detection
-            const targetUser = pendingRes.rows[0].user_id;
-            
-            // 2. Drift Detection: If a user has many pending items, simulate a check-in
-            const userPendingCount = pendingRes.rows.filter(r => r.user_id === targetUser).length;
-            
-            if (userPendingCount > 3 && caspian) {
-              console.log(`🧭 [Autonomous Agent] Detecting potential cognitive drift for user ${targetUser} (${userPendingCount} stale items)`);
-              
-              const message = "UnZonko Autonomous Agent here 🧭: I noticed you have several thoughts pending for a while. Are you stuck or just busy? Need help organizing them?";
-              
-              try {
-                // We'll use the 'caspian' instance passed in (which routes to PulseKit/Caspian)
-                await caspian.send({
-                  channel: 'whatsapp', // Default fallback
-                  to: targetUser,
-                  message
-                });
-                console.log(`📩 [Autonomous Agent] Drift check-in sent to ${targetUser}`);
-                
-                // FIX: Mark these items so we don't spam the user every 60 seconds
-                await client.query(
-                  `UPDATE memory_graph SET status = 'drift_notified' WHERE user_id = $1 AND status = 'pending'`,
-                  [targetUser]
-                );
-              } catch (err) {
-                console.log(`⚠️ [Autonomous Agent] Could not send message: ${err.message}`);
-              }
-            }
+          if (pendingRes.rows.length === 0) return;
+          
+          console.log(`🧠 [PicoClaw] Found ${pendingRes.rows.length} users needing cognitive organization.`);
+          
+          for (const row of pendingRes.rows) {
+            await this.runPicoClawAgent(row.user_id, client, caspian);
           }
         } finally {
           client.release();
         }
       } catch (err) {
-        console.error('❌ [Autonomous Agent] Error in background job:', err.message);
+        console.error('❌ [PicoClaw] Error in background job:', err.message);
       }
-    }, 60000); // 60 seconds
+    }, 10 * 60 * 1000); // 10 minutes
+  }
+
+  async runPicoClawAgent(userId, client, caspian) {
+    console.log(`⚙️ [PicoClaw] Running agent loop for user ${userId}`);
+    
+    // Tool Registry
+    const tools = {
+      send_message: async ({ message, channel }) => {
+        try {
+          if (!caspian) return "Error: Caspian not available";
+          await caspian.send({ channel: channel || 'telegram', to: userId, message });
+          return `Sent message to user: ${message}`;
+        } catch (e) {
+          return `Error sending message: ${e.message}`;
+        }
+      },
+      consolidate_memories: async ({ ids, new_summary }) => {
+        try {
+          // Delete old, insert new
+          await client.query('DELETE FROM memory_graph WHERE id = ANY($1) AND user_id = $2', [ids, userId]);
+          await this.memoryManager.addFact(userId, new_summary, { status: 'consolidated' });
+          return `Consolidated ${ids.length} memories into: ${new_summary}`;
+        } catch (e) {
+          return `Error consolidating: ${e.message}`;
+        }
+      },
+      mark_as_resolved: async ({ ids }) => {
+        try {
+          await client.query("UPDATE memory_graph SET status = 'resolved' WHERE id = ANY($1) AND user_id = $2", [ids, userId]);
+          return `Marked ${ids.length} memories as resolved`;
+        } catch (e) {
+          return `Error resolving: ${e.message}`;
+        }
+      }
+    };
+
+    const toolDescriptions = `
+Available Tools (return JSON with 'action' and 'params'):
+1. {"action": "send_message", "params": {"message": "hello", "channel": "telegram"}} - Sends a message to the user.
+2. {"action": "consolidate_memories", "params": {"ids": [1, 2], "new_summary": "merged text"}} - Merges multiple related thoughts.
+3. {"action": "mark_as_resolved", "params": {"ids": [1, 2]}} - Marks items as resolved.
+4. {"action": "done", "params": {}} - Ends the agent loop.
+`;
+
+    // Fetch user keys
+    const userRes = await client.query('SELECT api_keys FROM users WHERE id = $1', [userId]);
+    const userKeys = userRes.rows[0]?.api_keys || {};
+    let provider = userKeys.groq ? 'groq' : (userKeys.openai ? 'openai' : null);
+    let apiKey = userKeys.groq || userKeys.openai;
+
+    if (!apiKey) {
+      const keyData = this.keyPool.getNextKey('groq');
+      if (keyData) {
+        provider = keyData.provider;
+        apiKey = keyData.key;
+      }
+    }
+    if (!apiKey) {
+      console.log(`[PicoClaw] Skipping user ${userId} due to missing API key.`);
+      return;
+    }
+
+    let iterations = 0;
+    const maxIterations = 3;
+    let contextHistory = [];
+
+    while (iterations < maxIterations) {
+      iterations++;
+      
+      const memories = await client.query(
+        "SELECT id, value, created_at FROM memory_graph WHERE status = 'pending' AND user_id = $1 ORDER BY created_at ASC LIMIT 10",
+        [userId]
+      );
+      
+      if (memories.rows.length === 0) break;
+      const memoryText = memories.rows.map(m => `[ID: ${m.id}] ${m.value}`).join('\n');
+      
+      const systemPrompt = `You are a background autonomous agent (PicoClaw). Your job is to organize the user's cognitive load.
+The user has the following pending thoughts:
+${memoryText}
+
+${toolDescriptions}
+
+Execution History:
+${contextHistory.length > 0 ? contextHistory.join('\n') : "None"}
+
+Analyze the thoughts. Do they share a theme that can be consolidated? Or is it a bunch of random tasks you should summarize and send to the user?
+Respond ONLY with a valid JSON object specifying your action. Do not include markdown code blocks.`;
+
+      const response = await callProvider(provider, apiKey, systemPrompt, "What is your next action? Return JSON only.");
+      
+      if (response.error) {
+        console.error(`[PicoClaw] LLM Error: ${response.error}`);
+        break;
+      }
+
+      let parsed = null;
+      try {
+        const cleaned = response.content.replace(/```json/gi, '').replace(/```/g, '').trim();
+        parsed = JSON.parse(cleaned);
+      } catch (e) {
+        console.error(`[PicoClaw] Failed to parse LLM JSON: ${response.content}`);
+        break;
+      }
+
+      console.log(`[PicoClaw] Loop ${iterations}: ${parsed.action}`);
+
+      if (parsed.action === 'done') break;
+
+      let toolResult = "Unknown action";
+      if (tools[parsed.action]) {
+        toolResult = await tools[parsed.action](parsed.params || {});
+      } else {
+        toolResult = `Tool ${parsed.action} not found.`;
+      }
+      
+      contextHistory.push(`Action: ${parsed.action}, Result: ${toolResult}`);
+    }
+    
+    console.log(`✅ [PicoClaw] Finished loop for user ${userId} in ${iterations} iterations.`);
   }
 }
 
