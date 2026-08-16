@@ -1,5 +1,6 @@
 // Thought Afterlife - Half-life decay visualization
 import api from '../lib/api.js';
+import { renderErrorState } from '../components/ErrorState.js';
 
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 

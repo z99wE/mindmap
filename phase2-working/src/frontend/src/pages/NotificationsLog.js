@@ -1,6 +1,6 @@
 // NotificationsLog - Notification history with delivery status
 import api from '../lib/api.js';
-
+import { renderErrorState } from '../components/ErrorState.js';
 export function NotificationsLog() {
   const container = document.createElement('div');
 
@@ -52,10 +52,7 @@ export function NotificationsLog() {
   async function loadData() {
     const data = await api.get('/notifications');
     if (data.error) {
-      container.querySelector('#notif-list').innerHTML =
-        `<div class="surface-card" style="padding:2rem;text-align:center;color:var(--md-sys-color-error);">
-          ${data.offline ? 'Server offline' : data.error}
-        </div>`;
+      container.querySelector('#notif-list').innerHTML = renderErrorState(data.offline ? 'Server offline' : data.error);
       return;
     }
 

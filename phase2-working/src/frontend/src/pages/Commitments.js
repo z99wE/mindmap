@@ -1,6 +1,6 @@
 // Commitments - Active commitment tracker with witness status
 import api from '../lib/api.js';
-
+import { renderErrorState } from '../components/ErrorState.js';
 export function Commitments() {
   const container = document.createElement('div');
 
@@ -87,10 +87,7 @@ export function Commitments() {
   async function loadData() {
     const data = await api.get('/features/commitments');
     if (data.error) {
-      container.querySelector('#commitments-list').innerHTML =
-        `<div class="surface-card" style="padding:2rem;text-align:center;color:var(--md-sys-color-error);">
-          ${data.offline ? 'Server offline' : data.error}
-        </div>`;
+      container.querySelector('#commitments-list').innerHTML = renderErrorState(data.offline ? 'Server offline' : data.error);
       return;
     }
 

@@ -1,6 +1,6 @@
 // Memory Segments - Real memory graph visualization
 import api from '../lib/api.js';
-
+import { renderErrorState } from '../components/ErrorState.js';
 export function MemorySegments() {
   const container = document.createElement('div');
   container.innerHTML = `
@@ -15,7 +15,7 @@ export function MemorySegments() {
     </div>`;
 
   api.get('/memory/stats').then(data => {
-    if (data.error) { container.querySelector('#segments-content').innerHTML = `<div class="surface-card" style="color:var(--md-sys-color-error);">${data.error}</div>`; return; }
+    if (data.error) { container.querySelector('#segments-content').innerHTML = renderErrorState(data.error); return; }
     const cats = data.byCategory || [];
     const total = data.total || 0;
     container.querySelector('#segments-content').innerHTML = cats.length > 0 ? cats.map(cat => {

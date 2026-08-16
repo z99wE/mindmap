@@ -1,5 +1,6 @@
 // Thought GPS - Navigation-style thought visualization
 import api from '../lib/api.js';
+import { renderErrorState } from '../components/ErrorState.js';
 
 export function MapMyMind() {
   const container = document.createElement('div');
@@ -96,7 +97,7 @@ export function MapMyMind() {
 
     const data = await api.get(`/features/mind-map?${params}`);
     if (data.error) {
-      container.querySelector('#mind-map-canvas').innerHTML = `<p style="color:var(--md-sys-color-error);">${data.error}</p>`;
+      container.querySelector('#mind-map-canvas').innerHTML = renderErrorState(data.error);
       return;
     }
 

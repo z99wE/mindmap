@@ -1,6 +1,6 @@
 // Brain Fragments - Animated brain area distribution
 import api from '../lib/api.js';
-
+import { renderErrorState } from '../components/ErrorState.js';
 export function BrainFragments() {
   const container = document.createElement('div');
   const colors = { 'Prefrontal Cortex': 'var(--color-analytical)', 'Limbic System': 'var(--color-emotional)', 'Hippocampus': 'var(--color-creative)', 'Cerebellum': 'var(--color-urgency)' };
@@ -21,7 +21,7 @@ export function BrainFragments() {
     </div>`;
 
   api.get('/features/brain').then(data => {
-    if (data.error) { container.querySelector('#brain-chart').innerHTML = `<p style="color:var(--md-sys-color-error);">${data.error}</p>`; return; }
+    if (data.error) { container.querySelector('#brain-chart').innerHTML = renderErrorState(data.error); return; }
     const areas = data.areas || [];
     const total = data.total || 0;
 
