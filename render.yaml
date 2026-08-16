@@ -43,6 +43,13 @@ services:
         sync: false
       - key: BREVO_SENDER_NAME
         sync: false
+      # Email (Resend) — alternative provider/fallback
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_SENDER_EMAIL
+        sync: false
+      - key: RESEND_SENDER_NAME
+        sync: false
 
 databases:
   - name: thought-gps-db
