@@ -87,8 +87,10 @@ A novel social-proofing system built directly into the memory graph. It automati
 ### 4. 🧠 OmniRoute (Multi-LLM Intelligence)
 Enterprise-grade cognitive operations running at a **$0 operational budget**. OmniRoute automatically load balances and routes your requests across high-tier AI providers (Groq, OpenAI, Anthropic, Fireworks, Featherless, Lightning). If one key hits a rate limit, it seamlessly fails over to the next available provider.
 
-### 5. 🛡️ Multi-Tenant Native Fallback (Zero API Costs)
-Thought GPS completely sidesteps expensive third-party notification APIs (like Twilio). It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture. If your primary channel fails, the system automatically degrades gracefully (`Telegram → Slack → Email → Web Push`) to ensure you never miss a cognitive nudge.
+### 5. 🛡️ Multi-Tenant Native Fallback & Intelligent Routing
+Thought GPS completely sidesteps expensive third-party notification APIs (like Twilio). It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture with support for two delivery modes:
+* **Failover Mode (Sequential Backup)**: If your primary channel fails, the system automatically degrades gracefully (`Telegram → Slack → Email → Web Push`) platform-by-platform to ensure you never miss a nudge.
+* **Broadcast Mode (Parallel Sending)**: Simultaneously broadcasts nudges to all active platforms in parallel so you are reached on all devices instantly.
 
 ---
 
