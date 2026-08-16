@@ -534,6 +534,12 @@ class OrchestratorManager {
                   message
                 });
                 console.log(`📩 [Autonomous Agent] Drift check-in sent to ${targetUser}`);
+                
+                // FIX: Mark these items so we don't spam the user every 60 seconds
+                await client.query(
+                  `UPDATE memory_graph SET status = 'drift_notified' WHERE user_id = $1 AND status = 'pending'`,
+                  [targetUser]
+                );
               } catch (err) {
                 console.log(`⚠️ [Autonomous Agent] Could not send message: ${err.message}`);
               }
