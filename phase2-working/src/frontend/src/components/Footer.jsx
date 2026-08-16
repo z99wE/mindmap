@@ -61,8 +61,6 @@ export default function Footer() {
           font-weight: 500;
           font-size: clamp(2.4rem, 9vw, 7.5rem);
           letter-spacing: -0.03em;
-          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
-          mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
         }
         @media (min-width: 901px) {
           .brand-signoff { 

@@ -100,6 +100,22 @@ export function HowItWorks() {
           <div class="phone-body" id="phone-5" style="background:#0a0a0a;min-height:340px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
           </div>
         </div>
+        <!-- Phone 6: Email / Browser - Daily Digests -->
+        <div class="phone-mockup card-reveal">
+          <div class="phone-header" style="background:#ea4335;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;">
+                <span style="color:#ea4335;font:700 14px/1 'Space Grotesk';">✉️</span>
+              </div>
+              <div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">System Alert</div>
+                <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Email / Browser</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-body" id="phone-6" style="background:#f8f9fa;min-height:340px;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
+          </div>
+        </div>
       </div>
 
       <!-- CTA -->
@@ -152,6 +168,12 @@ export function HowItWorks() {
     { type: 'nearby', icon: 'near_me', text: "You're near D-Mart", items: ['Eggs (wife asked)', 'Toothpaste', 'Birthday candles — Saurav\'s bday Fri'], time: '11:20 AM' },
   ];
 
+  const phone6Messages = [
+    { text: '<strong>Weekly Cognitive Digest</strong><br>You successfully closed 80% of open loops this week.<br>Top lingering theme: <em>Household chores</em>.', time: 'Fri 5:00 PM', icon: 'email' },
+    { text: '⚠️ Your API key for Groq is missing. Add it in settings to enable LLM features.', time: 'System Alert', icon: 'warning' },
+    { text: 'Browser Notification: <em>You have 3 thoughts nearing decay.</em>', time: 'Just now', icon: 'notifications' }
+  ];
+
   function renderBubble(msg, style) {
     const tierColors = { 1: '#4caf50', 2: '#ff9800', 3: '#f44336' };
     const tierLabels = { 1: 'Tier 1', 2: 'Tier 2', 3: 'Expired' };
@@ -189,6 +211,13 @@ export function HowItWorks() {
           <span style="font:9px/1 system-ui;color:#999;">${msg.time}</span>
         </div>
         <div style="font:12px/1.5 system-ui;color:#333;">${msg.text}</div>
+      </div>`;
+    }
+    if (style === 'email') {
+      return `<div style="padding:0.6rem;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border-left:4px solid #ea4335;">
+        ${msg.icon ? `<span style="font:12px/1 var(--font-mono);color:#ea4335;display:inline-block;margin-bottom:4px;">${msg.icon}</span>` : ''}
+        <div style="font:12px/1.5 system-ui;color:#333;">${msg.text}</div>
+        <div style="font:10px/1 system-ui;color:#999;margin-top:6px;text-align:right;">${msg.time}</div>
       </div>`;
     }
     return '';
@@ -275,6 +304,7 @@ export function HowItWorks() {
     { el: container.querySelector('#phone-3'), msgs: phone3Messages, style: 'slack' },
     { el: container.querySelector('#phone-4'), msgs: phone4Messages, style: 'mapmind' },
     { el: container.querySelector('#phone-5'), msgs: phone5Messages, style: 'geofence' },
+    { el: container.querySelector('#phone-6'), msgs: phone6Messages, style: 'email' },
   ];
 
   let animTimer = null;
