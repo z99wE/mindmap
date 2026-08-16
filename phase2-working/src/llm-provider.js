@@ -10,6 +10,9 @@ async function callProvider(provider, apiKey, systemPrompt, message) {
     ollama: 'http://localhost:11434/v1/chat/completions',
     lmstudio: 'http://localhost:1234/v1/chat/completions',
     anthropic: 'https://api.anthropic.com/v1/messages',
+    featherless: 'https://api.featherless.ai/v1/chat/completions',
+    fireworks: 'https://api.fireworks.ai/inference/v1/chat/completions',
+    lightning: 'https://api.lightning.ai/v1/chat/completions',
   };
 
   const models = {
@@ -20,6 +23,9 @@ async function callProvider(provider, apiKey, systemPrompt, message) {
     ollama: 'llama3',
     lmstudio: 'meta-llama-3-8b-instruct',
     anthropic: 'claude-3-5-haiku-latest',
+    featherless: 'meta-llama/Meta-Llama-3-70B-Instruct',
+    fireworks: 'accounts/fireworks/models/llama-v3p1-70b-instruct',
+    lightning: 'meta-llama/Meta-Llama-3-70B-Instruct',
   };
 
   const endpoint = endpoints[provider];

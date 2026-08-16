@@ -12,7 +12,7 @@ class KeyPool {
   }
 
   _loadKeys() {
-    const providers = ['GROQ', 'OPENAI', 'ANTHROPIC', 'XAI', 'NVIDIA'];
+    const providers = ['GROQ', 'OPENAI', 'ANTHROPIC', 'XAI', 'NVIDIA', 'FEATHERLESS', 'FIREWORKS', 'LIGHTNING'];
     for (const provider of providers) {
       // Check numbered keys: GROQ_KEY_1, GROQ_KEY_2, ... (up to 100 per provider)
       for (let i = 1; i <= 100; i++) {
