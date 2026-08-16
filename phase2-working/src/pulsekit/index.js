@@ -143,11 +143,6 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           return null;
         }
       }).filter(Boolean);
-    } catch {
-      return [];
-    }
-  }
-
   // ── Helper: get or create a per-user channel driver (cached in memory) ────
   const userDriverCache = new Map(); // `${userId}_${platform}` → driver
 
@@ -174,15 +169,34 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
         });
         await driver.init();
       } else if (platform === 'whatsapp' && creds.bot_token && creds.chat_id) {
-        // chat_id is used as phoneId for WhatsApp Cloud API
         driver = createWhatsappChannel({ token: creds.bot_token, phoneId: creds.chat_id });
         await driver.init();
+      }
+
+      if (driver) {
+        // Automatically wire up inbound handling for newly instantiated drivers
+        if (typeof driver.onMessage === 'function') {
+          driver.onMessage(async (msg) => {
+            for (const handler of inboundHandlers) {
+              try {
+                await handler({ from: msg.from, message: msg.text, channel: platform, reply: msg.reply });
+              } catch (e) {
+                console.error(`[PulseKit] User inbound handler error on ${platform}:`, e.message);
+              }
+            }
+          });
+        }
+        // Auto-start polling if the channel requires it (WebSockets / long-polling)
+        if (typeof driver.startPolling === 'function') {
+          driver.startPolling().catch(e => console.warn(`[PulseKit] Polling failed to start for ${platform}:`, e.message));
+        }
+        
+        userDriverCache.set(key, driver);
       }
     } catch (e) {
       console.warn(`[PulseKit] Failed to init user driver ${platform} for ${userId}:`, e.message);
     }
 
-    if (driver) userDriverCache.set(key, driver);
     return driver;
   }
 
@@ -402,29 +416,14 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
         for (const row of result.rows) {
           try {
             const creds = JSON.parse(decrypt(row.credentials));
-            const driver = await getUserDriver(row.user_id, row.platform, creds);
-            if (driver) {
-              // Wire user inbound messages to the main inbound handlers
-              driver.onMessage(async (msg) => {
-                for (const handler of inboundHandlers) {
-                  try {
-                    await handler({ from: msg.from, message: msg.text, channel: row.platform, reply: msg.reply });
-                  } catch (e) {
-                    console.error(`[PulseKit] User inbound handler error on ${row.platform}:`, e.message);
-                  }
-                }
-              });
-
-              if (typeof driver.startPolling === 'function') {
-                await driver.startPolling();
-              }
-            }
+            // This will auto-wire onMessage and startPolling automatically inside getUserDriver!
+            await getUserDriver(row.user_id, row.platform, creds);
           } catch (e) {
-            console.warn(`[PulseKit] Could not start polling for user ${row.user_id} on ${row.platform}:`, e.message);
+            console.warn(`[PulseKit] StartListening: failed to init ${row.platform} for user ${row.user_id}:`, e.message);
           }
         }
       } catch (e) {
-        console.warn(`[PulseKit] Failed to load user channels for polling:`, e.message);
+        console.error('[PulseKit] startListening error:', e.message);
       }
     },
 
