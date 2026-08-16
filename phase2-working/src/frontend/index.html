@@ -106,6 +106,12 @@
     
     @media (min-width: 901px) {
       .mobile-logo-root { display: none !important; }
+      
+      /* When sidebar is visible (app-shell has 248px col), pull footer left so it centers on the full screen */
+      html:not([data-auth="false"]):not([data-page="how-it-works"]):not([data-page="home"]) #app-footer {
+        margin-left: -248px;
+        width: calc(100% + 248px) !important;
+      }
     }
     .nav-rail {
       grid-row: 1 / -1;
