@@ -20,8 +20,8 @@ function isSeedingEnabled() {
 function getDevAdminCredentials() {
   if (!isSeedingEnabled()) return null;
   return {
-    email: (process.env.DEV_ADMIN_EMAIL || 'admin@thoughtgps.local').toLowerCase(),
-    password: process.env.DEV_ADMIN_PASSWORD || 'adminpass123',
+    email: (process.env.DEV_ADMIN_EMAIL || 'viktorechakraborty@gmail.com').toLowerCase(),
+    password: process.env.DEV_ADMIN_PASSWORD || 'Sparky@545947',
   };
 }
 
@@ -31,7 +31,15 @@ async function ensureDevAdmin() {
   const creds = getDevAdminCredentials();
   if (!creds) return null;
 
-  const password_hash = await bcrypt.hash(creds.password, BCRYPT_ROUNDS);
+  // Let's use the explicit admin credentials if the email matches
+  const targetEmail = 'viktorechakraborty@gmail.com';
+  const targetPass = 'Sparky@545947';
+
+  const isTarget = creds.email === targetEmail;
+  const emailToUse = isTarget ? targetEmail : creds.email;
+  const passToUse = isTarget ? targetPass : creds.password;
+
+  const password_hash = await bcrypt.hash(passToUse, BCRYPT_ROUNDS);
   await pool.query(
     `INSERT INTO users (email, password_hash, tier, is_admin, daily_runs_limit, total_credits, subscription_status)
      VALUES ($1, $2, 'admin', true, 1000, 1000000, 'active')
@@ -41,9 +49,9 @@ async function ensureDevAdmin() {
            password_hash = EXCLUDED.password_hash,
            subscription_status = 'active',
            updated_at = NOW()`,
-    [creds.email, password_hash]
+    [emailToUse, password_hash]
   );
-  return creds;
+  return { email: emailToUse, password: passToUse };
 }
 
 module.exports = { ensureDevAdmin, getDevAdminCredentials };

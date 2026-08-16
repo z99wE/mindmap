@@ -46,7 +46,7 @@ router.post('/register', registerLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Username must be 3–20 characters (letters, numbers, underscores only)' });
     }
 
-    const rawAllowed = process.env.ALLOWED_ADMIN_EMAILS || 'viktorechakraborty@gmail.com,vikkivoda@gmail.com,admin@thoughtgps.local';
+    const rawAllowed = process.env.ALLOWED_ADMIN_EMAILS || 'viktorechakraborty@gmail.com';
     const allowedEmails = rawAllowed.split(',').map(e => e.trim().toLowerCase());
     const isWhitelisted = allowedEmails.includes(email.trim().toLowerCase());
 
@@ -60,7 +60,8 @@ router.post('/register', registerLimiter, async (req, res) => {
       return res.status(403).json({ error: 'UnZonko is currently in private beta. Registration is restricted.' });
     }
 
-    // Auto-promote whitelisted admin registrations; normal registrations get free tier
+    // Auto-promote whitelisted admin registrations; normal registrations get free tier.
+    // Ensure is_admin can ONLY be true if the email is explicitly in allowedEmails.
     const overrides = isWhitelisted
       ? { is_admin: true, tier: 'admin', daily_runs_limit: 1000 }
       : { is_admin: false, tier: 'free', daily_runs_limit: 10 };
