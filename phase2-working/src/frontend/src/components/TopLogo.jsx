@@ -17,7 +17,8 @@ export default function TopLogo({ mobile }) {
       <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.25, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <RippleGrid enableRainbow gridColor="#84CC16" mouseInteraction={false} gridSize={8.0} gridThickness={12.0} />
       </div>
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
+      {/* Shift the logo+text left slightly so the grid's exact center aligns better with the text instead of the gap */}
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transform: 'translateX(-12px)' }}>
         <div className="nav-logo-icon" style={{ width: '32px', height: '32px', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--md-sys-color-primary)', color: 'var(--md-sys-color-on-primary)', borderRadius: '50%', boxShadow: '0 4px 12px rgba(132, 204, 22, 0.3)' }}>T</div>
         <ShinyText text="Thought GPS" disabled={false} speed={3} className="shiny-text" style={{ font: 'italic 800 20px/1 var(--font-heading)', letterSpacing: '0.05em' }} />
       </div>
