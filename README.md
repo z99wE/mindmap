@@ -1,47 +1,90 @@
-# 🧠 Thought GPS (Cognitive Coprocessor)
+<div align="center">
+  <h1>🧠 Thought GPS</h1>
+  <p><b>An Autonomous Memory Graph & Behavioral Coprocessor for Neuro-Diverse Minds</b></p>
 
-[![Render](https://img.shields.io/badge/Render-Deployed-success?logo=render)](https://render.com)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](#)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-blue?logo=postgresql)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Render](https://img.shields.io/badge/Render-Deployed-success?logo=render&style=for-the-badge)](https://render.com)
+  [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white&style=for-the-badge)](#)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-336791?logo=postgresql&logoColor=white&style=for-the-badge)](#)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**A Multi-Channel Autonomous Memory Graph & Behavioral Coprocessor for ADHD & Neuro-Diverse Minds.**
-
-Traditional productivity platforms (Todoist, Notion, calendars) assume a **neurotypical baseline** of executive function. For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms fail because once a thought is written down in a closed app, it disappears from short-term working memory, leading to immediate task abandonment.
-
-**Thought GPS is a Cognitive Coprocessor.** It operates as an invisible, zero-friction layer that captures, classifies, updates, and escalates thoughts across real-world messaging channels (Telegram, Slack, Email) using vector memory, OSRM routing, and autonomous agent loops.
-
----
-
-## ✨ Core Features (Production Ready)
-
-### 1. Autonomous Memory Graph (pgvector)
-Thoughts are not just text. They are vectorized and mapped into a multidimensional Knowledge Graph. Relationships between thoughts, locations, and people are mapped dynamically.
-
-### 2. Multi-Tenant Native Fallback (Zero API Costs)
-Thought GPS completely sidesteps expensive third-party notification APIs. It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture. 
-If one channel fails, the system automatically degrades gracefully across your connected channels (Telegram → Slack → Email → Web Push) to ensure you never miss a cognitive nudge.
-
-### 3. OmniRoute (Multi-LLM Intelligence)
-Enterprise-grade operations running at a **$0 operational budget** using OmniRoute, automatically routing your requests across 90+ free AI providers for intelligent thought classification and processing.
-
-### 4. The Thought Half-Life Engine (Decay Mode)
-Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an active **Half-Life Decay Rate** based on their category. Actionable items decay faster and escalate across your channels before they expire.
-
-### 5. Commitment Witness (Accountability Mode)
-A novel social-proofing system built directly into the memory graph. It automatically triggers notifications to designated witness contacts when you miss a self-imposed deadline, preventing self-sabotage.
+  <p align="center">
+    <i>Not just another checklist. A cognitive exoskeleton that remembers, routes, and escalates your thoughts across the digital platforms you actually use.</i>
+  </p>
+</div>
 
 ---
 
-## 🔌 Connected Channels & Integrations
+## 🌪 The Problem: The Neurotypical Bias in Software
 
-Thought GPS seamlessly bridges the gap between the app and the platforms you already use every day. Users can connect the following channels in the **Connected Channels** dashboard:
+Traditional productivity platforms (Todoist, Notion, Calendars) assume a **neurotypical baseline** of executive function. They rely on the user to manually organize, remember to check the app, and possess the intrinsic motivation to complete tasks. 
+
+For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms become graveyards. Once a thought is written down in a closed ecosystem, it disappears from short-term working memory, leading to immediate task abandonment and overwhelming cognitive load.
+
+## 🎯 The Solution: Thought GPS (The Exclusive Coprocessor)
+
+**Thought GPS is an exclusive Cognitive Coprocessor.** It is explicitly engineered *against* the neurotypical grain. Instead of waiting for you to check off a box, it operates as an invisible, zero-friction layer that captures, classifies, updates, and actively *escalates* thoughts across real-world messaging channels (Telegram, Slack, Email) using vector memory, intelligent routing, and autonomous agent loops.
+
+---
+
+## 🏛 System Architecture
+
+Thought GPS employs a state-of-the-art event-driven architecture, built for extreme resilience and zero-cost scaling.
+
+```mermaid
+graph TD;
+    User([🧠 User]) -->|Captures Thought| Frontend[Vite SPA + Glassmorphism UI];
+    Frontend -->|JWT Auth / API| NodeServer[Express Node.js Shell];
+    
+    subgraph Cognitive Engine
+        NodeServer --> LLMRouter[OmniRoute Engine<br/>LLM Key Pool];
+        LLMRouter --> Classification[Thought Classifier];
+        LLMRouter --> DriftDetector[Drift Detector];
+    end
+
+    subgraph Memory Graph
+        NodeServer <--> PGVector[(PostgreSQL + pgvector)];
+        Classification --> PGVector;
+    end
+    
+    subgraph Autonomous Delivery
+        NodeServer --> PulseKit[PulseKit Messenger];
+        PulseKit -->|Graceful Degradation| Telegram[Telegram];
+        PulseKit -->|Fallback| Slack[Slack];
+        PulseKit -->|Fallback| Email[SMTP Email];
+    end
+    
+    DriftDetector -.->|Escalation| PulseKit;
+```
+
+---
+
+## ✨ Core Modes & Capabilities
+
+### 1. 🧬 Autonomous Memory Graph (pgvector)
+Thoughts are not stored as flat text—they are vectorized and mapped into a multidimensional Knowledge Graph. Relationships between thoughts, locations, and people are mapped dynamically, allowing the system to understand *context* (e.g., reminding you of a hardware store task only when you're near one).
+
+### 2. 📉 The Thought Half-Life Engine (Decay Mode)
+Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an active **Half-Life Decay Rate** based on their urgency and category. Actionable items decay faster, triggering automated escalations across your channels before they expire from your working memory.
+
+### 3. 👁️ Commitment Witness (Accountability Mode)
+A novel social-proofing system built directly into the memory graph. It automatically triggers notifications to designated "witness contacts" (friends, family, or colleagues) when you miss a self-imposed deadline. It weaponizes social accountability to prevent self-sabotage.
+
+### 4. 🧠 OmniRoute (Multi-LLM Intelligence)
+Enterprise-grade cognitive operations running at a **$0 operational budget**. OmniRoute automatically loads balances and routes your requests across high-tier AI providers (Groq, OpenAI, Anthropic, Fireworks, Featherless, Lightning). If one key hits a rate limit, it seamlessly fails over to the next available provider.
+
+### 5. 🛡️ Multi-Tenant Native Fallback (Zero API Costs)
+Thought GPS completely sidesteps expensive third-party notification APIs (like Twilio). It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture. If your primary channel fails, the system automatically degrades gracefully (`Telegram → Slack → Email → Web Push`) to ensure you never miss a cognitive nudge.
+
+---
+
+## 🔌 Connected Channels
+
+Thought GPS bridges the gap between the app and the platforms you already live in:
 
 - **Telegram**: Native integration (Requires Bot Token & Chat ID).
 - **Slack**: Native integration (Requires Bot Token & Channel ID).
 - **Email (SMTP)**: Native delivery (Requires standard SMTP credentials).
 - **Web Push**: Browser-native push notifications fallback.
-- **Discord, WhatsApp, SMS, Signal, Bluesky, Twitter (X)**: Supported via the Caspian SDK or webhooks.
 
 ---
 
@@ -51,7 +94,7 @@ Thought GPS is built to be deployed seamlessly. Follow these instructions to get
 
 ### Option 1: Cloud Deployment (Render & Docker) - Recommended
 
-We've provided a fully-configured `render.yaml` and `Dockerfile` for instant deployment on [Render](https://render.com) (or any Docker-compatible platform).
+We've provided a fully-configured `render.yaml` and `Dockerfile` for instant deployment on [Render](https://render.com).
 
 1. Fork or clone this repository.
 2. Sign in to Render and select **Blueprints** -> **New Blueprint Instance**.
@@ -84,17 +127,33 @@ Copy the example environment file and fill in your database credentials:
 ```bash
 cp .env.example .env
 ```
-Make sure to set `DATABASE_URL` pointing to your local Postgres instance with `pgvector` enabled.
+*(Ensure `DATABASE_URL` points to your local Postgres instance with `pgvector` enabled.)*
 
 #### 3. Run the App
 Start the full stack with a single command:
 ```bash
+# In the phase2-working directory:
+node server.js
+
+# In a new terminal tab (phase2-working/src/frontend):
 npm run dev
 ```
-- **Backend API**: Runs on `http://localhost:3001` (by default)
-- **Frontend UI**: Runs on `http://localhost:3331` (Vite)
 
-Navigate to the frontend URL to start building your external brain!
+Navigate to the provided localhost URL (usually `http://localhost:5173`) to start building your external brain! *Note: A local developer admin account is automatically seeded for easy testing outside of production environments.*
 
 ---
 
+## 💰 Cost Breakdown: Enterprise Architecture, $0 Overhead
+
+| Component | Architecture Strategy | Monthly Cost |
+|-----------|----------------------|--------------|
+| **Database** | PostgreSQL (Render Free Tier) | **$0** |
+| **Notifications** | PulseKit Native Fallback (Telegram/Slack/SMTP) | **$0** |
+| **AI Processing** | OmniRoute (BYOK Groq/OpenAI/Fireworks) | **$0** |
+| **Hosting** | Render Free Tier (Dockerized Web Service) | **$0** |
+| **Total Operational Cost** | | **$0/month** |
+
+---
+
+## 📄 License
+Released under the [MIT License](https://opensource.org/licenses/MIT). Build, modify, and scale your own cognitive exoskeleton.
