@@ -356,6 +356,23 @@ async function start() {
       }
     });
 
+    // Mount public webhook endpoints for channels that require them (Slack)
+    app.post('/api/webhooks/slack', express.json(), async (req, res) => {
+      try {
+        const payload = req.body;
+        // The handleWebhookEvent logic in PulseKit will handle url_verification and message callbacks
+        const response = await caspian.handleWebhookEvent('slack', payload);
+        if (response) {
+          res.json(response);
+        } else {
+          res.status(200).send('OK');
+        }
+      } catch (e) {
+        console.error('[Slack Webhook Error]', e.message);
+        res.status(500).send('Error');
+      }
+    });
+
     app.listen(PORT, () => {
       console.log(`[UnZonko] Server running on port ${PORT}`);
       console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);

@@ -90,9 +90,40 @@ function createSlackChannel({ token }) {
       messageHandlers.push(handler);
     },
 
-    // Slack inbound needs Events API webhook — simplified note here
+    // Slack inbound is webhook-driven, so startPolling is a no-op
     async startPolling() {
-      console.log('[PulseKit:Slack] Note: Inbound messages require Slack Events API webhook. See docs.');
+      console.log('[PulseKit:Slack] 🎧 Webhook listener active. Configure Events API in Slack dashboard.');
+    },
+
+    async handleWebhook(payload) {
+      if (payload.type === 'url_verification') {
+        return { challenge: payload.challenge };
+      }
+
+      if (payload.type === 'event_callback') {
+        const event = payload.event;
+        // Ignore bot messages
+        if (event.bot_id || (botInfo && event.user === botInfo.user_id)) {
+          return { ok: true };
+        }
+
+        if (event.type === 'message' && event.text) {
+          // Provide a reply function that routes back to this conversation
+          const reply = async (text) => {
+            await this.send({ to: event.channel, message: text });
+          };
+
+          for (const handler of messageHandlers) {
+            await handler({
+              from: event.user, // The Slack User ID (U12345)
+              text: event.text,
+              reply
+            });
+          }
+        }
+      }
+
+      return { ok: true };
     },
 
     async destroy() {

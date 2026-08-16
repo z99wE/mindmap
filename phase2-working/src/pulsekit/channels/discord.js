@@ -7,6 +7,12 @@
 'use strict';
 
 const https = require('https');
+let WebSocket;
+try {
+  WebSocket = require('ws');
+} catch (e) {
+  // Graceful degradation if ws is not installed
+}
 
 function discordRequest(token, method, path, body) {
   return new Promise((resolve, reject) => {
@@ -45,49 +51,98 @@ function createDiscordChannel({ token }) {
   let botUser = null;
   let messageHandlers = [];
 
-  return {
-    name: 'discord',
+    let ws = null;
+    let heartbeatInterval = null;
 
-    async init() {
-      botUser = await discordRequest(token, 'GET', '/users/@me', null);
-      console.log(`[PulseKit:Discord] Bot: ${botUser.username}#${botUser.discriminator}`);
-    },
-
-    /**
-     * Send a message.
-     * `to` should be a Discord user ID (for DMs) or a channel ID.
-     * For DMs: first opens a DM channel, then sends the message.
-     */
-    async send({ to, message, title }) {
-      const content = title ? `**${title}**\n\n${message}` : message;
-
-      // Try DM first (if `to` looks like a user snowflake)
-      try {
-        const dmChannel = await discordRequest(token, 'POST', '/users/@me/channels', { recipient_id: to });
-        await discordRequest(token, 'POST', `/channels/${dmChannel.id}/messages`, { content });
+    async function startPolling() {
+      if (!WebSocket) {
+        console.warn('[PulseKit:Discord] Cannot start inbound polling: ws package is missing. Run: npm install ws');
         return;
-      } catch {
-        // If DM fails (user has DMs disabled), try as channel ID
       }
 
-      // Try as channel ID directly
-      await discordRequest(token, 'POST', `/channels/${to}/messages`, { content });
-    },
+      ws = new WebSocket('wss://gateway.discord.gg/?v=10&encoding=json');
 
-    onMessage(handler) {
-      messageHandlers.push(handler);
-    },
+      ws.on('open', () => {
+        console.log('[PulseKit:Discord] 🔌 Connected to Gateway');
+      });
 
-    // Discord polling requires Gateway websocket — simplified stub here
-    // Full implementation would use ws + IDENTIFY
-    async startPolling() {
-      console.log('[PulseKit:Discord] Note: Inbound messages require webhook setup. See docs.');
-    },
+      ws.on('message', async (data) => {
+        const payload = JSON.parse(data);
+        const { t, event, op, d } = payload;
 
-    async destroy() {
-      messageHandlers = [];
-    },
-  };
+        if (op === 10) { // Hello
+          const { heartbeat_interval } = d;
+          heartbeatInterval = setInterval(() => {
+            ws.send(JSON.stringify({ op: 1, d: null }));
+          }, heartbeat_interval);
+
+          // Identify
+          ws.send(JSON.stringify({
+            op: 2,
+            d: {
+              token: token,
+              intents: 512 | 4096 | 32768, // GUILD_MESSAGES | DIRECT_MESSAGES | MESSAGE_CONTENT
+              properties: {
+                os: process.platform,
+                browser: 'pulsekit',
+                device: 'pulsekit'
+              }
+            }
+          }));
+        }
+
+        if (t === 'MESSAGE_CREATE' && !d.author.bot) {
+          const reply = async (text) => {
+            await discordRequest(token, 'POST', `/channels/${d.channel_id}/messages`, { content: text });
+          };
+          for (const handler of messageHandlers) {
+            await handler({
+              from: d.author.id,
+              text: d.content,
+              reply
+            });
+          }
+        }
+      });
+
+      ws.on('close', () => {
+        console.log('[PulseKit:Discord] 🔌 Disconnected. Reconnecting in 5s...');
+        clearInterval(heartbeatInterval);
+        setTimeout(startPolling, 5000);
+      });
+    }
+
+    // Attach to the return object
+    return {
+      name: 'discord',
+
+      async init() {
+        botUser = await discordRequest(token, 'GET', '/users/@me', null);
+        console.log(`[PulseKit:Discord] Bot: ${botUser.username}#${botUser.discriminator}`);
+      },
+
+      async send({ to, message, title }) {
+        const content = title ? `**${title}**\n\n${message}` : message;
+        try {
+          const dmChannel = await discordRequest(token, 'POST', '/users/@me/channels', { recipient_id: to });
+          await discordRequest(token, 'POST', `/channels/${dmChannel.id}/messages`, { content });
+          return;
+        } catch {}
+        await discordRequest(token, 'POST', `/channels/${to}/messages`, { content });
+      },
+
+      onMessage(handler) {
+        messageHandlers.push(handler);
+      },
+
+      startPolling,
+
+      async destroy() {
+        messageHandlers = [];
+        if (ws) ws.close();
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+      },
+    };
 }
 
 module.exports = { createDiscordChannel };

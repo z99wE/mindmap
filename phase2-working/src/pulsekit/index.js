@@ -354,6 +354,18 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
       }
     },
 
+    /**
+     * HANDLE_WEBHOOK_EVENT — proxy HTTP webhook payloads to the correct channel driver.
+     */
+    handleWebhookEvent: async (platform, payload) => {
+      const driver = globalChannels.get(platform);
+      if (driver && typeof driver.handleWebhook === 'function') {
+        return await driver.handleWebhook(payload);
+      } else {
+        console.warn(`[PulseKit] Webhook received for ${platform}, but channel is not active or has no handleWebhook method.`);
+      }
+    },
+
     /** Health report — useful for admin dashboard */
     status: () => ({
       channels: [...globalChannels.keys()],
