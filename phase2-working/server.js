@@ -321,6 +321,10 @@ async function start() {
     });
   } catch (err) {
     console.error('[Thought GPS] Startup failed:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[Thought GPS] Fatal error in production. Exiting.');
+      process.exit(1);
+    }
     // Start without DB in dev mode
     app.listen(PORT, () => {
       console.log(`[Thought GPS] Server running (no DB) on port ${PORT}`);

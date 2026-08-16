@@ -14,11 +14,23 @@ pool.on('error', (err) => {
 });
 
 // Run all migrations on startup
-async function runMigrations() {
-  const client = await pool.connect();
+async function runMigrations(retries = 5) {
+  let client;
+  while (retries > 0) {
+    try {
+      client = await pool.connect();
+      break; // Successfully connected
+    } catch (err) {
+      console.error(`[DB] Connection failed, retries left: ${retries - 1}`);
+      retries -= 1;
+      if (retries === 0) throw err;
+      await new Promise(res => setTimeout(res, 5000)); // wait 5s before retrying
+    }
+  }
+
   try {
     // Enable pgvector extension
-    await client.query('CREATE EXTENSION IF NOT EXISTS vector');
+    await client.query('CREATE EXTENSION IF NOT EXISTS vector').catch(e => console.warn('[DB] Warning: Could not create vector extension:', e.message));
 
     // Users table
     await client.query(`
