@@ -62,12 +62,6 @@ export default function Footer() {
           font-size: clamp(2.4rem, 9vw, 7.5rem);
           letter-spacing: -0.03em;
         }
-        @media (min-width: 901px) {
-          .brand-signoff { 
-            width: calc(100% + 248px);
-            margin-left: -248px;
-          }
-        }
       `}</style>
     </section>
   );
