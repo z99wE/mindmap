@@ -42,6 +42,20 @@ class KeyPool {
     if (grokAlias && !this.keys.find(k => k.provider === 'xai')) {
       this.keys.push({ id: 'xai_default', provider: 'xai', key: grokAlias, rateLimit: 60 });
     }
+    // Custom OpenAI compatible keys: OPENAI_COMPATIBLE_KEY_1, ...
+    for (let i = 1; i <= 100; i++) {
+      const key = process.env[`OPENAI_COMPATIBLE_KEY_${i}`];
+      if (key) {
+        this.keys.push({
+          id: `compatible_${i}`,
+          provider: 'compatible',
+          key,
+          endpoint: process.env[`OPENAI_COMPATIBLE_URL_${i}`] || 'https://api.openai.com/v1/chat/completions',
+          model: process.env[`OPENAI_COMPATIBLE_MODEL_${i}`] || 'gpt-4o-mini',
+          rateLimit: 60,
+        });
+      }
+    }
     console.log(`[KeyPool] Loaded ${this.keys.length} shared API keys`);
   }
 

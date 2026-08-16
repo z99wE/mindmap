@@ -159,7 +159,7 @@ function adminMiddleware(req, res, next) {
 }
 
 // ── Register ────────────────────────────────────────────────────────────────
-async function register(email, password, profile = {}) {
+async function register(email, password, profile = {}, overrides = {}) {
   const emailErr = validateEmail(email);
   if (emailErr) throw new Error(emailErr);
   const passErr = validatePassword(password);
@@ -175,13 +175,17 @@ async function register(email, password, profile = {}) {
     if (uExist.rows.length > 0) throw new Error('Username already taken');
   }
 
+  const is_admin = overrides.is_admin || false;
+  const tier = overrides.tier || 'free';
+  const daily_runs_limit = overrides.daily_runs_limit || 10;
+
   const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const result = await pool.query(
-    `INSERT INTO users (email, password_hash, tier, daily_runs_limit, first_name, last_name, username, profession, country)
-     VALUES ($1, $2, 'free', 10, $3, $4, $5, $6, $7)
+    `INSERT INTO users (email, password_hash, tier, daily_runs_limit, is_admin, first_name, last_name, username, profession, country)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING id, email, tier, is_admin, daily_runs_limit, total_credits, first_name, last_name, username, profession, country, created_at`,
     [
-      email.toLowerCase(), password_hash,
+      email.toLowerCase(), password_hash, tier, daily_runs_limit, is_admin,
       profile.firstName || null, profile.lastName || null,
       profile.username || null, profile.profession || null, profile.country || null,
     ]

@@ -18,9 +18,9 @@ const { decrypt } = require('./crypto');
 // no user key exists for them.
 const GROUPS = {
   llm: {
-    order: ['groq', 'openai', 'anthropic', 'gemini', 'claude', 'mistral', 'cohere', 'nvidia', 'openrouter', 'fireworks', 'featherless', 'lightning', 'ollama', 'lmstudio'],
+    order: ['groq', 'openai', 'anthropic', 'gemini', 'claude', 'mistral', 'cohere', 'nvidia', 'openrouter', 'fireworks', 'featherless', 'lightning', 'compatible', 'ollama', 'lmstudio'],
     keyless: ['ollama', 'lmstudio'],
-    poolFallback: ['groq', 'openai', 'anthropic', 'gemini', 'claude', 'fireworks', 'featherless', 'lightning'],
+    poolFallback: ['groq', 'openai', 'anthropic', 'gemini', 'claude', 'fireworks', 'featherless', 'lightning', 'compatible'],
   },
   search: {
     order: ['tavily', 'firecrawl', 'searxng_url'],
@@ -114,7 +114,13 @@ class KeyRouter {
           chain.push({
             provider,
             type: 'shared',
-            keys: rotated.map(pk => ({ id: pk.id, masked: pk.id, key: pk.key }))
+            keys: rotated.map(pk => ({
+              id: pk.id,
+              masked: pk.id,
+              key: pk.key,
+              endpoint: pk.endpoint,
+              model: pk.model
+            }))
           });
         }
       }

@@ -1,7 +1,7 @@
 const { keyRouter } = require('./key-router');
 
 // Call a specific LLM provider
-async function callProvider(provider, apiKey, systemPrompt, message) {
+async function callProvider(provider, apiKey, systemPrompt, message, options = {}) {
   const endpoints = {
     groq: 'https://api.groq.com/openai/v1/chat/completions',
     openai: 'https://api.openai.com/v1/chat/completions',
@@ -28,8 +28,8 @@ async function callProvider(provider, apiKey, systemPrompt, message) {
     lightning: 'meta-llama/Meta-Llama-3-70B-Instruct',
   };
 
-  const endpoint = endpoints[provider];
-  const model = models[provider];
+  const endpoint = options.endpoint || endpoints[provider];
+  const model = options.model || models[provider];
   if (!endpoint) throw new Error(`Unknown provider: ${provider}`);
 
   let headers = {
@@ -118,7 +118,7 @@ Be concise, empathetic, and action-oriented. Format key items as bullet points.`
   for (const route of chain) {
     for (const k of route.keys) {
       try {
-        const resp = await callProvider(route.provider, k.key, systemPrompt, message);
+        const resp = await callProvider(route.provider, k.key, systemPrompt, message, { endpoint: k.endpoint, model: k.model });
         keyRouter.touch(user.id, route.provider, k.id);
         return resp;
       } catch (e) {
@@ -128,7 +128,7 @@ Be concise, empathetic, and action-oriented. Format key items as bullet points.`
     }
   }
 
-  // Nothing succeeded: free-tier users must bring their own key
+  // Nothing succeeded: free-tier users must bring their own key if no shared keys worked
   if (user.tier === 'free') {
     return 'Your thought has been saved! To get AI-powered responses, add your API key in Mission Control > API Keys. Your message is stored and will be enriched once a key is configured.';
   }

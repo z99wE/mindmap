@@ -37,6 +37,52 @@ test('Thought GPS Core Endpoints', async (t) => {
     assert.ok(names.includes('telegram'));
   });
 
+  await t.test('Gated registration in production', async () => {
+    const oldNodeEnv = process.env.NODE_ENV;
+    const oldAllowed = process.env.ALLOWED_ADMIN_EMAILS;
+    
+    const { pool } = require('./src/db');
+    // Pre-cleanup in case previous test runs failed to clean up
+    await pool.query('DELETE FROM users WHERE email IN ($1, $2)', ['stranger@example.com', 'viktorechakraborty@gmail.com']);
+
+    process.env.NODE_ENV = 'production';
+    process.env.ALLOWED_ADMIN_EMAILS = 'viktorechakraborty@gmail.com';
+
+    try {
+      // 1. Non-whitelisted email should get 403 Forbidden
+      const resBlocked = await request(app)
+        .post('/api/auth/register')
+        .send({
+          email: 'stranger@example.com',
+          password: 'securepassword123',
+          firstName: 'John',
+          lastName: 'Doe'
+        })
+        .expect(403);
+      assert.match(resBlocked.body.error, /beta.*restricted/i);
+
+      // 2. Whitelisted email should succeed and be admin
+      const resAllowed = await request(app)
+        .post('/api/auth/register')
+        .send({
+          email: 'viktorechakraborty@gmail.com',
+          password: 'securepassword123',
+          firstName: 'Viktor',
+          lastName: 'Chakraborty'
+        })
+        .expect(201);
+      assert.strictEqual(resAllowed.body.user.email, 'viktorechakraborty@gmail.com');
+      assert.strictEqual(resAllowed.body.user.tier, 'admin');
+    } finally {
+      process.env.NODE_ENV = oldNodeEnv;
+      if (oldAllowed) process.env.ALLOWED_ADMIN_EMAILS = oldAllowed;
+      else delete process.env.ALLOWED_ADMIN_EMAILS;
+      
+      // Cleanup registered test user
+      await pool.query('DELETE FROM users WHERE email IN ($1, $2)', ['stranger@example.com', 'viktorechakraborty@gmail.com']);
+    }
+  });
+
   await t.test('Protected routes require auth', async () => {
     await request(app).get('/api/memory').expect(401);
     await request(app).get('/api/notifications').expect(401);

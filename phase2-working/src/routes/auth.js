@@ -46,7 +46,22 @@ router.post('/register', registerLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Username must be 3–20 characters (letters, numbers, underscores only)' });
     }
 
-    const user = await register(email, password, { firstName, lastName, username, profession, country });
+    const rawAllowed = process.env.ALLOWED_ADMIN_EMAILS || 'viktorechakraborty@gmail.com,vikkivoda@gmail.com,admin@thoughtgps.local';
+    const allowedEmails = rawAllowed.split(',').map(e => e.trim().toLowerCase());
+    const isWhitelisted = allowedEmails.includes(email.trim().toLowerCase());
+
+    // Lock registration in production to admin emails only
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd && !isWhitelisted) {
+      return res.status(403).json({ error: 'Thought GPS is currently in private beta. Registration is restricted.' });
+    }
+
+    // Auto-promote whitelisted admin registrations
+    const overrides = isWhitelisted
+      ? { is_admin: true, tier: 'admin', daily_runs_limit: 1000 }
+      : { is_admin: false, tier: 'free', daily_runs_limit: 10 };
+
+    const user = await register(email, password, { firstName, lastName, username, profession, country }, overrides);
     const token = signToken(user);
     const refreshToken = signRefreshToken(user);
 
