@@ -1,9 +1,7 @@
-// Landing page — premium liquid-glass facelift.
-// Behaviour is unchanged: same props, same navigation targets, same feature copy.
-// Presentation only: one accent, no icons, no pill tags, scroll-linked hero.
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import RippleDistortion from './RippleDistortion';
+import api from '../lib/api.js';
 
 
 const FEATURES = [
@@ -346,7 +344,7 @@ export default function LandingPage({ onNavigate, isLoggedIn }) {
         >
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <span style={{ display: 'inline-block', font: '700 11px/1 Inter', letterSpacing: '0.12em', color: '#ccff00', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Stay Synced</span>
-            <h2 style={{ font: 'var(--md-sys-typescale-headline-small)', margin: '0 0 0.5rem', color: '#f0f4ee' }}>Get News & Cognitive Science Updates</h2>
+            <h2 style={{ font: 'var(--md-sys-typescale-headline-small)', margin: '0 0 0.5rem', color: '#f0f4ee' }}>Get News & Thought GPS updates</h2>
             <p style={{ font: 'var(--md-sys-typescale-body-medium)', color: 'var(--md-sys-color-on-surface-variant)', margin: 0 }}>Subscribe to product releases, cognitive hacks, and feature previews.</p>
           </div>
 
