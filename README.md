@@ -98,18 +98,3 @@ Navigate to the frontend URL to start building your external brain!
 
 ---
 
-## 💰 Cost Breakdown
-
-| Component | Cost |
-|-----------|------|
-| **Database** (PostgreSQL / Render Free Tier) | $0/month |
-| **Notifications** (Telegram/Slack/Email via Native Fallback) | $0/month |
-| **AI Processing** (OmniRoute 90+ Free Models) | $0/month |
-| **Web Scraping** (Public SearXNG) | $0/month |
-| **Hosting** (Render Free Tier) | $0/month |
-| **Total Operational Cost** | **$0/month** |
-
----
-
-## 📄 License
-MIT License
