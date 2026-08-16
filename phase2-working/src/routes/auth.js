@@ -50,13 +50,17 @@ router.post('/register', registerLimiter, async (req, res) => {
     const allowedEmails = rawAllowed.split(',').map(e => e.trim().toLowerCase());
     const isWhitelisted = allowedEmails.includes(email.trim().toLowerCase());
 
-    // Lock registration in production to admin emails only
+    const rawAllowedBeta = process.env.ALLOWED_BETA_EMAILS || '';
+    const allowedBetaEmails = rawAllowedBeta.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+    const isBetaWhitelisted = allowedBetaEmails.includes(email.trim().toLowerCase());
+
+    // Lock registration in production to whitelisted admin/beta emails only
     const isProd = process.env.NODE_ENV === 'production';
-    if (isProd && !isWhitelisted) {
+    if (isProd && !isWhitelisted && !isBetaWhitelisted) {
       return res.status(403).json({ error: 'Thought GPS is currently in private beta. Registration is restricted.' });
     }
 
-    // Auto-promote whitelisted admin registrations
+    // Auto-promote whitelisted admin registrations; normal registrations get free tier
     const overrides = isWhitelisted
       ? { is_admin: true, tier: 'admin', daily_runs_limit: 1000 }
       : { is_admin: false, tier: 'free', daily_runs_limit: 10 };

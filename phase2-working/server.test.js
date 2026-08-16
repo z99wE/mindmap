@@ -40,13 +40,15 @@ test('Thought GPS Core Endpoints', async (t) => {
   await t.test('Gated registration in production', async () => {
     const oldNodeEnv = process.env.NODE_ENV;
     const oldAllowed = process.env.ALLOWED_ADMIN_EMAILS;
+    const oldBeta = process.env.ALLOWED_BETA_EMAILS;
     
     const { pool } = require('./src/db');
     // Pre-cleanup in case previous test runs failed to clean up
-    await pool.query('DELETE FROM users WHERE email IN ($1, $2)', ['stranger@example.com', 'viktorechakraborty@gmail.com']);
+    await pool.query('DELETE FROM users WHERE email IN ($1, $2, $3)', ['stranger@example.com', 'viktorechakraborty@gmail.com', 'investor@example.com']);
 
     process.env.NODE_ENV = 'production';
     process.env.ALLOWED_ADMIN_EMAILS = 'viktorechakraborty@gmail.com';
+    process.env.ALLOWED_BETA_EMAILS = 'investor@example.com';
 
     try {
       // 1. Non-whitelisted email should get 403 Forbidden
@@ -61,7 +63,7 @@ test('Thought GPS Core Endpoints', async (t) => {
         .expect(403);
       assert.match(resBlocked.body.error, /beta.*restricted/i);
 
-      // 2. Whitelisted email should succeed and be admin
+      // 2. Whitelisted admin email should succeed and be admin
       const resAllowed = await request(app)
         .post('/api/auth/register')
         .send({
@@ -73,13 +75,28 @@ test('Thought GPS Core Endpoints', async (t) => {
         .expect(201);
       assert.strictEqual(resAllowed.body.user.email, 'viktorechakraborty@gmail.com');
       assert.strictEqual(resAllowed.body.user.tier, 'admin');
+
+      // 3. Whitelisted beta email should succeed and be regular/free user
+      const resBeta = await request(app)
+        .post('/api/auth/register')
+        .send({
+          email: 'investor@example.com',
+          password: 'securepassword123',
+          firstName: 'Jane',
+          lastName: 'Investor'
+        })
+        .expect(201);
+      assert.strictEqual(resBeta.body.user.email, 'investor@example.com');
+      assert.strictEqual(resBeta.body.user.tier, 'free');
     } finally {
       process.env.NODE_ENV = oldNodeEnv;
       if (oldAllowed) process.env.ALLOWED_ADMIN_EMAILS = oldAllowed;
       else delete process.env.ALLOWED_ADMIN_EMAILS;
+      if (oldBeta) process.env.ALLOWED_BETA_EMAILS = oldBeta;
+      else delete process.env.ALLOWED_BETA_EMAILS;
       
-      // Cleanup registered test user
-      await pool.query('DELETE FROM users WHERE email IN ($1, $2)', ['stranger@example.com', 'viktorechakraborty@gmail.com']);
+      // Cleanup registered test users
+      await pool.query('DELETE FROM users WHERE email IN ($1, $2, $3)', ['stranger@example.com', 'viktorechakraborty@gmail.com', 'investor@example.com']);
     }
   });
 
