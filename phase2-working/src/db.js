@@ -2,9 +2,11 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const isProd = process.env.NODE_ENV === 'production' || !process.env.DATABASE_URL?.includes('localhost');
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/thought_gps',
-  max: 10,
+  max: isProd ? 3 : 10, // Prevent connection limits during rolling deploys on free tier DBs
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
 });
