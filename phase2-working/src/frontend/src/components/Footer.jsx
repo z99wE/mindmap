@@ -29,7 +29,7 @@ export default function Footer() {
 
       {/* Text in foreground */}
       <div style={{ position: 'relative', zIndex: 1, height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="brand-signoff-mark">
+        <div className="brand-signoff-mark" style={{ width: "100%", textAlign: "center" }}>
           <ShinyText
             text="Thought GPS"
             speed={2}

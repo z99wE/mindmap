@@ -222,6 +222,8 @@ async function runMigrations(retries = 5) {
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS emotional_tone VARCHAR(50)',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS related_person VARCHAR(255)',
       'ALTER TABLE memory_graph ADD COLUMN IF NOT EXISTS location_tag VARCHAR(255)',
+      // Booster columns
+      'ALTER TABLE user_boosters ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL \'30 days\'',
     ];
     for (const sql of alterCols) {
       await client.query(sql).catch(() => {});

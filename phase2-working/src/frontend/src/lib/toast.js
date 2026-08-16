@@ -74,3 +74,9 @@ export const toast = {
     }, duration);
   }
 };
+
+window.addEventListener('tg-toast', (e) => {
+  if (e.detail && e.detail.message) {
+    toast.show(e.detail.message, e.detail.type || 'info', e.detail.duration || 3000);
+  }
+});

@@ -1,4 +1,5 @@
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function Credits() {
   const container = document.createElement('div');
@@ -319,10 +320,10 @@ export function Credits() {
   window.subscribePro = async () => {
     const result = await api.post('/billing/subscribe', { tier: 'pro' });
     if (result.error) {
-      alert(result.error);
+      toast.show(result.error, 'error');
       return;
     }
-    alert('Upgraded to PRO! Refreshing...');
+    toast.show('Upgraded to PRO! Refreshing...', 'success');
     const me = await api.get('/auth/me');
     if (me.id) api.setUser(me);
     window.showPage?.('credits');
@@ -331,10 +332,10 @@ export function Credits() {
   window.buyBooster = async (bundleId) => {
     const result = await api.post('/billing/buy-booster', { bundleId });
     if (result.error) {
-      alert(result.error);
+      toast.show(result.error, 'error');
       return;
     }
-    alert(result.message || 'Booster activated successfully!');
+    toast.show(result.message || 'Booster activated successfully!', 'success');
     const me = await api.get('/auth/me');
     if (me.id) api.setUser(me);
     window.showPage?.('credits');
@@ -344,7 +345,7 @@ export function Credits() {
     if (!confirm(`Switch to ${tier.toUpperCase()} plan?`)) return;
     const result = await api.post('/billing/subscribe', { tier });
     if (result.error) {
-      alert(result.error);
+      toast.show(result.error, 'error');
       return;
     }
     const me = await api.get('/auth/me');

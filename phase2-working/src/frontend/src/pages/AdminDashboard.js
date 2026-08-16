@@ -1,5 +1,6 @@
 // Admin Dashboard - OmniRoute + Langfuse + System Health (admin only)
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function AdminDashboard() {
   const container = document.createElement('div');
@@ -100,7 +101,7 @@ export function AdminDashboard() {
           <button class="btn-m3 btn-outlined" id="btn-backup">
             Backup Database
           </button>
-          <button class="btn-m3 btn-outlined" style="border-color:rgba(255,255,255,0.16);color:var(--md-sys-color-on-surface-variant);" onclick="alert('System reset is disabled.')">
+          <button class="btn-m3 btn-outlined" style="border-color:rgba(255,255,255,0.16);color:var(--md-sys-color-on-surface-variant);" onclick="window.dispatchEvent(new CustomEvent('tg-toast', { detail: { message: 'System reset is disabled.', type: 'error' } }))">
             Reset System
           </button>
         </div>
@@ -165,7 +166,7 @@ export function AdminDashboard() {
           a.download = 'export.json';
           a.click();
         } else {
-          alert(data?.error || 'Export failed');
+          toast.show(data?.error || 'Export failed', 'error');
         }
         btnExport.textContent = 'Export All Data';
       });
@@ -185,7 +186,7 @@ export function AdminDashboard() {
           a.download = 'system_backup.json';
           a.click();
         } else {
-          alert(data?.error || 'Backup failed');
+          toast.show(data?.error || 'Backup failed', 'error');
         }
         btnBackup.textContent = 'Backup Database';
       });

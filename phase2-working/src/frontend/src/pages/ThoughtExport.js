@@ -1,5 +1,6 @@
 // Thought Export - Download thoughts as JSON or CSV
 import api from '../lib/api.js';
+import { toast } from '../lib/toast.js';
 
 export function ThoughtExport() {
   const container = document.createElement('div');
@@ -98,7 +99,7 @@ export function ThoughtExport() {
       // JSON and Vortex download
       const data = await api.get(`/memory/export?${params}`);
       if (data.error) {
-        alert(`Export failed: ${data.error}`);
+        toast.show(`Export failed: ${data.error}`, 'error');
         return;
       }
       
