@@ -1,4 +1,12 @@
 <div align="center">
+  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/Vite-Dark.svg" width="60" alt="Vite" />
+  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/React-Dark.svg" width="60" alt="React" />
+  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/NodeJS-Dark.svg" width="60" alt="Node.js" />
+  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/PostgreSQL-Dark.svg" width="60" alt="PostgreSQL" />
+  
+  <br />
+  <br />
+
   <h1>🧠 Thought GPS</h1>
   <p><b>An Autonomous Memory Graph & Behavioral Coprocessor for Neuro-Diverse Minds</b></p>
 
@@ -7,6 +15,7 @@
   [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-336791?logo=postgresql&logoColor=white&style=for-the-badge)](#)
   [![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+  <br />
   <p align="center">
     <i>Not just another checklist. A cognitive exoskeleton that remembers, routes, and escalates your thoughts across the digital platforms you actually use.</i>
   </p>
@@ -26,9 +35,15 @@ For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms 
 
 ---
 
-## 🏛 System Architecture
+## 🏛 System Architecture & Stack
 
-Thought GPS employs a state-of-the-art event-driven architecture, built for extreme resilience and zero-cost scaling.
+Thought GPS employs a state-of-the-art event-driven architecture, built for extreme resilience, high performance, and zero-cost scaling.
+
+- **Frontend**: Vite SPA, React, Custom Glassmorphism UI engine
+- **Backend**: Node.js, Express, Custom autonomous agent loops
+- **Memory**: PostgreSQL with `pgvector` for semantic search
+- **AI Engine**: OmniRoute (BYOK Groq/OpenAI/Anthropic)
+- **Deployment**: Dockerized, 1-Click Render Deploy
 
 ```mermaid
 graph TD;
@@ -70,7 +85,7 @@ Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an act
 A novel social-proofing system built directly into the memory graph. It automatically triggers notifications to designated "witness contacts" (friends, family, or colleagues) when you miss a self-imposed deadline. It weaponizes social accountability to prevent self-sabotage.
 
 ### 4. 🧠 OmniRoute (Multi-LLM Intelligence)
-Enterprise-grade cognitive operations running at a **$0 operational budget**. OmniRoute automatically loads balances and routes your requests across high-tier AI providers (Groq, OpenAI, Anthropic, Fireworks, Featherless, Lightning). If one key hits a rate limit, it seamlessly fails over to the next available provider.
+Enterprise-grade cognitive operations running at a **$0 operational budget**. OmniRoute automatically load balances and routes your requests across high-tier AI providers (Groq, OpenAI, Anthropic, Fireworks, Featherless, Lightning). If one key hits a rate limit, it seamlessly fails over to the next available provider.
 
 ### 5. 🛡️ Multi-Tenant Native Fallback (Zero API Costs)
 Thought GPS completely sidesteps expensive third-party notification APIs (like Twilio). It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture. If your primary channel fails, the system automatically degrades gracefully (`Telegram → Slack → Email → Web Push`) to ensure you never miss a cognitive nudge.
@@ -88,7 +103,7 @@ Thought GPS bridges the gap between the app and the platforms you already live i
 
 ---
 
-## 🚀 Easy Installation (1-Click Ready)
+## 🚀 Installation & Local Development
 
 Thought GPS is built to be deployed seamlessly. Follow these instructions to get it running locally or on the cloud.
 
@@ -102,7 +117,9 @@ We've provided a fully-configured `render.yaml` and `Dockerfile` for instant dep
 4. Render will automatically detect the `render.yaml` and spin up both your web service and a free PostgreSQL database.
 5. In your Render Dashboard, set your environment variables (see `.env.example`).
 
-### Option 2: Local Development Setup
+### Option 2: Local Development Setup (Full Admin Access)
+
+To test changes locally with full administrative privileges before pushing to production, use the local development setup.
 
 #### Prerequisites
 - Node.js (v20+ recommended)
@@ -123,23 +140,28 @@ cd ../..
 ```
 
 #### 2. Configure Environment
-Copy the example environment file and fill in your database credentials:
+Copy the example environment file and fill in your database credentials. 
 ```bash
 cp .env.example .env
 ```
 *(Ensure `DATABASE_URL` points to your local Postgres instance with `pgvector` enabled.)*
 
-#### 3. Run the App
-Start the full stack with a single command:
-```bash
-# In the phase2-working directory:
-node server.js
+#### 3. Run the Stack
+Start the full stack with two terminal windows:
 
-# In a new terminal tab (phase2-working/src/frontend):
+**Terminal 1 (Backend API):**
+```bash
+cd Thought-GPS/phase2-working
+node server.js
+```
+
+**Terminal 2 (Vite Frontend):**
+```bash
+cd Thought-GPS/phase2-working/src/frontend
 npm run dev
 ```
 
-Navigate to the provided localhost URL (usually `http://localhost:5173`) to start building your external brain! *Note: A local developer admin account is automatically seeded for easy testing outside of production environments.*
+Navigate to `http://localhost:5173` to start building your external brain! *Note: Registration functionality creates users with local access instantly.*
 
 ---
 

@@ -64,6 +64,12 @@ export default function Footer() {
           -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
           mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
         }
+        @media (min-width: 901px) {
+          .brand-signoff { 
+            width: calc(100% + 248px);
+            margin-left: -248px;
+          }
+        }
       `}</style>
     </section>
   );

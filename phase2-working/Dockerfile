@@ -7,7 +7,7 @@ WORKDIR /app/frontend
 
 # Install frontend dependencies
 COPY src/frontend/package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy frontend source and build
 COPY src/frontend/ ./
@@ -26,8 +26,8 @@ ENV NODE_ENV=production
 
 # Install backend dependencies
 COPY package*.json ./
-# Use ci with --omit=dev to keep the image small
-RUN npm ci --omit=dev
+# Use install with --omit=dev to keep the image small
+RUN npm install --omit=dev
 
 # Copy backend source code
 COPY server.js .
