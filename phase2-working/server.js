@@ -190,58 +190,16 @@ async function start() {
       } catch (e) { /* ignore */ }
     }
 
-    // ── PulseKit: ThoughtGPS native multi-channel messenger (PRIMARY) ─────────
-    // Zero external SDK dependency. Works without any API key.
-    // Channels activated via env vars — all free, all self-owned.
-    const { createPulseKit } = require('./src/pulsekit/index');
-    const pulseKit = await createPulseKit(pool, webpush, vapidKeys);
+	    // ── PulseKit: Native multi-channel messenger (sole messenger) ──────────────
+	    // Zero external SDK dependency. Works without any API key.
+	    // Channels activated via env vars or user-provided credentials.
+	    const { createPulseKit } = require('./src/pulsekit/index');
+	    const pulseKit = await createPulseKit(pool, webpush, vapidKeys);
 
-    // ── Caspian SDK: optional enriched fallback (secondary) ───────────────────
-    // If CASPIAN_API_KEY is present, Caspian runs alongside PulseKit.
-    // If Caspian ever goes down, PulseKit already handles everything.
-    let caspianFallback = null;
-    if (process.env.CASPIAN_API_KEY) {
-      try {
-        const { createCaspianClient } = require('./src/caspian-client');
-        caspianFallback = await createCaspianClient(pool);
-        console.log('[Server] Caspian SDK loaded as secondary fallback');
-      } catch (e) {
-        console.warn('[Server] Caspian SDK failed to load (not critical — PulseKit handles delivery):', e.message);
-      }
-    }
-
-    // ── Unified messenger: PulseKit first, Caspian if PulseKit has no channel ─
-    // All existing route code calls app.locals.caspian.send() — interface unchanged.
-    const caspian = {
-      // Forward all sends to PulseKit
-      send: async (opts) => {
-        try {
-          const result = await pulseKit.send(opts);
-          if (result.via !== 'db-only') return result;
-        } catch (e) {
-          console.warn('[Messenger] PulseKit send failed, trying Caspian fallback:', e.message);
-        }
-        // If PulseKit had no channel driver, try Caspian
-        if (caspianFallback) {
-          return caspianFallback.send(opts);
-        }
-      },
-      broadcast: pulseKit.broadcast.bind(pulseKit),
-      schedule:  pulseKit.schedule.bind(pulseKit),
-      onInbound: pulseKit.onInbound.bind(pulseKit),
-      startListening: pulseKit.startListening.bind(pulseKit),
-      status: pulseKit.status.bind(pulseKit),
-      get isLive() { return pulseKit.isLive || (caspianFallback?.isLive ?? false); },
-      get channels() { return [...pulseKit.channels, ...(caspianFallback?.channels ?? [])]; },
-      // Legacy Caspian compat
-      getUserConnection: caspianFallback?.getUserConnection ?? (() => null),
-    };
-
-    // Expose on app for use in route handlers (same API as before — no route changes needed)
-    app.locals.caspian = caspian;
-    app.locals.pulseKit = pulseKit;
-    app.locals.pool = pool;
-    app.set('caspian', caspian);
+	    // Expose PulseKit on app for use in route handlers
+	    app.locals.pulseKit = pulseKit;
+	    app.locals.pool = pool;
+	    app.set('pulseKit', pulseKit);
 
     const keyPool = new KeyPool();
     const llmRouter = async (payload) => {
@@ -292,10 +250,10 @@ async function start() {
 
     // Mount additional cognitive endpoints
     createRelationshipAnchorEndpoints(app, pool, llmRouter);
-    createDriftDetectorEndpoints(app, pool, caspian, llmRouter);
-    createClassificationEndpoints(app, pool, llmRouter);
-    createInvisibleChecklistEndpoints(app, pool, caspian);
-    createDoorRuleEndpoints(app, pool, caspian);
+	    createDriftDetectorEndpoints(app, pool, pulseKit, llmRouter);
+	    createClassificationEndpoints(app, pool, llmRouter);
+	    createInvisibleChecklistEndpoints(app, pool, pulseKit);
+	    createDoorRuleEndpoints(app, pool, pulseKit);
 
     if (process.env.NODE_ENV === 'production') {
       if (!process.env.JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is missing in production.');
@@ -309,15 +267,15 @@ async function start() {
 
     console.log('[Cognitive Crons] Native Vercel/GitHub Action cron endpoint mounted at /api/cron/tick');
 
-    // Start background autonomous agent (Phase 4 requirement)
-    const { OrchestratorManager } = require('./orchestrator');
-    const orchestratorManager = new OrchestratorManager(pool, keyPool);
-    orchestratorManager.startAutonomousAgent(caspian);
+	    // Start background autonomous agent
+	    const { OrchestratorManager } = require('./orchestrator');
+	    const orchestratorManager = new OrchestratorManager(pool, keyPool);
+	    orchestratorManager.startAutonomousAgent(pulseKit);
 
-    // Start listening for inbound messages (Telegram polling, etc.)
-    caspian.startListening();
+	    // Start listening for inbound messages (Telegram polling, Discord WebSocket, etc.)
+	    pulseKit.startListening();
 
-    caspian.onInbound(async ({ from, message, channel, reply }) => {
+	    pulseKit.onInbound(async ({ from, message, channel, reply }) => {
       console.log(`[Inbound] ${channel} message from ${from}: ${message}`);
       
       try {
@@ -368,7 +326,7 @@ async function start() {
           return res.status(200).send(payload.challenge);
         }
 
-        const response = await caspian.handleWebhookEvent('slack', payload);
+	        const response = await pulseKit.handleWebhookEvent('slack', payload);
         if (response) {
           res.json(response);
         } else {
@@ -395,17 +353,29 @@ async function start() {
       }
     });
 
-    // WhatsApp Cloud API Webhook Event (POST)
-    app.post('/api/webhooks/whatsapp', express.json(), async (req, res) => {
-      try {
-        const payload = req.body;
-        await caspian.handleWebhookEvent('whatsapp', payload);
-        res.status(200).send('EVENT_RECEIVED');
-      } catch (e) {
-        console.error('[WhatsApp Webhook Error]', e.message);
-        res.status(500).send('Error');
-      }
-    });
+	    // WhatsApp Cloud API Webhook Event (POST)
+	    app.post('/api/webhooks/whatsapp', express.json(), async (req, res) => {
+	      try {
+	        const payload = req.body;
+	        await pulseKit.handleWebhookEvent('whatsapp', payload);
+	        res.status(200).send('EVENT_RECEIVED');
+	      } catch (e) {
+	        console.error('[WhatsApp Webhook Error]', e.message);
+	        res.status(500).send('Error');
+	      }
+	    });
+
+	    // Signal Webhook (for signal-cli or gateway)
+	    app.post('/api/webhooks/signal', express.json(), async (req, res) => {
+	      try {
+	        const payload = req.body;
+	        await pulseKit.handleWebhookEvent('signal', payload);
+	        res.status(200).send('OK');
+	      } catch (e) {
+	        console.error('[Signal Webhook Error]', e.message);
+	        res.status(500).send('Error');
+	      }
+	    });
 
     app.listen(PORT, () => {
       console.log(`[UnZonko] Server running on port ${PORT}`);

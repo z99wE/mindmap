@@ -28,6 +28,7 @@ const { createDiscordChannel }  = require('./channels/discord');
 const { createSlackChannel }    = require('./channels/slack');
 const { createWhatsappChannel } = require('./channels/whatsapp');
 const { createWebPushChannel }  = require('./channels/webpush');
+const { createSignalChannel }   = require('./channels/signal');
 const { PulseQueue }            = require('./queue');
 const { decrypt }               = require('../crypto');
 
@@ -114,19 +115,35 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
     }
   }
 
-  // Web Push (always available if VAPID keys are present)
-  if (webpushModule && vapidKeys) {
-    try {
-      const wp = createWebPushChannel({ webpush: webpushModule, vapidKeys, pool: _pool });
-      await wp.init();
-      globalChannels.set('webpush', wp);
-      console.log('[PulseKit] ✅ WebPush ready');
-    } catch (e) {
-      console.warn('[PulseKit] WebPush init failed:', e.message);
-    }
-  }
+	  // Web Push (always available if VAPID keys are present)
+	  if (webpushModule && vapidKeys) {
+	    try {
+	      const wp = createWebPushChannel({ webpush: webpushModule, vapidKeys, pool: _pool });
+	      await wp.init();
+	      globalChannels.set('webpush', wp);
+	      console.log('[PulseKit] ✅ WebPush ready');
+	    } catch (e) {
+	      console.warn('[PulseKit] WebPush init failed:', e.message);
+	    }
+	  }
 
-  console.log(`[PulseKit] Live with ${globalChannels.size} global channel(s): [${[...globalChannels.keys()].join(', ')}]`);
+	  // Signal (via self-hosted signal-cli REST API)
+	  if (process.env.SIGNAL_REST_URL || process.env.SIGNAL_PHONE_NUMBER) {
+	    try {
+	      const sg = createSignalChannel({
+	        baseUrl: process.env.SIGNAL_REST_URL,
+	        phoneNumber: process.env.SIGNAL_PHONE_NUMBER,
+	        apiKey: process.env.SIGNAL_API_KEY,
+	      });
+	      await sg.init();
+	      globalChannels.set('signal', sg);
+	      console.log('[PulseKit] ✅ Signal gateway ready');
+	    } catch (e) {
+	      console.warn('[PulseKit] Signal init failed:', e.message);
+	    }
+	  }
+
+	  console.log(`[PulseKit] Live with ${globalChannels.size} global channel(s): [${[...globalChannels.keys()].join(', ')}]`);
 
   // ── Helper: load user's custom channel credentials from DB ───────────────
   async function getUserChannels(userId) {
@@ -174,10 +191,17 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
           from: creds.smtp_from || creds.smtp_user,
         });
         await driver.init();
-      } else if (platform === 'whatsapp' && creds.bot_token && creds.chat_id) {
-        driver = createWhatsappChannel({ token: creds.bot_token, phoneId: creds.chat_id });
-        await driver.init();
-      }
+	      } else if (platform === 'whatsapp' && creds.bot_token && creds.chat_id) {
+	        driver = createWhatsappChannel({ token: creds.bot_token, phoneId: creds.chat_id });
+	        await driver.init();
+	      } else if (platform === 'signal' && creds.phone_number) {
+	        driver = createSignalChannel({
+	          baseUrl: creds.base_url || process.env.SIGNAL_REST_URL,
+	          phoneNumber: creds.phone_number,
+	          apiKey: creds.api_key || process.env.SIGNAL_API_KEY,
+	        });
+	        await driver.init();
+	      }
 
       if (driver) {
         // Automatically wire up inbound handling for newly instantiated drivers

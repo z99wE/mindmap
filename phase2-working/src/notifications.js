@@ -62,9 +62,9 @@ async function markAllRead(userId) {
   );
 }
 
-// Attempt to deliver via Caspian SDK (if channel configured)
-async function deliverViaCaspian(userId, notification, caspianClient) {
-  if (!caspianClient) return false;
+// Attempt to deliver via PulseKit (if channel configured)
+async function deliverViaPulseKit(userId, notification, pulseKit) {
+  if (!pulseKit) return false;
   try {
     const channels = await pool.query(
       'SELECT * FROM channels WHERE user_id = $1 AND is_active = true',
@@ -81,10 +81,10 @@ async function deliverViaCaspian(userId, notification, caspianClient) {
       // Parallel broadcast: send to all active channels simultaneously
       const promises = channels.rows.map(async (ch) => {
         try {
-          await caspianClient.send({ channel: ch.platform, to: userId, message: notification.message });
+          await pulseKit.send({ channel: ch.platform, to: userId, message: notification.message });
           return true;
         } catch (e) {
-          console.error(`[Notify] Caspian broadcast failed for ${ch.platform}:`, e.message);
+          console.error(`[Notify] PulseKit broadcast failed for ${ch.platform}:`, e.message);
           return false;
         }
       });
@@ -101,14 +101,14 @@ async function deliverViaCaspian(userId, notification, caspianClient) {
       // Failover mode: sequential fallback
       for (const ch of channels.rows) {
         try {
-          await caspianClient.send({ channel: ch.platform, to: userId, message: notification.message });
+          await pulseKit.send({ channel: ch.platform, to: userId, message: notification.message });
           await pool.query(
             'UPDATE notifications SET delivered = true WHERE id = $1',
             [notification.id]
           );
           return true;
         } catch (e) {
-          console.error(`[Notify] Caspian failover send failed for ${ch.platform}:`, e.message);
+          console.error(`[Notify] PulseKit failover send failed for ${ch.platform}:`, e.message);
         }
       }
       return false;
@@ -121,5 +121,5 @@ async function deliverViaCaspian(userId, notification, caspianClient) {
 
 module.exports = {
   NOTIFICATION_TYPES, createNotification, getNotifications,
-  markRead, markAllRead, deliverViaCaspian,
+  markRead, markAllRead, deliverViaPulseKit,
 };

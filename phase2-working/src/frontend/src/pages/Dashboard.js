@@ -75,6 +75,24 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      <!-- Quick Actions -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem;">
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;">send_to_mobile</span>
+            Dispatch Digest
+          </h3>
+          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin-bottom:1rem;">
+            Send a summary of your recent thoughts to your connected messaging channels (Telegram, Discord, Slack, etc.).
+          </p>
+          <button class="btn-m3 btn-filled" id="digest-btn" style="width:100%;height:44px;font-weight:bold;">
+            <span class="material-symbols-rounded" style="font-size:18px;">send</span>
+            Send Digest Now
+          </button>
+          <p id="digest-status" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;text-align:center;"></p>
+        </div>
+      </div>
     </div>`;
 
   loadDashboard(container);
@@ -291,5 +309,31 @@ async function loadDashboard(c) {
     };
 
     draw();
+  }
+
+  // Digest button handler
+  const digestBtn = c.querySelector('#digest-btn');
+  const digestStatus = c.querySelector('#digest-status');
+  if (digestBtn) {
+    digestBtn.addEventListener('click', async () => {
+      digestBtn.disabled = true;
+      digestBtn.innerHTML = '<span class="material-symbols-rounded" style="font-size:18px;">sync</span> Sending...';
+      digestStatus.textContent = 'Dispatching to your channels...';
+      
+      const res = await api.post('/channels/digest');
+      if (res.error) {
+        digestStatus.textContent = '❌ ' + res.error;
+        digestStatus.style.color = 'var(--md-sys-color-error)';
+      } else if (res.success) {
+        digestStatus.textContent = '✅ ' + res.message;
+        digestStatus.style.color = 'var(--color-success)';
+      } else {
+        digestStatus.textContent = '⚠️ ' + (res.message || 'Digest could not be sent. Connect a channel first.');
+        digestStatus.style.color = 'var(--md-sys-color-secondary)';
+      }
+      
+      digestBtn.disabled = false;
+      digestBtn.innerHTML = '<span class="material-symbols-rounded" style="font-size:18px;">send</span> Send Digest Now';
+    });
   }
 }

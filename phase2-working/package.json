@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "caspian-sdk": "^0.6.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^17.4.2",

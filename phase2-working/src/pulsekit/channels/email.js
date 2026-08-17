@@ -9,6 +9,7 @@
 function createEmailChannel({ host, port = 587, secure = false, user, pass, from }) {
   let messageHandlers = [];
   let imapConnection = null;
+  let transporter = null;
 
   return {
     name: 'email',

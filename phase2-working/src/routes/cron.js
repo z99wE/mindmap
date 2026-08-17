@@ -20,22 +20,22 @@ router.get('/tick', async (req, res) => {
       }
     }
 
-    const { pool, caspian } = req.app.locals;
+	    const { pool, pulseKit } = req.app.locals;
 
-    // 2. Trigger cognitive functions
-    console.log('[Cron] Tick started');
+	    // 2. Trigger cognitive functions
+	    console.log('[Cron] Tick started');
 
-    // These run asynchronously without blocking the response
-    // if we wanted to block we would await Promise.all
-    // For Vercel, we need to await them so the serverless function doesn't terminate early.
-    await Promise.allSettled([
-      processRevivals(pool, caspian),
-      processHalfLifeEscalations(pool, caspian),
-      processArchaeologyReports(pool, caspian),
-      checkCommitmentWitnesses(pool, caspian),
-      checkAndAlertDeparture(pool, caspian, null),
-      checkDriftForAllUsers(pool, caspian, req.app.locals.llmRouter, null)
-    ]);
+	    // These run asynchronously without blocking the response
+	    // if we wanted to block we would await Promise.all
+	    // For Vercel, we need to await them so the serverless function doesn't terminate early.
+	    await Promise.allSettled([
+	      processRevivals(pool, pulseKit),
+	      processHalfLifeEscalations(pool, pulseKit),
+	      processArchaeologyReports(pool, pulseKit),
+	      checkCommitmentWitnesses(pool, pulseKit),
+	      checkAndAlertDeparture(pool, pulseKit, null),
+	      checkDriftForAllUsers(pool, pulseKit, req.app.locals.llmRouter, null)
+	    ]);
 
     // Also run daily cleanup task if it's past midnight UTC (or simply on every tick, it's idempotent for 7-day-old data)
     // To be safe and keep it lightweight on every tick, we just run it.

@@ -2,7 +2,7 @@
  * Global Error Handler Middleware & Async Wrapper
  * 
  * Prevents unhandled promise rejections from crashing the Node process.
- * Intercepts raw 3rd-party API errors (Stripe, OpenAI, Caspian) and
+ * Intercepts raw 3rd-party API errors (Stripe, OpenAI) and
  * masks them into organic application messages ("High Cognitive Load").
  */
 

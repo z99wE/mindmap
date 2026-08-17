@@ -106,6 +106,34 @@ export function AdminDashboard() {
           </button>
         </div>
       </div>
+
+      <!-- Channel Management (Admin) -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">
+          <span class="dot" style="width:8px;height:8px;background:#84cc16;box-shadow:0 0 8px rgba(132,204,22,0.3);vertical-align:middle;"></span>
+          Channel Management
+        </h2>
+        <div id="channel-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-bottom:1.5rem;">
+          <div class="surface-card" style="padding:0.75rem;text-align:center;">
+            <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Total Channels</div>
+            <div id="ch-total" style="font:var(--md-sys-typescale-title-large);color:#ccff00;">—</div>
+          </div>
+          <div class="surface-card" style="padding:0.75rem;text-align:center;">
+            <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Active</div>
+            <div id="ch-active" style="font:var(--md-sys-typescale-title-large);color:#a3e635;">—</div>
+          </div>
+          <div class="surface-card" style="padding:0.75rem;text-align:center;">
+            <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">PulseKit Global</div>
+            <div id="ch-global" style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">—</div>
+          </div>
+        </div>
+
+        <div id="channel-breakdown"></div>
+
+        <div id="all-channels-list" style="margin-top:1rem;">
+          <div class="tg-skeleton tg-skeleton--title"></div>
+        </div>
+      </div>
     </div>`;
 
   async function loadData() {
@@ -244,10 +272,86 @@ export function AdminDashboard() {
               `).join('')}
             </tbody>
           </table>
-        </div>`;
-    }
-  }
+	        </div>`;
+	    }
 
-  loadData();
-  return container;
+	    // Channel management stats
+	    const chStats = await api.get('/admin/channels/stats');
+	    if (!chStats.error) {
+	      container.querySelector('#ch-total').textContent = chStats.total || 0;
+	      container.querySelector('#ch-active').textContent = chStats.active || 0;
+	      const globalChs = (chStats.globalChannels || []).join(', ') || 'none';
+	      container.querySelector('#ch-global').textContent = globalChs + (chStats.pulseKitLive ? ' 🟢' : ' ⚪');
+
+	      // Platform breakdown
+	      const breakdownEl = container.querySelector('#channel-breakdown');
+	      if (chStats.byPlatform?.length) {
+	        breakdownEl.innerHTML = `
+	          <div style="font:var(--md-sys-typescale-title-small);margin-bottom:0.5rem;color:var(--md-sys-color-outline);">By Platform</div>
+	          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+	            ${chStats.byPlatform.map(p => `
+	              <span class="chip-m3" style="background:rgba(132,204,22,0.1);border:1px solid rgba(132,204,22,0.2);color:#ccff00;padding:0.25rem 0.75rem;border-radius:var(--md-sys-shape-full);font:var(--md-sys-typescale-label-small);">
+	                ${p.platform} <strong>${p.count}</strong>
+	              </span>
+	            `).join('')}
+	          </div>`;
+	      } else {
+	        breakdownEl.innerHTML = '<div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">No user channels configured yet.</div>';
+	      }
+	    }
+
+	    // All channels list
+	    const allCh = await api.get('/admin/channels');
+	    const allChEl = container.querySelector('#all-channels-list');
+	    if (allCh.error || !allCh.channels?.length) {
+	      allChEl.innerHTML = '<div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);padding:0.5rem 0;">No channels have been connected by any user.</div>';
+	    } else {
+	      allChEl.innerHTML = `
+	        <div style="font:var(--md-sys-typescale-title-small);margin-bottom:0.5rem;color:var(--md-sys-color-outline);">All User Channels</div>
+	        <div style="overflow-x:auto;">
+	          <table style="width:100%;border-collapse:collapse;font:var(--md-sys-typescale-body-small);">
+	            <thead>
+	              <tr style="border-bottom:1px solid var(--md-sys-color-outline-variant);">
+	                <th style="text-align:left;padding:0.4rem;color:var(--md-sys-color-outline);font-weight:500;">Platform</th>
+	                <th style="text-align:left;padding:0.4rem;color:var(--md-sys-color-outline);font-weight:500;">User</th>
+	                <th style="text-align:left;padding:0.4rem;color:var(--md-sys-color-outline);font-weight:500;">Display</th>
+	                <th style="text-align:left;padding:0.4rem;color:var(--md-sys-color-outline);font-weight:500;">Status</th>
+	                <th style="text-align:left;padding:0.4rem;color:var(--md-sys-color-outline);font-weight:500;">Actions</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              ${allCh.channels.map(ch => `
+	                <tr style="border-bottom:1px solid var(--md-sys-color-outline-variant);">
+	                  <td style="padding:0.4rem;"><span class="chip-m3" style="background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:var(--md-sys-shape-full);font-size:11px;text-transform:capitalize;">${ch.platform}</span></td>
+	                  <td style="padding:0.4rem;color:var(--md-sys-color-on-surface-variant);max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="${ch.user_email || ch.user_id}">${ch.user_email || ch.user_id?.slice(0, 12) || '—'}</td>
+	                  <td style="padding:0.4rem;">${ch.display_name || '—'}</td>
+	                  <td style="padding:0.4rem;">
+	                    <span style="display:inline-flex;align-items:center;gap:4px;color:${ch.is_active ? 'var(--color-success)' : 'var(--md-sys-color-outline)'}">
+	                      <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+	                      ${ch.is_active ? 'Active' : 'Inactive'}
+	                    </span>
+	                  </td>
+	                  <td style="padding:0.4rem;">
+	                    <button class="btn-m3 btn-tonal" style="padding:0.15rem 0.5rem;font-size:11px;" onclick="adminTestChannel('${ch.id}')">Test</button>
+	                  </td>
+	                </tr>
+	              `).join('')}
+	            </tbody>
+	          </table>
+	        </div>`;
+	    }
+	  }
+
+	  loadData();
+
+	  // Add global function for admin test delivery
+	  window.adminTestChannel = async (id) => {
+	    toast.show('Testing channel delivery...', 'info');
+	    const res = await api.post(`/admin/channels/${id}/deliver`);
+	    if (res.error) toast.show(res.error, 'error');
+	    else if (res.success) toast.show(`✅ Delivered via ${res.channel} (${res.via})`, 'success');
+	    else toast.show(`⚠️ Delivery: ${res.errors?.join(', ') || 'unknown'}`, 'error');
+	  };
+
+	  return container;
 }

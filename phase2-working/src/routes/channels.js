@@ -125,12 +125,12 @@ router.post('/connect', authMiddleware, async (req, res) => {
       [req.user.userId, platform, displayName || platformDef.name, encrypted, webhookUrl || null]
     );
 
-    const caspianClient = req.app.get('caspian');
-    if (caspianClient && typeof caspianClient.invalidateUserDriver === 'function') {
-      await caspianClient.invalidateUserDriver(req.user.userId, platform);
-    }
+	    const pulseKit = req.app.get('pulseKit');
+	    if (pulseKit && typeof pulseKit.invalidateUserDriver === 'function') {
+	      await pulseKit.invalidateUserDriver(req.user.userId, platform);
+	    }
 
-    res.status(201).json({ channel: result.rows[0] });
+	    res.status(201).json({ channel: result.rows[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -158,12 +158,12 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       'DELETE FROM channels WHERE id = $1 AND user_id = $2 RETURNING platform',
       [req.params.id, req.user.userId]
     );
-    if (result.rows.length > 0) {
-      const caspianClient = req.app.get('caspian');
-      if (caspianClient && typeof caspianClient.invalidateUserDriver === 'function') {
-        await caspianClient.invalidateUserDriver(req.user.userId, result.rows[0].platform);
-      }
-    }
+	    if (result.rows.length > 0) {
+	      const pulseKit = req.app.get('pulseKit');
+	      if (pulseKit && typeof pulseKit.invalidateUserDriver === 'function') {
+	        await pulseKit.invalidateUserDriver(req.user.userId, result.rows[0].platform);
+	      }
+	    }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -192,28 +192,28 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
     // Actual test send: log and store notification
     const testMessage = `[UnZonko Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
 
-    // Use real Caspian delivery if client is available
-    const caspianClient = req.app.get('caspian');
-    if (caspianClient && caspianClient.isLive) {
-      try {
-        const response = await caspianClient.send({ channel: channel.platform, to: req.user.userId, message: testMessage });
-        
-        if (response && response.delivered === false) {
-           const errStr = response.errors ? `\nDetails: ${response.errors.join(' | ')}` : '';
-           return res.status(400).json({ error: `Delivery failed. The credentials might be invalid or the bot lacks permissions.${errStr}` });
-        }
-        if (response && response.channel !== channel.platform) {
-           const errStr = response.errors ? `\nDetails: ${response.errors.join(' | ')}` : '';
-           return res.status(400).json({ error: `Failed to deliver via ${channel.platform}. Message was routed to ${response.channel} instead. Check your bot token and channel ID.${errStr}` });
-        }
-        return res.json({ success: true, message: `Test message sent to ${channel.platform}` });
-      } catch (e) {
-        console.warn(`[Channel Test] Caspian delivery failed:`, e.message);
-        return res.status(400).json({ error: 'Delivery failed: ' + e.message });
-      }
-    } else {
-      console.log(`[Channel Test] ${channel.platform} -> user ${req.user.userId}: ${testMessage}`);
-    }
+	    // Use PulseKit for delivery
+	    const pulseKit = req.app.get('pulseKit');
+	    if (pulseKit && typeof pulseKit.send === 'function') {
+	      try {
+	        const response = await pulseKit.send({ channel: channel.platform, to: req.user.userId, message: testMessage });
+	        
+	        if (response && response.delivered === false) {
+	           const errStr = response.errors ? `\nDetails: ${response.errors.join(' | ')}` : '';
+	           return res.status(400).json({ error: `Delivery failed. The credentials might be invalid or the bot lacks permissions.${errStr}` });
+	        }
+	        if (response && response.channel !== channel.platform) {
+	           const errStr = response.errors ? `\nDetails: ${response.errors.join(' | ')}` : '';
+	           return res.status(400).json({ error: `Failed to deliver via ${channel.platform}. Message was routed to ${response.channel} instead. Check your bot token and channel ID.${errStr}` });
+	        }
+	        return res.json({ success: true, message: `Test message sent to ${channel.platform}` });
+	      } catch (e) {
+	        console.warn(`[Channel Test] PulseKit delivery failed:`, e.message);
+	        return res.status(400).json({ error: 'Delivery failed: ' + e.message });
+	      }
+	    } else {
+	      console.log(`[Channel Test] ${channel.platform} -> user ${req.user.userId}: ${testMessage}`);
+	    }
 
     // Store test notification in DB
     try {
@@ -249,12 +249,12 @@ router.post('/digest', authMiddleware, async (req, res) => {
     const digestText = memResult.rows.map(r => `• ${r.value}`).join('\n');
     const message = `🧠 Your Cognitive Digest:\n\n${digestText}\n\nYou have ${memResult.rows.length} recent active threads.`;
 
-    const caspianClient = req.app.get('caspian');
-    if (caspianClient && caspianClient.isLive) {
-      // Send to their primary channel (or let caspian route it)
-      await caspianClient.send({ to: req.user.userId, message, title: 'UnZonko Digest' });
-      res.json({ success: true, message: "Digest dispatched to your channels." });
-    } else {
+	    const pulseKit = req.app.get('pulseKit');
+	    if (pulseKit && typeof pulseKit.send === 'function') {
+	      // Send to their channels
+	      await pulseKit.send({ to: req.user.userId, message, title: 'UnZonko Digest' });
+	      res.json({ success: true, message: 'Digest dispatched to your channels.' });
+	    } else {
       res.json({ success: false, message: "No channels are live to send the digest." });
     }
   } catch (err) {

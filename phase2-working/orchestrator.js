@@ -496,52 +496,52 @@ class OrchestratorManager {
     return await orchestrator.run(state);
   }
 
-  startAutonomousAgent(caspian) {
-    console.log('🤖 Starting background autonomous agent (PicoClaw native loop)...');
-    
-    // Run every 10 minutes in production for free tier safety
-    setInterval(async () => {
-      try {
-        const client = await this.pool.connect();
-        try {
-          // Find users with 3 or more pending items older than 10 minutes
-          const pendingRes = await client.query(
-            `SELECT user_id, COUNT(*) as count 
-             FROM memory_graph 
-             WHERE status = 'pending' AND created_at < NOW() - INTERVAL '10 minutes'
-             GROUP BY user_id HAVING COUNT(*) >= 3 LIMIT 10`
-          );
-          
-          if (pendingRes.rows.length === 0) return;
-          
-          console.log(`🧠 [PicoClaw] Found ${pendingRes.rows.length} users needing cognitive organization.`);
-          
-          for (const row of pendingRes.rows) {
-            await this.runPicoClawAgent(row.user_id, client, caspian);
-          }
-        } finally {
-          client.release();
-        }
-      } catch (err) {
-        console.error('❌ [PicoClaw] Error in background job:', err.message);
-      }
-    }, 10 * 60 * 1000); // 10 minutes
-  }
+	  startAutonomousAgent(pulseKit) {
+	    console.log('🤖 Starting background autonomous agent (PicoClaw native loop)...');
+	    
+	    // Run every 10 minutes in production for free tier safety
+	    setInterval(async () => {
+	      try {
+	        const client = await this.pool.connect();
+	        try {
+	          // Find users with 3 or more pending items older than 10 minutes
+	          const pendingRes = await client.query(
+	            `SELECT user_id, COUNT(*) as count 
+	             FROM memory_graph 
+	             WHERE status = 'pending' AND created_at < NOW() - INTERVAL '10 minutes'
+	             GROUP BY user_id HAVING COUNT(*) >= 3 LIMIT 10`
+	          );
+	          
+	          if (pendingRes.rows.length === 0) return;
+	          
+	          console.log(`🧠 [PicoClaw] Found ${pendingRes.rows.length} users needing cognitive organization.`);
+	          
+	          for (const row of pendingRes.rows) {
+	            await this.runPicoClawAgent(row.user_id, client, pulseKit);
+	          }
+	        } finally {
+	          client.release();
+	        }
+	      } catch (err) {
+	        console.error('❌ [PicoClaw] Error in background job:', err.message);
+	      }
+	    }, 10 * 60 * 1000); // 10 minutes
+	  }
 
-  async runPicoClawAgent(userId, client, caspian) {
-    console.log(`⚙️ [PicoClaw] Running agent loop for user ${userId}`);
-    
-    // Tool Registry
-    const tools = {
-      send_message: async ({ message, channel }) => {
-        try {
-          if (!caspian) return "Error: Caspian not available";
-          await caspian.send({ channel: channel || 'telegram', to: userId, message });
-          return `Sent message to user: ${message}`;
-        } catch (e) {
-          return `Error sending message: ${e.message}`;
-        }
-      },
+	  async runPicoClawAgent(userId, client, pulseKit) {
+	    console.log(`⚙️ [PicoClaw] Running agent loop for user ${userId}`);
+	    
+	    // Tool Registry
+	    const tools = {
+	      send_message: async ({ message, channel }) => {
+	        try {
+	          if (!pulseKit) return "Error: Messenger not available";
+	          await pulseKit.send({ channel: channel || 'telegram', to: userId, message });
+	          return `Sent message to user: ${message}`;
+	        } catch (e) {
+	          return `Error sending message: ${e.message}`;
+	        }
+	      },
       consolidate_memories: async ({ ids, new_summary }) => {
         try {
           // Delete old, insert new

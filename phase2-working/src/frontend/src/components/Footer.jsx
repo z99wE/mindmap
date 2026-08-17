@@ -1,35 +1,36 @@
 import React from 'react';
 import ShinyText from './ShinyText';
-import GlassSurface from './GlassSurface';
 import RippleGrid from './RippleGrid';
 
-// Brand sign-off — a liquid-glass surface dissolves the app into the dark,
-// and the wordmark rides the glass with a quiet shine.
-
+/**
+ * Brand sign-off — a liquid-glass footer that consistently spans the full
+ * viewport width. No mask shenanigans, no fixed height, no side-effect
+ * distortion. Rides a subtle ripple grid and the UnZonko wordmark.
+ */
 export default function Footer() {
   return (
-    <section className="brand-signoff" aria-label="UnZonko">
-      {/* Grid in background */}
-      <div style={{ width: '100%', height: '500px', position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+    <footer className="brand-signoff" aria-label="UnZonko footer">
+      {/* Ripple grid backdrop — always fills the footer */}
+      <div className="brand-signoff-grid">
         <RippleGrid
           enableRainbow
           gridColor="#84CC16"
-          rippleIntensity={0.06}
-          gridSize={12}
-          gridThickness={15}
+          rippleIntensity={0.05}
+          gridSize={14}
+          gridThickness={12}
           mouseInteraction
-          mouseInteractionRadius={0.9}
-          opacity={0.28}
-          fadeDistance={2.5}
-          vignetteStrength={1.8}
-          glowIntensity={0.1}
+          mouseInteractionRadius={0.8}
+          opacity={0.2}
+          fadeDistance={3}
+          vignetteStrength={1.2}
+          glowIntensity={0.08}
           gridRotation={0}
         />
       </div>
 
-      {/* Text in foreground */}
-      <div style={{ position: 'relative', zIndex: 1, height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="brand-signoff-mark" style={{ width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
+      {/* Content — centered brand mark */}
+      <div className="brand-signoff-content">
+        <div className="brand-signoff-mark">
           <ShinyText
             text="UnZonko"
             speed={2}
@@ -41,7 +42,7 @@ export default function Footer() {
             pauseOnHover={false}
             disabled={false}
           />
-
+          <p className="brand-signoff-tagline">Cognitive Coprocessor</p>
         </div>
       </div>
 
@@ -49,21 +50,60 @@ export default function Footer() {
         .brand-signoff {
           position: relative;
           width: 100%;
-          min-height: 500px;
+          min-height: 320px;
           overflow: hidden;
           background: transparent;
-          border: 0;
-          /* dissolve the footer into the app above — no seam, just light */
-          -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 24%);
-          mask-image: linear-gradient(180deg, transparent 0%, #000 24%);
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .brand-signoff-grid {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          pointer-events: none;
+        }
+        .brand-signoff-content {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 3rem 1rem;
         }
         .brand-signoff-mark {
           font-family: var(--font-heading, 'Space Grotesk'), system-ui, sans-serif;
           font-weight: 500;
-          font-size: clamp(2.4rem, 9vw, 7.5rem);
+          font-size: clamp(2rem, 7vw, 5.5rem);
           letter-spacing: -0.03em;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .brand-signoff-tagline {
+          font-family: var(--font-body, 'Barlow'), system-ui, sans-serif;
+          font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.25);
+          margin: 0;
+        }
+        @media (max-width: 640px) {
+          .brand-signoff {
+            min-height: 200px;
+          }
+          .brand-signoff-content {
+            padding: 2rem 1rem;
+          }
         }
       `}</style>
-    </section>
+    </footer>
   );
 }

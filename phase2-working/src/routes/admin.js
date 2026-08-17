@@ -128,9 +128,96 @@ router.get('/backup', async (req, res) => {
       }
     };
 
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename="system_backup.json"');
-    res.send(JSON.stringify(dump, null, 2));
+	  res.setHeader('Content-Type', 'application/json');
+	  res.setHeader('Content-Disposition', 'attachment; filename="system_backup.json"');
+	  res.send(JSON.stringify(dump, null, 2));
+	} catch (err) {
+	  res.status(500).json({ error: err.message });
+	}
+	});
+
+// ── Admin Channel Management ──────────────────────────────────────────────
+
+// GET /api/admin/channels - list all user channels
+router.get('/channels', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT c.id, c.user_id, c.platform, c.display_name, c.is_active, c.webhook_url, c.created_at,
+              u.email as user_email, u.tier as user_tier
+       FROM channels c
+       LEFT JOIN users u ON u.id = c.user_id
+       ORDER BY c.created_at DESC
+       LIMIT 200`
+    );
+    res.json({ channels: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/channels/stats - channel platform statistics
+router.get('/channels/stats', async (req, res) => {
+  try {
+    const [total, byPlatform, activeCount, globalStatus] = await Promise.all([
+      pool.query('SELECT COUNT(*)::int as total FROM channels'),
+      pool.query('SELECT platform, COUNT(*)::int as count FROM channels GROUP BY platform ORDER BY count DESC'),
+      pool.query('SELECT COUNT(*)::int as active FROM channels WHERE is_active = true'),
+      pool.query('SELECT platform, COUNT(*)::int as active FROM channels WHERE is_active = true GROUP BY platform ORDER BY active DESC'),
+    ]);
+
+    // Get PulseKit status from app
+    const pulseKit = req.app?.locals?.pulseKit;
+    const globalChannels = pulseKit?.channels || [];
+    const isLive = pulseKit?.isLive || false;
+
+    res.json({
+      total: parseInt(total.rows[0]?.total || 0),
+      active: parseInt(activeCount.rows[0]?.active || 0),
+      byPlatform: byPlatform.rows,
+      activeByPlatform: globalStatus.rows,
+      globalChannels,
+      pulseKitLive: isLive,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/channels/:id/deliver - admin test delivery to a specific channel
+router.post('/channels/:id/deliver', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM channels WHERE id = $1', [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Channel not found' });
+
+    const channel = result.rows[0];
+    const { decrypt } = require('../crypto');
+    let creds;
+    try {
+      creds = JSON.parse(decrypt(channel.credentials));
+    } catch {
+      return res.status(400).json({ error: 'Cannot decrypt credentials' });
+    }
+
+    const testMsg = `[Admin Test] PulseKit delivery test to ${channel.platform}`;
+
+    const pulseKit = req.app?.locals?.pulseKit;
+    if (!pulseKit || !pulseKit.send) {
+      return res.status(503).json({ error: 'PulseKit not available' });
+    }
+
+    const response = await pulseKit.send({
+      channel: channel.platform,
+      to: channel.user_id,
+      message: testMsg,
+    });
+
+    res.json({
+      success: response?.delivered !== false,
+      channel: channel.platform,
+      user: channel.user_id,
+      via: response?.via || 'unknown',
+      errors: response?.errors || [],
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
