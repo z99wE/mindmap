@@ -238,7 +238,7 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
 router.post('/digest', authMiddleware, async (req, res) => {
   try {
     const memResult = await pool.query(
-      "SELECT value FROM memory_graph WHERE user_id = $1 AND status = 'pending' ORDER BY created_at DESC LIMIT 5",
+      "SELECT content FROM memory_graph WHERE user_id = $1 AND status = 'pending' ORDER BY created_at DESC LIMIT 5",
       [req.user.userId]
     );
     
@@ -246,15 +246,15 @@ router.post('/digest', authMiddleware, async (req, res) => {
       return res.json({ success: true, message: "No active thoughts to digest." });
     }
 
-    const digestText = memResult.rows.map(r => `• ${r.value}`).join('\n');
+    const digestText = memResult.rows.map(r => `• ${r.content}`).join('\n');
     const message = `🧠 Your Cognitive Digest:\n\n${digestText}\n\nYou have ${memResult.rows.length} recent active threads.`;
 
-	    const pulseKit = req.app.get('pulseKit');
-	    if (pulseKit && typeof pulseKit.send === 'function') {
-	      // Send to their channels
-	      await pulseKit.send({ to: req.user.userId, message, title: 'UnZonko Digest' });
-	      res.json({ success: true, message: 'Digest dispatched to your channels.' });
-	    } else {
+    const pulseKit = req.app.get('pulseKit');
+    if (pulseKit && typeof pulseKit.send === 'function') {
+      // Send to their channels
+      await pulseKit.send({ to: req.user.userId, message, title: 'UnZonko Digest' });
+      res.json({ success: true, message: 'Digest dispatched to your channels.' });
+    } else {
       res.json({ success: false, message: "No channels are live to send the digest." });
     }
   } catch (err) {
