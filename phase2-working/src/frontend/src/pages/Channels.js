@@ -56,7 +56,7 @@ export function Channels() {
 
   container.querySelector('#save-routing-btn').addEventListener('click', async () => {
     const mode = container.querySelector('input[name="routing_mode"]:checked').value;
-    const res = await api.put('/auth/prefs', { notification_prefs: { channel_routing_mode: mode } });
+    const res = await api.put('/auth/notification-prefs', { prefs: { channel_routing_mode: mode } });
     if (res.error) toast.show(res.error, 'error');
     else toast.show('Routing mode saved successfully', 'success');
   });

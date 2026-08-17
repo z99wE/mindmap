@@ -307,7 +307,10 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
         const driver = await getUserDriver(to, target.platform, target.creds);
         if (driver) {
           try {
-            await driver.send({ to: target.creds.recipient_id || target.creds.channel_id || to, message, title });
+            // Derive the recipient address from stored credentials:
+            // Telegram → chat_id, Slack/Discord → channel_id, SMS/Signal → phone_number
+            const recipientAddr = target.creds.recipient_id || target.creds.channel_id || target.creds.chat_id || target.creds.phone_number || to;
+            await driver.send({ to: recipientAddr, message, title });
             console.log(`[PulseKit] ✉ ${target.platform} (user) → ${to}: ${message.slice(0, 80)}`);
             await markDelivered(notifId);
             return { delivered: true, channel: target.platform, via: 'user', errors: fallbackErrors };

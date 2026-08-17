@@ -276,24 +276,57 @@ async function start() {
 	    pulseKit.startListening();
 
 	    pulseKit.onInbound(async ({ from, message, channel, reply }) => {
-      console.log(`[Inbound] ${channel} message from ${from}: ${message}`);
-      
-      try {
-        const result = await pool.query('SELECT user_id, credentials FROM channels WHERE platform = $1 AND is_active = true', [channel]);
-        
-        let userId = null;
-        for (const row of result.rows) {
-          try {
-            const { decrypt } = require('./src/crypto');
-            const creds = JSON.parse(decrypt(row.credentials));
-            const fromStr = String(from);
-            // Match against known credential fields containing the user's remote ID
-            if (String(creds.recipient_id) === fromStr || String(creds.channel_id) === fromStr || String(creds.chat_id) === fromStr) {
-              userId = row.user_id;
-              break;
-            }
-          } catch (e) { /* ignore */ }
-        }
+	      console.log(`[Inbound] ${channel} message from ${from}: ${message}`);
+	      
+	      try {
+	        const fromStr = String(from);
+	        let userId = null;
+
+	        // ── Attempt 1: Look up global-bot mapping table ──────────────
+	        // This works for users who have been previously seen by a global bot
+	        // (Telegram, Discord, etc.) and had their ID stored.
+	        const mapRes = await pool.query(
+	          'SELECT user_id FROM user_channel_ids WHERE platform = $1 AND platform_user_id = $2',
+	          [channel, fromStr]
+	        );
+	        if (mapRes.rows.length > 0) {
+	          userId = mapRes.rows[0].user_id;
+	        }
+
+	        // ── Attempt 2: Match against stored channel credentials ───────
+	        if (!userId) {
+	          const result = await pool.query(
+	            'SELECT user_id, credentials FROM channels WHERE platform = $1 AND is_active = true',
+	            [channel]
+	          );
+	          for (const row of result.rows) {
+	            try {
+	              const { decrypt } = require('./src/crypto');
+	              const creds = JSON.parse(decrypt(row.credentials));
+	              if (
+	                String(creds.recipient_id) === fromStr ||
+	                String(creds.channel_id) === fromStr ||
+	                String(creds.chat_id) === fromStr ||
+	                String(creds.phone_number) === fromStr ||
+	                String(creds.email) === fromStr
+	              ) {
+	                userId = row.user_id;
+	                break;
+	              }
+	            } catch (e) { /* ignore */ }
+	          }
+	        }
+
+	        // ── Attempt 3: Auto-register this sender ─────────────────────
+	        // If we found a user by credentials but no mapping exists yet, create one.
+	        if (userId) {
+	          await pool.query(
+	            `INSERT INTO user_channel_ids (user_id, platform, platform_user_id)
+	             VALUES ($1, $2, $3)
+	             ON CONFLICT (platform, platform_user_id) DO NOTHING`,
+	            [userId, channel, fromStr]
+	          ).catch(() => {});
+	        }
 
         if (userId) {
           const userRes = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);

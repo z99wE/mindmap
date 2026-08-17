@@ -304,31 +304,42 @@ async function runMigrations(retries = 5) {
     await client.query('CREATE INDEX IF NOT EXISTS idx_revivals_user ON thought_revivals(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_revivals_expires ON thought_revivals(expires_at)');
 
-    // ── Row-Level Security (defense-in-depth for user isolation) ───────────────
-    // RLS ensures the DB itself blocks cross-user access even if app code has a bug.
-    // The app sets app.user_id via SET LOCAL before queries.
-    const rlsStatements = [
-      'ALTER TABLE memory_graph ENABLE ROW LEVEL SECURITY',
-      'ALTER TABLE channels ENABLE ROW LEVEL SECURITY',
-      'ALTER TABLE notifications ENABLE ROW LEVEL SECURITY',
-      'ALTER TABLE billing_transactions ENABLE ROW LEVEL SECURITY',
-      // Policies: allow access only when user_id matches the session variable
-      `CREATE POLICY IF NOT EXISTS user_isolation_memory ON memory_graph
-       USING (user_id::text = current_setting('app.user_id', true))`,
-      `CREATE POLICY IF NOT EXISTS user_isolation_channels ON channels
-       USING (user_id::text = current_setting('app.user_id', true))`,
-      `CREATE POLICY IF NOT EXISTS user_isolation_notifications ON notifications
-       USING (user_id::text = current_setting('app.user_id', true))`,
-      `CREATE POLICY IF NOT EXISTS user_isolation_billing ON billing_transactions
-       USING (user_id::text = current_setting('app.user_id', true))`,
-      `CREATE POLICY IF NOT EXISTS user_isolation_revivals ON thought_revivals
-       USING (user_id::text = current_setting('app.user_id', true))`,
-    ];
-    for (const sql of rlsStatements) {
-      await client.query(sql).catch(() => {}); // Ignore if already exist
-    }
+	    // ── Row-Level Security (defense-in-depth for user isolation) ───────────────
+	    // NOTE: RLS is currently DISABLED because the app never sets the required
+	    // `app.user_id` session variable. Enabling it without setting the variable
+	    // would DENY ALL ACCESS to non-owner database connections.
+	    // To re-enable in the future:
+	    //   1. Set `app.user_id` in authMiddleware after JWT verification
+	    //   2. Uncomment the RLS enable + policy statements below
+	    //   3. Remove the DISABLE statements
+	    const rlsDisableStatements = [
+	      'ALTER TABLE memory_graph DISABLE ROW LEVEL SECURITY',
+	      'ALTER TABLE channels DISABLE ROW LEVEL SECURITY',
+	      'ALTER TABLE notifications DISABLE ROW LEVEL SECURITY',
+	      'ALTER TABLE billing_transactions DISABLE ROW LEVEL SECURITY',
+	      'ALTER TABLE thought_revivals DISABLE ROW LEVEL SECURITY',
+	    ];
+	    for (const sql of rlsDisableStatements) {
+	      await client.query(sql).catch(() => {});
+	    }
 
-    // ── Audit log auto-prune (entries older than 30 days) ──────────────────────
+	    // ── User Channel ID mapping (global bot recognition) ────────────────────
+	    // Maps platform-specific user IDs (Telegram chat_id, Discord user_id, etc.)
+	    // to UnZonko user UUIDs so global bots can recognize inbound messages.
+	    await client.query(`
+	      CREATE TABLE IF NOT EXISTS user_channel_ids (
+	        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+	        platform VARCHAR(50) NOT NULL,
+	        platform_user_id VARCHAR(255) NOT NULL,
+	        created_at TIMESTAMPTZ DEFAULT NOW(),
+	        UNIQUE(platform, platform_user_id)
+	      )
+	    `).catch(() => {});
+	    await client.query('CREATE INDEX IF NOT EXISTS idx_channel_ids_user ON user_channel_ids(user_id)');
+	    await client.query('CREATE INDEX IF NOT EXISTS idx_channel_ids_platform ON user_channel_ids(platform, platform_user_id)');
+
+	    // ── Audit log auto-prune (entries older than 30 days) ──────────────────────
     // Runs once on startup
     await client.query("DELETE FROM audit_log WHERE created_at < NOW() - INTERVAL '30 days'").catch(() => {});
 
