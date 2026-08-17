@@ -106,6 +106,10 @@ router.post('/', authMiddleware, async (req, res) => {
 // DELETE /api/memory/:id
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    // Prevent "account" from being caught by :id param
+    if (req.params.id === 'account') {
+      return res.status(400).json({ error: 'Use DELETE /api/memory/account with a confirmation token.' });
+    }
     await pool.query(
       'DELETE FROM memory_graph WHERE id = $1 AND user_id = $2',
       [req.params.id, req.user.userId]

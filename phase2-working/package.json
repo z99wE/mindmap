@@ -5,7 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test server.test.js && npx jest tests/process.test.js"
+    "test": "node --test server.test.js && npx jest tests/process.test.js",
+    "test:all": "npx jest --config jest.config.js",
+    "test:unit": "npx jest tests/pulsekit-drivers.test.js tests/pulsekit-routing.test.js tests/middleware.test.js tests/notifications.test.js",
+    "test:api": "npx jest tests/channels-api.test.js tests/auth-api.test.js tests/memory-api.test.js tests/admin-api.test.js",
+    "test:legacy": "node --test server.test.js && npx jest tests/process.test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
