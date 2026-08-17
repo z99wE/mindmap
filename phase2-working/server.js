@@ -410,26 +410,21 @@ async function start() {
 	      }
 	    });
 
-    app.listen(PORT, () => {
-      console.log(`[UnZonko] Server running on port ${PORT}`);
-      console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);
-      console.log(`[UnZonko] API: http://localhost:${PORT}/api/health`);
+	    app.listen(PORT, () => {
+	      console.log(`[UnZonko] Server running on port ${PORT}`);
+	      console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);
+	      console.log(`[UnZonko] API: http://localhost:${PORT}/api/health`);
 
-      // Start background keep-alive ping loop for Render free tier
-      const externalUrl = process.env.RENDER_EXTERNAL_URL;
-      if (externalUrl) {
-        console.log(`[Keep-Alive] Render host detected: ${externalUrl}. Starting self-ping loop...`);
-        setInterval(async () => {
-          try {
-            const res = await fetch(`${externalUrl}/api/health`);
-            console.log(`[Keep-Alive] Self-ping status: ${res.status}`);
-          } catch (e) {
-            console.error(`[Keep-Alive] Self-ping failed:`, e.message);
-          }
-        }, 10 * 60 * 1000); // Ping every 10 minutes (Render sleep threshold is 15 minutes)
-      }
-    });
-  } catch (err) {
+	      // Render free tier: service sleeps after 15 min of inactivity.
+	      // No self-ping loop — this keeps usage under the 500 free compute hours/month.
+	      // Cold start is ~2-4s. PulseKit resumes polling on wake.
+	      const externalUrl = process.env.RENDER_EXTERNAL_URL;
+		      if (externalUrl) {
+		        console.log(`[Render] Free tier detected at ${externalUrl}.`);
+		        console.log(`[Render] Service will sleep after 15 min idle to stay under 500h/mo free limit.`);
+		      }
+		    });
+		  } catch (err) {
     console.error('[UnZonko] Startup failed:', err.message);
     if (process.env.NODE_ENV === 'production') {
       console.error('[UnZonko] Fatal error in production. Exiting.');
