@@ -31,7 +31,6 @@ const globalErrorHandler = (err, req, res, next) => {
     message.includes('insufficient_quota') ||
     message.includes('stripe') ||
     message.includes('openai') ||
-    message.includes('caspian') ||
     err.status === 429
   ) {
     return res.status(503).json({

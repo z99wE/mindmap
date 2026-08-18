@@ -9,7 +9,7 @@ const { getPendingClarifications, clearClarification } = require('../../features
 router.get('/half-life', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, category, half_life_hours, urgency_tier,
+      `SELECT id, content, value, attribute, category, half_life_hours, urgency_tier,
               action_verb, is_actionable, expires_at, notified_tier, status, archived,
               created_at
        FROM memory_graph
@@ -26,7 +26,7 @@ router.get('/half-life', authMiddleware, async (req, res) => {
         : null;
       return {
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         halfLifeHours: r.half_life_hours,
         urgencyTier: r.urgency_tier,
         hoursRemaining,
@@ -61,7 +61,7 @@ router.get('/half-life', authMiddleware, async (req, res) => {
 router.get('/commitments', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, category, expires_at, witness_contact, witness_notified,
+      `SELECT id, content, value, attribute, category, expires_at, witness_contact, witness_notified,
               status, created_at
        FROM memory_graph
        WHERE user_id = $1
@@ -76,7 +76,7 @@ router.get('/commitments', authMiddleware, async (req, res) => {
         : null;
       return {
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         deadline: r.expires_at,
         witness_contact: r.witness_contact,
         witness_notified: r.witness_notified,
@@ -132,7 +132,7 @@ router.post('/commitments/:id/witness', authMiddleware, async (req, res) => {
 router.get('/archaeology', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, category, half_life_hours, urgency_tier,
+      `SELECT id, content, value, attribute, category, half_life_hours, urgency_tier,
               expires_at, status, archived, created_at
        FROM memory_graph
        WHERE user_id = $1
@@ -150,7 +150,7 @@ router.get('/archaeology', authMiddleware, async (req, res) => {
       if (!grouped[cat]) grouped[cat] = [];
       grouped[cat].push({
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         expiresAt: r.expires_at,
         urgencyTier: r.urgency_tier,
       });
@@ -169,7 +169,7 @@ router.get('/archaeology', authMiddleware, async (req, res) => {
     res.json({
       expired: result.rows.map(r => ({
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         category: r.category,
         expiresAt: r.expires_at,
         urgencyTier: r.urgency_tier,
@@ -195,7 +195,7 @@ router.get('/archaeology', authMiddleware, async (req, res) => {
 router.post('/archaeology/show-me', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, category, urgency_tier, expires_at, created_at
+      `SELECT id, content, value, attribute, category, urgency_tier, expires_at, created_at
        FROM memory_graph
        WHERE user_id = $1
          AND status = 'pending'
@@ -207,7 +207,7 @@ router.post('/archaeology/show-me', authMiddleware, async (req, res) => {
     res.json({
       thoughts: result.rows.map(r => ({
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         category: r.category,
         urgencyTier: r.urgency_tier,
         expiredAt: r.expires_at,
@@ -241,7 +241,7 @@ router.get('/interceptor/status', authMiddleware, async (req, res) => {
     const pending = await getPendingClarifications(pool, req.user.userId);
     // Also query DB for pending_clarification thoughts
     const dbResult = await pool.query(
-      `SELECT id, value, attribute, category, created_at
+      `SELECT id, content, value, attribute, category, created_at
        FROM memory_graph
        WHERE user_id = $1 AND status = 'pending_clarification'
        ORDER BY created_at DESC`,
@@ -251,7 +251,7 @@ router.get('/interceptor/status', authMiddleware, async (req, res) => {
       pendingClarifications: pending,
       pendingThoughts: dbResult.rows.map(r => ({
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         category: r.category,
         createdAt: r.created_at,
       })),
@@ -347,7 +347,7 @@ router.get('/cognitive-load', authMiddleware, async (req, res) => {
 router.get('/door-rule', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, category, expires_at, urgency_tier
+      `SELECT id, content, value, attribute, category, expires_at, urgency_tier
        FROM memory_graph
        WHERE user_id = $1
          AND status = 'pending'
@@ -369,7 +369,7 @@ router.get('/door-rule', authMiddleware, async (req, res) => {
     res.json({
       items: result.rows.map(r => ({
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         deadline: r.expires_at,
         category: r.category,
         urgencyTier: r.urgency_tier,
@@ -407,7 +407,7 @@ router.get('/interceptor', authMiddleware, async (req, res) => {
 router.get('/time-blindness', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, category, expires_at, created_at
+      `SELECT id, content, value, attribute, category, expires_at, created_at
        FROM memory_graph
        WHERE user_id = $1
          AND status = 'pending'
@@ -419,7 +419,7 @@ router.get('/time-blindness', authMiddleware, async (req, res) => {
     );
     const events = result.rows.map(r => ({
       id: r.id,
-      content: r.value || r.attribute,
+      content: r.content || r.value || r.attribute,
       deadline: r.expires_at,
       category: r.category,
       minutesUntil: Math.round((new Date(r.expires_at) - new Date()) / 60000),
@@ -452,7 +452,7 @@ router.get('/classification/stats', authMiddleware, async (req, res) => {
 router.get('/relationships', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, value, attribute, requested_by, expires_at, status, created_at
+      `SELECT id, content, value, attribute, requested_by, expires_at, status, created_at
        FROM memory_graph
        WHERE user_id = $1 AND requested_by IS NOT NULL
        ORDER BY requested_by, created_at DESC`,
@@ -463,7 +463,7 @@ router.get('/relationships', authMiddleware, async (req, res) => {
       if (!grouped[r.requested_by]) grouped[r.requested_by] = [];
       grouped[r.requested_by].push({
         id: r.id,
-        content: r.value || r.attribute,
+        content: r.content || r.value || r.attribute,
         deadline: r.expires_at,
         status: r.status,
       });
@@ -652,11 +652,11 @@ router.get('/drift-status', authMiddleware, async (req, res) => {
 
 // GET /api/features/i-am-thinking - Get memory nodes for "I am thinking" visualization
 router.get('/i-am-thinking', authMiddleware, async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT id, content, tags FROM memories WHERE user_id = $1 ORDER BY created_at DESC LIMIT 300`,
-      [req.user.userId]
-    );
+	  try {
+	    const result = await pool.query(
+	      `SELECT id, content, category FROM memory_graph WHERE user_id = $1 ORDER BY created_at DESC LIMIT 300`,
+	      [req.user.userId]
+	    );
 
     const brandColors = [
       '#a3e635', '#ccff00', '#ffffff', '#94a3b8', '#38bdf8', '#f472b6', '#fbbf24', '#c084fc', '#f87171'
@@ -672,10 +672,10 @@ router.get('/i-am-thinking', authMiddleware, async (req, res) => {
       };
     };
 
-    const nodes = result.rows.map(row => {
-      const tag = (row.tags && row.tags.length > 0) ? row.tags[0].toLowerCase() : 'casual_chat';
-      const rng = seededRandom(tag);
-      const nodeRng = seededRandom(row.id.toString());
+	    const nodes = result.rows.map(row => {
+	      const tag = (row.category && typeof row.category === 'string') ? row.category.toLowerCase() : 'casual_chat';
+	      const rng = seededRandom(tag);
+	      const nodeRng = seededRandom(row.id.toString());
       
       // Hash tag to an angle (hub)
       const baseAngle = rng() * Math.PI * 2;

@@ -87,11 +87,11 @@ async function setupCommitmentGeofence(tile38, userId, lat, lng, radiusMeters = 
 /**
  * Calculate departure time and send alert
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} tile38 - Tile38 client (optional, if null uses stored coords)
  * @param {number} bufferMinutes - Buffer time before departure (default: 15)
  */
-async function checkAndAlertDeparture(db, caspian, tile38, bufferMinutes = 15) {
+async function checkAndAlertDeparture(db, messenger, tile38, bufferMinutes = 15) {
   try {
     const now = Math.floor(Date.now() / 1000);
     const twoHoursFromNow = now + 7200; // 2 hours
@@ -141,7 +141,7 @@ async function checkAndAlertDeparture(db, caspian, tile38, bufferMinutes = 15) {
           // Format location from trigger_value
           const location = commit.trigger_value?.replace(/^(at|in)\s+/i, '') || 'the destination';
           
-          await caspian.send({
+          await messenger.send({
             channel: 'whatsapp',
             to: commit.user_id,
             message: `⏰ LEAVE NOW\n\n${commit.content}\nLocation: ${location}\n\nYou have ${minutesUntil} minutes. Travel time: ~${travelTime} minutes.`
@@ -159,17 +159,17 @@ async function checkAndAlertDeparture(db, caspian, tile38, bufferMinutes = 15) {
 /**
  * Start background worker to check departures
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} tile38 - Tile38 client (optional)
  * @param {number} intervalMinutes - Check interval in minutes (default: 15)
  */
-function setupTimeBlindnessWorker(db, caspian, tile38, intervalMinutes = 15) {
+function setupTimeBlindnessWorker(db, messenger, tile38, intervalMinutes = 15) {
   // Run immediately on startup
-  checkAndAlertDeparture(db, caspian, tile38);
+  checkAndAlertDeparture(db, messenger, tile38);
   
   // Then run at interval
   setInterval(() => {
-    checkAndAlertDeparture(db, caspian, tile38);
+    checkAndAlertDeparture(db, messenger, tile38);
   }, intervalMinutes * 60 * 1000);
   
   console.log('✅ Time Blindness worker started (check interval:', intervalMinutes, 'minutes)');

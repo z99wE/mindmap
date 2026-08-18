@@ -113,9 +113,9 @@ function detectCommitment(message) {
 /**
  * Checks for expired commitments and notifies witnesses if needed
  * @param {object} pool - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  */
-async function checkCommitmentWitnesses(pool, caspian) {
+async function checkCommitmentWitnesses(pool, messenger) {
   try {
     const res = await pool.query(
       `SELECT id, user_id, value as thought, witness_contact, expires_at
@@ -128,8 +128,8 @@ async function checkCommitmentWitnesses(pool, caspian) {
     
     for (const row of res.rows) {
       // Send notification to the witness contact
-      if (caspian) {
-        await caspian.send({
+      if (messenger) {
+        await messenger.send({
           channel: 'whatsapp',
           to: row.witness_contact,
           message: `Just a nudge. Someone planned to finish: "${row.thought}" by now. 🙂`

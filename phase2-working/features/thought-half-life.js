@@ -86,9 +86,9 @@ function classifyHalfLife(thought) {
 /**
  * Processes half-life escalation tiers for a single serverless tick.
  * @param {object} pool - PostgreSQL pool connection
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  */
-async function processHalfLifeEscalations(pool, caspian) {
+async function processHalfLifeEscalations(pool, messenger) {
   try {
     // Find thoughts nearing/exceeding half-life thresholds
     const now = new Date();
@@ -119,9 +119,9 @@ async function processHalfLifeEscalations(pool, caspian) {
 
       if (targetTier > row.notified_tier) {
         // Send Caspian WhatsApp notification
-        if (caspian) {
+        if (messenger) {
           try {
-            await caspian.send({
+            await messenger.send({
               channel: 'whatsapp',
               to: row.user_id,
               message

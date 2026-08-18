@@ -88,14 +88,14 @@ async function checkLocationDrift(tile38, userId, maxRadiusMeters = 200, maxDura
 /**
  * Process drift detection alert
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} llmRouter - LLM router
  * @param {string} userId - User ID
  * @param {object} locationData - Current location data
  * @param {number} locationDuration - Duration at current location in seconds
  * @returns {Promise<void>}
  */
-async function processDriftAlert(db, caspian, llmRouter, userId, locationData, locationDuration) {
+async function processDriftAlert(db, messenger, llmRouter, userId, locationData, locationDuration) {
   try {
     // Get pending deadlines within next 3 hours
     const pendingItems = await getPendingDeadlines(db, userId, 3);
@@ -113,7 +113,7 @@ async function processDriftAlert(db, caspian, llmRouter, userId, locationData, l
     });
     
     // Send via WhatsApp
-    await caspian.send({
+    await messenger.send({
       channel: 'whatsapp',
       to: userId,
       message
@@ -151,18 +151,18 @@ async function setupStalePositionHook(tile38, userId, staleSeconds = 14400) {
 /**
  * Background worker to check for drift
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} llmRouter - LLM router
  * @param {object} tile38 - Tile38 client (optional)
  * @param {number} intervalMinutes - Check interval in minutes (default: 15)
  */
-function setupDriftDetectorWorker(db, caspian, llmRouter, tile38, intervalMinutes = 15) {
+function setupDriftDetectorWorker(db, messenger, llmRouter, tile38, intervalMinutes = 15) {
   // Run immediately on startup
-  checkDriftForAllUsers(db, caspian, llmRouter, tile38);
+  checkDriftForAllUsers(db, messenger, llmRouter, tile38);
   
   // Then run at interval
   setInterval(() => {
-    checkDriftForAllUsers(db, caspian, llmRouter, tile38);
+    checkDriftForAllUsers(db, messenger, llmRouter, tile38);
   }, intervalMinutes * 60 * 1000);
   
   console.log('✅ Drift Detector worker started (check interval:', intervalMinutes, 'minutes)');
@@ -171,12 +171,12 @@ function setupDriftDetectorWorker(db, caspian, llmRouter, tile38, intervalMinute
 /**
  * Check drift for all users
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} llmRouter - LLM router
  * @param {object} tile38 - Tile38 client
  * @returns {Promise<void>}
  */
-async function checkDriftForAllUsers(db, caspian, llmRouter, tile38) {
+async function checkDriftForAllUsers(db, messenger, llmRouter, tile38) {
   try {
     // Get all active users
     const users = await db.query(
@@ -188,7 +188,7 @@ async function checkDriftForAllUsers(db, caspian, llmRouter, tile38) {
         const drift = await checkLocationDrift(tile38, user.user_id);
         
         if (drift.isDrifted) {
-          await processDriftAlert(db, caspian, llmRouter, user.user_id, drift.location, 14400);
+          await processDriftAlert(db, messenger, llmRouter, user.user_id, drift.location, 14400);
         }
       }
     }
@@ -201,10 +201,10 @@ async function checkDriftForAllUsers(db, caspian, llmRouter, tile38) {
  * Register drift detector webhook handler
  * @param {object} app - Express app
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} llmRouter - LLM router
  */
-function createDriftDetectorEndpoints(app, db, caspian, llmRouter) {
+function createDriftDetectorEndpoints(app, db, messenger, llmRouter) {
   // POST /api/drift/detected - Called when Tile38 detects stale position
   app.post('/api/drift/detected', async (req, res) => {
     try {
@@ -214,7 +214,7 @@ function createDriftDetectorEndpoints(app, db, caspian, llmRouter) {
         return res.status(400).json({ error: 'userId is required' });
       }
       
-      await processDriftAlert(db, caspian, llmRouter, userId, location, duration || 14400);
+      await processDriftAlert(db, messenger, llmRouter, userId, location, duration || 14400);
       
       res.json({ success: true, message: 'Drift alert processed' });
     } catch (error) {

@@ -158,16 +158,16 @@ async function buildChecklistMessage(db, userId, storeType, storeName) {
 /**
  * Handle geofence entry event
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {string} userId - User ID
  * @param {string} storeName - Name of the store entered
  * @returns {Promise<void>}
  */
-async function handleGeofenceEntry(db, caspian, userId, storeName) {
+async function handleGeofenceEntry(db, messenger, userId, storeName) {
   const storeType = detectStoreType(storeName);
   const message = await buildChecklistMessage(db, userId, storeType, storeName);
   
-  await caspian.send({
+  await messenger.send({
     channel: 'whatsapp',
     to: userId,
     message
@@ -206,9 +206,9 @@ async function setupStoreGeofence(tile38, hookName = 'store_checklist') {
  * Register geofence entry webhook handler
  * @param {object} app - Express app
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  */
-function createInvisibleChecklistEndpoints(app, db, caspian) {
+function createInvisibleChecklistEndpoints(app, db, messenger) {
   // POST /api/geofence/store-entry - Called when user enters a store geofence
   app.post('/api/geofence/store-entry', async (req, res) => {
     try {
@@ -218,7 +218,7 @@ function createInvisibleChecklistEndpoints(app, db, caspian) {
         return res.status(400).json({ error: 'userId and storeName are required' });
       }
       
-      await handleGeofenceEntry(db, caspian, userId, storeName);
+      await handleGeofenceEntry(db, messenger, userId, storeName);
       
       res.json({ success: true, message: 'Checklist sent' });
     } catch (error) {

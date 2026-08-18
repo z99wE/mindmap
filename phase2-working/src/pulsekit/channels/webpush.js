@@ -32,14 +32,16 @@ function createWebPushChannel({ webpush, vapidKeys, pool }) {
         vibrate: [100, 50, 100],
       });
 
-      // Load subscriptions for this user
+      // Load subscriptions for this user (stored in users.notification_prefs)
       let subscriptions = [];
       try {
         const result = await pool.query(
-          'SELECT subscription FROM push_subscriptions WHERE user_id = $1',
+          "SELECT notification_prefs->'pushSubscription' as sub FROM users WHERE id = $1",
           [to]
         );
-        subscriptions = result.rows.map(r => r.subscription);
+        subscriptions = result.rows
+          .map(r => r.sub)
+          .filter(s => s && s.endpoint);
       } catch {
         // Table may not exist yet
       }

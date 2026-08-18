@@ -54,7 +54,7 @@ async function generateArchaeologyReport(pool, userId) {
  * Processes archaeology reports for a single serverless tick.
  * Only sends reports if it is Sunday in the server's timezone.
  */
-async function processArchaeologyReports(pool, caspian) {
+async function processArchaeologyReports(pool, messenger) {
   const now = new Date();
   // Serverless environments are UTC. 
   // We can just check if it's Sunday (0).
@@ -64,9 +64,9 @@ async function processArchaeologyReports(pool, caspian) {
       const usersRes = await pool.query(`SELECT DISTINCT user_id FROM memory_graph`);
       for (const user of usersRes.rows) {
         const report = await generateArchaeologyReport(pool, user.user_id);
-        if (report && caspian) {
+        if (report && messenger) {
           try {
-            await caspian.send({
+            await messenger.send({
               channel: 'whatsapp',
               to: user.user_id,
               message: report

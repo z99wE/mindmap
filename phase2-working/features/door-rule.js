@@ -125,12 +125,12 @@ function formatDepartureBrief(tasks, weather) {
 /**
  * Handle home exit event
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {string} userId - User ID
  * @param {string} locationName - Name of current location
  * @returns {Promise<void>}
  */
-async function handleHomeExit(db, caspian, userId, locationName) {
+async function handleHomeExit(db, messenger, userId, locationName) {
   // Dedup: check if last brief was sent within 6 hours
   try {
     const lastRes = await db.query(
@@ -162,8 +162,8 @@ async function handleHomeExit(db, caspian, userId, locationName) {
   // Format and send message
   const message = formatDepartureBrief(tasks, weather);
 
-  if (caspian) {
-    await caspian.send({
+  if (messenger) {
+    await messenger.send({
       channel: 'whatsapp',
       to: userId,
       message
@@ -230,17 +230,17 @@ async function setUserHomeLocation(db, userId, lat, lng) {
 /**
  * Background worker to check for home exits
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} tile38 - Tile38 client (optional)
  * @param {number} intervalMinutes - Check interval (default: 5)
  */
-function setupDoorRuleWorker(db, caspian, tile38, intervalMinutes = 5) {
+function setupDoorRuleWorker(db, messenger, tile38, intervalMinutes = 5) {
   // Run immediately on startup
-  checkHomeExits(db, caspian, tile38);
+  checkHomeExits(db, messenger, tile38);
   
   // Then run at interval
   setInterval(() => {
-    checkHomeExits(db, caspian, tile38);
+    checkHomeExits(db, messenger, tile38);
   }, intervalMinutes * 60 * 1000);
   
   console.log('✅ Door Rule worker started (check interval:', intervalMinutes, 'minutes)');
@@ -249,11 +249,11 @@ function setupDoorRuleWorker(db, caspian, tile38, intervalMinutes = 5) {
 /**
  * Check for home exits for all users
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  * @param {object} tile38 - Tile38 client (optional)
  * @returns {Promise<void>}
  */
-async function checkHomeExits(db, caspian, tile38) {
+async function checkHomeExits(db, messenger, tile38) {
   try {
     // Get all users with home location set
     const users = await db.query(
@@ -333,9 +333,9 @@ async function getCurrentLocation(tile38, userId) {
  * Register door rule endpoints
  * @param {object} app - Express app
  * @param {object} db - PostgreSQL pool
- * @param {object} caspian - Caspian SDK client
+ * @param {object} messenger - Caspian SDK client
  */
-function createDoorRuleEndpoints(app, db, caspian) {
+function createDoorRuleEndpoints(app, db, messenger) {
   // POST /api/door/set-home - Set user's home location
   app.post('/api/door/set-home', async (req, res) => {
     try {
@@ -363,7 +363,7 @@ function createDoorRuleEndpoints(app, db, caspian) {
         return res.status(400).json({ error: 'userId is required' });
       }
       
-      await handleHomeExit(db, caspian, userId, locationName);
+      await handleHomeExit(db, messenger, userId, locationName);
       
       res.json({ success: true, message: 'Departure brief sent' });
     } catch (error) {
