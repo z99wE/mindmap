@@ -439,6 +439,34 @@ async function start() {
 	      }
 	    });
 
+	    // SMS Webhook (Twilio / Vonage inbound)
+	    app.post('/api/webhooks/sms', express.urlencoded({ extended: false }), async (req, res) => {
+	      try {
+	        await pulseKit.handleWebhookEvent('sms', req.body);
+	        res.status(200).send('OK');
+	      } catch (e) {
+	        console.error('[SMS Webhook Error]', e.message);
+	        res.status(500).send('Error');
+	      }
+	    });
+
+	    // Twitter Webhook (Account Activity API)
+	    app.post('/api/webhooks/twitter', express.json(), async (req, res) => {
+	      try {
+	        // Twitter CRC (Challenge-Response) for webhook verification
+	        if (req.body.crc_token) {
+	          const hmac = require('crypto').createHmac('sha256', process.env.TWITTER_CONSUMER_SECRET || '')
+	            .update(req.body.crc_token).digest('base64');
+	          return res.json({ response_token: `sha256=${hmac}` });
+	        }
+	        await pulseKit.handleWebhookEvent('twitter', req.body);
+	        res.status(200).send('OK');
+	      } catch (e) {
+	        console.error('[Twitter Webhook Error]', e.message);
+	        res.status(500).send('Error');
+	      }
+	    });
+
 	    app.listen(PORT, () => {
 	      console.log(`[UnZonko] Server running on port ${PORT}`);
 	      console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);
