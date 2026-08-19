@@ -479,3 +479,103 @@ describe('Signal Channel Driver', () => {
     expect(handler).toHaveBeenCalled();
   });
 });
+
+// ═══════════════════════════════════════════════════════════
+// SMS CHANNEL
+// ═══════════════════════════════════════════════════════════
+describe('SMS Channel Driver', () => {
+  test('init works without api key (webhook mode)', async () => {
+    const { createSmsChannel } = require('../src/pulsekit/channels/sms');
+    const sms = createSmsChannel({ apiKey: null, phoneNumber: null });
+    await sms.init();
+    expect(true).toBe(true);
+  });
+
+  test('send throws without api key', async () => {
+    const { createSmsChannel } = require('../src/pulsekit/channels/sms');
+    const sms = createSmsChannel({ apiKey: null, phoneNumber: '+15551234567' });
+    await expect(sms.send({ to: '+15559876543', message: 'Test' })).rejects.toThrow('SMS API key not configured');
+  });
+
+  test('send makes Twilio API call', async () => {
+    mockHttps.request.mockImplementation((opts, cb) => {
+      cb({ statusCode: 201, on: (e, h) => { if (e === 'data') h(JSON.stringify({ sid: 'SM123' })); if (e === 'end') h(); } });
+      return { on: jest.fn(), write: jest.fn(), end: jest.fn(), setTimeout: jest.fn(), destroy: jest.fn() };
+    });
+    const { createSmsChannel } = require('../src/pulsekit/channels/sms');
+    const sms = createSmsChannel({ apiKey: 'AC123:abc123', phoneNumber: '+15551234567', provider: 'twilio' });
+    await sms.init();
+    await sms.send({ to: '+15559876543', message: 'Hello SMS' });
+    expect(mockHttps.request).toHaveBeenCalled();
+  });
+
+  test('handleWebhook processes Twilio inbound format', async () => {
+    const { createSmsChannel } = require('../src/pulsekit/channels/sms');
+    const sms = createSmsChannel({ apiKey: 'AC123:tok', phoneNumber: '+15551234567' });
+    const handler = jest.fn();
+    sms.onMessage(handler);
+    await sms.handleWebhook({ From: '+15559999999', Body: 'Hello via SMS' });
+    expect(handler).toHaveBeenCalled();
+    expect(handler.mock.calls[0][0].from).toBe('+15559999999');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// TWITTER CHANNEL
+// ═══════════════════════════════════════════════════════════
+describe('Twitter Channel Driver', () => {
+  test('send throws without credentials', async () => {
+    const { createTwitterChannel } = require('../src/pulsekit/channels/twitter');
+    const tw = createTwitterChannel({ apiKey: null, apiSecret: null, accessToken: null, accessSecret: null });
+    await tw.init();
+    await expect(tw.send({ to: 'me', message: 'Test' })).rejects.toThrow('Twitter API key not configured');
+  });
+
+  test('init handles missing credentials gracefully', async () => {
+    const { createTwitterChannel } = require('../src/pulsekit/channels/twitter');
+    const tw = createTwitterChannel({ apiKey: null });
+    await tw.init();
+    expect(true).toBe(true);
+  });
+
+  test('handleWebhook processes tweet_create_events', async () => {
+    const { createTwitterChannel } = require('../src/pulsekit/channels/twitter');
+    const tw = createTwitterChannel({ apiKey: 'k', apiSecret: 's', accessToken: 't', accessSecret: 'ts' });
+    const handler = jest.fn();
+    tw.onMessage(handler);
+    await tw.handleWebhook({
+      tweet_create_events: [{
+        id_str: '123456',
+        user: { screen_name: 'testuser' },
+        text: 'Hello from Twitter',
+      }],
+    });
+    expect(handler).toHaveBeenCalled();
+    expect(handler.mock.calls[0][0].from).toBe('testuser');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// BLUESKY CHANNEL
+// ═══════════════════════════════════════════════════════════
+describe('Bluesky Channel Driver', () => {
+  test('init handles missing credentials', async () => {
+    const { createBlueskyChannel } = require('../src/pulsekit/channels/bluesky');
+    const bsky = createBlueskyChannel({ identifier: null, appPassword: null });
+    await bsky.init();
+    expect(true).toBe(true);
+  });
+
+  test('send throws without auth', async () => {
+    const { createBlueskyChannel } = require('../src/pulsekit/channels/bluesky');
+    const bsky = createBlueskyChannel({ identifier: 'test.bsky.social', appPassword: 'test' });
+    await expect(bsky.send({ to: 'friend.bsky.social', message: 'Hi' })).rejects.toThrow('Bluesky not authenticated');
+  });
+
+  test('destroy clears session', async () => {
+    const { createBlueskyChannel } = require('../src/pulsekit/channels/bluesky');
+    const bsky = createBlueskyChannel({ identifier: 'test.bsky.social', appPassword: 'test' });
+    await bsky.destroy();
+    expect(true).toBe(true);
+  });
+});

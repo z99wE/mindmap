@@ -29,6 +29,9 @@ const { createSlackChannel }    = require('./channels/slack');
 const { createWhatsappChannel } = require('./channels/whatsapp');
 const { createWebPushChannel }  = require('./channels/webpush');
 const { createSignalChannel }   = require('./channels/signal');
+const { createSmsChannel }      = require('./channels/sms');
+const { createTwitterChannel }  = require('./channels/twitter');
+const { createBlueskyChannel }  = require('./channels/bluesky');
 const { PulseQueue }            = require('./queue');
 const { decrypt }               = require('../crypto');
 
@@ -199,6 +202,27 @@ async function createPulseKit(dbPool, webpushModule, vapidKeys) {
 	          baseUrl: creds.base_url || process.env.SIGNAL_REST_URL,
 	          phoneNumber: creds.phone_number,
 	          apiKey: creds.api_key || process.env.SIGNAL_API_KEY,
+	        });
+	        await driver.init();
+	      } else if (platform === 'sms' && creds.phone_number && creds.api_key) {
+	        driver = createSmsChannel({
+	          apiKey: creds.api_key,
+	          phoneNumber: creds.phone_number,
+	          provider: creds.provider || 'twilio',
+	        });
+	        await driver.init();
+	      } else if (platform === 'twitter' && creds.api_key && creds.api_secret && creds.access_token) {
+	        driver = createTwitterChannel({
+	          apiKey: creds.api_key,
+	          apiSecret: creds.api_secret,
+	          accessToken: creds.access_token,
+	          accessSecret: creds.access_secret,
+	        });
+	        await driver.init();
+	      } else if (platform === 'bluesky' && creds.identifier && creds.app_password) {
+	        driver = createBlueskyChannel({
+	          identifier: creds.identifier,
+	          appPassword: creds.app_password,
 	        });
 	        await driver.init();
 	      }
