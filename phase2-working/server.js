@@ -275,12 +275,31 @@ async function start() {
       if (!process.env.DATABASE_URL) console.warn('[SECURITY] No DATABASE_URL set — using localhost.');
     }
 
-    console.log('[Cognitive Crons] Native Vercel/GitHub Action cron endpoint mounted at /api/cron/tick');
+	    console.log('[Cognitive Crons] Native Vercel/GitHub Action cron endpoint mounted at /api/cron/tick');
 
-	    // Start background autonomous agent
+	    // ── Multi-Agent System ─────────────────────────────────────────────
+	    const { createAgentOrchestratorEndpoints, ensureAgentTable } = require('./features/agent-orchestrator');
+	    await ensureAgentTable();
+	    const agentOrchestrator = createAgentOrchestratorEndpoints(app, pulseKit);
+
+	    // Start background autonomous agent (multi-agent cycle every 15 min)
 	    const { OrchestratorManager } = require('./orchestrator');
 	    const orchestratorManager = new OrchestratorManager(pool, keyPool);
 	    orchestratorManager.startAutonomousAgent(pulseKit);
+
+	    // Also run the multi-agent system in the background (every 30 min)
+	    setInterval(async () => {
+	      try {
+	        const activeUsers = await pool.query(
+	          `SELECT DISTINCT user_id FROM memory_graph WHERE created_at > NOW() - INTERVAL '24 hours' LIMIT 10`
+	        );
+	        for (const row of activeUsers.rows) {
+	          await agentOrchestrator.runFullCycle(row.user_id);
+	        }
+	      } catch (e) {
+	        console.error('[AgentOrchestrator] Background cycle error:', e.message);
+	      }
+	    }, 30 * 60 * 1000);
 
 	    // Start listening for inbound messages (Telegram polling, Discord WebSocket, etc.)
 	    pulseKit.startListening();
