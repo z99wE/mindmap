@@ -15,7 +15,7 @@
 
 ## The Pitch
 
-**UnZonko is middleware between your brain and every app you use.** It captures thoughts from anywhere (web, mobile, Telegram, Slack, email), routes them through a multi-agent AI pipeline, stores them in a vector memory graph with automatic decay, and delivers insights to any device through 10 messaging channels.
+**UnZonko is middleware between your brain and every app you use.** It captures thoughts from anywhere (web, Telegram, Slack, email, browser extension), routes them through a multi-agent AI pipeline, stores them in a vector memory graph with automatic decay, and delivers insights to any device through 10 messaging channels. *(Mobile app not yet built — web + browser extension for now.)*
 
 Unlike todo lists that wait for you, UnZonko **actively escalates** what matters before it expires from your working memory.
 
@@ -108,9 +108,9 @@ User Input (Web UI / Telegram / Slack / Email / Extension)
 - **Vector Memory Graph**: PostgreSQL + pgvector for semantic search
 - **Collaborative Sharing**: Share memories with other users via email
 - **Local IndexedDB Backup**: Offline-capable with browser storage
-- **GDPR/DPDP Compliance**: Full data export, deletion, portability
+- **GDPR/DPDP Compliance**: Consent logging on registration, breach logging, automated data deletion (30-day retention), grievance submission and tracking system
 
-### Browser Extension
+### Browser Extension *(unpublished — code in repo, needs Chrome Web Store submission)*
 - Quick capture from any tab
 - Unread activity badge
 - Background polling
@@ -126,8 +126,8 @@ User Input (Web UI / Telegram / Slack / Email / Extension)
 | **Database** | Render Free Postgres ($0/mo, 1GB) | Render Postgres ($7/mo, 8GB) |
 | **LLM Processing** | User brings their own key ($0 for you) | Shared key pool (your API costs) |
 | **Notifications** | PulseKit native APIs ($0) | PulseKit native APIs ($0) |
-| **Browser Extension** | Chrome Web Store ($5 one-time) | — |
-| **Total** | **$0–5/mo** | **$14–20/mo** |
+| **Browser Extension** | Code ready (unpublished) | Chrome Web Store ($5 one-time to publish) |
+| **Total** | **$0/mo** | **$14–20/mo** |
 
 ### How Users Pay (Your Revenue)
 - **Free**: 10 runs/day, 2 channels, must bring their own LLM key
@@ -160,7 +160,7 @@ Open `http://localhost:3001` — the app creates a local admin account on first 
 
 ```bash
 cd phase2-working
-npm run test:all    # 192 tests, 11 suites
+npm run test:all    # 200+ tests, 13 suites
 npm run test:unit   # Unit tests (drivers, middleware, notifications)
 npm run test:api    # API tests (channels, auth, memory, admin)
 ```
@@ -169,8 +169,8 @@ npm run test:api    # API tests (channels, auth, memory, admin)
 
 ## Compliance
 
-- **GDPR (EU)**: Full data access, rectification, erasure, portability. Breach notification within 72h.
-- **DPDP (India)**: Data Fiduciary registration. Grievance redressal within 30 days. Consent-based processing.
+- **GDPR (EU)**: Consent logging on registration, breach detection and logging, automated data deletion cron (30-day retention), full data export and account deletion via UI. Grievance submission and tracking system (Art. 77). Response within 30 days.
+- **DPDP (India)**: Consent logging (Sec. 6), grievance redressal system (Sec. 13), cross-border transfer disclosure (Sec. 16). Data Fiduciary role documented.
 - **Disclaimer**: NOT a medical device. Does not diagnose or treat ADHD or any cognitive condition.
 
 ---

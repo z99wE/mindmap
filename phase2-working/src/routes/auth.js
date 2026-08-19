@@ -76,6 +76,15 @@ router.post('/register', registerLimiter, async (req, res) => {
       sendWelcomeEmail({ email: user.email, firstName: user.first_name }).catch(() => {});
     } catch (e) { /* mailer unavailable */ }
 
+    // Log GDPR consent (non-blocking)
+    try {
+      const { logConsent } = require('./compliance');
+      logConsent(user.id, 'registration_consent', {
+        consentedTo: ['service_operation', 'data_processing', 'anonymized_analytics'],
+        timestamp: new Date().toISOString(),
+      }, req.ip || 'unknown');
+    } catch (e) { /* consent logging is non-critical */ }
+
     res.status(201).json({
       user: {
         id: user.id, email: user.email, tier: user.tier,

@@ -114,6 +114,8 @@ const analyticsRoutes = require('./src/routes/analytics');
 const agentPrefsRoutes = require('./src/routes/agent-preferences');
 const activitiesRoutes = require('./src/routes/activities');
 const cognitiveInsightsRoutes = require('./src/routes/cognitive-insights');
+const complianceRoutes = require('./src/routes/compliance');
+const { ensureComplianceTables, runDataDeletionCron } = require('./src/routes/compliance');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
 
 app.use('/api/auth', authRoutes);
@@ -283,6 +285,13 @@ async function start() {
 	    const { createAgentOrchestratorEndpoints, ensureAgentTable } = require('./features/agent-orchestrator');
 	    await ensureAgentTable();
 	    const agentOrchestrator = createAgentOrchestratorEndpoints(app, pulseKit);
+
+	    // ── Compliance system ───────────────────────────────────────────────
+	    await ensureComplianceTables();
+	    // Run data deletion cron daily
+	    setInterval(() => runDataDeletionCron(), 24 * 60 * 60 * 1000);
+	    // Also run once at startup
+	    runDataDeletionCron().catch(() => {});
 
 	    // Start background autonomous agent (multi-agent cycle every 15 min)
 	    const { OrchestratorManager } = require('./orchestrator');
