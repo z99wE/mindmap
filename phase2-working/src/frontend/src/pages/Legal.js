@@ -1,4 +1,4 @@
-// Legal - AI disclaimer & terms
+// Legal - Full GDPR / DPDP / Privacy / Terms compliance
 export function Legal() {
   const container = document.createElement('div');
 
@@ -7,110 +7,180 @@ export function Legal() {
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
           <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-on-surface-variant);box-shadow:0 0 12px rgba(204,255,0,0.2);"></span>
-          <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Legal Notice</h1>
+          <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Legal & Privacy</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-          AI disclaimer, terms summary, and privacy information for UnZonko.
+          GDPR (EU), DPDP (India) compliant. Last updated: ${new Date().toLocaleDateString()}.
         </p>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-top:1.5rem;">
-        <!-- Medical & Legal Disclaimer -->
-        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid rgba(204,255,0,0.26) !important;">
-          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--color-analytical);">
-            <span class="dot" style="width:8px;height:8px;background:var(--color-analytical);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
-            Medical &amp; Legal Disclaimer
+
+        <!-- 1. No Warranty / Disclaimer -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(239,68,68,0.3) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;color:var(--md-sys-color-error);display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;">warning</span>
+            NO WARRANTY — AS IS
           </h2>
-          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7; font-weight: 500;">
-            This is NOT a medical, legal, psychiatric, or mental wellness tool. It is provided strictly for educational, productivity, and entertainment purposes. UnZonko does not diagnose, treat, or prevent ADHD, anxiety, depression, or any other cognitive condition. Consult a licensed professional for medical or psychiatric advice.
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
+            THIS SERVICE IS PROVIDED <b>"AS IS"</b> AND <b>"AS AVAILABLE"</b> WITHOUT ANY WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, OR NON-INFRINGEMENT.
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            The operators make <b>no guarantee</b> that the service will be uninterrupted, error-free, secure, or that AI outputs will be accurate or reliable. <b>You use this service entirely at your own risk.</b>
           </p>
         </div>
 
-        <!-- AI Usage -->
+        <!-- 2. Limitation of Liability -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(239,68,68,0.3) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;color:var(--md-sys-color-error);display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;">gavel</span>
+            LIMITATION OF LIABILITY
+          </h2>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
+            TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE OPERATORS BE LIABLE FOR ANY <b>INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES</b>, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, LOSS OF REVENUE, LOSS OF BUSINESS OPPORTUNITY, OR PERSONAL INJURY, ARISING OUT OF OR RELATED TO YOUR USE OR INABILITY TO USE THIS SERVICE.
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            THIS INCLUDES, WITHOUT LIMITATION, DAMAGES RESULTING FROM RELIANCE ON AI-GENERATED CONTENT, LOSS OF ENCRYPTED CREDENTIALS, INTERRUPTION OF CHANNEL DELIVERY, OR UNAUTHORIZED ACCESS TO YOUR DATA THROUGH THIRD-PARTY PROVIDERS (API PROVIDERS, LLM PROVIDERS, MESSAGING PLATFORMS).
+          </p>
+        </div>
+
+        <!-- 3. Medical & Legal Disclaimer -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(204,255,0,0.26) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;color:var(--color-analytical);">
+            <span class="dot" style="width:8px;height:8px;background:var(--color-analytical);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
+            Not Medical / Not Therapeutic
+          </h2>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;font-weight:500;">
+            This is <b>NOT</b> a medical, psychiatric, diagnostic, or therapeutic device. It is provided strictly for productivity, organization, and reference purposes. UnZonko does not diagnose, treat, mitigate, or prevent any medical condition including but not limited to ADHD, anxiety, depression, OCD, or cognitive impairment.
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            <b>Always consult a licensed healthcare professional</b> for medical or psychiatric advice. Never disregard professional medical advice based on anything generated by this service.
+          </p>
+        </div>
+
+        <!-- 4. GDPR Compliance (EU) -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(99,102,241,0.3) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:#818cf8;">shield</span>
+            GDPR Compliance (EU)
+          </h2>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
+            <p><b>Data Controller:</b> The service operator. Contact via GitHub issues or email.</p>
+            <p><b>Data Collected:</b> Email, name, country, encrypted API keys, thought/memory content, usage patterns (anonymized).</p>
+            <p><b>Legal Basis:</b> Consent (registration), legitimate interest (service operation), contract (paid tiers).</p>
+            <p><b>Your Rights (Art. 15–22 GDPR):</b></p>
+            <ul style="padding-left:1.5rem;margin:0.5rem 0;">
+              <li>Right to access your data — export at any time via Export button</li>
+              <li>Right to rectification — edit profile in Settings</li>
+              <li>Right to erasure (Right to be Forgotten) — delete account via Settings</li>
+              <li>Right to restrict processing — disable data sharing in Settings</li>
+              <li>Right to data portability — export all data as JSON</li>
+              <li>Right to object — opt out of analytics in Settings</li>
+            </ul>
+            <p><b>Data Retention:</b> Memories older than 7 days are purged automatically on free tier. Pro tier: until account deletion.</p>
+            <p><b>Third-Party Processors:</b> LLM providers you configure (Groq, OpenAI, etc.), PostgreSQL (database), Render (hosting). Each has its own GDPR compliance.</p>
+            <p><b>International Transfers:</b> Data stored in US (Oregon). Adequacy safeguards: Standard Contractual Clauses (SCCs) via Render and database provider.</p>
+            <p><b>Data Protection Officer:</b> Contact via GitHub. Response within 30 days.</p>
+            <p><b>Breach Notification:</b> You will be notified within 72 hours of discovering a personal data breach (Art. 33 GDPR).</p>
+          </div>
+        </div>
+
+        <!-- 5. DPDP Compliance (India) -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(251,191,36,0.3) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:#fbbf24;">gavel</span>
+            DPDP Act Compliance (India)
+          </h2>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
+            <p><b>Data Fiduciary:</b> The service operator.</p>
+            <p><b>Personal Data Collected:</b> Email address, name, country, user ID, encrypted credentials, thought content, usage metadata.</p>
+            <p><b>Purpose:</b> Service operation, cognitive processing, multi-channel notification delivery, analytics (anonymized).</p>
+            <p><b>Consent:</b> Your registration constitutes explicit consent under Section 6 of the DPDP Act. You may withdraw consent at any time by deleting your account.</p>
+            <p><b>Data Principal Rights (DPDP Act):</b></p>
+            <ul style="padding-left:1.5rem;margin:0.5rem 0;">
+              <li>Right to access summary of data</li>
+              <li>Right to correction and erasure</li>
+              <li>Right to grievance redressal</li>
+              <li>Right to nominate a representative</li>
+            </ul>
+            <p><b>Data Retention:</b> Personal data retained only as long as your account is active. Deleted within 30 days of account deletion.</p>
+            <p><b>Grievance Officer:</b> Contact via GitHub. Complaints resolved within 30 days under Section 13(4) of DPDP Act.</p>
+            <p><b>Data Security:</b> AES-256 encryption for credentials, JWT-authenticated API access, user-level data isolation at database layer.</p>
+            <p><b>Cross-Border Transfer:</b> Data stored in United States. Your consent covers this transfer per Section 16 of DPDP Act.</p>
+          </div>
+        </div>
+
+        <!-- 6. AI & Automation -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
             <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-primary);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
-            AI &amp; Automation
+            AI & Automation
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
-            The platform uses third-party LLM models, routing layers, memory graphs, and automated workflows to classify and organize thoughts.
+            The platform uses third-party LLM models through API providers you configure. AI systems can <b>hallucinate, produce incorrect information, or reflect biases</b> present in training data. 
           </p>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--color-analytical);line-height:1.7;margin-top:0.75rem;font-weight:500;">
-            AI systems can hallucinate and produce incorrect details. Always verify outputs before relying on them.
+            Always verify AI outputs before acting on them. The operators disclaim all liability for decisions made based on AI-generated content.
           </p>
         </div>
 
-        <!-- Privacy -->
-        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid rgba(163,230,53,0.2) !important;">
-          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--md-sys-color-secondary);">
+        <!-- 7. Privacy & Data Security -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(163,230,53,0.2) !important;">
+          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;color:var(--md-sys-color-secondary);">
             <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
-            Privacy &amp; Key Storage
+            Privacy & Data Security
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
-            API keys are stored with AES-256 encryption and used only for provider communication on your behalf. Your thoughts and memories are isolated per-user with JWT-verified queries.
-          </p>
-        </div>
-
-        <!-- Waitlist & Email Collection Disclaimer -->
-        <div class="surface-card card-reveal" style="padding:1.5rem; border: 1px solid rgba(204,255,0,0.26) !important;">
-          <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem; color: var(--color-analytical);">
-            <span class="dot" style="width:8px;height:8px;background:var(--color-analytical);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
-            Data Collection &amp; Consent
-          </h2>
-          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
-            We collect basic contact info (including email, name, and country location) when you register, subscribe to our newsletter, or join the early access waitlist. 
+            API keys are encrypted with <b>AES-256</b> at rest and decrypted only at runtime for provider communication. Your thought content is stored in PostgreSQL with user-level query isolation. We do <b>not</b> sell, train on, or share your personal data with third parties beyond the providers you explicitly configure.
           </p>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
-            This data is used solely to manage your early access spot and send news and updates. Subscribing represents active consent. You can unsubscribe at any time using the link in the email or by contacting support.
+            <b>Anonymized analytics</b> (event types only, no user IDs) may be collected for improving the service. You can opt out in Settings → Data Sharing.
           </p>
         </div>
 
-        <!-- User Responsibility -->
+        <!-- 8. User Responsibility -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
             <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-on-surface);box-shadow:0 0 8px rgba(235,235,235,0.2);vertical-align:middle;"></span>
             User Responsibility
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
-            You are responsible for how you use the service and for complying with applicable laws and platform policies. Only add API keys you are authorized to use.
+            You are solely responsible for: (a) how you use the service, (b) compliance with applicable laws and third-party platform policies (Telegram, Discord, Slack, etc.), (c) the API keys and credentials you store, (d) any content you submit for processing, (e) decisions made based on AI outputs.
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            You must be at least 18 years old to use this service. If you are under 18, a parent or guardian must supervise your use.
           </p>
         </div>
 
-        <!-- Liability -->
+        <!-- 9. Governing Law -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="dot" style="width:8px;height:8px;background:var(--color-secondary);box-shadow:0 0 8px rgba(163,230,53,0.3);vertical-align:middle;"></span>
-            Limitation of Liability
+            <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">account_balance</span>
+            Governing Law & Disputes
           </h2>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
-            Neither the service nor its operators are liable for direct or indirect damages resulting from use or inability to use the platform.
+            These terms are governed by the laws of India, without regard to conflict of law principles. Any disputes arising from the use of this service shall be resolved through binding arbitration in accordance with the Arbitration and Conciliation Act, 1996 (India). The seat of arbitration shall be Mumbai, India.
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            For EU users: Nothing in these terms deprives you of any mandatory consumer protection rights you may have under your local law. In case of conflict, local law prevails.
           </p>
         </div>
 
-        <!-- Practical Notes -->
+        <!-- 10. Changes & Contact -->
         <div class="surface-card card-reveal" style="padding:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;">
-            <span class="dot" style="width:8px;height:8px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);vertical-align:middle;"></span>
-            Practical Notes
+            <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">contact_mail</span>
+            Changes & Contact
           </h2>
-          <div style="display:flex;flex-direction:column;gap:0.75rem;">
-            <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 6px rgba(16,185,129,0.3);margin-top:6px;flex-shrink:0;"></span>
-              <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">Treat generated results as assistance, not authority.</span>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 6px rgba(16,185,129,0.3);margin-top:6px;flex-shrink:0;"></span>
-              <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">Only add keys you are authorized to use.</span>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 6px rgba(16,185,129,0.3);margin-top:6px;flex-shrink:0;"></span>
-              <span style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">Human judgment remains the final decision maker.</span>
-            </div>
-          </div>
-          <button class="btn-m3 btn-text" style="margin-top:1rem;width:100%;" onclick="showPage('home')">
-            Return Home
-          </button>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
+            We reserve the right to update these terms at any time. Material changes will be notified via email or in-app notification. Continued use after changes constitutes acceptance.
+          </p>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);line-height:1.7;margin-top:0.75rem;">
+            For GDPR/DPDP inquiries, account deletion requests, or grievances: submit a GitHub issue or contact via the project repository.
+          </p>
+          <button class="btn-m3 btn-text" style="margin-top:1rem;width:100%;" onclick="showPage('home')">Return Home</button>
         </div>
+
       </div>
     </div>`;
 
