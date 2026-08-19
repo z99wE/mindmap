@@ -112,11 +112,21 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
       }
     }
 
-    const llmSpan = createSpan(trace, 'process_llm', { message: finalMessage, intent, liveContextCount: liveContext.length });
-    let llmResponse = null;
-    if (user.data_sharing !== false) {
-      llmResponse = await callLLM(user, finalMessage, relatedMemories, intent, liveContext, Array.isArray(localMemories) ? localMemories : []);
-    } else {
+	const llmSpan = createSpan(trace, 'process_llm', { message: finalMessage, intent, liveContextCount: liveContext.length });
+	    let llmResponse = null;
+	    if (user.data_sharing !== false) {
+	      // Load agent preferences for personalized response style
+	      let agentPrefs = {};
+	      try {
+	        const prefsRes = await pool.query(
+	          "SELECT agent_preferences FROM users WHERE id = $1",
+	          [userId]
+	        );
+	        agentPrefs = prefsRes.rows[0]?.agent_preferences || {};
+	      } catch { /* use defaults */ }
+	      llmResponse = await callLLM(user, finalMessage, relatedMemories, intent, liveContext,
+	        Array.isArray(localMemories) ? localMemories : [], agentPrefs);
+	    } else {
       llmResponse = 'Your thought has been saved. LLM enrichment is disabled in your privacy settings.';
     }
     endSpan(llmSpan, { response: llmResponse?.substring(0, 200), dataSharing: user.data_sharing !== false });

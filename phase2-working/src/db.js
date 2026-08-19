@@ -304,7 +304,55 @@ async function runMigrations(retries = 5) {
     await client.query('CREATE INDEX IF NOT EXISTS idx_revivals_user ON thought_revivals(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_revivals_expires ON thought_revivals(expires_at)');
 
-	    // ── Row-Level Security (defense-in-depth for user isolation) ───────────────
+    // ── Shared Memories (Collaborative Graph) ─────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS shared_memories (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        shared_with_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        memory_id UUID REFERENCES memory_graph(id) ON DELETE CASCADE,
+        permission VARCHAR(20) DEFAULT 'view' CHECK (permission IN ('view', 'comment', 'edit')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(owner_id, shared_with_id, memory_id)
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_shared_owner ON shared_memories(owner_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_shared_with ON shared_memories(shared_with_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_shared_memory ON shared_memories(memory_id)');
+
+    // ── Analytics Events (Cross-User Patterns) ───────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS analytics_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        event_type VARCHAR(100) NOT NULL,
+        anonymized_hash VARCHAR(64),
+        metadata JSONB DEFAULT '{}',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(event_type)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at)');
+
+    // ── Agent Preferences column ─────────────────────────────────────────────
+    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS agent_preferences JSONB DEFAULT '{}'`);
+
+    // ── Recent Activities (Attention Layer) ──────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS recent_activities (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        activity_type VARCHAR(50) NOT NULL,
+        title VARCHAR(255),
+        summary TEXT,
+        metadata JSONB DEFAULT '{}',
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_activities_user ON recent_activities(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_activities_unread ON recent_activities(user_id, is_read)');
+
+    // ── Audit log auto-prune (entries older than 30 days) ──────────────────────
 	    // NOTE: RLS is currently DISABLED because the app never sets the required
 	    // `app.user_id` session variable. Enabling it without setting the variable
 	    // would DENY ALL ACCESS to non-owner database connections.

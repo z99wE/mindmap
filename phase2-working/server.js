@@ -109,6 +109,10 @@ const locationRoutes = require('./src/routes/location');
 const adminRoutes = require('./src/routes/admin');
 const geofencesRoutes = require('./src/routes/geofences');
 const cronRoutes = require('./src/routes/cron');
+const sharingRoutes = require('./src/routes/sharing');
+const analyticsRoutes = require('./src/routes/analytics');
+const agentPrefsRoutes = require('./src/routes/agent-preferences');
+const activitiesRoutes = require('./src/routes/activities');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
 
 app.use('/api/auth', authRoutes);
@@ -123,6 +127,12 @@ app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/geofences', geofencesRoutes);
 app.use('/api/cron', cronRoutes);
+
+// New feature routes
+app.use('/api/sharing', sharingRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/agent', agentPrefsRoutes);
+app.use('/api/activities', activitiesRoutes);
 
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);

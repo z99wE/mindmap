@@ -92,7 +92,7 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
 }
 
 // Orchestrates the LLM call checking user keys then falling back to shared keys
-async function callLLM(user, message, relatedMemories, intent, liveContext = [], localMemories = []) {
+async function callLLM(user, message, relatedMemories, intent, liveContext = [], localMemories = [], agentPrefs = {}) {
   const contextStr = relatedMemories.length > 0
     ? `\n\nRelated memories:\n${relatedMemories.map(m => `- ${m.content}`).join('\n')}`
     : '';
@@ -103,11 +103,16 @@ async function callLLM(user, message, relatedMemories, intent, liveContext = [],
     ? `\n\nLive web context (Real-time live information):\n${liveContext.slice(0, 3).map(r => `- [${r.source}] ${r.content}`).join('\n')}`
     : '';
 
+  // Build agent instructions from user preferences
+  const { buildAgentInstructions } = require('./routes/agent-preferences');
+  const agentInstructions = buildAgentInstructions(agentPrefs);
+  const styleGuide = agentInstructions ? `\nUser preferences: ${agentInstructions}` : '';
+
   const systemPrompt = `You are UnZonko, a cognitive coprocessor for ADHD/neurodiverse users.
 You help organize thoughts, track commitments, detect patterns, and navigate cognitive load.
 Current intent: ${intent}.${contextStr}${localStr}${liveStr}
 ${liveContext.length > 0 ? '\nIMPORTANT: Real-time search results are provided above. Prioritize this live web context for any current news, status, or date-sensitive facts. Do NOT output outdated facts if the live context contains fresh information.\n' : ''}
-Be concise, empathetic, and action-oriented. Format key items as bullet points.`;
+Be concise, empathetic, and action-oriented. Format key items as bullet points.${styleGuide}`;
 
   // Route through the Key Router: user BYO keys first (round-robin across
   // EVERY key they hold, hundreds allowed), then keyless local providers, then

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>UnZonko</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { width:340px; background:#0a0b0e; color:#f0f4ee; font-family:-apple-system,system-ui,sans-serif; font-size:13px; line-height:1.4; }
+.header { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.08); }
+.logo { font:700 15px/1 system-ui; letter-spacing:-0.03em; color:#ccff00; }
+.badge { background:#ef4444; color:#fff; font:700 10px/16px system-ui; padding:0 6px; border-radius:8px; min-width:16px; text-align:center; display:none; }
+.content { padding:10px 14px; }
+.quick-capture { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; color:#f0f4ee; font-size:13px; outline:none; resize:none; font-family:inherit; margin-bottom:8px; }
+.quick-capture:focus { border-color:#ccff00; }
+.btn { display:block; width:100%; background:#ccff00; color:#000; font:700 12px/1 system-ui; padding:10px; border:none; border-radius:8px; cursor:pointer; }
+.btn:hover { background:#d6ff3e; }
+.btn:disabled { opacity:0.4; cursor:default; }
+.activities { margin-top:10px; max-height:200px; overflow-y:auto; }
+.activity { padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; color:rgba(240,244,238,0.7); }
+.activity strong { color:#f0f4ee; font-weight:500; }
+.activity-time { font-size:10px; color:rgba(240,244,238,0.35); margin-top:2px; }
+.empty { text-align:center; padding:20px 0; color:rgba(240,244,238,0.3); font-size:12px; }
+.footer { padding:8px 14px; border-top:1px solid rgba(255,255,255,0.06); text-align:center; }
+.footer a { color:rgba(240,244,238,0.4); font-size:11px; text-decoration:none; }
+.footer a:hover { color:#ccff00; }
+.status { display:flex; align-items:center; gap:6px; padding:0 14px 8px; font-size:11px; color:rgba(240,244,238,0.4); }
+.dot { width:6px; height:6px; border-radius:50%; background:#22c55e; }
+.dot.offline { background:#ef4444; }
+</style>
+</head>
+<body>
+<div class="header"><span class="logo">UnZonko</span><span class="badge" id="badge">0</span></div>
+<div class="content">
+  <textarea class="quick-capture" id="capture" placeholder="Quick thought..." rows="2"></textarea>
+  <button class="btn" id="sendBtn">Capture Thought</button>
+  <div class="activities" id="activities"><div class="empty">Loading...</div></div>
+</div>
+<div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Checking...</span></div>
+<div class="footer"><a href="https://unzonko.onrender.com" target="_blank">Open Dashboard →</a></div>
+<script src="popup.js"></script>
+</body>
+</html>
