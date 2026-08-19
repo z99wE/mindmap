@@ -13,6 +13,10 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
     featherless: 'https://api.featherless.ai/v1/chat/completions',
     fireworks: 'https://api.fireworks.ai/inference/v1/chat/completions',
     lightning: 'https://api.lightning.ai/v1/chat/completions',
+    gemini: 'https://generativelanguage.googleapis.com/v1beta/models',
+    mistral: 'https://api.mistral.ai/v1/chat/completions',
+    cohere: 'https://api.cohere.ai/v1/chat/completions',
+    compatible: '', // custom endpoint set by user
   };
 
   const models = {
@@ -26,6 +30,10 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
     featherless: 'meta-llama/Meta-Llama-3-70B-Instruct',
     fireworks: 'accounts/fireworks/models/llama-v3p1-70b-instruct',
     lightning: 'meta-llama/Meta-Llama-3-70B-Instruct',
+    gemini: 'gemini-pro',
+    mistral: 'mistral-large-latest',
+    cohere: 'command-r-plus',
+    compatible: 'custom',
   };
 
   const endpoint = options.endpoint || endpoints[provider];
@@ -50,8 +58,32 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
     headers['X-Title'] = 'UnZonko';
   }
 
+  // Gemini uses a different API format
+  if (provider === 'gemini') {
+    const geminiEndpoint = `${endpoint}/${model}:generateContent?key=${apiKey}`;
+    const geminiBody = JSON.stringify({
+      contents: [{
+        parts: [{ text: `${systemPrompt}\n\n${message}` }]
+      }],
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+    });
+    const resp = await fetch(geminiEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: geminiBody,
+    });
+    if (!resp.ok) { const errText = await resp.text(); throw new Error(`${resp.status}: ${errText}`); }
+    const data = await resp.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+  }
+
+  // Mistral uses the same format as OpenAI
+  // Cohere uses the same format as OpenAI
+  // Claude is handled via the 'anthropic' endpoint (same company, different product)
+  // 'compatible' is any OpenAI-compatible endpoint — user sets the endpoint URL in options
+
   let body;
-  if (provider === 'anthropic') {
+  if (provider === 'anthropic' || provider === 'claude') {
     body = JSON.stringify({
       model,
       system: systemPrompt,
@@ -85,10 +117,10 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
   }
 
   const data = await resp.json();
-  if (provider === 'anthropic') {
+  if (provider === 'anthropic' || provider === 'claude') {
     return data.content?.[0]?.text || 'No response generated.';
   }
-  return data.choices?.[0]?.message?.content || 'No response generated.';
+  return data.choices?.[0]?.message?.content || data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
 }
 
 // Orchestrates the LLM call checking user keys then falling back to shared keys
