@@ -1,183 +1,181 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/Vite-Dark.svg" width="60" alt="Vite" />
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/React-Dark.svg" width="60" alt="React" />
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/NodeJS-Dark.svg" width="60" alt="Node.js" />
-  <img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/PostgreSQL-Dark.svg" width="60" alt="PostgreSQL" />
-  
-  <br />
-  <br />
 
-  <h1>🧠 Thought GPS</h1>
-  <p><b>An Autonomous Memory Graph & Behavioral Coprocessor for Neuro-Diverse Minds</b></p>
+# 🧠 UnZonko
 
-  [![Render](https://img.shields.io/badge/Render-Deployed-success?logo=render&style=for-the-badge)](https://render.com)
-  [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white&style=for-the-badge)](#)
-  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-336791?logo=postgresql&logoColor=white&style=for-the-badge)](#)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+**Cognitive Coprocessor — Multi-Agent Memory Graph with 10-Channel Autonomous Delivery**
 
-  <br />
-  <p align="center">
-    <i>Not just another checklist. A cognitive exoskeleton that remembers, routes, and escalates your thoughts across the digital platforms you actually use.</i>
-  </p>
+[![Render](https://img.shields.io/badge/Render-Deployed-success?logo=render&style=for-the-badge)](https://render.com)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white&style=for-the-badge)](docker-compose.yml)
+[![Tests](https://img.shields.io/badge/Tests-192_Passing-brightgreen?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/License-MIT-F7DF1E.svg?style=for-the-badge)](LICENSE)
+
 </div>
 
 ---
 
-## 🌪 The Problem: The Neurotypical Bias in Software
+## The Pitch
 
-Traditional productivity platforms (Todoist, Notion, Calendars) assume a **neurotypical baseline** of executive function. They rely on the user to manually organize, remember to check the app, and possess the intrinsic motivation to complete tasks. 
+**UnZonko is middleware between your brain and every app you use.** It captures thoughts from anywhere (web, mobile, Telegram, Slack, email), routes them through a multi-agent AI pipeline, stores them in a vector memory graph with automatic decay, and delivers insights to any device through 10 messaging channels.
 
-For individuals with ADHD, Autism, or severe cognitive fatigue, these platforms become graveyards. Once a thought is written down in a closed ecosystem, it disappears from short-term working memory, leading to immediate task abandonment and overwhelming cognitive load.
-
-## 🎯 The Solution: Thought GPS (The Exclusive Coprocessor)
-
-**Thought GPS is an exclusive Cognitive Coprocessor.** It is explicitly engineered *against* the neurotypical grain. Instead of waiting for you to check off a box, it operates as an invisible, zero-friction layer that captures, classifies, updates, and actively *escalates* thoughts across real-world messaging channels (Telegram, Slack, Email) using vector memory, intelligent routing, and autonomous agent loops.
+Unlike todo lists that wait for you, UnZonko **actively escalates** what matters before it expires from your working memory.
 
 ---
 
-## 🏛 System Architecture & Stack
+## What Makes This Uncopyable
 
-Thought GPS employs a state-of-the-art event-driven architecture, built for extreme resilience, high performance, and zero-cost scaling.
+| Layer | What it does | Why it's a moat |
+|-------|-------------|-----------------|
+| **10-Channel PulseKit** | Telegram, Slack, Discord, WhatsApp, Signal, Email, SMS, Twitter, Bluesky, Web Push — all with inbound + outbound | Each user brings their own credentials. The routing intelligence (user bot → global bot → fallback → DB) took months to design. |
+| **Multi-Agent Orchestrator** | 4 specialized agents collaborate: Research, Memory, Nudge, Calendar | Each agent has persistent memory. They remember past findings, respect your quiet hours, and escalate only when it matters. |
+| **LLM Key Router** | Rotates through 15+ providers, cools down failed keys, falls back to shared pool | Users bring their own keys. If Groq fails, it tries OpenAI. If all fail, falls back to your pool. Then to local Ollama. |
+| **Cognitive Half-Life Memory** | Every thought has a decay timer. Urgent ones escalate. Vague ones fade. | No other app treats thoughts as living things with lifespans. This is a first-principles redesign of personal memory. |
+| **Collaborative Memory Graphs** | Share thoughts with other users via email. Couples, co-founders, accountability pairs. | Network effects: each new user makes every existing user's graph more valuable. A clone can't replicate the network. |
+| **Cross-User Pattern Analytics** | "Users miss most deadlines on Tuesdays." "Peak thought time is 2 PM." | Anonymized insights no single-user app can offer. Requires data network effect. |
 
-- **Frontend**: Vite SPA, React, Custom Glassmorphism UI engine
-- **Backend**: Node.js, Express, Custom autonomous agent loops
-- **Memory**: PostgreSQL with `pgvector` for semantic search
-- **AI Engine**: OmniRoute (BYOK Groq/OpenAI/Anthropic)
-- **Deployment**: Dockerized, 1-Click Render Deploy
+---
 
-```mermaid
-graph TD;
-    User([🧠 User]) -->|Captures Thought| Frontend[Vite SPA + Glassmorphism UI];
-    Frontend -->|JWT Auth / API| NodeServer[Express Node.js Shell];
-    
-    subgraph Cognitive Engine
-        NodeServer --> LLMRouter[OmniRoute Engine<br/>LLM Key Pool];
-        LLMRouter --> Classification[Thought Classifier];
-        LLMRouter --> DriftDetector[Drift Detector];
-    end
+## Architecture
 
-    subgraph Memory Graph
-        NodeServer <--> PGVector[(PostgreSQL + pgvector)];
-        Classification --> PGVector;
-    end
-    
-    subgraph Autonomous Delivery
-        NodeServer --> PulseKit[PulseKit Messenger];
-        PulseKit -->|Graceful Degradation| Telegram[Telegram];
-        PulseKit -->|Fallback| Slack[Slack];
-        PulseKit -->|Fallback| Email[SMTP Email];
-    end
-    
-    DriftDetector -.->|Escalation| PulseKit;
+```
+User Input (Web UI / Telegram / Slack / Email / Extension)
+  │
+  ▼
+┌──────────────────────────────────────────────────────────┐
+│                 AGENT ORCHESTRATOR                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │
+│  │ Research │  │  Memory  │  │  Nudge   │  │Calendar │ │
+│  │  Agent   │  │  Agent   │  │  Agent   │  │  Agent  │ │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬────┘ │
+│       │              │             │              │      │
+└───────┼──────────────┼─────────────┼──────────────┼──────┘
+        │              │             │              │
+        ▼              ▼             ▼              ▼
+┌──────────────────────────────────────────────────────────┐
+│                 LLM KEY ROUTER                            │
+│  User BYO keys → Round-robin → Cooldown → Shared pool    │
+└──────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────┐
+│              MEMORY GRAPH (PostgreSQL + pgvector)         │
+│  • Vector embeddings  • Half-life decay  • Commitments   │
+│  • Drift detection    • Door rule        • Classifiers   │
+└──────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────┐
+│              PULSEKIT (10-Channel Messenger)              │
+│  User bot → Global bot → Slack → Discord → Email → DB   │
+└──────────────────────────────────────────────────────────┘
+        │
+        ▼
+   User's Phone / Desktop / Browser
 ```
 
 ---
 
-## ✨ Core Modes & Capabilities
+## Features
 
-### 1. 🧬 Autonomous Memory Graph (pgvector)
-Thoughts are not stored as flat text—they are vectorized and mapped into a multidimensional Knowledge Graph. Relationships between thoughts, locations, and people are mapped dynamically, allowing the system to understand *context* (e.g., reminding you of a hardware store task only when you're near one).
+### Channel Delivery (10 Platforms)
+| Platform | Outbound | Inbound | Status |
+|----------|----------|---------|--------|
+| Telegram | ✅ Send | ✅ Polling | Live |
+| Slack | ✅ Send | ✅ Webhook | Live |
+| Discord | ✅ Send | ✅ WebSocket | Live |
+| WhatsApp | ✅ Send | ✅ Webhook | Live |
+| Email (SMTP) | ✅ Send | ✅ IMAP | Live |
+| Signal | ✅ Send | ✅ Webhook | Live |
+| SMS (Twilio/Vonage) | ✅ Send | ✅ Webhook | Live |
+| Twitter/X | ✅ Send | ✅ Webhook | Live |
+| Bluesky | ✅ Send | ❌ Firehose | Live |
+| Web Push | ✅ Send | ❌ N/A | Live |
 
-### 2. 📉 The Thought Half-Life Engine (Decay Mode)
-Unlike flat checklists that accumulate dust, thoughts in Thought GPS have an active **Half-Life Decay Rate** based on their urgency and category. Actionable items decay faster, triggering automated escalations across your channels before they expire from your working memory.
+### AI & Agents
+- **Multi-Agent Orchestrator**: Research, Memory, Nudge, Calendar agents with persistent memory
+- **LLM Key Router**: 15+ providers, round-robin rotation, 60s cooldown, shared pool fallback
+- **Agent Fine-Tuning**: Per-user response style, bullet points, quiet hours, custom instructions
+- **PicoClaw Autonomous Agent**: Background processing for pending thoughts
 
-### 3. 👁️ Commitment Witness (Accountability Mode)
-A novel social-proofing system built directly into the memory graph. It automatically triggers notifications to designated "witness contacts" (friends, family, or colleagues) when you miss a self-imposed deadline. It weaponizes social accountability to prevent self-sabotage.
+### Cognitive Models
+- **Half-Life Decay**: Every thought has a lifespan. Urgent thoughts escalate. Vague ones fade.
+- **Commitment Witness**: Miss a deadline? Your witness contact gets notified.
+- **Drift Detector**: Notices when your focus shifts and sends a soft nudge.
+- **Door Rule**: Location-aware departure brief with weather + pending items.
+- **Thought Interceptor**: Detects unanchored intentions and schedules revivals.
+- **Cognitive Load Classification**: Urgency tiers, brain areas, emotional tones.
 
-### 4. 🧠 OmniRoute (Multi-LLM Intelligence)
-Enterprise-grade cognitive operations running at a **$0 operational budget**. OmniRoute automatically load balances and routes your requests across high-tier AI providers (Groq, OpenAI, Anthropic, Fireworks, Featherless, Lightning). If one key hits a rate limit, it seamlessly fails over to the next available provider.
+### Memory & Storage
+- **Vector Memory Graph**: PostgreSQL + pgvector for semantic search
+- **Collaborative Sharing**: Share memories with other users via email
+- **Local IndexedDB Backup**: Offline-capable with browser storage
+- **GDPR/DPDP Compliance**: Full data export, deletion, portability
 
-### 5. 🛡️ Multi-Tenant Native Fallback & Intelligent Routing
-Thought GPS completely sidesteps expensive third-party notification APIs (like Twilio). It uses a **Bring Your Own Keys (BYOK)** multi-tenant architecture with support for two delivery modes:
-* **Failover Mode (Sequential Backup)**: If your primary channel fails, the system automatically degrades gracefully (`Telegram → Slack → Email → Web Push`) platform-by-platform to ensure you never miss a nudge.
-* **Broadcast Mode (Parallel Sending)**: Simultaneously broadcasts nudges to all active platforms in parallel so you are reached on all devices instantly.
+### Browser Extension
+- Quick capture from any tab
+- Unread activity badge
+- Background polling
+- 5-minute heartbeat check
 
 ---
 
-## 🔌 Connected Channels
+## Infrastructure Costs
 
-Thought GPS bridges the gap between the app and the platforms you already live in:
+| Component | Free Tier | Paid Tier |
+|-----------|-----------|-----------|
+| **Hosting** | Render Free ($0/mo, 500h) | Render Starter ($7/mo) |
+| **Database** | Render Free Postgres ($0/mo, 1GB) | Render Postgres ($7/mo, 8GB) |
+| **LLM Processing** | User brings their own key ($0 for you) | Shared key pool (your API costs) |
+| **Notifications** | PulseKit native APIs ($0) | PulseKit native APIs ($0) |
+| **Browser Extension** | Chrome Web Store ($5 one-time) | — |
+| **Total** | **$0–5/mo** | **$14–20/mo** |
 
-- **Telegram**: Native integration (Requires Bot Token & Chat ID).
-- **Slack**: Native integration (Requires Bot Token & Channel ID).
-- **Email (SMTP)**: Native delivery (Requires standard SMTP credentials).
-- **Web Push**: Browser-native push notifications fallback.
+### How Users Pay (Your Revenue)
+- **Free**: 10 runs/day, 2 channels, must bring their own LLM key
+- **Pro ($15/mo)**: 500 runs/day, shared key pool (no key needed), all 10 channels, unlimited storage, priority support
+- **Enterprise (Custom)**: Team workspaces, managed LLM infra, SSO, SLA
 
 ---
 
-## 🚀 Installation & Local Development
+## Quick Start
 
-Thought GPS is built to be deployed seamlessly. Follow these instructions to get it running locally or on the cloud.
-
-### Option 1: Cloud Deployment (Render & Docker) - Recommended
-
-We've provided a fully-configured `render.yaml` and `Dockerfile` for instant deployment on [Render](https://render.com).
-
-1. Fork or clone this repository.
-2. Sign in to Render and select **Blueprints** -> **New Blueprint Instance**.
-3. Connect your GitHub repository.
-4. Render will automatically detect the `render.yaml` and spin up both your web service and a free PostgreSQL database.
-5. In your Render Dashboard, set your environment variables (see `.env.example`).
-
-### Option 2: Local Development Setup (Full Admin Access)
-
-To test changes locally with full administrative privileges before pushing to production, use the local development setup.
-
-#### Prerequisites
-- Node.js (v20+ recommended)
-- PostgreSQL (with the `pgvector` extension installed)
-
-#### 1. Clone & Install
 ```bash
-git clone https://github.com/yourusername/Thought-GPS.git
-cd Thought-GPS/phase2-working
+# Clone
+git clone https://github.com/z99wE/mindmap.git
+cd mindmap
 
-# Install Backend Dependencies
-npm install
+# Docker (recommended)
+docker compose up -d
 
-# Install Frontend Dependencies
-cd src/frontend
-npm install
-cd ../..
-```
-
-#### 2. Configure Environment
-Copy the example environment file and fill in your database credentials. 
-```bash
-cp .env.example .env
-```
-*(Ensure `DATABASE_URL` points to your local Postgres instance with `pgvector` enabled.)*
-
-#### 3. Run the Stack
-Start the full stack with two terminal windows:
-
-**Terminal 1 (Backend API):**
-```bash
-cd Thought-GPS/phase2-working
+# Or manual
+cd phase2-working && npm install
+cp .env.example .env  # Edit your DATABASE_URL
 node server.js
 ```
 
-**Terminal 2 (Vite Frontend):**
+Open `http://localhost:3001` — the app creates a local admin account on first run.
+
+---
+
+## Testing
+
 ```bash
-cd Thought-GPS/phase2-working/src/frontend
-npm run dev
+cd phase2-working
+npm run test:all    # 192 tests, 11 suites
+npm run test:unit   # Unit tests (drivers, middleware, notifications)
+npm run test:api    # API tests (channels, auth, memory, admin)
 ```
 
-Navigate to `http://localhost:5173` to start building your external brain! *Note: Registration functionality creates users with local access instantly.*
+---
+
+## Compliance
+
+- **GDPR (EU)**: Full data access, rectification, erasure, portability. Breach notification within 72h.
+- **DPDP (India)**: Data Fiduciary registration. Grievance redressal within 30 days. Consent-based processing.
+- **Disclaimer**: NOT a medical device. Does not diagnose or treat ADHD or any cognitive condition.
 
 ---
 
-## 💰 Cost Breakdown: Enterprise Architecture, $0 Overhead
+## License
 
-| Component | Architecture Strategy | Monthly Cost |
-|-----------|----------------------|--------------|
-| **Database** | PostgreSQL (Render Free Tier) | **$0** |
-| **Notifications** | PulseKit Native Fallback (Telegram/Slack/SMTP) | **$0** |
-| **AI Processing** | OmniRoute (BYOK Groq/OpenAI/Fireworks) | **$0** |
-| **Hosting** | Render Free Tier (Dockerized Web Service) | **$0** |
-| **Total Operational Cost** | | **$0/month** |
+MIT — build, modify, scale.
 
----
-
-## 📄 License
-Released under the [MIT License](https://opensource.org/licenses/MIT). Build, modify, and scale your own cognitive exoskeleton.
