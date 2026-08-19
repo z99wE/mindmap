@@ -113,6 +113,7 @@ const sharingRoutes = require('./src/routes/sharing');
 const analyticsRoutes = require('./src/routes/analytics');
 const agentPrefsRoutes = require('./src/routes/agent-preferences');
 const activitiesRoutes = require('./src/routes/activities');
+const cognitiveInsightsRoutes = require('./src/routes/cognitive-insights');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
 
 app.use('/api/auth', authRoutes);
@@ -133,6 +134,7 @@ app.use('/api/sharing', sharingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/agent', agentPrefsRoutes);
 app.use('/api/activities', activitiesRoutes);
+app.use('/api/cognitive', cognitiveInsightsRoutes);
 
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);

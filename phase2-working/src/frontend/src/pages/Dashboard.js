@@ -93,6 +93,45 @@ export function Dashboard() {
           <p id="digest-status" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.5rem;text-align:center;"></p>
         </div>
       </div>
+
+      <!-- Cognitive Insights (Proprietary) -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem;">
+        <!-- Cognitive Load Forecast -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(204,255,0,0.15);">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-primary);">monitoring</span>
+            Cognitive Load Forecast
+          </h3>
+          <div id="load-forecast" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Analyzing...</div>
+        </div>
+
+        <!-- Attention Debt Score -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(251,191,36,0.15);">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:#f59e0b;">score</span>
+            Attention Debt Score
+          </h3>
+          <div id="debt-score" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Calculating...</div>
+        </div>
+
+        <!-- Narrative Memory -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(99,102,241,0.15);">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:#818cf8;">auto_stories</span>
+            Narrative Memory
+          </h3>
+          <div id="narrative-memory" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Generating...</div>
+        </div>
+
+        <!-- Commitment Probability -->
+        <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(16,185,129,0.15);">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;color:#10b981;">fact_check</span>
+            Commitment Probability
+          </h3>
+          <div id="commitment-prob" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Computing...</div>
+        </div>
+      </div>
     </div>`;
 
   loadDashboard(container);
@@ -308,10 +347,91 @@ async function loadDashboard(c) {
       requestAnimationFrame(draw);
     };
 
-    draw();
-  }
+	    draw();
+	  }
 
-  // Digest button handler
+	  // Load Cognitive Insights
+	  async function loadCognitiveInsights() {
+	    // 1. Load Forecast
+	    try {
+	      const fc = await api.get('/cognitive/forecast');
+	      const el = c.querySelector('#load-forecast');
+	      if (fc.currentLoad !== undefined) {
+	        const color = fc.currentLoad < 30 ? '#22c55e' : fc.currentLoad < 60 ? '#84cc16' : fc.currentLoad < 80 ? '#f59e0b' : '#ef4444';
+	        el.innerHTML = `
+	          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
+	            <div style="font:700 2rem/1 var(--font-heading);color:${color};">${fc.currentLoad}</div>
+	            <div style="flex:1;">
+	              <div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;">
+	                <div style="height:100%;width:${fc.currentLoad}%;background:${color};border-radius:3px;transition:width 0.5s;"></div>
+	              </div>
+	            </div>
+	          </div>
+	          <p style="margin:0;font-size:12px;line-height:1.5;">${fc.insight || ''}</p>
+	          ${fc.forecast ? `<div style="display:flex;gap:3px;margin-top:0.5rem;align-items:flex-end;height:32px;">${fc.forecast.map(d =>
+	            `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+	              <div style="width:100%;height:${(d.load / 100) * 28}px;border-radius:2px;background:${d.severity === 'critical' ? '#ef4444' : d.severity === 'high' ? '#f59e0b' : d.severity === 'medium' ? '#84cc16' : '#22c55e'};opacity:0.7;"></div>
+	              <span style="font:7px var(--font-mono);color:var(--md-sys-color-outline);margin-top:2px;">${d.day.slice(0,2)}</span>
+	            </div>`).join('')}</div>` : ''}
+	        `;
+	      }
+	    } catch { /* skip */ }
+
+	    // 2. Debt Score
+	    try {
+	      const ds = await api.get('/cognitive/debt-score');
+	      const el = c.querySelector('#debt-score');
+	      if (ds.score !== undefined) {
+	        el.innerHTML = `
+	          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
+	            <div style="font:700 2rem/1 var(--font-heading);color:${ds.color || '#84cc16'};">${ds.score}</div>
+	            <div style="text-transform:uppercase;font:600 11px/1 var(--font-body);color:${ds.color || '#84cc16'};letter-spacing:0.08em;">${ds.level || 'clear'}</div>
+	          </div>
+	          <p style="margin:0;font-size:12px;line-height:1.5;">${ds.recommendation || ''}</p>
+	        `;
+	      }
+	    } catch { /* skip */ }
+
+	    // 3. Narrative Memory
+	    try {
+	      const nm = await api.get('/cognitive/narrative?period=week');
+	      const el = c.querySelector('#narrative-memory');
+	      if (nm.narrative) {
+	        const n = nm.narrative;
+	        el.innerHTML = `
+	          <div style="margin-bottom:0.5rem;">
+	            ${n.topCategories?.map(c => `<span class="chip" style="font-size:10px;margin-right:4px;">${c.name} ${c.percentage}%</span>`).join('') || ''}
+	          </div>
+	          ${nm.aiStory ? `<p style="margin:0 0 0.5rem;font-size:12px;line-height:1.6;color:var(--md-sys-color-on-surface-variant);">${nm.aiStory}</p>` : ''}
+	          <div style="display:flex;gap:0.75rem;font-size:11px;color:var(--md-sys-color-outline);">
+	            <span>✅ ${n.commitments?.completed || 0}/${n.commitments?.total || 0}</span>
+	            <span>📊 ${n.commitments?.fulfillmentRate || 0}%</span>
+	            ${n.peakTimes?.length ? `<span>⏰ ${n.peakTimes[0]}</span>` : ''}
+	          </div>
+	        `;
+	      }
+	    } catch { /* skip */ }
+
+	    // 4. Commitment Probability
+	    try {
+	      const cp = await api.get('/cognitive/commitment-probability');
+	      const el = c.querySelector('#commitment-prob');
+	      if (cp.overallFulfillmentRate !== undefined) {
+	        const color = cp.overallFulfillmentRate >= 70 ? '#22c55e' : cp.overallFulfillmentRate >= 40 ? '#f59e0b' : '#ef4444';
+	        el.innerHTML = `
+	          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
+	            <div style="font:700 2rem/1 var(--font-heading);color:${color};">${cp.overallFulfillmentRate}%</div>
+	            <div style="flex:1;font-size:11px;color:var(--md-sys-color-on-surface-variant);">Today: <strong>${cp.todayProbability || cp.overallFulfillmentRate}%</strong></div>
+	          </div>
+	          <p style="margin:0 0 0.5rem;font-size:12px;line-height:1.5;">${cp.insight || ''}</p>
+	          ${cp.worstDay ? `<div style="font-size:11px;color:var(--md-sys-color-outline);">Best day: ${cp.bestDay?.day || '—'} (${cp.bestDay?.rate || 0}%) · Worst: ${cp.worstDay.day} (${cp.worstDay.rate}%)</div>` : ''}
+	        `;
+	      }
+	    } catch { /* skip */ }
+	  }
+	  loadCognitiveInsights();
+
+	  // Digest button handler
   const digestBtn = c.querySelector('#digest-btn');
   const digestStatus = c.querySelector('#digest-status');
   if (digestBtn) {
