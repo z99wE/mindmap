@@ -36,6 +36,21 @@ services:
         generateValue: true
       - key: API_KEY_ENCRYPTION_SECRET
         generateValue: true
+
+      # Web Push (VAPID) — required for browser push notifications
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_EMAIL
+        sync: false
+
+      # Registration gating — without these, NO ONE can register in production
+      - key: ALLOWED_ADMIN_EMAILS
+        sync: false
+      - key: ALLOWED_BETA_EMAILS
+        sync: false
+
       # Email (Resend) — alternative provider/fallback
       - key: RESEND_API_KEY
         sync: false
