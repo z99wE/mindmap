@@ -10,6 +10,21 @@ export function Memory() {
         <h1 style="font:var(--md-sys-typescale-headline-medium);">Memory Archive</h1>
       </div>
       <div id="backup-warning"></div>
+
+      <!-- Shared Memories Section -->
+      <div class="surface-card card-reveal" style="padding:1rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-rounded" style="font-size:18px;">people</span>
+            Shared With Me
+          </h3>
+          <span id="shared-count" class="chip" style="font-size:11px;">0</span>
+        </div>
+        <div id="shared-list" style="max-height:200px;overflow-y:auto;">
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);padding:0.5rem 0;">Loading...</div>
+        </div>
+      </div>
+
       <div class="card-reveal" style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
         <input type="text" id="mem-search" class="input-m3" placeholder="Search memories..." style="flex:1;min-width:200px;">
         <button class="btn-m3 btn-outlined" id="search-btn"><span class="material-symbols-rounded" style="font-size:18px;">search</span></button>
@@ -18,6 +33,23 @@ export function Memory() {
         <input type="file" id="import-file-input" style="display:none;" accept=".json">
       </div>
       <div id="mem-list" class="card-reveal"><div class="anim-shimmer" style="height:200px;"></div></div>
+
+      <!-- Share Modal -->
+      <div id="share-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:1rem;">
+        <div class="glass-strong" style="width:100%;max-width:400px;border-radius:var(--md-sys-shape-extra-large);padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <h3 style="font:var(--md-sys-typescale-title-medium);margin:0;">Share Memory</h3>
+            <button class="icon-btn" onclick="document.getElementById('share-modal').style.display='none'" aria-label="Close"><span class="material-symbols-rounded">close</span></button>
+          </div>
+          <input type="email" id="share-email" class="input-m3" placeholder="User's email address..." style="width:100%;margin-bottom:0.75rem;">
+          <select id="share-permission" class="input-m3" style="width:100%;margin-bottom:0.75rem;">
+            <option value="view">Can view</option>
+            <option value="comment">Can comment</option>
+            <option value="edit">Can edit</option>
+          </select>
+          <button class="btn-m3 btn-filled" id="share-confirm-btn" style="width:100%;">Share</button>
+        </div>
+      </div>
 
       <!-- Trace Modal -->
       <div id="trace-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:1rem;">
@@ -104,9 +136,14 @@ export function Memory() {
               ${m.brain_area || m.brainArea ? `<span class="chip">${m.brain_area || m.brainArea}</span>` : ''}
             </div>
           </div>
-          <button class="icon-btn" onclick="deleteMem('${m.id}')" title="Delete">
-            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
-          </button>
+          <div style="display:flex;gap:0.25rem;">
+            <button class="icon-btn" onclick="shareMemory('${m.id}')" title="Share">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary);">share</span>
+            </button>
+            <button class="icon-btn" onclick="deleteMem('${m.id}')" title="Delete">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
+            </button>
+          </div>
         </div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
@@ -187,11 +224,60 @@ export function Memory() {
     reader.readAsText(file);
   });
 
+  async function loadSharedMemories() {
+    try {
+      const data = await api.get('/sharing');
+      const el = container.querySelector('#shared-list');
+      const countEl = container.querySelector('#shared-count');
+      if (!data.shared || data.shared.length === 0) {
+        el.innerHTML = '<div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);padding:0.5rem 0;">No memories shared with you.</div>';
+        if (countEl) countEl.textContent = '0';
+        return;
+      }
+      if (countEl) countEl.textContent = data.shared.length;
+      el.innerHTML = data.shared.map(s => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <div style="flex:1;">
+            <div style="font:var(--md-sys-typescale-body-small);">${escHtml(s.content || '(no content)')}</div>
+            <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);font-size:11px;">
+              From: ${escHtml(s.owner_email)} · ${s.permission}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch {
+      const el = container.querySelector('#shared-list');
+      if (el) el.innerHTML = '<div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);padding:0.5rem 0;">Sharing unavailable</div>';
+    }
+  }
+
   renderBackupWarning();
   loadMems();
+  loadSharedMemories();
   return container;
 }
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+window.shareMemory = (memoryId) => {
+  const modal = document.getElementById('share-modal');
+  const emailInput = document.getElementById('share-email');
+  const permSelect = document.getElementById('share-permission');
+  const confirmBtn = document.getElementById('share-confirm-btn');
+  if (!modal || !emailInput) return;
+  emailInput.value = '';
+  permSelect.value = 'view';
+  modal.style.display = 'flex';
+  confirmBtn.onclick = async () => {
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) { toast.show('Enter a valid email', 'error'); return; }
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Sharing...';
+    const res = await api.post('/sharing/share', { memoryId, email, permission: permSelect.value });
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Share';
+    if (res.error) toast.show(res.error, 'error');
+    else { toast.show('Shared!', 'success'); modal.style.display = 'none'; }
+  };
+};
 window.deleteMem = async (id) => {
   if (confirm('Delete this memory?')) {
     try {

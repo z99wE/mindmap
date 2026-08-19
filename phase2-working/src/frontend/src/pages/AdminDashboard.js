@@ -107,6 +107,17 @@ export function AdminDashboard() {
         </div>
       </div>
 
+      <!-- Pattern Analytics (Cross-User Insights) -->
+      <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
+        <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--md-sys-color-secondary);">insights</span>
+          Cross-User Pattern Analytics
+        </h2>
+        <div id="analytics-content">
+          <div class="anim-shimmer" style="height:120px;"></div>
+        </div>
+      </div>
+
       <!-- Channel Management (Admin) -->
       <div class="surface-card card-reveal" style="padding:2rem;margin-top:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-large);margin:0 0 1rem;">

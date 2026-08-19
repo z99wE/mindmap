@@ -101,6 +101,54 @@ export function Profile() {
       </div>
 
       <!-- Account Info -->
+      <div class="surface-card card-reveal" style="border-radius:var(--md-sys-shape-extra-large);padding:2rem;margin-bottom:1.5rem;" id="agent-prefs-card">
+        <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1.5rem;display:flex;align-items:center;gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--md-sys-color-secondary);">psychology</span>
+          Agent Preferences
+        </h2>
+        <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin-bottom:1rem;">
+          Your agent adapts to how you think. These preferences are injected into every AI response.
+        </p>
+        <div id="agent-prefs-form" style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <label style="font:var(--md-sys-typescale-body-medium);">Response Style</label>
+            <select id="pref-style" class="input-m3" style="width:auto;min-width:140px;">
+              <option value="concise">Concise</option>
+              <option value="detailed">Detailed</option>
+              <option value="casual">Casual</option>
+              <option value="formal">Formal</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <label style="font:var(--md-sys-typescale-body-medium);">Use Bullet Points</label>
+            <label class="toggle-switch"><input type="checkbox" id="pref-bullets" checked><span class="slider"></span></label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <label style="font:var(--md-sys-typescale-body-medium);">Enable Quiet Hours</label>
+            <label class="toggle-switch"><input type="checkbox" id="pref-quiet"><span class="slider"></span></label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;" id="quiet-times" style="display:none;">
+            <div><label style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Start</label><input type="time" id="pref-quiet-start" class="input-m3" value="22:00"></div>
+            <div><label style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">End</label><input type="time" id="pref-quiet-end" class="input-m3" value="08:00"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <label style="font:var(--md-sys-typescale-body-medium);">Nudge Frequency</label>
+            <select id="pref-nudge" class="input-m3" style="width:auto;min-width:140px;">
+              <option value="low">Low</option>
+              <option value="normal" selected>Normal</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div>
+            <label style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-on-surface-variant);display:block;margin-bottom:0.35rem;">Custom Instructions</label>
+            <textarea id="pref-instructions" class="input-m3" placeholder="e.g., 'Always ask for a deadline when I say remind me'" rows="2" style="resize:vertical;"></textarea>
+          </div>
+          <div id="agent-prefs-msg" style="display:none;"></div>
+          <button class="btn-m3 btn-filled" id="save-agent-prefs" style="width:100%;">Save Agent Preferences</button>
+        </div>
+      </div>
+
+      <!-- Account Info -->
       <div class="surface-card card-reveal" style="border-radius:var(--md-sys-shape-extra-large);padding:2rem;margin-bottom:1.5rem;">
         <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;">
           <span class="material-symbols-rounded" style="color:var(--md-sys-color-primary);">info</span>
@@ -174,6 +222,66 @@ export function Profile() {
       }
       // Update top bar chip
       if (window.__updateUserChip) window.__updateUserChip();
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    }
+  });
+
+  // Load agent preferences
+  async function loadAgentPrefs() {
+    try {
+      const data = await api.get('/agent/preferences');
+      if (data.preferences) {
+        const p = data.preferences;
+        const styleEl = el.querySelector('#pref-style');
+        if (styleEl) styleEl.value = p.response_style || 'concise';
+        const bulletsEl = el.querySelector('#pref-bullets');
+        if (bulletsEl) bulletsEl.checked = p.bullet_points !== false;
+        const quietEl = el.querySelector('#pref-quiet');
+        if (quietEl) quietEl.checked = !!p.quiet_hours_enabled;
+        toggleQuietTimes(!!p.quiet_hours_enabled);
+        const qsEl = el.querySelector('#pref-quiet-start');
+        if (qsEl) qsEl.value = p.quiet_hours_start || '22:00';
+        const qeEl = el.querySelector('#pref-quiet-end');
+        if (qeEl) qeEl.value = p.quiet_hours_end || '08:00';
+        const nudgeEl = el.querySelector('#pref-nudge');
+        if (nudgeEl) nudgeEl.value = p.nudge_frequency || 'normal';
+        const instEl = el.querySelector('#pref-instructions');
+        if (instEl) instEl.value = p.custom_instructions || '';
+      }
+    } catch { /* defaults */ }
+  }
+
+  function toggleQuietTimes(show) {
+    const qt = document.getElementById('quiet-times');
+    if (qt) qt.style.display = show ? 'grid' : 'none';
+  }
+
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'pref-quiet') toggleQuietTimes(e.target.checked);
+  });
+
+  el.querySelector('#save-agent-prefs').addEventListener('click', async () => {
+    const msg = el.querySelector('#agent-prefs-msg');
+    const btn = el.querySelector('#save-agent-prefs');
+    btn.disabled = true;
+    msg.style.display = 'none';
+    const prefs = {
+      response_style: el.querySelector('#pref-style')?.value || 'concise',
+      bullet_points: el.querySelector('#pref-bullets')?.checked ?? true,
+      quiet_hours_enabled: el.querySelector('#pref-quiet')?.checked ?? false,
+      quiet_hours_start: el.querySelector('#pref-quiet-start')?.value || '22:00',
+      quiet_hours_end: el.querySelector('#pref-quiet-end')?.value || '08:00',
+      nudge_frequency: el.querySelector('#pref-nudge')?.value || 'normal',
+      custom_instructions: el.querySelector('#pref-instructions')?.value?.trim() || '',
+    };
+    const result = await api.put('/agent/preferences', prefs);
+    btn.disabled = false;
+    if (result.error) {
+      msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:rgba(255,138,158,.1);color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);';
+      msg.textContent = result.error;
+    } else {
+      msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:rgba(204,255,0,.08);color:#ccff00;font:var(--md-sys-typescale-body-small);';
+      msg.textContent = '✓ Agent preferences saved';
       setTimeout(() => { msg.style.display = 'none'; }, 3000);
     }
   });

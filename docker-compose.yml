@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: unzonko-db
+    environment:
+      POSTGRES_DB: thought_gps
+      POSTGRES_USER: thought_gps_user
+      POSTGRES_PASSWORD: thought_gps_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thought_gps_user -d thought_gps"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unzonko-app
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://thought_gps_user:thought_gps_pass@postgres:5432/thought_gps
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      API_KEY_ENCRYPTION_SECRET: dev-encryption-secret-32chars!!
+      FRONTEND_URL: http://localhost:3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./features:/app/features
+    command: node server.js
+
+volumes:
+  pgdata:
