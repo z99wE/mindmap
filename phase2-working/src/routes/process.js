@@ -34,10 +34,10 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
     if (!message) return res.status(400).json({ error: 'Message is required' });
 
     // Check daily run limit
-    const userRes = await client.query(
-      'SELECT daily_runs_used, daily_runs_limit, tier, api_keys, data_sharing FROM users WHERE id = $1',
-      [userId]
-    );
+	    const userRes = await client.query(
+	      'SELECT daily_runs_used, daily_runs_limit, tier, api_keys, data_sharing, agent_preferences FROM users WHERE id = $1',
+	      [userId]
+	    );
     const user = userRes.rows[0];
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -115,17 +115,8 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
 	const llmSpan = createSpan(trace, 'process_llm', { message: finalMessage, intent, liveContextCount: liveContext.length });
 	    let llmResponse = null;
 	    if (user.data_sharing !== false) {
-	      // Load agent preferences for personalized response style
-	      let agentPrefs = {};
-	      try {
-	        const prefsRes = await pool.query(
-	          "SELECT agent_preferences FROM users WHERE id = $1",
-	          [userId]
-	        );
-	        agentPrefs = prefsRes.rows[0]?.agent_preferences || {};
-	      } catch { /* use defaults */ }
 	      llmResponse = await callLLM(user, finalMessage, relatedMemories, intent, liveContext,
-	        Array.isArray(localMemories) ? localMemories : [], agentPrefs);
+	        Array.isArray(localMemories) ? localMemories : [], user.agent_preferences || {});
 	    } else {
       llmResponse = 'Your thought has been saved. LLM enrichment is disabled in your privacy settings.';
     }

@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "UnZonko — Cognitive Coprocessor",
+  "version": "1.0.0",
+  "description": "Capture thoughts, track commitments, and stay focused — without leaving your browser.",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": ["https://unzonko.onrender.com/*"],
+  "action": { "default_popup": "popup.html" },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}
