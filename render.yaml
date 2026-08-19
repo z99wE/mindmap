@@ -44,6 +44,32 @@ services:
       - key: RESEND_SENDER_NAME
         sync: false
 
+      # PulseKit — Native Multi-Channel Messaging
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SLACK_BOT_TOKEN
+        sync: false
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SIGNAL_REST_URL
+        sync: false
+      - key: SIGNAL_PHONE_NUMBER
+        sync: false
+      - key: SIGNAL_API_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+
 databases:
   - name: unzonko-db
     databaseName: thought_gps
