@@ -146,7 +146,19 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 - **Vector Memory Graph**: PostgreSQL + pgvector for semantic search
 - **Collaborative Sharing**: Share individual memories with other users by email
 - **Local IndexedDB Backup**: Browser-side backup. Export/import memories locally.
+- **Voice Capture**: Speech-to-text via Web Speech API (Chrome, Edge, Safari). Ctrl+M to open voice modal. Free, browser-native, no server costs.
+- **Text-to-Speech**: Agent responses can be read aloud via SpeechSynthesis. Works offline.
 - **GDPR/DPDP Compliance**: Consent logging, breach tracking, grievance system, automated data deletion (30-day retention)
+
+### PWA & Mobile
+
+| Feature | Status |
+|---------|--------|
+| **Installable PWA** | ✅ Manifest + service worker with offline caching |
+| **Capacitor iOS** | ✅ Configured. Run `npm run cap:build:ios` to build |
+| **Capacitor Android** | ✅ Configured. Run `npm run cap:build:android` to build |
+| **Published on App Store** | ❌ Not yet — requires Apple Developer account ($99/yr) |
+| **Published on Play Store** | ❌ Not yet — requires Google Play account ($25 one-time) |
 
 ### Cross-User Analytics (Admin)
 
@@ -240,7 +252,7 @@ These are called out honestly so you know the current state:
 
 | Feature | Status | Why it's missing |
 |---------|--------|-----------------|
-| **Mobile app** | ❌ Not built | Web + browser extension cover desktop. Mobile requires React Native development. |
+| **Mobile app** | ❌ Not built | Web + browser extension cover desktop. Capacitor config is ready — needs Apple/Google account to publish. |
 | **Browser extension published** | ⏳ Code ready, not submitted | Requires Chrome Web Store account ($5) and submission process. |
 | **Bluesky inbound** | ❌ Not built | Bluesky uses AT Protocol firehose — different architecture from webhooks. |
 | **Team/enterprise workspaces** | ❌ Not built | Collaborative sharing exists for pairs. Multi-user workspaces are next. |

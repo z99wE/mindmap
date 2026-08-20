@@ -1,92 +1,43 @@
-// UnZonko - Service Worker for Web Push Notifications
-// This SW handles push events and notification interactions
+// UnZonko — Service Worker
+const CACHE = 'unzonko-v1';
+const ASSETS = ['/', '/icon.svg', '/manifest.json'];
 
-const CACHE_NAME = 'thought-gps-v1';
-
-// Install: skip waiting immediately
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (e) => {
   self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
 });
 
-// Activate: claim all clients immediately
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+self.addEventListener('activate', (e) => {
+  e.waitUntil(self.clients.claim());
 });
 
-// Push event: show notification from server payload
-self.addEventListener('push', (event) => {
-  let data = {
-    title: 'UnZonko',
-    body: 'You have a new notification',
-    icon: '/icon-192.png',
-    badge: '/badge-72.png',
-    tag: 'default',
-    data: { url: '/' }
-  };
-
-  if (event.data) {
-    try {
-      const payload = event.data.json();
-      data = {
-        title: payload.title || data.title,
-        body: payload.body || data.body,
-        icon: payload.icon || data.icon,
-        badge: payload.badge || data.badge,
-        tag: payload.tag || data.tag,
-        data: { url: payload.url || '/', ...payload.data },
-        vibrate: payload.vibrate || [100, 50, 100],
-        actions: payload.actions || [],
-        renotify: payload.renotify !== false,
-        silent: payload.silent || false,
-      };
-    } catch {
-      data.body = event.data.text();
-    }
-  }
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon,
-      badge: data.badge,
-      tag: data.tag,
-      data: data.data,
-      vibrate: data.vibrate,
-      actions: data.actions,
-      renotify: data.renotify,
-      silent: data.silent,
-    })
+self.addEventListener('fetch', (e) => {
+  if (e.request.url.includes('/api/')) return; // never cache API
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+      if (res.ok && res.type === 'basic') {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+      }
+      return res;
+    })).catch(() => caches.match('/'))
   );
 });
 
-// Notification click: open URL or focus existing tab
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-
-  const urlToOpen = event.notification.data?.url || '/';
-  const action = event.action;
-
-  // Handle action buttons
-  if (action === 'dismiss') return;
-
-  event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        // Focus existing tab if already open
-        for (const client of clientList) {
-          if (client.url.includes(urlToOpen) && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // Open new tab
-        if (self.clients.openWindow) {
-          return self.clients.openWindow(urlToOpen);
-        }
-      })
-  );
+self.addEventListener('push', (e) => {
+  let data = { title: 'UnZonko', body: 'New notification', icon: '/icon.svg' };
+  if (e.data) { try { data = { ...data, ...e.data.json() }; } catch { data.body = e.data.text(); } }
+  e.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body, icon: data.icon, tag: 'unzonko',
+    data: { url: data.url || '/' }
+  }));
 });
 
-// Notification close (optional analytics)
-self.addEventListener('notificationclose', (event) => {
-  // Could track dismissed notifications here
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(self.clients.matchAll({ type: 'window' }).then(cls => {
+    for (const c of cls) { if (c.url.includes(url)) return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
 });
