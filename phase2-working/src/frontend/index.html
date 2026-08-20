@@ -562,17 +562,28 @@
 	      }
 	      if (e.target.id === 'voice-send-btn' || e.target.closest('#voice-send-btn')) {
 	        if (!voiceFinalText) return;
+	        const text = voiceFinalText;
+	        voiceFinalText = '';
 	        document.getElementById('voice-modal').style.display = 'none';
 	        stopVoiceCapture();
-	        // Send as a thought via the API
-	        fetch('/api/memory', {
+	        const btn = e.target.closest('#voice-send-btn') || document.getElementById('voice-send-btn');
+	        if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
+	        fetch('/api/process/message', {
 	          method: 'POST',
 	          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('tg_token') || '') },
-	          body: JSON.stringify({ content: voiceFinalText, category: 'voice', source: 'voice' }),
+	          body: JSON.stringify({ message: text, source: 'voice' }),
 	        }).then(r => r.json()).then(data => {
-	          if (!data.error) window.showPage('dashboard');
-	        }).catch(() => {});
-	        voiceFinalText = '';
+	          if (data.response) {
+	            const speakPref = localStorage.getItem('unzonko_voice_response');
+	            if (speakPref !== 'off') {
+	              window.speechSynthesis.cancel();
+	              const utterance = new SpeechSynthesisUtterance(data.response);
+	              utterance.rate = 1.0;
+	              window.speechSynthesis.speak(utterance);
+	            }
+	          }
+	          window.showPage('dashboard');
+	        }).catch(() => { window.showPage('dashboard'); });
 	      }
 	    });
 
