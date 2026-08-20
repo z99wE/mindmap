@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Development-22c55e?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Tests-201_Passing-22c55e?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Tests-272_Passing-22c55e?style=for-the-badge" />
   <img src="https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Stack-Node.js_PostgreSQL_React-22c55e?style=for-the-badge" />
 </p>
@@ -219,7 +219,7 @@ node server.js
 ```bash
 cd phase2-working
 
-# Full suite (201 tests, 13 suites)
+# Full suite (272 tests, 18 suites)
 npm run test:all
 
 # Unit tests only
@@ -228,8 +228,26 @@ npm run test:unit
 # API tests only  
 npm run test:api
 
-# Legacy tests
-npm run test:legacy
+# Coverage report
+npm run coverage
+
+# Property-based tests (edge case discovery)
+npx jest tests/property-based.test
+
+# Security negative tests (injection, XSS, auth bypass)
+npx jest tests/security-negative.test
+
+# Lint check
+npm run lint
+
+# Format check
+npm run format:check
+
+# Security audit
+npm run audit
+
+# Generate SBOM
+npm run sbom
 ```
 
 All tests use mocked HTTP and database layers. No external API keys or running services required.

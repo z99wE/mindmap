@@ -1,0 +1,54 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/phase2-working'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    groups:
+      production-deps:
+        dependency-type: 'production'
+        update-types:
+          - 'patch'
+          - 'minor'
+      dev-deps:
+        dependency-type: 'development'
+        update-types:
+          - 'patch'
+          - 'minor'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      prefix-development: 'chore'
+    allow:
+      - dependency-type: 'direct'
+
+  - package-ecosystem: 'npm'
+    directory: '/phase2-working/src/frontend'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'frontend'
+    allow:
+      - dependency-type: 'direct'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    labels:
+      - 'ci'
+      - 'dependencies'
+
+  - package-ecosystem: 'docker'
+    directory: '/phase2-working'
+    schedule:
+      interval: 'monthly'
+    labels:
+      - 'docker'

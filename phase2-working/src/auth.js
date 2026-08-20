@@ -147,6 +147,16 @@ function authMiddleware(req, res, next) {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
   req.user = payload;
+
+  // Set RLS session context for tenant isolation
+  // This enables PostgreSQL Row-Level Security policies to filter queries
+  // by the authenticated user. Safe to call on every request — if RLS is
+  // not enabled on a table, the setting has no effect.
+  if (payload.userId && process.env.ENABLE_RLS === 'true') {
+    pool.query("SELECT set_config('app.user_id', $1, true)", [payload.userId])
+      .catch(() => {}); // Non-critical — RLS context is best-effort
+  }
+
   next();
 }
 

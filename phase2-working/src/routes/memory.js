@@ -4,6 +4,14 @@ const router = express.Router();
 const { pool } = require('../db');
 const { authMiddleware } = require('../auth');
 const { logAudit } = require('../middleware');
+const { createUserRateLimiter } = require('../rate-limiter');
+
+// Per-user rate limiter (free: 60 writes/min, pro: 300/min, admin: unlimited)
+const writeLimiter = createUserRateLimiter({
+  windowMs: 60 * 1000,
+  maxFree: 60,
+  message: 'Too many memory operations. Please slow down.',
+});
 
 // In-memory confirmation tokens for account deletion (expires in 5 min)
 const deletionTokens = new Map();
@@ -87,7 +95,7 @@ router.get('/search', authMiddleware, async (req, res) => {
 });
 
 // POST /api/memory - create a memory
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, writeLimiter, async (req, res) => {
   try {
     const { content, category, importance, metadata, witness_contact } = req.body;
     const text = content;
@@ -104,7 +112,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // DELETE /api/memory/:id
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, writeLimiter, async (req, res) => {
   try {
     // Prevent "account" from being caught by :id param
     if (req.params.id === 'account') {

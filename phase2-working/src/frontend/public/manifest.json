@@ -14,5 +14,20 @@
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your cognitive dashboard",
+      "url": "/?page=dashboard"
+    },
+    {
+      "name": "New Thought",
+      "short_name": "Capture",
+      "description": "Capture a new thought",
+      "url": "/?page=dashboard"
+    }
   ]
 }

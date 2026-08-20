@@ -1,0 +1,55 @@
+# Release pipeline — builds, generates SBOM, and deploys
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: phase2-working/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: phase2-working
+
+      - name: Run full test suite
+        run: npm run test:all
+        working-directory: phase2-working
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci-test-secret
+          API_KEY_ENCRYPTION_SECRET: ci-test-encryption-secret
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: phase2-working/src/frontend
+
+      - name: Run security audit
+        run: npm audit --audit-level=high
+        working-directory: phase2-working
+        continue-on-error: true
+
+      - name: Generate SBOM
+        run: node scripts/sbom.js
+        working-directory: phase2-working
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            phase2-working/sbom.json
+            phase2-working/THIRD_PARTY_NOTICES

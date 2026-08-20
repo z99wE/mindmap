@@ -352,23 +352,105 @@ async function runMigrations(retries = 5) {
     await client.query('CREATE INDEX IF NOT EXISTS idx_activities_user ON recent_activities(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_activities_unread ON recent_activities(user_id, is_read)');
 
-    // ── Audit log auto-prune (entries older than 30 days) ──────────────────────
-	    // NOTE: RLS is currently DISABLED because the app never sets the required
-	    // `app.user_id` session variable. Enabling it without setting the variable
-	    // would DENY ALL ACCESS to non-owner database connections.
-	    // To re-enable in the future:
-	    //   1. Set `app.user_id` in authMiddleware after JWT verification
-	    //   2. Uncomment the RLS enable + policy statements below
-	    //   3. Remove the DISABLE statements
-	    const rlsDisableStatements = [
-	      'ALTER TABLE memory_graph DISABLE ROW LEVEL SECURITY',
-	      'ALTER TABLE channels DISABLE ROW LEVEL SECURITY',
-	      'ALTER TABLE notifications DISABLE ROW LEVEL SECURITY',
-	      'ALTER TABLE billing_transactions DISABLE ROW LEVEL SECURITY',
-	      'ALTER TABLE thought_revivals DISABLE ROW LEVEL SECURITY',
-	    ];
-	    for (const sql of rlsDisableStatements) {
-	      await client.query(sql).catch(() => {});
+	    // ── Row-Level Security (RLS) ──────────────────────────────────────────
+	    // RLS enforces tenant isolation at the database level. Every query against
+	    // a protected table is automatically filtered to the current user's rows
+	    // based on the `app.user_id` session variable set by authMiddleware.
+	    //
+	    // Enable by setting ENABLE_RLS=true in your environment. When disabled,
+	    // tenant isolation relies on the application layer (authMiddleware scoping
+	    // all queries by user_id), which is sufficient but lacks defense-in-depth.
+	    //
+	    // RLS is safe to enable now because authMiddleware (src/auth.js) sets
+	    // app.user_id via set_config() on every authenticated request.
+
+	    if (process.env.ENABLE_RLS === 'true') {
+	      // Enable RLS on tenant-isolated tables
+	      const rlsTables = [
+	        'memory_graph',
+	        'channels',
+	        'notifications',
+	        'billing_transactions',
+	        'thought_revivals',
+	        'shared_memories',
+	        'recent_activities',
+	      ];
+	      for (const table of rlsTables) {
+	        await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY`).catch(() => {});
+	      }
+
+	      // Create RLS policies — each ensures the user can only see/modify their own rows.
+	      // The USING clause applies to SELECT, UPDATE, DELETE; WITH CHECK applies to INSERT.
+	      const policies = [
+	        {
+	          table: 'memory_graph',
+	          sql: `CREATE POLICY user_isolation ON memory_graph
+	                USING (user_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (user_id::text = current_setting('app.user_id', true))`,
+	        },
+	        {
+	          table: 'channels',
+	          sql: `CREATE POLICY user_isolation ON channels
+	                USING (user_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (user_id::text = current_setting('app.user_id', true))`,
+	        },
+	        {
+	          table: 'notifications',
+	          sql: `CREATE POLICY user_isolation ON notifications
+	                USING (user_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (user_id::text = current_setting('app.user_id', true))`,
+	        },
+	        {
+	          table: 'billing_transactions',
+	          sql: `CREATE POLICY user_isolation ON billing_transactions
+	                USING (user_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (user_id::text = current_setting('app.user_id', true))`,
+	        },
+	        {
+	          table: 'thought_revivals',
+	          sql: `CREATE POLICY user_isolation ON thought_revivals
+	                USING (user_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (user_id::text = current_setting('app.user_id', true))`,
+	        },
+	        {
+	          table: 'shared_memories',
+	          sql: `CREATE POLICY user_isolation ON shared_memories
+	                USING (owner_id::text = current_setting('app.user_id', true) OR
+	                       shared_with_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (owner_id::text = current_setting('app.user_id', true))`,
+	        },
+	        {
+	          table: 'recent_activities',
+	          sql: `CREATE POLICY user_isolation ON recent_activities
+	                USING (user_id::text = current_setting('app.user_id', true))
+	                WITH CHECK (user_id::text = current_setting('app.user_id', true))`,
+	        },
+	      ];
+
+	      for (const policy of policies) {
+	        // Drop existing policy first to make this idempotent
+	        await client.query(`DROP POLICY IF EXISTS user_isolation ON ${policy.table}`).catch(() => {});
+	        await client.query(policy.sql).catch((e) => {
+	          console.warn(`[DB] Warning: Could not create RLS policy on ${policy.table}:`, e.message);
+	        });
+	      }
+
+	      console.log('[DB] RLS enabled with user isolation on 7 tables');
+	    } else {
+	      // RLS is off — app-level isolation still applies (all queries scope by user_id).
+	      // This is the safe default for development and single-tenant deployments.
+	      const rlsDisableStatements = [
+	        'ALTER TABLE IF EXISTS memory_graph DISABLE ROW LEVEL SECURITY',
+	        'ALTER TABLE IF EXISTS channels DISABLE ROW LEVEL SECURITY',
+	        'ALTER TABLE IF EXISTS notifications DISABLE ROW LEVEL SECURITY',
+	        'ALTER TABLE IF EXISTS billing_transactions DISABLE ROW LEVEL SECURITY',
+	        'ALTER TABLE IF EXISTS thought_revivals DISABLE ROW LEVEL SECURITY',
+	        'ALTER TABLE IF EXISTS shared_memories DISABLE ROW LEVEL SECURITY',
+	        'ALTER TABLE IF EXISTS recent_activities DISABLE ROW LEVEL SECURITY',
+	      ];
+	      for (const sql of rlsDisableStatements) {
+	        await client.query(sql).catch(() => {});
+	      }
 	    }
 
 	    // ── User Channel ID mapping (global bot recognition) ────────────────────

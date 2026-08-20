@@ -9,10 +9,19 @@
     "test:all": "npx jest --config jest.config.js",
     "test:unit": "npx jest tests/pulsekit-drivers.test.js tests/pulsekit-routing.test.js tests/middleware.test.js tests/notifications.test.js",
     "test:api": "npx jest tests/channels-api.test.js tests/auth-api.test.js tests/memory-api.test.js tests/admin-api.test.js",
-    "test:legacy": "node --test server.test.js && npx jest tests/process.test.js"
+    "test:legacy": "node --test server.test.js && npx jest tests/process.test.js",
+    "lint": "npx eslint . --ignore-pattern node_modules/ --ignore-pattern dist/ --ignore-pattern coverage/ --ignore-pattern '*.config.js'",
+    "lint:fix": "npx eslint . --fix --ignore-pattern node_modules/ --ignore-pattern dist/ --ignore-pattern coverage/ --ignore-pattern '*.config.js'",
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
+    "coverage": "npx jest --config jest.config.js --coverage",
+    "sbom": "node scripts/sbom.js",
+    "audit": "npm audit --audit-level=high",
+    "security:check": "npm run audit && npm run lint"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "compression": "^1.7.5",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^17.4.2",
@@ -24,13 +33,18 @@
     "mailparser": "^3.9.15",
     "nodemailer": "^9.0.5",
     "pg": "^8.22.0",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
     "uuid": "^14.0.1",
     "web-push": "^3.6.7",
     "ws": "^8.21.3"
   },
   "devDependencies": {
+    "eslint": "^9.22.0",
+    "fast-check": "^4.1.0",
     "jest": "^30.4.2",
     "jsdom": "^29.1.1",
+    "prettier": "^3.5.3",
     "supertest": "^7.2.2"
   }
 }

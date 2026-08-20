@@ -4,6 +4,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
+const pino = require('pino');
+const pinoHttp = require('pino-http');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
@@ -18,6 +21,7 @@ const { createInvisibleChecklistEndpoints } = require('./features/invisible-chec
 const { createDoorRuleEndpoints } = require('./features/door-rule');
 const { auditMiddleware, sanitizeBody } = require('./src/middleware');
 const { globalErrorHandler } = require('./src/middleware/errorHandler');
+const { createWebhookValidator } = require('./src/webhook-validator');
 const { KeyPool } = require('./src/key-pool');
 
 // ── Web Push (VAPID) Setup ────────────────────────────────────────────────
@@ -42,6 +46,35 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 // ── Middleware ───────────────────────────────────────────────────────────────
+// Compression (gzip/brotli) for all responses
+app.use(compression());
+
+// Request ID generation for tracing
+app.use((req, res, next) => {
+  req.id = require('uuid').v4();
+  res.setHeader('X-Request-Id', req.id);
+  next();
+});
+
+// Structured logging via pino
+const logger = pino({
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino/file', options: { destination: 1 } }  // stdout in dev
+    : undefined,  // JSON in production (default)
+});
+app.use(pinoHttp({
+  logger,
+  genReqId: (req) => req.id || require('uuid').v4(),
+  customLogLevel: (req, res, err) => {
+    if (err || res.statusCode >= 500) return 'error';
+    if (res.statusCode >= 400) return 'warn';
+    return 'info';
+  },
+}));
+// Expose logger for use in route handlers
+app.locals.logger = logger;
+
 // CORS: restrict in production, allow all in dev
 const corsOrigin = process.env.NODE_ENV === 'production'
   ? (process.env.FRONTEND_URL || false) // false = block all cross-origin
@@ -63,14 +96,10 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com'],
-      scriptSrcAttr: ["'unsafe-inline'"], // the SPA uses inline onclick= handlers for navigation
-      // 'https:' here is scoped: Tailwind CDN + Google Fonts CSS. 'https:' in styleSrc is
-      // intentionally NOT used — we enumerate the two origins the app actually loads.
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
       imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-      // Browser never calls LLM/agent APIs directly (those are server-side) — the SPA
-      // only fetches same-origin /api routes, so no wildcard https: needed here.
       connectSrc: ["'self'", 'https://cdn.tailwindcss.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
       objectSrc: ["'none'"],
       frameAncestors: ["'self'"],
@@ -79,6 +108,23 @@ app.use(helmet({
     },
   },
   crossOriginEmbedderPolicy: false,
+  // Strict transport security — 1 year, include subdomains, preload
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+  // Permissions policy — restrict browser features
+  permissionsPolicy: {
+    directives: {
+      'camera': ["'self'"],
+      'microphone': ["'self'"],
+      'geolocation': ["'self'"],
+      'payment': [],
+      'push': ["'self'"],
+      'display-capture': ["'self'"],
+    },
+  },
 }));
 
 // XSS sanitization on all request bodies
@@ -141,21 +187,82 @@ app.use('/api/cognitive', cognitiveInsightsRoutes);
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);
 
-// ── Health Check (MUST be registered before the SPA fallback) ───────────────
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
+// ── Health Check — reports live dependency status ──────────────────────────
+app.get('/api/health', async (req, res) => {
+  const checks = {
+    database: { status: 'unknown' },
+    keyPool: { status: 'unknown' },
+  };
+
+  // DB check
+  try {
+    const dbResult = await pool.query('SELECT 1 AS ok');
+    checks.database = { status: 'ok', responseTime: 'connected' };
+  } catch (e) {
+    checks.database = { status: 'error', message: e.message };
+  }
+
+  // Key pool check
+  try {
+    const { keyPool } = require('./src/key-pool');
+    const status = keyPool.getStatus();
+    checks.keyPool = { status: status.totalKeys > 0 ? 'ok' : 'no_keys', total: status.totalKeys, providers: status.byProvider };
+  } catch (e) {
+    checks.keyPool = { status: 'error', message: e.message };
+  }
+
+  // PulseKit channels (if initialized)
+  try {
+    const pk = req.app.locals.pulseKit;
+    if (pk) {
+      checks.pulseKit = { status: 'ok' };
+    }
+  } catch { /* pulsekit not initialized yet */ }
+
+  const allOk = Object.values(checks).every(c => c.status === 'ok' || c.status === 'no_keys');
+  const httpStatus = allOk ? 200 : 503;
+
+  res.status(httpStatus).json({
+    status: allOk ? 'ok' : 'degraded',
     version: '3.0.0',
     uptime: process.uptime(),
+    memory: process.memoryUsage(),
     env: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+    checks,
+    requestId: req.id,
   });
 });
 
 // ── Static Frontend (dev: Vite serves from src/frontend) ────────────────────
 const frontendDist = path.join(__dirname, 'src/frontend/dist');
 const frontendPublic = path.join(__dirname, 'src/frontend/public');
-app.use(express.static(frontendPublic)); // sw.js at root
-app.use(express.static(frontendDist));
+
+// Static assets with caching headers
+const oneYear = 365 * 24 * 60 * 60 * 1000;
+const oneDay = 24 * 60 * 60 * 1000;
+app.use(express.static(frontendPublic, {
+  maxAge: oneDay,
+  setHeaders: (res, filePath) => {
+    // Service worker must NOT be cached (it needs to check for updates)
+    if (filePath.endsWith('sw.js')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    // SVG icons and manifest can be cached long-term (content-addressed by service worker)
+    if (filePath.endsWith('.svg') || filePath.endsWith('manifest.json')) {
+      res.setHeader('Cache-Control', `public, max-age=${oneYear / 1000}, immutable`);
+    }
+  },
+}));
+app.use(express.static(frontendDist, {
+  maxAge: oneYear,
+  immutable: true,
+  setHeaders: (res, filePath) => {
+    // HTML must be revalidated (it's the SPA shell)
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  },
+}));
 app.get('*', (req, res) => {
   // SPA fallback: serve index.html for non-API routes
   if (!req.path.startsWith('/api/')) {
@@ -270,12 +377,35 @@ async function start() {
 	    createDoorRuleEndpoints(app, pool, pulseKit);
 
     if (process.env.NODE_ENV === 'production') {
-      if (!process.env.JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is missing in production.');
-      if (!process.env.API_KEY_ENCRYPTION_SECRET) throw new Error('FATAL: API_KEY_ENCRYPTION_SECRET environment variable is missing in production.');
-      if (!process.env.DATABASE_URL) throw new Error('FATAL: DATABASE_URL is missing in production.');
+      // Critical production environment variables — server will not start without these
+      const requiredVars = [
+        'JWT_SECRET',
+        'API_KEY_ENCRYPTION_SECRET',
+        'DATABASE_URL',
+        'VAPID_PUBLIC_KEY',
+        'VAPID_PRIVATE_KEY',
+      ];
+      const missing = requiredVars.filter(v => !process.env[v]);
+      if (missing.length > 0) {
+        throw new Error(`FATAL: Missing required environment variables in production: ${missing.join(', ')}`);
+      }
+      // Warn about potentially weak secrets (entropy check)
+      if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+        console.warn('[SECURITY] WARNING: JWT_SECRET is short (< 32 chars). Use a strong random secret.');
+      }
+      if (process.env.API_KEY_ENCRYPTION_SECRET && process.env.API_KEY_ENCRYPTION_SECRET.length < 32) {
+        console.warn('[SECURITY] WARNING: API_KEY_ENCRYPTION_SECRET is short (< 32 chars). Use a strong random secret.');
+      }
     } else {
-      if (!process.env.JWT_SECRET) console.warn('[SECURITY] Using default JWT_SECRET! Set JWT_SECRET env var in production.');
-      if (!process.env.API_KEY_ENCRYPTION_SECRET) console.warn('[SECURITY] Using default API_KEY_ENCRYPTION_SECRET! Set env var in production.');
+      // Development warnings for default secrets
+      const defaultJwt = process.env.JWT_SECRET || 'thought-gps-secret-change-in-prod';
+      const defaultEnc = process.env.API_KEY_ENCRYPTION_SECRET || 'thought-gps-encryption-key-change-me';
+      if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'thought-gps-secret-change-in-prod') {
+        console.warn('[SECURITY] Using default JWT_SECRET! Set JWT_SECRET env var in production.');
+      }
+      if (!process.env.API_KEY_ENCRYPTION_SECRET || process.env.API_KEY_ENCRYPTION_SECRET === 'thought-gps-encryption-key-change-me') {
+        console.warn('[SECURITY] Using default API_KEY_ENCRYPTION_SECRET! Set env var in production.');
+      }
       if (!process.env.DATABASE_URL) console.warn('[SECURITY] No DATABASE_URL set — using localhost.');
     }
 
