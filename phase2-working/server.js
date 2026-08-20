@@ -382,9 +382,8 @@ async function start() {
         'JWT_SECRET',
         'API_KEY_ENCRYPTION_SECRET',
         'DATABASE_URL',
-        'VAPID_PUBLIC_KEY',
-        'VAPID_PRIVATE_KEY',
       ];
+      // VAPID keys are optional — auto-generated if missing (push notifications disabled until configured)
       const missing = requiredVars.filter(v => !process.env[v]);
       if (missing.length > 0) {
         throw new Error(`FATAL: Missing required environment variables in production: ${missing.join(', ')}`);
