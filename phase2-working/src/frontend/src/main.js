@@ -372,6 +372,18 @@ window.addEventListener('rementally-auth-success', (e) => {
   renderPage('dashboard');
 });
 
+// ── Global XSS Escape (available to all pages) ───────────────────────────────
+// Every page MUST use esc() when interpolating user data into innerHTML.
+// Usage: el.innerHTML = `<div>${esc(userInput)}</div>`;
+window.esc = function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+};
+window.escAttr = function escAttr(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+};
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
   user = api.getUser();

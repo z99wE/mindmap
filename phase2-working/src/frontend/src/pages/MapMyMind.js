@@ -113,7 +113,7 @@ export function MapMyMind() {
     // Populate category filter
     const catSelect = container.querySelector('#filter-category');
     const cats = [...new Set(allThoughts.map(t => t.category))].filter(Boolean);
-    catSelect.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    catSelect.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
 
     // Render mind map
     renderMindMap(themes, connections);

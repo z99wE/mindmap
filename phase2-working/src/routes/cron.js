@@ -18,6 +18,13 @@ router.get('/tick', async (req, res) => {
       if (authHeader !== `Bearer ${cronSecret}`) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
+    } else if (process.env.NODE_ENV === 'production') {
+      // CRITICAL: In production, CRON_SECRET MUST be set.
+      // Without it, anyone can trigger cron jobs (data deletion, etc.)
+      console.error('[CRON] SECURITY: CRON_SECRET not set in production! Rejecting request.');
+      return res.status(503).json({ error: 'Cron not configured' });
+    } else {
+      console.warn('[CRON] CRON_SECRET not set — allowing in development mode');
     }
 
 	    const { pool, pulseKit } = req.app.locals;

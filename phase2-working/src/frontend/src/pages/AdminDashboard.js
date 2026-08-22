@@ -214,7 +214,7 @@ export function AdminDashboard() {
                 <span style="width:8px;height:8px;border-radius:50%;background:${k.is_active ? 'var(--color-success)' : 'var(--md-sys-color-error)'};flex-shrink:0;"></span>
                 <span class="chip chip-primary" style="font-size:10px;">${k.provider}</span>
                 <span style="color:var(--md-sys-color-on-surface-variant);">${k.masked_key}</span>
-                <button class="icon-btn" onclick="window.removePoolKey('${k.id}')" title="Remove" style="margin-left:auto;">
+                <button class="icon-btn" onclick="window.removePoolKey('${escAttr(k.id)}')" title="Remove" style="margin-left:auto;">
                   <span class="material-symbols-rounded" style="font-size:16px;color:var(--md-sys-color-error);">delete</span>
                 </button>
               </div>
@@ -353,7 +353,7 @@ export function AdminDashboard() {
 	          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
 	            ${chStats.byPlatform.map(p => `
 	              <span class="chip-m3" style="background:rgba(132,204,22,0.1);border:1px solid rgba(132,204,22,0.2);color:#ccff00;padding:0.25rem 0.75rem;border-radius:var(--md-sys-shape-full);font:var(--md-sys-typescale-label-small);">
-	                ${p.platform} <strong>${p.count}</strong>
+	                ${esc(p.platform)} <strong>${p.count}</strong>
 	              </span>
 	            `).join('')}
 	          </div>`;
@@ -412,7 +412,7 @@ export function AdminDashboard() {
 	    const res = await api.post(`/admin/channels/${id}/deliver`);
 	    if (res.error) toast.show(res.error, 'error');
 	    else if (res.success) toast.show(`Delivered via ${res.channel} (${res.via})`, 'success');
-	    else toast.show(`Delivery: ${res.errors?.join(', ') || 'unknown'}`, 'error');
+	    else toast.show(`Delivery: ${esc(res.errors?.join(", ")) || 'unknown'}`, 'error');
 	  };
 
 	  // Remove a shared pool key

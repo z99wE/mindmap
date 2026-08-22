@@ -69,7 +69,7 @@ export function Channels() {
     const dynamicFieldsContainer = container.querySelector('#dynamic-fields');
     
     select.innerHTML = '<option value="">Select a platform…</option>' + platforms.map((p) =>
-      `<option value="${p.id}">${p.name}</option>`
+      `<option value="${esc(p.id)}">${esc(p.name)}</option>`
     ).join('');
 
 	    select.addEventListener('change', () => {
@@ -123,16 +123,16 @@ export function Channels() {
       el.innerHTML = '<div class="surface-card" style="padding:0;">' + channels.map(ch => `
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1rem;border-bottom:1px solid var(--md-sys-color-outline-variant);">
           <div style="display:flex;align-items:center;gap:1rem;">
-            <span class="chip chip-primary">${ch.platform}</span>
-            <span style="font:var(--md-sys-typescale-body-medium);font-weight:bold;">${ch.display_name}</span>
+            <span class="chip chip-primary">${esc(ch.platform)}</span>
+            <span style="font:var(--md-sys-typescale-body-medium);font-weight:bold;">${esc(ch.display_name)}</span>
             <label class="toggle-switch">
-              <input type="checkbox" onchange="toggleChannel('${ch.id}')" ${ch.is_active ? 'checked' : ''}>
+              <input type="checkbox" onchange="toggleChannel('${escAttr(ch.id)}')" ${ch.is_active ? 'checked' : ''}>
               <span class="slider"></span>
             </label>
           </div>
           <div style="display:flex;gap:0.5rem;">
-            <button class="btn-m3 btn-tonal" style="padding: 0.25rem 0.5rem;" onclick="testChannel('${ch.id}')">Test</button>
-            <button class="icon-btn" onclick="deleteChannel('${ch.id}')" title="Remove">
+            <button class="btn-m3 btn-tonal" style="padding: 0.25rem 0.5rem;" onclick="testChannel('${escAttr(ch.id)}')">Test</button>
+            <button class="icon-btn" onclick="deleteChannel('${escAttr(ch.id)}')" title="Remove">
               <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error);">delete</span>
             </button>
           </div>

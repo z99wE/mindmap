@@ -81,6 +81,11 @@ self.addEventListener('fetch', (event) => {
     if (request.method === 'POST' && url.pathname === '/api/process/message') {
       event.respondWith(_handleOfflinePost(request));
     }
+    // Invalidate API cache on write operations (POST/PUT/DELETE)
+    // This ensures stale data is not served after mutations
+    if (url.pathname.startsWith('/api/')) {
+      event.waitUntil(_invalidateAPICache(url.pathname));
+    }
     return;
   }
 
@@ -199,6 +204,42 @@ async function _getOfflineQueue() {
 
 async function _clearOfflineQueue() {
   await caches.delete('rementally-offline-queue');
+}
+
+/**
+ * Invalidate cached API responses after a write operation.
+ * Maps write endpoints to the GET caches they affect.
+ */
+async function _invalidateAPICache(writePath) {
+  try {
+    const cache = await caches.open(API_CACHE);
+    const keys = await cache.keys();
+    const invalidations = {
+      '/api/process/message': ['/api/memory', '/api/memory/stats'],
+      '/api/memory': ['/api/memory', '/api/memory/stats'],
+      '/api/channels': ['/api/channels'],
+      '/api/keys': ['/api/keys', '/api/keys/status'],
+      '/api/notifications': ['/api/notifications'],
+      '/api/agent': ['/api/agent'],
+      '/api/billing': ['/api/billing'],
+      '/api/admin': [], // admin writes invalidate nothing for regular users
+    };
+    // Find which prefix matches
+    const prefixes = Object.keys(invalidations).filter(p => writePath.startsWith(p));
+    if (prefixes.length === 0) return;
+    const urlsToInvalidate = new Set();
+    for (const prefix of prefixes) {
+      for (const url of invalidations[prefix]) urlsToInvalidate.add(url);
+    }
+    for (const req of keys) {
+      const reqUrl = new URL(req.url);
+      if ([...urlsToInvalidate].some(p => reqUrl.pathname.startsWith(p))) {
+        await cache.delete(req);
+      }
+    }
+  } catch {
+    // Non-critical — ignore errors
+  }
 }
 
 // ── Background Sync ────────────────────────────────────────────────────────

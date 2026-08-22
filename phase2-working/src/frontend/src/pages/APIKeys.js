@@ -66,7 +66,7 @@ export function APIKeys() {
       return listArr.map((info, i) => `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1rem;border-bottom:1px solid var(--md-sys-color-outline-variant);">
         <div>
-          <span class="chip chip-primary" style="margin-right:0.5rem;">${provider}</span>
+          <span class="chip chip-primary" style="margin-right:0.5rem;">${esc(provider)}</span>
           ${listArr.length > 1 ? `<span class="mono-label" style="font-size:9px;color:var(--md-sys-color-outline);margin-right:0.5rem;">#${i + 1}</span>` : ''}
           <span style="font:var(--md-sys-typescale-body-medium);font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;">${info.masked}</span>
         </div>
