@@ -358,7 +358,28 @@ async function runMigrations(retries = 5) {
     await client.query('CREATE INDEX IF NOT EXISTS idx_activities_user ON recent_activities(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_activities_unread ON recent_activities(user_id, is_read)');
 
-	    // ── Row-Level Security (RLS) ──────────────────────────────────────────
+    // ── Shared API Keys (Admin-Managed Pool) ──────────────────────────────
+    // Admin-configured API keys shared across all users. Users never see these
+    // keys — they are used automatically when the user has no BYO key for a
+    // given provider. Supports per-user run limits enforced at the app layer.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS shared_api_keys (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        provider VARCHAR(50) NOT NULL,
+        encrypted_key TEXT NOT NULL,
+        masked_key VARCHAR(50) NOT NULL,
+        endpoint VARCHAR(500),
+        model VARCHAR(100),
+        rate_limit INT DEFAULT 30,
+        is_active BOOLEAN DEFAULT true,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_shared_keys_provider ON shared_api_keys(provider, is_active)');
+
+    // ── Row-Level Security (RLS) ──────────────────────────────────────────
 	    // RLS enforces tenant isolation at the database level. Every query against
 	    // a protected table is automatically filtered to the current user's rows
 	    // based on the `app.user_id` session variable set by authMiddleware.

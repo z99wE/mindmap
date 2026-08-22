@@ -58,6 +58,20 @@ export function AdminDashboard() {
           <span class="dot" style="width:8px;height:8px;background:var(--md-sys-color-primary);box-shadow:0 0 8px rgba(204,255,0,0.3);vertical-align:middle;"></span>
           Shared Key Pool
         </h2>
+        <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin:0 0 1rem;">Keys added here are used automatically for all users. Users never see these keys — they just get AI responses.</p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <select id="pool-provider" class="input-m3" style="width:180px;">
+            <option value="groq">Groq</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="nvidia">NVIDIA</option>
+            <option value="gemini">Gemini</option>
+            <option value="compatible">OpenAI-Compatible</option>
+          </select>
+          <input type="password" id="pool-key" class="input-m3" placeholder="API key" style="flex:1;min-width:200px;">
+          <input type="text" id="pool-endpoint" class="input-m3" placeholder="Custom endpoint (optional)" style="width:250px;display:none;">
+          <button class="btn-m3 btn-filled" id="add-pool-key-btn">Add to Pool</button>
+        </div>
         <div id="key-pool-status">
           <div class="tg-skeleton tg-skeleton--title"></div><div class="tg-skeleton"></div>
         </div>
@@ -188,8 +202,45 @@ export function AdminDashboard() {
             </div>
             ${rows || '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">Ready — no usage this hour.</p>'}
           </div>`;
-      }).join('') || '<p style="color:var(--md-sys-color-outline);">No API keys configured in pool. Add GROQ_API_KEY / OPENAI_API_KEY etc. to env vars.</p>';
+      }).join('') || '<p style="color:var(--md-sys-color-outline);">No API keys configured in pool. Add keys above or set env vars.</p>';
+
+      // Load database-backed keys
+      try {
+        const dbKeys = await api.get('/admin/key-pool/list');
+        if (dbKeys.keys && dbKeys.keys.length > 0) {
+          poolEl.innerHTML += '<div style="margin-top:1rem;border-top:1px solid var(--md-sys-color-outline-variant);padding-top:1rem;"><h4 style="font:var(--md-sys-typescale-title-small);margin:0 0 0.5rem;">Database Keys</h4>' +
+            dbKeys.keys.map(k => `
+              <div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;font:var(--md-sys-typescale-body-small);">
+                <span style="width:8px;height:8px;border-radius:50%;background:${k.is_active ? 'var(--color-success)' : 'var(--md-sys-color-error)'};flex-shrink:0;"></span>
+                <span class="chip chip-primary" style="font-size:10px;">${k.provider}</span>
+                <span style="color:var(--md-sys-color-on-surface-variant);">${k.masked_key}</span>
+                <button class="icon-btn" onclick="window.removePoolKey('${k.id}')" title="Remove" style="margin-left:auto;">
+                  <span class="material-symbols-rounded" style="font-size:16px;color:var(--md-sys-color-error);">delete</span>
+                </button>
+              </div>
+            `).join('') + '</div>';
+        }
+      } catch {}
     }
+
+    // Pool key add/remove handlers
+    const poolProvider = container.querySelector('#pool-provider');
+    const poolEndpoint = container.querySelector('#pool-endpoint');
+    if (poolProvider && poolEndpoint) {
+      poolProvider.addEventListener('change', () => {
+        poolEndpoint.style.display = poolProvider.value === 'compatible' ? 'block' : 'none';
+      });
+    }
+    container.querySelector('#add-pool-key-btn')?.addEventListener('click', async () => {
+      const provider = container.querySelector('#pool-provider').value;
+      const key = container.querySelector('#pool-key').value.trim();
+      const endpoint = container.querySelector('#pool-endpoint').value.trim() || undefined;
+      if (!key) { alert('Enter a key'); return; }
+      const result = await api.post('/admin/key-pool', { provider, key, endpoint });
+      if (result.error) { alert(result.error); return; }
+      container.querySelector('#pool-key').value = '';
+      showPage('admin');
+    });
 
     // Export button listener
     const btnExport = container.querySelector('#btn-export');
@@ -360,8 +411,16 @@ export function AdminDashboard() {
 	    toast.show('Testing channel delivery...', 'info');
 	    const res = await api.post(`/admin/channels/${id}/deliver`);
 	    if (res.error) toast.show(res.error, 'error');
-	    else if (res.success) toast.show(`✅ Delivered via ${res.channel} (${res.via})`, 'success');
-	    else toast.show(`⚠️ Delivery: ${res.errors?.join(', ') || 'unknown'}`, 'error');
+	    else if (res.success) toast.show(`Delivered via ${res.channel} (${res.via})`, 'success');
+	    else toast.show(`Delivery: ${res.errors?.join(', ') || 'unknown'}`, 'error');
+	  };
+
+	  // Remove a shared pool key
+	  window.removePoolKey = async (keyId) => {
+	    if (!confirm('Remove this key from the shared pool? Users will no longer benefit from it.')) return;
+	    const res = await api.del(`/admin/key-pool/${keyId}`);
+	    if (res.error) toast.show(res.error, 'error');
+	    else { toast.show('Key removed from pool', 'success'); showPage('admin'); }
 	  };
 
 	  return container;

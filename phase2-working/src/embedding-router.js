@@ -113,6 +113,48 @@ class EmbeddingRouter {
     }
     const totalKeys = this.providers.reduce((sum, p) => sum + p.keys.length, 0);
     console.log(`[EmbeddingRouter] Loaded ${totalKeys} key(s) across ${this.providers.length} provider(s): [${this.providers.map(p => `${p.id}(${p.keys.length})`).join(', ')}]`);
+    // Async load from shared_api_keys table
+    this._loadFromDB().catch(() => {});
+  }
+
+  async _loadFromDB() {
+    try {
+      const { pool } = require('./db');
+      const { decrypt } = require('./crypto');
+      const result = await pool.query(
+        "SELECT id, provider, encrypted_key, masked_key, endpoint, model FROM shared_api_keys WHERE is_active = true"
+      );
+      let added = 0;
+      for (const row of result.rows) {
+        // Map DB provider names to embedding provider IDs
+        const providerId = this._mapProvider(row.provider);
+        if (!providerId) continue;
+        const provider = this.providers.find(p => p.id === providerId);
+        if (!provider) continue;
+        // Skip if already loaded
+        if (provider.keys.some(k => k.id === `db_${row.id}`)) continue;
+        try {
+          const decrypted = decrypt(row.encrypted_key);
+          provider.keys.push({ key: decrypted, id: `db_${row.id}` });
+          added++;
+        } catch {
+          console.warn(`[EmbeddingRouter] Failed to decrypt shared key ${row.id}`);
+        }
+      }
+      if (added > 0) console.log(`[EmbeddingRouter] Loaded ${added} additional key(s) from shared pool`);
+    } catch (err) {
+      console.warn(`[EmbeddingRouter] DB key load skipped: ${err.message}`);
+    }
+  }
+
+  _mapProvider(provider) {
+    const map = { groq: 'groq', nvidia: 'nvidia_nim', huggingface: 'huggingface', openai: 'openai' };
+    return map[provider];
+  }
+
+  async reload() {
+    // Reload from env vars
+    this._loadKeys();
   }
 
   /**

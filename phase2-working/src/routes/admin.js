@@ -84,6 +84,96 @@ router.get('/key-pool', (req, res) => {
   res.json(keyPool.getStatus());
 });
 
+// POST /api/admin/key-pool - add a key to the shared pool
+router.post('/key-pool', async (req, res) => {
+  try {
+    const { provider, key, endpoint, model, rate_limit } = req.body;
+    if (!provider || !key) return res.status(400).json({ error: 'Provider and key are required' });
+
+    const { encrypt, maskKey } = require('../crypto');
+    const encrypted = encrypt(key);
+    const masked = maskKey(key);
+
+    const result = await pool.query(
+      `INSERT INTO shared_api_keys (provider, encrypted_key, masked_key, endpoint, model, rate_limit, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, provider, masked_key, created_at`,
+      [provider.toLowerCase(), encrypted, masked, endpoint || null, model || null, rate_limit || 30, req.user.userId]
+    );
+
+    // Reload the pool to pick up the new key
+    await keyPool.reload();
+
+    await logAudit({
+      userId: req.user.userId,
+      action: 'SHARED_KEY_ADD',
+      resourceType: 'shared_api_keys',
+      resourceId: result.rows[0].id,
+      ipAddress: req.ip || 'unknown',
+    });
+
+    res.json({ success: true, key: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/admin/key-pool/:keyId - remove a key from the shared pool
+router.delete('/key-pool/:keyId', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'UPDATE shared_api_keys SET is_active = false, updated_at = NOW() WHERE id = $1 RETURNING id, provider',
+      [req.params.keyId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Key not found' });
+
+    // Reload the pool
+    await keyPool.reload();
+
+    await logAudit({
+      userId: req.user.userId,
+      action: 'SHARED_KEY_REMOVE',
+      resourceType: 'shared_api_keys',
+      resourceId: req.params.keyId,
+      ipAddress: req.ip || 'unknown',
+    });
+
+    res.json({ success: true, removed: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/key-pool/list - list all shared keys (masked) with usage stats
+router.get('/key-pool/list', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, provider, masked_key, endpoint, model, rate_limit, is_active, created_at
+       FROM shared_api_keys ORDER BY provider, created_at DESC`
+    );
+    res.json({ keys: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/runs - per-user run consumption (shared pool visibility)
+router.get('/runs', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, email, tier, daily_runs_used, daily_runs_limit, created_at
+       FROM users ORDER BY daily_runs_used DESC LIMIT 100`
+    );
+    const totalUsed = result.rows.reduce((sum, u) => sum + (u.daily_runs_used || 0), 0);
+    const totalLimit = result.rows.reduce((sum, u) => sum + (u.daily_runs_limit || 0), 0);
+    res.json({
+      users: result.rows,
+      totals: { used: totalUsed, limit: totalLimit },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/admin/stats - platform statistics
 router.get('/stats', async (req, res) => {
   try {

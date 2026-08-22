@@ -468,7 +468,7 @@ async function loadKeyRouterStatus(c) {
     const providers = data.providers || {};
     const entries = Object.entries(providers);
     if (entries.length === 0) {
-      el.innerHTML = '<div class="tg-state"><div class="tg-state-title">No keys connected</div><div class="tg-state-body">Shared pool keys serve requests automatically until you add your own.</div></div>';
+      el.innerHTML = '<div class="tg-state"><div class="tg-state-title">No keys connected</div><div class="tg-state-body">Add your own API keys in the API Vault for unlimited processing.</div></div>';
       return;
     }
     el.innerHTML = entries.map(([provider, info]) => `

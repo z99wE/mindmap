@@ -1,5 +1,8 @@
 // Shared API Key Pool - Round-robin with rate-limit awareness
+// Loads admin-configured keys from BOTH env vars AND the shared_api_keys table.
+// Users never see these keys — they are used transparently as fallback.
 require('dotenv').config();
+const crypto = require('crypto');
 
 class KeyPool {
   constructor() {
@@ -9,6 +12,48 @@ class KeyPool {
     this.usage = new Map();     // keyId -> { count, resetAt }
     this.currentIndex = 0;
     this._loadKeys();
+    // Async load from database (non-blocking)
+    this._loadFromDB().catch(() => {});
+  }
+
+  // Reload keys from the database (called after admin adds/removes keys)
+  async reload() {
+    this.keys = this.keys.filter(k => k.source === 'env'); // keep env keys
+    await this._loadFromDB();
+  }
+
+  async _loadFromDB() {
+    try {
+      const { pool } = require('./db');
+      const result = await pool.query(
+        "SELECT id, provider, encrypted_key, masked_key, endpoint, model, rate_limit FROM shared_api_keys WHERE is_active = true"
+      );
+      const { decrypt } = require('./crypto');
+      for (const row of result.rows) {
+        // Skip if env var key already loaded for this provider+position
+        const alreadyLoaded = this.keys.some(k => k.provider === row.provider && k.id === `shared_${row.id}`);
+        if (alreadyLoaded) continue;
+        try {
+          const decrypted = decrypt(row.encrypted_key);
+          this.keys.push({
+            id: `shared_${row.id}`,
+            provider: row.provider,
+            key: decrypted,
+            masked: row.masked_key,
+            rateLimit: row.rate_limit || 30,
+            endpoint: row.endpoint || undefined,
+            model: row.model || undefined,
+            source: 'db',
+          });
+        } catch {
+          console.warn(`[KeyPool] Failed to decrypt shared key ${row.id}`);
+        }
+      }
+      console.log(`[KeyPool] Loaded ${this.keys.length} shared API keys (${this.keys.filter(k=>k.source==='env').length} env + ${this.keys.filter(k=>k.source==='db').length} db)`);
+    } catch (err) {
+      // DB might not be ready yet during startup
+      console.warn(`[KeyPool] DB key load skipped: ${err.message}`);
+    }
   }
 
   _loadKeys() {

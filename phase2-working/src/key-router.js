@@ -155,7 +155,7 @@ class KeyRouter {
       .filter(([, until]) => Date.now() < until)
       .map(([id, until]) => ({ id, until: new Date(until).toISOString() }));
 
-    return { providers, cooling, groups: GROUPS };
+    return { providers, cooling };
   }
 }
 
