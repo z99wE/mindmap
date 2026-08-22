@@ -207,25 +207,96 @@ export function InteractiveSpace() {
     attachedFile = null;
     attachPreview.style.display = 'none';
 
-    const result = await api.post('/process/message', payload);
+    // Try streaming first, fall back to non-streaming
+    let result;
+    let streamBuffer = '';
+    let streamingWorked = false;
+    let responseEl = null;
+
+    try {
+      const token = localStorage.getItem('rementally_token');
+      const streamRes = await fetch('/api/process/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (streamRes.ok && streamRes.headers.get('content-type')?.includes('text/event-stream')) {
+        streamingWorked = true;
+        // Create response bubble immediately
+        const bubbleId = 'stream-bubble-' + Date.now();
+        chatArea.innerHTML += `
+          <div style="display:flex;margin-bottom:0.75rem;animation:slide-up 300ms ease forwards;">
+            <div style="max-width:85%;">
+              <div id="${bubbleId}" style="padding:0.75rem 1rem;border-radius:var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-large) var(--md-sys-shape-extra-small);background:var(--md-sys-color-surface-container-high);font:var(--md-sys-typescale-body-medium);min-height:1.5rem;"></div>
+            </div>
+          </div>`;
+        responseEl = document.getElementById(bubbleId);
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        // Read SSE stream
+        const reader = streamRes.body.getReader();
+        const decoder = new TextDecoder();
+        let sseBuffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split('\n');
+          sseBuffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const evt = JSON.parse(line.slice(6));
+              if (evt.type === 'chunk' && evt.content) {
+                streamBuffer += evt.content;
+                if (responseEl) responseEl.innerHTML = formatResponse(streamBuffer);
+                chatArea.scrollTop = chatArea.scrollHeight;
+              }
+              if (evt.type === 'done') {
+                streamBuffer = evt.fullResponse || streamBuffer;
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch {
+      // Streaming not supported or failed
+    }
+
+    // Fall back to non-streaming if streaming didn't work
+    if (!streamingWorked) {
+      result = await api.post('/process/message', payload);
+    }
 
     document.getElementById(loadingId)?.remove();
     btn.disabled = false;
 
-    // Update status bar
-    if (result.runsRemaining != null) {
-      runsInfo.textContent = `${result.runsRemaining} runs remaining · ${result.latency || 0}ms`;
+    const runsRemaining = result?.runsRemaining;
+    const latency = result?.latency;
+    if (runsRemaining != null) {
+      runsInfo.textContent = `${runsRemaining} runs remaining · ${latency || 0}ms`;
     }
 
-    if (result.error) {
+    if (result?.error) {
+      if (responseEl) responseEl.remove();
       let errorHtml = `<div style="padding:0.75rem;border-radius:var(--md-sys-shape-small);background:rgba(255,138,158,.1);color:var(--md-sys-color-error);margin-bottom:0.75rem;">${escHtml(result.error)}`;
       if (result.upgradeUrl) {
         errorHtml += `<div style="margin-top:0.75rem;"><button class="btn-m3 btn-filled" onclick="showPage('credits')" style="font-size:12px;height:32px;">ADD API KEY OR GET CREDITS</button></div>`;
       }
       errorHtml += `</div>`;
       chatArea.innerHTML += errorHtml;
+    } else if (streamingWorked) {
+      // Streaming response already rendered
+      const classStrip = result ? buildClassificationStrip(result) : '';
+      if (responseEl && classStrip) responseEl.parentElement.parentElement.innerHTML += classStrip;
     } else {
-      // AI response bubble
+      // AI response bubble (non-streaming)
       const classStrip = buildClassificationStrip(result);
       const sourcesHtml = result.sources?.length > 0 ? `
         <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">

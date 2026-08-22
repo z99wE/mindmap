@@ -379,6 +379,81 @@ async function runMigrations(retries = 5) {
     `);
     await client.query('CREATE INDEX IF NOT EXISTS idx_shared_keys_provider ON shared_api_keys(provider, is_active)');
 
+    // ── Knowledge Graph (Auto-construction) ────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS knowledge_entities (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        entity_type VARCHAR(50) NOT NULL CHECK (entity_type IN ('person', 'organization', 'project', 'location', 'topic', 'tool', 'event', 'other')),
+        metadata JSONB DEFAULT '{}',
+        mention_count INT DEFAULT 1,
+        first_mentioned TIMESTAMPTZ DEFAULT NOW(),
+        last_mentioned TIMESTAMPTZ DEFAULT NOW(),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, name, entity_type)
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_ke_user ON knowledge_entities(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_ke_type ON knowledge_entities(user_id, entity_type)');
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS knowledge_relationships (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        source_entity_id UUID NOT NULL REFERENCES knowledge_entities(id) ON DELETE CASCADE,
+        target_entity_id UUID NOT NULL REFERENCES knowledge_entities(id) ON DELETE CASCADE,
+        relationship_type VARCHAR(100) NOT NULL,
+        strength FLOAT DEFAULT 1.0,
+        metadata JSONB DEFAULT '{}',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, source_entity_id, target_entity_id, relationship_type)
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_kr_user ON knowledge_relationships(user_id)');
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS knowledge_mentions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        thought_id INT REFERENCES memory_graph(id) ON DELETE SET NULL,
+        entity_id UUID NOT NULL REFERENCES knowledge_entities(id) ON DELETE CASCADE,
+        context TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_km_user ON knowledge_mentions(user_id)');
+
+    // ── Thought Clustering ─────────────────────────────────────────────────
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS knowledge_clusters (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        label VARCHAR(255) NOT NULL,
+        thought_count INT DEFAULT 0,
+        keywords JSONB DEFAULT '[]',
+        first_thought_at TIMESTAMPTZ,
+        last_thought_at TIMESTAMPTZ,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_kc_user ON knowledge_clusters(user_id)');
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS thought_cluster_assignments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        thought_id INT NOT NULL REFERENCES memory_graph(id) ON DELETE CASCADE,
+        cluster_id UUID NOT NULL REFERENCES knowledge_clusters(id) ON DELETE CASCADE,
+        assigned_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, thought_id, cluster_id)
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_tca_user ON thought_cluster_assignments(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_tca_cluster ON thought_cluster_assignments(cluster_id)');
+
     // ── Row-Level Security (RLS) ──────────────────────────────────────────
 	    // RLS enforces tenant isolation at the database level. Every query against
 	    // a protected table is automatically filtered to the current user's rows

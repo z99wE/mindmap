@@ -11,6 +11,7 @@ const { detectCommitment } = require('../../features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('../../features/thought-interceptor');
 const { liveInfoSystem } = require('../../agent-reach-integration');
 const { callLLM } = require('../llm-provider');
+const { ragSearch, formatRAGContext } = require('../rag-pipeline');
 const { createUserRateLimiter } = require('../rate-limiter');
 
 // Per-user rate limiter for LLM processing (free: 15/min, pro: 75/min, admin: unlimited)
@@ -79,10 +80,15 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
     }
     endSpan(parseSpan, { intent: intent, unanchored: unanchoredResult?.is_unanchored });
 
-    // 2. Check memory for related context
+    // 2. RAG: Semantic search for related memories
     const memSpan = createSpan(trace, 'check_memory', { message });
-    const relatedMemories = await searchRelatedMemories(userId, message);
-    endSpan(memSpan, { count: relatedMemories.length });
+    let relatedMemories;
+    try {
+      relatedMemories = await ragSearch(userId, message);
+    } catch {
+      relatedMemories = await searchRelatedMemories(userId, message);
+    }
+    endSpan(memSpan, { count: relatedMemories.length, source: relatedMemories[0]?.source || 'text' });
 
     // 3. Enrich with live data (if web search enabled). The Key Router builds
     // the full ordered chain (every Tavily key → Firecrawl → SearXNG → keyless
@@ -108,9 +114,10 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
         const snippet = attachment.content?.substring(0, 15000);
         finalMessage += `\n\n[Attached File Content "${attachment.name}"]: ${snippet}`;
       }
-    }
+    }    // Format RAG context for LLM
+    const ragContext = formatRAGContext(relatedMemories);
 
-	const llmSpan = createSpan(trace, 'process_llm', { message: finalMessage, intent, liveContextCount: liveContext.length });
+    const llmSpan = createSpan(trace, 'process_llm', { message: finalMessage, intent, liveContextCount: liveContext.length });
 	    let llmResponse = null;
 	    if (user.data_sharing !== false) {
 	      llmResponse = await callLLM(user, finalMessage, relatedMemories, intent, liveContext,
@@ -128,6 +135,10 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
       trace.updateThoughtId(classification.memoryId);
     }
     endSpan(storeSpan, { stored: true, category: classification.category, halfLifeHours: classification.halfLifeHours });
+
+    // Extract knowledge entities (async, non-blocking)
+    const { extractKnowledge } = require('../knowledge-graph');
+    extractKnowledge(userId, classification.memoryId, message, user).catch(() => {});
 
     // Increment run counter
     if (usingBooster && activeBoosterId) {

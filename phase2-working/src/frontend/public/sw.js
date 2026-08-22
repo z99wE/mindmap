@@ -1,103 +1,330 @@
-// ReMentally — Service Worker
-// Cache versioning: bump CACHE_VERSION to force re-cache all assets
-const CACHE_VERSION = 1;
-const CACHE = `rementally-v${CACHE_VERSION}`;
-const ASSETS = ['/', '/icon.svg', '/manifest.json'];
+/**
+ * SERVICE WORKER — Offline-First PWA for ReMentally
+ *
+ * Features:
+ *   - Cache-first for static assets (CSS, JS, images)
+ *   - Network-first for API calls (with offline fallback)
+ *   - Background sync for offline thought submissions
+ *   - Periodic background sync for notification delivery
+ *   - Push notification handling
+ *
+ * Cost: $0 (pure browser APIs)
+ */
 
-// Skip waiting so the new SW activates immediately
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+const CACHE_NAME = 'rementally-v1';
+const STATIC_CACHE = 'rementally-static-v1';
+const API_CACHE = 'rementally-api-v1';
+
+// Static assets to pre-cache on install
+const PRE_CACHE_URLS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+];
+
+// API endpoints to cache for offline access
+const CACHEABLE_API_PATHS = [
+  '/api/memory',
+  '/api/memory/stats',
+  '/api/keys',
+  '/api/keys/providers',
+  '/api/channels',
+  '/api/notifications',
+  '/api/cognitive/forecast',
+  '/api/cognitive/debt-score',
+  '/api/activities',
+  '/api/agent/preferences',
+];
+
+// API endpoints that should NEVER be cached (write operations)
+const NEVER_CACHE_PATHS = [
+  '/api/process/message',
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/refresh',
+  '/api/billing',
+  '/api/admin',
+];
+
+// ── Install ────────────────────────────────────────────────────────────────
+self.addEventListener('install', (event) => {
+  console.log('[SW] Installing ReMentally Service Worker');
+  event.waitUntil(
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(PRE_CACHE_URLS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Clean up old caches on activation
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE && key.startsWith('rementally-'))
-          .map((key) => caches.delete(key))
-      );
-    })
+// ── Activate ───────────────────────────────────────────────────────────────
+self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating ReMentally Service Worker');
+  event.waitUntil(
+    caches.keys().then(names =>
+      Promise.all(
+        names
+          .filter(name => name !== STATIC_CACHE && name !== API_CACHE && name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
+    ).then(() => self.clients.claim())
   );
-  e.waitUntil(self.clients.claim());
 });
 
-// Network-first for navigation requests, cache-first for static assets
-self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
+// ── Fetch Strategy ─────────────────────────────────────────────────────────
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
 
-  // Never cache API requests
-  if (url.pathname.startsWith('/api/')) return;
-
-  // For navigation requests (HTML), try network first, fall back to cache
-  if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request)
-        .then((response) => {
-          // Cache the latest HTML shell
-          const clone = response.clone();
-          caches.open(CACHE).then((cache) => cache.put('/', clone));
-          return response;
-        })
-        .catch(() => caches.match('/'))
-    );
+  // Skip non-GET requests for caching
+  if (request.method !== 'GET') {
+    // Handle POST to /api/process/message (offline queue)
+    if (request.method === 'POST' && url.pathname === '/api/process/message') {
+      event.respondWith(_handleOfflinePost(request));
+    }
     return;
   }
 
-  // For static assets (JS, CSS, images), cache-first with network update
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      const fetchPromise = fetch(e.request)
-        .then((response) => {
-          if (response.ok && response.type === 'basic') {
-            const clone = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(e.request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
+  // API requests — network-first with cache fallback
+  if (url.pathname.startsWith('/api/')) {
+    // Never cache write operations or auth
+    if (NEVER_CACHE_PATHS.some(p => url.pathname.startsWith(p))) {
+      return;
+    }
 
-      return cached || fetchPromise;
-    }).catch(() => caches.match('/'))
-  );
+    // Only cache specific read endpoints
+    if (CACHEABLE_API_PATHS.some(p => url.pathname.startsWith(p))) {
+      event.respondWith(_networkFirstWithCache(request));
+    }
+    return;
+  }
+
+  // Static assets — cache-first
+  event.respondWith(_cacheFirst(request));
 });
 
-// Push notifications
-self.addEventListener('push', (e) => {
-  let data = { title: 'ReMentally', body: 'New notification', icon: '/icon.svg' };
-  if (e.data) {
-    try {
-      data = { ...data, ...e.data.json() };
-    } catch {
-      data.body = e.data.text();
+// ── Caching Strategies ─────────────────────────────────────────────────────
+
+async function _cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    // Offline and not cached
+    return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+  }
+}
+
+async function _networkFirstWithCache(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(API_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    // Network failed — try cache
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    return new Response(JSON.stringify({ error: 'Offline', offline: true }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function _handleOfflinePost(request) {
+  try {
+    // Try network first
+    const response = await fetch(request);
+    return response;
+  } catch {
+    // Offline — queue for background sync
+    const body = await request.clone().json();
+    await _queueOfflineThought(body);
+
+    // Notify the client that the thought is queued
+    const clients = await self.clients.matchAll();
+    for (const client of clients) {
+      client.postMessage({
+        type: 'OFFLINE_THOUGHT_QUEUED',
+        data: { message: body.message, queuedAt: new Date().toISOString() },
+      });
+    }
+
+    return new Response(JSON.stringify({
+      offline: true,
+      queued: true,
+      message: 'Thought queued for sync when you\'re back online.',
+    }), {
+      status: 202,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// ── Offline Queue ──────────────────────────────────────────────────────────
+
+async function _queueOfflineThought(thought) {
+  const cache = await caches.open('rementally-offline-queue');
+  const queueKey = `/queue/${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const entry = {
+    ...thought,
+    queuedAt: new Date().toISOString(),
+    synced: false,
+  };
+  await cache.put(new Request(queueKey), new Response(JSON.stringify(entry)));
+}
+
+async function _getOfflineQueue() {
+  const cache = await caches.open('rementally-offline-queue');
+  const keys = await cache.keys();
+  const queue = [];
+  for (const key of keys) {
+    const response = await cache.match(key);
+    if (response) {
+      const data = await response.json();
+      queue.push({ key: key.url, ...data });
     }
   }
-  e.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon,
-      tag: 'rementally',
-      data: { url: data.url || '/' },
+  return queue;
+}
+
+async function _clearOfflineQueue() {
+  await caches.delete('rementally-offline-queue');
+}
+
+// ── Background Sync ────────────────────────────────────────────────────────
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-offline-thoughts') {
+    event.waitUntil(_syncOfflineThoughts());
+  }
+});
+
+async function _syncOfflineThoughts() {
+  const queue = await _getOfflineQueue();
+  if (queue.length === 0) return;
+
+  console.log(`[SW] Syncing ${queue.length} offline thoughts`);
+
+  for (const item of queue) {
+    try {
+      const response = await fetch('/api/process/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: item.message }),
+      });
+
+      if (response.ok) {
+        // Remove from queue
+        const cache = await caches.open('rementally-offline-queue');
+        await cache.delete(new Request(item.key));
+
+        // Notify client
+        const clients = await self.clients.matchAll();
+        for (const client of clients) {
+          client.postMessage({
+            type: 'OFFLINE_THOUGHT_SYNCED',
+            data: { message: item.message },
+          });
+        }
+      }
+    } catch {
+      // Will retry on next sync
+    }
+  }
+}
+
+// ── Push Notifications ─────────────────────────────────────────────────────
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  let data;
+  try {
+    data = event.data.json();
+  } catch {
+    data = { title: 'ReMentally', body: event.data.text() };
+  }
+
+  const options = {
+    body: data.body || 'New notification from ReMentally',
+    icon: '/icon-192.png',
+    badge: '/badge-72.png',
+    vibrate: [100, 50, 100],
+    data: data.url || '/',
+    actions: [
+      { action: 'open', title: 'Open' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'ReMentally', options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'dismiss') return;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then(clients => {
+      // Focus existing window or open new one
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(event.notification.data || '/');
     })
   );
 });
 
-// Notification click → focus or open window
-self.addEventListener('notificationclick', (e) => {
-  e.notification.close();
-  const url = e.notification.data?.url || '/';
-  e.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clients) => {
-      for (const c of clients) {
-        if (c.url.includes(url)) return c.focus();
-      }
-      return self.clients.openWindow(url);
-    })
-  );
+// ── Periodic Background Sync (for notifications) ───────────────────────────
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'check-notifications') {
+    event.waitUntil(_checkNotifications());
+  }
+});
+
+async function _checkNotifications() {
+  try {
+    const response = await fetch('/api/notifications?unreadOnly=true&limit=5');
+    if (!response.ok) return;
+
+    const data = await response.json();
+    const unread = data.notifications?.filter(n => !n.delivered) || [];
+
+    for (const notif of unread.slice(0, 3)) {
+      await self.registration.showNotification(notif.title || 'ReMentally', {
+        body: notif.message || notif.content,
+        icon: '/icon-192.png',
+        badge: '/badge-72.png',
+        tag: `notif-${notif.id}`,
+      });
+    }
+  } catch {
+    // Will retry on next periodic sync
+  }
+}
+
+// ── Message Handler (for client communication) ─────────────────────────────
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data?.type === 'SYNC_NOW') {
+    _syncOfflineThoughts();
+  }
+  if (event.data?.type === 'QUEUE_THOUGHT') {
+    _queueOfflineThought(event.data.thought);
+  }
 });

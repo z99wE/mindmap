@@ -435,3 +435,37 @@ async function init() {
 }
 
 init();
+
+// ── Service Worker Registration (Offline-First PWA) ──────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      console.log('[PWA] Service Worker registered:', reg.scope);
+      // Check for updates every hour
+      setInterval(() => reg.update(), 3600000);
+    }).catch((err) => {
+      console.warn('[PWA] SW registration failed:', err.message);
+    });
+  });
+
+  // Listen for offline queue messages from SW
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.type === 'OFFLINE_THOUGHT_QUEUED') {
+      import('./lib/toast.js').then(({ toast }) => {
+        toast.show('Thought queued for sync when back online', 'info');
+      });
+    }
+    if (event.data?.type === 'OFFLINE_THOUGHT_SYNCED') {
+      import('./lib/toast.js').then(({ toast }) => {
+        toast.show('Offline thought synced successfully', 'success');
+      });
+    }
+  });
+}
+
+// ── Prompt service worker update on new version ────────────────────────────
+if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+}

@@ -161,6 +161,7 @@ const analyticsRoutes = require('./src/routes/analytics');
 const agentPrefsRoutes = require('./src/routes/agent-preferences');
 const activitiesRoutes = require('./src/routes/activities');
 const cognitiveInsightsRoutes = require('./src/routes/cognitive-insights');
+const deepFeaturesRoutes = require('./src/routes/deep-features');
 const complianceRoutes = require('./src/routes/compliance');
 const { ensureComplianceTables, runDataDeletionCron } = require('./src/routes/compliance');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
@@ -184,6 +185,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/agent', agentPrefsRoutes);
 app.use('/api/activities', activitiesRoutes);
 app.use('/api/cognitive', cognitiveInsightsRoutes);
+app.use('/api', deepFeaturesRoutes);
 
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);
@@ -421,9 +423,25 @@ async function start() {
 	    // Run data deletion cron daily
 	    setInterval(() => runDataDeletionCron(), 24 * 60 * 60 * 1000);
 	    // Also run once at startup
-	    runDataDeletionCron().catch(() => {});
+	    runDataDeletionCron().catch(() => {});      // ── Thought Clustering (background, every 6 hours) ─────────────────
+      const { clusterThoughts } = require('./src/thought-clustering');
+      setInterval(async () => {
+        try {
+          const activeUsers = await pool.query(
+            `SELECT DISTINCT user_id FROM memory_graph WHERE created_at > NOW() - INTERVAL '24 hours' LIMIT 20`
+          );
+          for (const row of activeUsers.rows) {
+            await clusterThoughts(row.user_id);
+          }
+        } catch (e) {
+          console.error('[Clustering] Background cluster error:', e.message);
+        }
+      }, 6 * 60 * 60 * 1000); // every 6 hours
 
-	    // Start background autonomous agent (multi-agent cycle every 15 min)
+      // ── Knowledge Graph extraction (on every inbound thought) ──────────
+      const { extractKnowledge } = require('./src/knowledge-graph');
+
+      // Start background autonomous agent (multi-agent cycle every 15 min)
 	    const { OrchestratorManager } = require('./orchestrator');
 	    const orchestratorManager = new OrchestratorManager(pool, keyPool);
 	    orchestratorManager.startAutonomousAgent(pulseKit);
