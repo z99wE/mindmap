@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: rementally
+    runtime: node
+    plan: free
+    buildCommand: |
+      npm install
+      cd src/frontend && npm install && npm run build
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # DATABASE_URL: set in Render dashboard (not in this file for security)
+      - key: DATABASE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_SENDER_EMAIL
+        value: noreply@rementally.onrender.com
+      - key: RESEND_SENDER_NAME
+        value: ReMentally
