@@ -26,9 +26,9 @@ const { getPrediction, getRealtimeLoad } = require('../cognitive-predictor');
 const { clusterThoughts, getClusters, getClusterStats } = require('../thought-clustering');
 const { streamLLM } = require('../streaming-llm');
 const { callLLM } = require('../llm-provider');
-const { classifyHalfLife } = require('../../../features/thought-half-life');
-const { detectCommitment } = require('../../../features/commitment-witness');
-const { detectIntent, detectUnanchored } = require('../../../features/thought-interceptor');
+const { classifyHalfLife } = require('../../features/thought-half-life');
+const { detectCommitment } = require('../../features/commitment-witness');
+const { detectIntent, detectUnanchored } = require('../../features/thought-interceptor');
 const { buildAgentInstructions } = require('./agent-preferences');
 
 // ── RAG Pipeline ───────────────────────────────────────────────────────────
