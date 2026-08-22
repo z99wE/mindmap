@@ -3,16 +3,15 @@
 # ==========================================
 FROM node:22-alpine AS frontend-builder
 
-WORKDIR /app/frontend
+WORKDIR /app
 
 # Install frontend dependencies
-COPY src/frontend/package*.json ./
-RUN npm install
+COPY src/frontend/package*.json ./src/frontend/
+RUN cd src/frontend && npm install
 
 # Copy frontend source and build
-COPY src/frontend/ ./
-# Add dummy env vars required for Vite build if any
-RUN npm run build
+COPY src/frontend/ ./src/frontend/
+RUN cd src/frontend && npm run build
 
 # ==========================================
 # STAGE 2: Build Backend & Production Image
@@ -26,20 +25,19 @@ ENV NODE_ENV=production
 
 # Install backend dependencies
 COPY package*.json ./
-# Use install with --omit=dev to keep the image small
 RUN npm install --omit=dev
 
 # Copy backend source code
-COPY server.js .
-COPY package.json .
-COPY orchestrator.js .
-COPY memory-graph.js .
-COPY agent-reach-integration.js .
+COPY server.js ./
+COPY package.json ./
+COPY orchestrator.js ./
+COPY memory-graph.js ./
+COPY agent-reach-integration.js ./
 COPY src/ ./src/
 COPY features/ ./features/
 
 # Copy built frontend assets from STAGE 1
-COPY --from=frontend-builder /app/frontend/dist ./src/frontend/dist
+COPY --from=frontend-builder /app/src/frontend/dist ./src/frontend/dist
 
 # Expose the API port
 EXPOSE 3001
@@ -48,5 +46,5 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3001}/api/health || exit 1
 
-# Start the application securely (avoid running as root if possible, but keeping it simple here)
+# Start the application
 CMD ["node", "server.js"]

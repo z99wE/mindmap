@@ -90,7 +90,7 @@ User Input (Web UI / Telegram / Slack / Email / Browser Extension)
 ### Key Design Decisions
 
 | Layer | Decision | Rationale |
-|-------|----------|-----------|
+|-------|----------|-----------| 
 | **Channels** | Bring Your Own Credentials | Zero notification cost. Users own their bot tokens. |
 | **LLM** | Bring Your Own Keys + shared fallback | Zero LLM cost for you. Users pay their own API bills. |
 | **Memory** | PostgreSQL + pgvector | No additional infrastructure. One database for everything. |
@@ -196,20 +196,30 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 
 ```bash
 # Clone
-git clone https://github.com/z99wE/rementally.git
-cd rementally
+git clone https://github.com/z99wE/mindmap.git
+cd mindmap/phase2-working
 
-# Docker (recommended for local dev)
-docker compose up -d
-
-# Or manual setup
-cd phase2-working
+# Install dependencies
 npm install
-cp .env.example .env   # Edit DATABASE_URL
+
+# Copy and configure environment
+cp .env.example .env
+# Edit .env — set DATABASE_URL and at least one API key
+
+# Start the server
 node server.js
 
 # Open http://localhost:3001
 # First-run creates a local admin account automatically
+```
+
+### Docker (recommended for local dev)
+
+```bash
+git clone https://github.com/z99wE/mindmap.git
+cd mindmap
+docker compose up -d
+# Open http://localhost:3001
 ```
 
 ---
