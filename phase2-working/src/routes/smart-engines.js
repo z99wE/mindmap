@@ -28,36 +28,28 @@ const getEngines = () => ({
   socialProof: require('../social-proof'),
   energyScheduler: require('../energy-scheduler'),
   commitmentEscalation: require('../commitment-escalation'),
+  // ML engines (zero-cost, runs on server)
+  mlPredictiveOverload: require('../ml/predictive-overload'),
+  mlBayesianDecay: require('../ml/bayesian-decay'),
+  mlThoughtQuality: require('../ml/thought-quality-scorer'),
+  mlAnomalyDetector: require('../ml/anomaly-detector'),
+  mlEnergyEstimator: require('../ml/energy-estimator'),
+  mlSentimentAnalyzer: require('../ml/sentiment-analyzer'),
 });
 
-// ── 1. Forgetting Curve ───────────────────────────────────────────────────
+// ── 1. Forgetting Curve (Bayesian) ──────────────────────────────────────
 
 /**
  * GET /api/smart/forgetting-curve
- * Get the user's calibrated forgetting curve.
+ * Get the user's calibrated forgetting curve using Bayesian updating.
  */
 router.get('/forgetting-curve', authMiddleware, async (req, res) => {
   try {
-    const { forgettingCurve } = getEngines();
-    const curve = await forgettingCurve.learnForgettingCurve(req.userId);
-    res.json({ curve });
+    const { mlBayesianDecay } = getEngines();
+    const curve = await mlBayesianDecay.getCalibratedCurve(req.userId);
+    res.json(curve);
   } catch (e) {
     res.status(500).json({ error: 'Failed to learn forgetting curve', details: e.message });
-  }
-});
-
-/**
- * GET /api/smart/forgotten
- * Get thoughts that are likely forgotten (low retention).
- */
-router.get('/forgotten', authMiddleware, async (req, res) => {
-  try {
-    const { forgettingCurve } = getEngines();
-    const curve = await forgettingCurve.learnForgettingCurve(req.userId);
-    const forgotten = await forgettingCurve.getForgottenThoughts(req.userId, curve);
-    res.json({ forgotten, count: forgotten.length });
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to find forgotten thoughts', details: e.message });
   }
 });
 
@@ -98,12 +90,12 @@ router.post('/analyze-chain', authMiddleware, async (req, res) => {
 
 /**
  * GET /api/smart/pattern-breaks
- * Detect all pattern breaks for the user.
+ * Detect pattern breaks using Z-score statistical anomaly detection.
  */
 router.get('/pattern-breaks', authMiddleware, async (req, res) => {
   try {
-    const { patternBreak } = getEngines();
-    const breaks = await patternBreak.detectPatternBreaks(req.userId);
+    const { mlAnomalyDetector } = getEngines();
+    const breaks = await mlAnomalyDetector.detectPatternBreaks(req.userId);
     res.json(breaks);
   } catch (e) {
     res.status(500).json({ error: 'Failed to detect pattern breaks', details: e.message });
@@ -114,11 +106,11 @@ router.get('/pattern-breaks', authMiddleware, async (req, res) => {
 
 /**
  * GET /api/smart/quality
- * Score quality of recent thoughts.
+ * Score quality of recent thoughts using ML (TF-IDF + n-gram).
  */
 router.get('/quality', authMiddleware, async (req, res) => {
   try {
-    const { thoughtQuality, pool } = getEngines();
+    const { mlThoughtQuality, pool } = getEngines();
     const result = await pool.query(`
       SELECT id, content, category, urgency_tier, status
       FROM memory_graph
@@ -127,8 +119,12 @@ router.get('/quality', authMiddleware, async (req, res) => {
       LIMIT 20
     `, [req.userId]);
 
-    const scored = thoughtQuality.scoreBatchQuality(result.rows);
-    res.json(scored);
+    const scored = result.rows.map(t => ({
+      id: t.id,
+      content: t.content,
+      ...mlThoughtQuality.scoreThought(t.content)
+    }));
+    res.json({ thoughts: scored, count: scored.length });
   } catch (e) {
     res.status(500).json({ error: 'Failed to score quality', details: e.message });
   }
@@ -136,18 +132,35 @@ router.get('/quality', authMiddleware, async (req, res) => {
 
 /**
  * POST /api/smart/score
- * Score a single thought's quality.
+ * Score a single thought's quality using ML.
  */
 router.post('/score', authMiddleware, async (req, res) => {
   try {
-    const { thoughtQuality } = getEngines();
+    const { mlThoughtQuality } = getEngines();
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: 'content required' });
 
-    const score = thoughtQuality.scoreThoughtQuality(content);
+    const score = mlThoughtQuality.scoreThought(content);
     res.json({ score });
   } catch (e) {
     res.status(500).json({ error: 'Failed to score thought', details: e.message });
+  }
+});
+
+/**
+ * POST /api/smart/sentiment
+ * Analyze sentiment and emotional state of text.
+ */
+router.post('/sentiment', authMiddleware, async (req, res) => {
+  try {
+    const { mlSentimentAnalyzer } = getEngines();
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'content required' });
+
+    const analysis = mlSentimentAnalyzer.analyzeSentiment(content);
+    res.json({ analysis });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to analyze sentiment', details: e.message });
   }
 });
 
@@ -171,14 +184,13 @@ router.get('/social-proof', authMiddleware, async (req, res) => {
 
 /**
  * GET /api/smart/energy
- * Get the user's energy curve and current status.
+ * Get the user's energy curve using Kernel Density Estimation.
  */
 router.get('/energy', authMiddleware, async (req, res) => {
   try {
-    const { energyScheduler } = getEngines();
-    const curve = await energyScheduler.learnEnergyCurve(req.userId);
-    const crashes = await energyScheduler.detectEnergyCrashes(req.userId);
-    res.json({ curve, crashes });
+    const { mlEnergyEstimator } = getEngines();
+    const energy = await mlEnergyEstimator.detectEnergyPattern(req.userId);
+    res.json(energy);
   } catch (e) {
     res.status(500).json({ error: 'Failed to learn energy curve', details: e.message });
   }

@@ -8,6 +8,7 @@ const { keyPool } = require('../key-pool');
 const { createTrace, createSpan, endSpan } = require('../thought-tracer');
 const { classifyHalfLife } = require('../../features/thought-half-life');
 const { learnForgettingCurve, suggestHalfLife } = require('../forgetting-curve');
+const { getThoughtHalfLife } = require('../ml/bayesian-decay');
 const { detectCommitment } = require('../../features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('../../features/thought-interceptor');
 const { liveInfoSystem } = require('../../agent-reach-integration');
@@ -204,13 +205,12 @@ async function storeMemoryEnriched(client, userId, message, intent, llmResponse,
   // Half-life classifier (keyword-based defaults)
   const halfLife = classifyHalfLife(message);
 
-  // Forgetting Curve Calibration: override with learned user-specific half-life
+  // Bayesian Forgetting Curve: override with learned user-specific half-life
   let calibratedHalfLifeHours = halfLife.half_life_hours;
   try {
-    const curve = await learnForgettingCurve(userId);
-    const suggested = suggestHalfLife({ category: halfLife.category }, curve);
-    if (suggested && suggested !== 168) { // 168 = default fallback
-      calibratedHalfLifeHours = suggested;
+    const mlDecay = await getThoughtHalfLife(userId, halfLife.category);
+    if (mlDecay && mlDecay.confidence > 0.3) {
+      calibratedHalfLifeHours = mlDecay.half_life_hours;
     }
   } catch { /* use keyword-based default */ }
 
