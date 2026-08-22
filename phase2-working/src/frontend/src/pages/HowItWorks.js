@@ -359,5 +359,86 @@ export function HowItWorks() {
   });
   observer.observe(document.getElementById('main-content') || document.body, { childList: true });
 
+  // ── Benefits Section (below the demo) ──────────────────────────────
+  const benefitsSection = document.createElement('div');
+  benefitsSection.innerHTML = `
+    <div style="margin-top:3rem;">
+      <div class="surface-card card-reveal" style="padding:2rem;text-align:center;margin-bottom:2rem;">
+        <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">WHY IT MATTERS</div>
+        <h2 style="font:var(--md-sys-typescale-headline-medium);margin:0 0 0.5rem;">Built for How Your Brain Actually Works</h2>
+        <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);max-width:600px;margin:0 auto;">
+          Not another to-do list. ReMentally understands that thoughts fade, commitments need accountability, and your brain processes differently than everyone else's.
+        </p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;">
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">timer</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Thoughts Fade Automatically</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Your forgetting curve is personalized. Urgent thoughts escalate. Low-priority ideas fade naturally. No more mental clutter.
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">groups</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Accountability That Works</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Set a witness contact. Miss a deadline? They get notified. Users with witnesses complete 72% more commitments.
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">psychology</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Learns Your Patterns</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Tracks when you're productive, which categories you follow through on, and predicts overload before you feel it.
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">bolt</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Energy-Aware Scheduling</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Complex tasks during peak hours. Easy wins during dips. Matches difficulty to your actual energy level.
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">grading</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Thought Quality Coaching</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Rates your thoughts A-F and coaches you to write more actionable ones. Specific thoughts with deadlines complete 2x more often.
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">notifications_active</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Proactive Insights</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Don't wait to ask. The app pushes insights when patterns emerge: "You've been thinking about this for 5 days. Here's what you've collected."
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">account_tree</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Thought Chains</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            Detects logical sequences: "Write proposal" suggests "Send proposal" suggests "Follow up." Auto-suggests next steps.
+          </p>
+        </div>
+        <div class="surface-card card-reveal" style="padding:1.5rem;">
+          <span class="material-symbols-rounded" style="font-size:2rem;color:var(--md-sys-color-primary);margin-bottom:0.75rem;display:block;">groups_3</span>
+          <h3 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.5rem;">Social Proof Intelligence</h3>
+          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+            "Users with deadlines complete 87% more." Anonymized aggregate insights from all users. The more people use it, the smarter it gets.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(benefitsSection);
+
+  // Trigger card reveal
+  setTimeout(() => {
+    benefitsSection.querySelectorAll('.card-reveal').forEach((card, i) => {
+      setTimeout(() => card.classList.add('revealed'), i * 80);
+    });
+  }, 100);
+
   return container;
 }

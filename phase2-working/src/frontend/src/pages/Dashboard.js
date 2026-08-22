@@ -404,9 +404,9 @@ async function loadDashboard(c) {
 	          </div>
 	          ${nm.aiStory ? `<p style="margin:0 0 0.5rem;font-size:12px;line-height:1.6;color:var(--md-sys-color-on-surface-variant);">${nm.aiStory}</p>` : ''}
 	          <div style="display:flex;gap:0.75rem;font-size:11px;color:var(--md-sys-color-outline);">
-	            <span>✅ ${n.commitments?.completed || 0}/${n.commitments?.total || 0}</span>
-	            <span>📊 ${n.commitments?.fulfillmentRate || 0}%</span>
-	            ${n.peakTimes?.length ? `<span>⏰ ${n.peakTimes[0]}</span>` : ''}
+            <span><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">check_circle</span> ${n.commitments?.completed || 0}/${n.commitments?.total || 0}</span>
+            <span><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">bar_chart</span> ${n.commitments?.fulfillmentRate || 0}%</span>
+            ${n.peakTimes?.length ? `<span><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">schedule</span> ${n.peakTimes[0]}</span>` : ''}
 	          </div>
 	        `;
 	      }
@@ -445,7 +445,7 @@ async function loadDashboard(c) {
         digestStatus.textContent = '❌ ' + res.error;
         digestStatus.style.color = 'var(--md-sys-color-error)';
       } else if (res.success) {
-        digestStatus.textContent = '✅ ' + res.message;
+        digestStatus.textContent = res.message;
         digestStatus.style.color = 'var(--color-success)';
       } else {
         digestStatus.textContent = '⚠️ ' + (res.message || 'Digest could not be sent. Connect a channel first.');

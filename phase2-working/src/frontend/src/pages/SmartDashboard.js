@@ -234,7 +234,7 @@ function renderCognitiveDebt(container, escalations) {
         </div>
         <div style="display:flex;gap:0.5rem;flex-shrink:0;">
           ${e.escalation.actions.slice(0, 2).map(a => `
-            <button class="sp-btn escalation-btn" data-thought="${e.thoughtId}" data-action="${a.action}" style="padding:0.25rem 0.5rem;font:var(--md-sys-typescale-label-small);border-radius:6px;cursor:pointer;">
+            <button class="sp-btn escalation-btn" data-thought="${e.thoughtId}" data-action="${a.action}" aria-label="${escHtml(a.label)} for this thought" style="padding:0.25rem 0.5rem;font:var(--md-sys-typescale-label-small);border-radius:6px;cursor:pointer;">
               ${a.icon} ${escHtml(a.label)}
             </button>
           `).join('')}
@@ -290,7 +290,7 @@ function renderQualityScores(container, quality) {
       <div class="surface-card" style="padding:0.75rem 1rem;border:1px solid rgba(204,255,0,0.1);">
         <div class="mono-label" style="color:var(--md-sys-color-primary);font-size:11px;margin-bottom:0.5rem;">COACHING TIPS</div>
         ${quality.aggregate.topCoaching.map(t => `
-          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin-bottom:0.25rem;">💡 ${escHtml(t.tip)}</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);margin-bottom:0.25rem;"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">lightbulb</span> ${escHtml(t.tip)}</div>
         `).join('')}
       </div>
     `;
@@ -304,12 +304,12 @@ function renderSocialProof(container, social) {
     return;
   }
 
-  const icons = { deadline: '⏰', witness: '🤝', activity: '📊', category: '📂', productivity: '⚡', completion: '✅' };
+  const icons = { deadline: 'timer', witness: 'groups', activity: 'bar_chart', category: 'folder', productivity: 'bolt', completion: 'check_circle' };
 
   el.innerHTML = social.insights.map(insight => `
     <div style="padding:0.75rem;border:1px solid rgba(204,255,0,0.08);border-radius:8px;margin-bottom:0.5rem;">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
-        <span style="font-size:1.1rem;">${icons[insight.type] || '📈'}</span>
+        <span class="material-symbols-rounded" style="font-size:1.1rem;">${icons[insight.type] || 'trending_up'}</span>
         <span style="font:var(--md-sys-typescale-title-medium);color:var(--md-sys-color-primary);">${escHtml(insight.stat || '')}</span>
       </div>
       <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);line-height:1.5;">${escHtml(insight.message)}</div>
@@ -380,7 +380,7 @@ function renderThoughtChains(container, chains) {
           return `
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:var(--md-sys-typescale-label-small);${isDone ? 'background:var(--color-success-container,rgba(34,197,94,0.2));color:var(--color-success);' : 'border:1px solid var(--md-sys-color-outline-variant);color:var(--md-sys-color-outline);'}">
-                ${isDone ? '✓' : i + 1}
+                ${isDone ? '<span class="material-symbols-rounded" style="font-size:14px;">check</span>' : i + 1}
               </div>
               <span style="font:var(--md-sys-typescale-body-small);color:${isDone ? 'var(--md-sys-color-outline)' : 'var(--md-sys-color-on-surface)'};${isDone ? 'text-decoration:line-through;' : ''} overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.content?.substring(0, 50) || '')}</span>
             </div>
@@ -396,7 +396,7 @@ function renderPatternBreaks(container, data) {
   if (!data?.breaks || data.breaks.length === 0) {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;">
-        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--color-success-container,rgba(34,197,94,0.15));color:var(--color-success);">✓</div>
+        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--color-success-container,rgba(34,197,94,0.15));color:var(--color-success);"><span class="material-symbols-rounded">check</span></div>
         <div>
           <div style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface);">All patterns normal</div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">No behavioral anomalies detected</div>

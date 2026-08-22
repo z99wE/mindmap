@@ -23,9 +23,9 @@ export function Home() {
         <!-- Quick Capture -->
         <div class="surface-card card-reveal" style="padding:1.5rem;margin-bottom:1.5rem;border-left:3px solid var(--md-sys-color-primary);">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 0.75rem;">Quick Capture</h2>
-          <textarea id="quick-capture" class="input-m3" rows="2" placeholder="Drop a thought, commitment, or question here..." style="resize:vertical;min-height:48px;width:100%;"></textarea>
+          <textarea id="quick-capture" class="input-m3" rows="2" placeholder="Drop a thought, commitment, or question here..." aria-label="Quick thought capture" style="resize:vertical;min-height:48px;width:100%;"></textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:0.75rem;">
-            <button class="btn-m3 btn-filled" id="quick-send-btn">
+            <button class="btn-m3 btn-filled" id="quick-send-btn" aria-label="Process thought">
               <span style="font:var(--md-sys-typescale-label-large);">PROCESS</span>
             </button>
           </div>
@@ -236,10 +236,10 @@ async function loadHomeStats(container) {
   const spContent = container.querySelector('#social-proof-content');
   if (spContainer && spContent && socialProof?.insights && socialProof.insights.length > 0) {
     spContainer.style.display = 'block';
-    const icons = { deadline: '⏰', witness: '🤝', activity: '📊', category: '📂', productivity: '⚡', completion: '✅' };
+    const icons = { deadline: 'timer', witness: 'groups', activity: 'bar_chart', category: 'folder', productivity: 'bolt', completion: 'check_circle' };
     spContent.innerHTML = socialProof.insights.slice(0, 3).map(i => `
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-        <span style="font-size:1.1rem;">${icons[i.type] || '📈'}</span>
+        <span class="material-symbols-rounded" style="font-size:1.1rem;">${icons[i.type] || 'trending_up'}</span>
         <div style="flex:1;">
           <div style="font:var(--md-sys-typescale-title-medium);color:var(--md-sys-color-primary);">${escHtml(i.stat || '')}</div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">${escHtml(i.message)}</div>

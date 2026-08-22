@@ -34,20 +34,20 @@ export function InteractiveSpace() {
             <span id="attachment-name" style="color:var(--md-sys-color-primary);"></span>
             <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0.2rem 0.5rem;min-width:auto;height:auto;font-size:11px;color:var(--md-sys-color-error);">REMOVE</button>
           </div>
-          <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." style="resize:vertical;min-height:48px;"></textarea>
+          <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." aria-label="Chat message input" style="resize:vertical;min-height:48px;"></textarea>
           <!-- Inline Quality Score -->
           <div id="quality-indicator" style="display:none;align-items:center;gap:0.5rem;padding:0.375rem 0.625rem;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
             <div id="quality-grade" style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 0.7rem 'Space Grotesk',system-ui;"></div>
             <div id="quality-tip" style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);flex:1;"></div>
           </div>
         </div>
-        <button type="button" class="btn-m3 btn-tonal" id="dictate-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Voice Dictation">
+        <button type="button" class="btn-m3 btn-tonal" id="dictate-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Voice Dictation" aria-label="Start voice dictation">
           <span class="material-symbols-rounded">mic</span>
         </button>
-        <button type="button" class="btn-m3 btn-tonal" id="attach-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Attach File (Premium <1MB)">
+        <button type="button" class="btn-m3 btn-tonal" id="attach-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Attach File (Premium <1MB)" aria-label="Attach file">
           <span class="material-symbols-rounded">attach_file</span>
         </button>
-        <button type="submit" class="btn-m3 btn-filled" id="send-btn" style="height:48px;">
+        <button type="submit" class="btn-m3 btn-filled" id="send-btn" style="height:48px;" aria-label="Send message">
           <span style="font:var(--md-sys-typescale-label-large);">SEND</span>
         </button>
       </form>

@@ -200,7 +200,7 @@ function renderBottomNav() {
     .map(k => {
       const p = pageRegistry[k];
       const active = k === currentPage ? 'active' : '';
-      return `<div class="bottom-nav-item ${active}" onclick="showPage('${k}')">
+      return `<div class="bottom-nav-item ${active}" onclick="showPage('${k}')" role="button" tabindex="0" aria-label="Navigate to ${p.title}">
         <span class="bottom-nav-dot"></span>
         <span>${p.title.split(' ')[0]}</span>
       </div>`;
@@ -215,7 +215,7 @@ function renderMobileDrawer() {
   const items = buildWheelPages().map(k => {
     const p = pageRegistry[k];
     const active = k === currentPage ? 'active' : '';
-    return `<div class="nav-item ${active}" onclick="showPage('${k}');document.getElementById('mobile-drawer').classList.remove('open')">
+    return `<div class="nav-item ${active}" onclick="showPage('${k}');document.getElementById('mobile-drawer').classList.remove('open')" role="button" tabindex="0" aria-label="Navigate to ${p.title}">
       <span class="nav-dot"></span><span>${p.title}</span>
     </div>`;
   }).join('');
