@@ -91,31 +91,49 @@ class EmbeddingRouter {
   _loadKeys() {
     this.providers = [];
     for (const p of PROVIDERS) {
-      // Check multiple env var names for each provider
-      let key = null;
+      const keys = [];
+
+      // Check numbered keys: GROQ_KEY_1, GROQ_KEY_2, ... (up to 100 per provider)
+      const providerUpper = p.id === 'nvidia_nim' ? 'NVIDIA' : p.id.toUpperCase();
+      for (let i = 1; i <= 100; i++) {
+        const key = process.env[`${providerUpper}_KEY_${i}`];
+        if (key) keys.push({ key, id: `${p.id}_${i}` });
+      }
+
+      // Check single env var names (GROQ_API_KEY, NVIDIA_API_KEY, etc.)
       for (const envName of p.keyEnv) {
-        if (process.env[envName]) {
-          key = process.env[envName];
-          break;
+        if (process.env[envName] && !keys.find(k => k.key === process.env[envName])) {
+          keys.push({ key: process.env[envName], id: `${p.id}_default` });
         }
       }
-      if (key) {
-        this.providers.push({ ...p, key });
+
+      if (keys.length > 0) {
+        this.providers.push({ ...p, keys });
       }
     }
-    console.log(`[EmbeddingRouter] Loaded ${this.providers.length} provider(s): [${this.providers.map(p => p.id).join(', ')}]`);
+    const totalKeys = this.providers.reduce((sum, p) => sum + p.keys.length, 0);
+    console.log(`[EmbeddingRouter] Loaded ${totalKeys} key(s) across ${this.providers.length} provider(s): [${this.providers.map(p => `${p.id}(${p.keys.length})`).join(', ')}]`);
   }
 
   /**
-   * Get next available provider (round-robin with cooldown)
+   * Get next available provider + key combo (round-robin across all keys)
    */
   _getNextProvider() {
-    const available = this.providers.filter(p => !this._isCoolingDown(p.id) && !this._isRateLimited(p.id));
-    if (available.length === 0) return null;
-    const provider = available[this.currentIndex % available.length];
+    // Build list of all available (provider, key) combos
+    const combos = [];
+    for (const p of this.providers) {
+      if (this._isCoolingDown(p.id)) continue;
+      for (const k of p.keys) {
+        if (!this._isRateLimited(k.id)) {
+          combos.push({ ...p, currentKey: k.key, currentKeyId: k.id });
+        }
+      }
+    }
+    if (combos.length === 0) return null;
+    const combo = combos[this.currentIndex % combos.length];
     this.currentIndex++;
-    this._trackUsage(provider.id);
-    return provider;
+    this._trackUsage(combo.currentKeyId);
+    return combo;
   }
 
   _isCoolingDown(id) {
@@ -219,7 +237,7 @@ class EmbeddingRouter {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${provider.key}`,
+          'Authorization': `Bearer ${provider.currentKey || provider.key}`,
           'Content-Length': Buffer.byteLength(body),
         },
       }, (res) => {
@@ -263,7 +281,7 @@ class EmbeddingRouter {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(provider.key ? { 'Authorization': `Bearer ${provider.key}` } : {}),
+          ...((provider.currentKey || provider.key) ? { 'Authorization': `Bearer ${provider.currentKey || provider.key}` } : {}),
           'Content-Length': Buffer.byteLength(body),
         },
       }, (res) => {
@@ -336,10 +354,11 @@ class EmbeddingRouter {
         name: p.name,
         dims: p.dims,
         model: p.model,
+        keys: p.keys.length,
         costPer1M: p.costPer1M,
         coolingDown: this._isCoolingDown(p.id),
-        rateLimited: this._isRateLimited(p.id),
       })),
+      totalKeys: this.providers.reduce((sum, p) => sum + p.keys.length, 0),
       cacheSize: this.cache.size,
       targetDim: TARGET_DIM,
     };
