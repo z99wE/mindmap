@@ -10,7 +10,7 @@
 
 <p align="center">
   <b>Middleware between your brain and every app you use.</b><br/>
-  Captures thoughts from web, Telegram, Slack, email, or browser extension.<br/>
+  Captures thoughts from web, Telegram, Slack, email, or any messaging platform.<br/>
   Routes through a multi-agent AI pipeline. Stores in a vector memory graph with automatic decay.<br/>
   Delivers insights to any device through 9 messaging channels.
 </p>
@@ -45,7 +45,7 @@ For individuals with ADHD, autism, or cognitive fatigue, once a thought is writt
 ## Architecture
 
 ```
-User Input (Web UI / Telegram / Slack / Email / Browser Extension)
+User Input (Web UI / Telegram / Slack / Email / WhatsApp / SMS / Twitter / Signal / Web Push)
          │
          ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -131,7 +131,7 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 | **Half-Life Decay** | Every thought has a lifespan based on urgency. Critical thoughts escalate. Vague thoughts fade. |
 | **Commitment Witness** | Miss a deadline? Your designated witness contact gets notified. Escalation chain: nudge → alert → witness. |
 | **Drift Detector** | Notices when your focus shifts across categories. Sends a soft course-correction nudge. |
-| **Door Rule** | Leaving home? Get a departure brief: 3 most urgent pending items + weather. Location-aware. |
+| **Door Rule** | Leaving home? Get a departure brief: 3 most urgent pending items + weather. Requires Tile38 geofencing server. |
 | **Thought Interceptor** | Detects unanchored intentions ("I should..."). Schedules automated revivals. |
 | **Cognitive Load Forecast** | Predicts overload 7 days ahead. Score based on commitment density, half-life states, fulfillment rate. |
 | **Attention Debt Score** | 0-100 gamified score. Factors: expired thoughts, overdue commitments, drift events, completion rate. |
@@ -152,8 +152,7 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 | Feature | Status |
 |---------|--------|
 | **Installable PWA** | ✅ Manifest + service worker with offline caching |
-| **Capacitor iOS** | ✅ Configured. Run `npm run cap:build:ios` to build |
-| **Capacitor Android** | ✅ Configured. Run `npm run cap:build:android` to build |
+| **Mobile-friendly PWA** | ✅ Installable on iOS/Android via Add to Home Screen. Works offline. |
 
 
 ### Cross-User Analytics (Admin)

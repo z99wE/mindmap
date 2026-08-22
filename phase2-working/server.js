@@ -162,6 +162,7 @@ const agentPrefsRoutes = require('./src/routes/agent-preferences');
 const activitiesRoutes = require('./src/routes/activities');
 const cognitiveInsightsRoutes = require('./src/routes/cognitive-insights');
 const deepFeaturesRoutes = require('./src/routes/deep-features');
+const brainFeaturesRoutes = require('./src/routes/brain-features');
 const complianceRoutes = require('./src/routes/compliance');
 const { ensureComplianceTables, runDataDeletionCron } = require('./src/routes/compliance');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
@@ -186,6 +187,7 @@ app.use('/api/agent', agentPrefsRoutes);
 app.use('/api/activities', activitiesRoutes);
 app.use('/api/cognitive', cognitiveInsightsRoutes);
 app.use('/api', deepFeaturesRoutes);
+app.use('/api', brainFeaturesRoutes);
 
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);
@@ -423,7 +425,22 @@ async function start() {
 	    // Run data deletion cron daily
 	    setInterval(() => runDataDeletionCron(), 24 * 60 * 60 * 1000);
 	    // Also run once at startup
-	    runDataDeletionCron().catch(() => {});      // ── Thought Clustering (background, every 6 hours) ─────────────────
+	    runDataDeletionCron().catch(() => {});      // ── Proactive Insight Delivery (background, every 6 hours) ─────────
+      const { generateProactiveInsights } = require('./src/proactive-insights');
+      setInterval(async () => {
+        try {
+          const activeUsers = await pool.query(
+            `SELECT DISTINCT user_id FROM memory_graph WHERE created_at > NOW() - INTERVAL '24 hours' LIMIT 20`
+          );
+          for (const row of activeUsers.rows) {
+            await generateProactiveInsights(row.user_id);
+          }
+        } catch (e) {
+          console.error('[ProactiveInsights] Background error:', e.message);
+        }
+      }, 6 * 60 * 60 * 1000); // every 6 hours
+
+      // ── Thought Clustering (background, every 6 hours) ─────────────────
       const { clusterThoughts } = require('./src/thought-clustering');
       setInterval(async () => {
         try {
