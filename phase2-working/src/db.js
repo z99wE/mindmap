@@ -4,8 +4,14 @@ require('dotenv').config();
 
 const isProd = process.env.NODE_ENV === 'production' || !process.env.DATABASE_URL?.includes('localhost');
 
+const dbUrl = process.env.DATABASE_URL || 'postgresql://localhost:5432/rementally';
+const isNeon = dbUrl.includes('neon.tech');
+const isSupabase = dbUrl.includes('supabase');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/rementally',
+  connectionString: dbUrl,
+  // Neon/Supabase require SSL; Render local dev does not
+  ssl: (isNeon || isSupabase || isProd) ? { rejectUnauthorized: false } : false,
   max: isProd ? 3 : 10, // Prevent connection limits during rolling deploys on free tier DBs
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
