@@ -73,7 +73,6 @@ describe('GET /api/channels/platforms', () => {
     expect(ids).toContain('signal');
     expect(ids).toContain('sms');
     expect(ids).toContain('twitter');
-    expect(ids).toContain('bluesky');
   });
 
   test('each platform has required fields', async () => {

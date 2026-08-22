@@ -23,7 +23,7 @@ const TIERS = {
     name: 'Explorer Plus',
     dailyRuns: 500,
     price: 15,
-    features: ['500 runs/day', 'Fallback system keys pool (no keys needed)', 'Unlimited server storage (never purged)', 'Seamless laptop and phone synchronization', 'All communication channels (WhatsApp, Slack, Discord, Twitter, Bluesky)', 'Live web search', 'Priority support'],
+    features: ['500 runs/day', 'Fallback system keys pool (no keys needed)', 'Unlimited server storage (never purged)', 'Seamless laptop and phone synchronization', 'All communication channels (WhatsApp, Slack, Discord, Twitter)', 'Live web search', 'Priority support'],
     description: 'Cross-device cognitive co-processing'
   },
   managed: {
@@ -383,6 +383,7 @@ router.post('/waitlist', async (req, res) => {
     let requestedTier = 'updates';
     if (tier === 'pro') requestedTier = 'pro_tier';
     else if (tier === 'managed') requestedTier = 'managed_tier';
+    else if (tier === 'early_adopter') requestedTier = 'early_adopter';
 
     // Store in proper waitlist table and send confirmation email
     const insertResult = await pool.query(
@@ -409,7 +410,9 @@ router.post('/waitlist', async (req, res) => {
     }
 
     let successMsg = `You're on the list! Check your email — we'll keep you updated with the latest news.`;
-    if (requestedTier === 'pro_tier') {
+    if (requestedTier === 'early_adopter') {
+      successMsg = `You're on the Early Adopter list! We'll notify you when spots open.`;
+    } else if (requestedTier === 'pro_tier') {
       successMsg = `You're on the waitlist! Check your email — we'll let you know the moment Explorer Plus launches.`;
     } else if (requestedTier === 'managed_tier') {
       successMsg = `You're on the waitlist! Check your email — we'll let you know the moment Managed launches.`;

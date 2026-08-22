@@ -79,7 +79,7 @@ User Input (Web UI / Telegram / Slack / Email / Browser Extension)
 │  PULSEKIT — Multi-Tenant Channel Router                     │
 │  User's bot → Global bot → Fallback channels → DB store     │
 │  10 platforms: Telegram, Slack, Discord, WhatsApp, Signal,   │
-│  Email, SMS, Twitter/X, Bluesky, Web Push                   │
+│  Email, SMS, Twitter/X, Web Push                           │
 └─────────────────────────────────────────────────────────────┘
         │
         ▼
@@ -112,7 +112,6 @@ User Input (Web UI / Telegram / Slack / Email / Browser Extension)
 | Signal | ✅ Send messages | ✅ Webhook | Signal REST gateway |
 | SMS (Twilio/Vonage) | ✅ Send messages | ✅ Webhook | API key + phone number |
 | Twitter/X | ✅ Post tweets | ✅ Webhook | API key + access tokens |
-| Bluesky | ✅ Post skeets | ❌ Not yet | App password |
 | Web Push | ✅ Browser push | N/A | VAPID keys |
 
 All channels support **failover mode** (try Telegram → Slack → Email → DB) and **broadcast mode** (send to all simultaneously).

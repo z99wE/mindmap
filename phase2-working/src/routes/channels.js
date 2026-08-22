@@ -14,7 +14,6 @@ const SUPPORTED_PLATFORMS = [
   { id: 'sms', name: 'SMS', fields: ['phone_number', 'api_key'] },
   { id: 'signal', name: 'Signal', fields: ['phone_number', 'api_key'] },
   { id: 'twitter', name: 'Twitter (X)', fields: ['api_key', 'api_secret', 'access_token', 'access_secret'] },
-  { id: 'bluesky', name: 'Bluesky', fields: ['identifier', 'app_password'] },
 ];
 
 // GET /api/channels/platforms - list supported platforms
@@ -91,7 +90,7 @@ router.post('/connect', authMiddleware, async (req, res) => {
     const userTier = userRes.rows[0]?.tier || 'free';
 
     if (userTier === 'free') {
-      const allowedFreePlatforms = ['telegram', 'email', 'slack', 'discord', 'bluesky'];
+      const allowedFreePlatforms = ['telegram', 'email', 'slack', 'discord'];
       if (!allowedFreePlatforms.includes(platform.toLowerCase())) {
         return res.status(403).json({
           error: `Due to high cognitive load and routing congestion, ${platform.toUpperCase()} gateways are currently running at capacity. The system is re-routing to baseline channels (Telegram, Email, Slack). Try again later.`
