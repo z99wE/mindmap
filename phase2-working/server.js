@@ -164,6 +164,7 @@ const cognitiveInsightsRoutes = require('./src/routes/cognitive-insights');
 const deepFeaturesRoutes = require('./src/routes/deep-features');
 const brainFeaturesRoutes = require('./src/routes/brain-features');
 const complianceRoutes = require('./src/routes/compliance');
+const smartEnginesRoutes = require('./src/routes/smart-engines');
 const { ensureComplianceTables, runDataDeletionCron } = require('./src/routes/compliance');
 const { createAgentReachEndpoints } = require('./agent-reach-integration');
 
@@ -188,6 +189,7 @@ app.use('/api/activities', activitiesRoutes);
 app.use('/api/cognitive', cognitiveInsightsRoutes);
 app.use('/api', deepFeaturesRoutes);
 app.use('/api', brainFeaturesRoutes);
+app.use('/api/smart', smartEnginesRoutes);
 
 // Agent-Reach live data endpoints (DuckDuckGo, Wikipedia, Open-Meteo + Tavily/Firecrawl)
 createAgentReachEndpoints(app);

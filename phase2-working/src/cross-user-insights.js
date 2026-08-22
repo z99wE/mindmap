@@ -110,7 +110,7 @@ async function getCrossUserInsights(userId, behavioralProfile) {
       insights.push({
         type: 'peak_hours',
         title: 'Your peak hours differ from most users',
-        message: `Most users complete thoughts at ${globalHour}:00. You're most productive at ${userPeak}:00 — ${userPeak < globalHour ? 'you're an early bird' : 'you're a night owl'}.`,
+        message: `Most users complete thoughts at ${globalHour}:00. You're most productive at ${userPeak}:00 — ${userPeak < globalHour ? "you're an early bird" : "you're a night owl"}.`,
         impact: 'medium',
       });
     }

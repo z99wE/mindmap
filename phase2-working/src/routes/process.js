@@ -7,6 +7,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { keyPool } = require('../key-pool');
 const { createTrace, createSpan, endSpan } = require('../thought-tracer');
 const { classifyHalfLife } = require('../../features/thought-half-life');
+const { learnForgettingCurve, suggestHalfLife } = require('../forgetting-curve');
 const { detectCommitment } = require('../../features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('../../features/thought-interceptor');
 const { liveInfoSystem } = require('../../agent-reach-integration');
@@ -200,11 +201,21 @@ router.post('/message', authMiddleware, processLimiter, asyncHandler(async (req,
 
 // Run all classifiers and store enriched memory
 async function storeMemoryEnriched(client, userId, message, intent, llmResponse, unanchoredResult, liveContext = []) {
-  // Half-life classifier
+  // Half-life classifier (keyword-based defaults)
   const halfLife = classifyHalfLife(message);
 
-  // Compute expires_at
-  const expiresAt = new Date(Date.now() + halfLife.half_life_hours * 60 * 60 * 1000).toISOString();
+  // Forgetting Curve Calibration: override with learned user-specific half-life
+  let calibratedHalfLifeHours = halfLife.half_life_hours;
+  try {
+    const curve = await learnForgettingCurve(userId);
+    const suggested = suggestHalfLife({ category: halfLife.category }, curve);
+    if (suggested && suggested !== 168) { // 168 = default fallback
+      calibratedHalfLifeHours = suggested;
+    }
+  } catch { /* use keyword-based default */ }
+
+  // Compute expires_at using calibrated half-life
+  const expiresAt = new Date(Date.now() + calibratedHalfLifeHours * 60 * 60 * 1000).toISOString();
 
   // Commitment classifier
   const commitment = detectCommitment(message);
@@ -239,7 +250,7 @@ async function storeMemoryEnriched(client, userId, message, intent, llmResponse,
         intent,
         llmResponse?.slice(0, 1000) || null,
         0.5,
-        halfLife.half_life_hours,
+        calibratedHalfLifeHours,
         halfLife.urgency_tier,
         halfLife.action_verb,
         halfLife.is_actionable,
@@ -263,7 +274,7 @@ async function storeMemoryEnriched(client, userId, message, intent, llmResponse,
     
     return {
       memoryId: result.rows[0]?.id,
-      halfLifeHours: halfLife.half_life_hours,
+      halfLifeHours: calibratedHalfLifeHours,
       urgencyTier: halfLife.urgency_tier,
       category: halfLife.category,
       actionVerb: halfLife.action_verb,
@@ -276,7 +287,7 @@ async function storeMemoryEnriched(client, userId, message, intent, llmResponse,
   }
 
   return {
-    halfLifeHours: halfLife.half_life_hours,
+    halfLifeHours: calibratedHalfLifeHours,
     urgencyTier: halfLife.urgency_tier,
     category: halfLife.category,
     actionVerb: halfLife.action_verb,
