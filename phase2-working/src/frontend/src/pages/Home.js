@@ -78,9 +78,24 @@ export function Home() {
               Track promises with witness accountability. Nudged before deadlines, not after.
             </p>
           </div>
+          <div class="surface-card" style="padding:1.5rem;cursor:pointer;border:1px solid rgba(204,255,0,0.15);" onclick="showPage('smart-dashboard')">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:#ccff00;box-shadow:0 0 12px rgba(204,255,0,0.5);"></span>
+              <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;color:#ccff00;">Smart Dashboard</h2>
+            </div>
+            <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+              7 intelligence engines learning your patterns — energy curves, quality scoring, social proof.
+            </p>
+          </div>
         </div>
 
-        <section class="card-reveal" style="margin-top:2rem;">
+        <!-- Social Proof -->
+        <div id="social-proof-home" class="surface-card card-reveal" style="padding:1.25rem;margin-top:1.5rem;border:1px solid rgba(204,255,0,0.08);display:none;">
+          <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">SOCIAL PROOF</div>
+          <div id="social-proof-content"></div>
+        </div>
+
+        <section class="card-reveal" style="margin-top:1.5rem;">
           <h2 style="font:var(--md-sys-typescale-title-large);margin-bottom:1rem;">Recent Activity</h2>
           <div id="recent-thoughts" class="surface-card" style="padding:0;">
             <div style="padding:1.5rem;">
@@ -166,10 +181,11 @@ function setupQuickCapture(container) {
 }
 
 async function loadHomeStats(container) {
-  const [memStats, billing, recent] = await Promise.all([
+  const [memStats, billing, recent, socialProof] = await Promise.all([
     api.get('/memory/stats'),
     api.get('/billing/status'),
     api.get('/memory?limit=5'),
+    api.get('/api/smart/social-proof').catch(() => null),
   ]);
 
   const statsEl = container.querySelector('#home-stats');
@@ -213,6 +229,26 @@ async function loadHomeStats(container) {
     `).join('');
   } else if (thoughtsEl) {
     thoughtsEl.innerHTML = '<div class="tg-state"><div class="tg-state-title">No thoughts captured yet</div><div class="tg-state-body">Use Quick Capture above, or open the full chat to start a thread. Everything you capture lands here first.</div></div>';
+  }
+
+  // Render social proof
+  const spContainer = container.querySelector('#social-proof-home');
+  const spContent = container.querySelector('#social-proof-content');
+  if (spContainer && spContent && socialProof?.insights && socialProof.insights.length > 0) {
+    spContainer.style.display = 'block';
+    const icons = { deadline: '⏰', witness: '🤝', activity: '📊', category: '📂', productivity: '⚡', completion: '✅' };
+    spContent.innerHTML = socialProof.insights.slice(0, 3).map(i => `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+        <span style="font-size:1.1rem;">${icons[i.type] || '📈'}</span>
+        <div style="flex:1;">
+          <div style="font:700 0.9rem 'Space Grotesk',system-ui;color:#ccff00;">${escHtml(i.stat || '')}</div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">${escHtml(i.message)}</div>
+        </div>
+      </div>
+    `).join('');
+    if (socialProof.networkSize > 0) {
+      spContent.innerHTML += `<div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);margin-top:0.5rem;">From ${socialProof.networkSize.toLocaleString()} user${socialProof.networkSize > 1 ? 's' : ''}</div>`;
+    }
   }
 }
 

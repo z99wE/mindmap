@@ -35,6 +35,11 @@ export function InteractiveSpace() {
             <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0.2rem 0.5rem;min-width:auto;height:auto;font-size:11px;color:var(--md-sys-color-error);">REMOVE</button>
           </div>
           <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." style="resize:vertical;min-height:48px;"></textarea>
+          <!-- Inline Quality Score -->
+          <div id="quality-indicator" style="display:none;align-items:center;gap:0.5rem;padding:0.375rem 0.625rem;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div id="quality-grade" style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 0.7rem 'Space Grotesk',system-ui;"></div>
+            <div id="quality-tip" style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);flex:1;"></div>
+          </div>
         </div>
         <button type="button" class="btn-m3 btn-tonal" id="dictate-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Voice Dictation">
           <span class="material-symbols-rounded">mic</span>
@@ -159,6 +164,37 @@ export function InteractiveSpace() {
   removeAttachBtn.addEventListener('click', () => {
     attachedFile = null;
     attachPreview.style.display = 'none';
+  });
+
+  // ── Inline Thought Quality Scoring (debounced) ───────────────────────
+  const qualityIndicator = container.querySelector('#quality-indicator');
+  const qualityGrade = container.querySelector('#quality-grade');
+  const qualityTip = container.querySelector('#quality-tip');
+  let qualityDebounce = null;
+  const gradeColors = { A: '#22c55e', B: '#84c616', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
+
+  input.addEventListener('input', () => {
+    clearTimeout(qualityDebounce);
+    const text = input.value.trim();
+    if (text.length < 5) {
+      qualityIndicator.style.display = 'none';
+      return;
+    }
+    qualityDebounce = setTimeout(async () => {
+      try {
+        const result = await api.post('/api/smart/score', { content: text });
+        const s = result.score;
+        if (!s) return;
+        const color = gradeColors[s.grade] || 'var(--md-sys-color-outline)';
+        qualityIndicator.style.display = 'flex';
+        qualityGrade.textContent = s.grade;
+        qualityGrade.style.color = color;
+        qualityGrade.style.border = `1px solid ${color}33`;
+        qualityGrade.style.background = `${color}11`;
+        qualityTip.textContent = s.coaching?.[0] || s.label;
+        qualityTip.style.color = s.grade === 'A' || s.grade === 'B' ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)';
+      } catch { /* ignore scoring errors */ }
+    }, 500);
   });
 
   form.addEventListener('submit', async (e) => {

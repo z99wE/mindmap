@@ -22,6 +22,7 @@ import { AdminDashboard } from './pages/AdminDashboard.js';
 import { Legal } from './pages/Legal.js';
 import { MapMyMind } from './pages/MapMyMind.js';
 import { Profile } from './pages/Profile.js';
+import { SmartDashboard } from './pages/SmartDashboard.js';
 import { initSpecularButtons } from './components/specularButton.js';
 import { initEnhancements } from './enhance.js';
 
@@ -55,6 +56,7 @@ const pageRegistry = {
   notifications:       { title: 'Notifications',   icon: 'notifications',  auth: true,  section: 'setup' },
 
   // Public / Other
+  'smart-dashboard':   { title: 'Smart Dashboard', icon: 'psychology',     auth: true,  section: 'analytics' },
   'how-it-works':      { title: 'How It Works',    icon: 'play_circle',    auth: false, section: 'main' },
   legal:               { title: 'Legal',           icon: 'gavel',          auth: false, section: 'other' },
   auth:                { title: 'Sign In',         icon: 'login',          auth: false, section: 'hidden' },
@@ -76,7 +78,7 @@ const pageFactories = {
   'thought-export': ThoughtExport, 'how-it-works': HowItWorks,
   notifications: NotificationsLog,
   admin: AdminDashboard, legal: Legal,
-  'map-my-mind': MapMyMind,
+  'map-my-mind': MapMyMind, 'smart-dashboard': SmartDashboard,
   profile: Profile,
 };
 
