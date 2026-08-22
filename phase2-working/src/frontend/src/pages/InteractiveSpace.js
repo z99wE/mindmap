@@ -22,7 +22,7 @@ export function InteractiveSpace() {
       <!-- Chat area -->
       <div id="chat-area" class="surface-card card-reveal" style="padding:1rem;min-height:400px;max-height:600px;overflow-y:auto;margin-bottom:1rem;">
         <div style="text-align:center;padding:2rem;color:var(--md-sys-color-outline);">
-          <p style="font:700 32px/1 'Space Grotesk';letter-spacing:-0.04em;opacity:0.2;margin-bottom:0.5rem;">CHAT</p>
+          <p style="font:var(--md-sys-typescale-display-small);opacity:0.2;margin-bottom:0.5rem;">CHAT</p>
           <p style="margin-top:0.5rem;">Start a conversation. Your thoughts will be classified and stored in memory.</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export function InteractiveSpace() {
           <span class="material-symbols-rounded">attach_file</span>
         </button>
         <button type="submit" class="btn-m3 btn-filled" id="send-btn" style="height:48px;">
-          <span style="font:700 14px/1 'Space Grotesk';">SEND</span>
+          <span style="font:var(--md-sys-typescale-label-large);">SEND</span>
         </button>
       </form>
     </div>`;
@@ -171,7 +171,7 @@ export function InteractiveSpace() {
   const qualityGrade = container.querySelector('#quality-grade');
   const qualityTip = container.querySelector('#quality-tip');
   let qualityDebounce = null;
-  const gradeColors = { A: '#22c55e', B: '#84c616', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
+  const gradeColors = { A: 'var(--color-success)', B: 'var(--md-sys-color-primary)', C: 'var(--color-analytical)', D: 'var(--color-urgency)', F: 'var(--md-sys-color-error)' };
 
   input.addEventListener('input', () => {
     clearTimeout(qualityDebounce);

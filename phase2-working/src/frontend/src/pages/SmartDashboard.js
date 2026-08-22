@@ -10,7 +10,7 @@ export function SmartDashboard() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">INTELLIGENCE ENGINES</div>
-        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0;">Smart Dashboard</h1>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Smart Dashboard</h1>
         <p style="color:var(--md-sys-color-on-surface-variant);margin-top:0.5rem;font:var(--md-sys-typescale-body-medium);">
           7 zero-cost behavioral engines learning your patterns in real-time
         </p>
@@ -159,8 +159,8 @@ function renderEnergyCurve(container, energy) {
     <svg viewBox="0 0 ${width} ${height}" style="width:100%;height:100%;">
       <defs>
         <linearGradient id="energyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#ccff00" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="#ccff00" stop-opacity="0"/>
+          <stop offset="0%" stop-color="var(--md-sys-color-primary)" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="var(--md-sys-color-primary)" stop-opacity="0"/>
         </linearGradient>
       </defs>
       <!-- Grid lines -->
@@ -168,10 +168,10 @@ function renderEnergyCurve(container, energy) {
       <!-- Area fill -->
       <path d="${areaD}" fill="url(#energyGrad)" />
       <!-- Curve line -->
-      <path d="${pathD}" fill="none" stroke="#ccff00" stroke-width="2" stroke-linecap="round" />
+      <path d="${pathD}" fill="none" stroke="var(--md-sys-color-primary)" stroke-width="2" stroke-linecap="round" />
       <!-- Current hour indicator -->
-      <circle cx="${currentX}" cy="${currentY}" r="5" fill="#ccff00" opacity="0.3"/>
-      <circle cx="${currentX}" cy="${currentY}" r="3" fill="#ccff00"/>
+      <circle cx="${currentX}" cy="${currentY}" r="5" fill="var(--md-sys-color-primary)" opacity="0.3"/>
+      <circle cx="${currentX}" cy="${currentY}" r="3" fill="var(--md-sys-color-primary)"/>
       <!-- Hour labels -->
       ${[0, 6, 12, 18].map(h => `<text x="${pad + (h / 23) * (width - pad * 2)}" y="${height - 4}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="10" font-family="'JetBrains Mono',monospace">${h}:00</text>`).join('')}
     </svg>
@@ -187,7 +187,7 @@ function renderEnergyCurve(container, energy) {
 
   statusEl.innerHTML = `
     <div style="display:flex;align-items:center;gap:0.75rem;">
-      <div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 1.1rem 'Space Grotesk',system-ui;color:${isPeak ? '#ccff00' : 'var(--md-sys-color-outline)'};border:2px solid ${isPeak ? 'rgba(204,255,0,0.3)' : 'rgba(255,255,255,0.1)'};">
+      <div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:var(--md-sys-typescale-headline-small);color:${isPeak ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'};border:2px solid ${isPeak ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-outline-variant)'};">
         ${Math.round(currentEnergy * 100)}
       </div>
       <div>
@@ -204,7 +204,7 @@ function renderCognitiveDebt(container, escalations) {
   if (!escalations?.escalations) { el.innerHTML = '<p style="color:var(--md-sys-color-outline);font:var(--md-sys-typescale-body-small);">No pending thoughts to escalate</p>'; return; }
 
   const debt = escalations.cognitiveDebt;
-  const debtColor = debt.level === 'critical' ? '#ef4444' : debt.level === 'high' ? '#f59e0b' : debt.level === 'medium' ? '#ccff00' : '#22c55e';
+  const debtColor = debt.level === 'critical' ? 'var(--md-sys-color-error)' : debt.level === 'high' ? 'var(--color-analytical)' : debt.level === 'medium' ? 'var(--md-sys-color-primary)' : 'var(--color-success)';
 
   el.innerHTML = `
     <div style="position:relative;width:100px;height:100px;margin:0 auto;">
@@ -214,7 +214,7 @@ function renderCognitiveDebt(container, escalations) {
           stroke-dasharray="${debt.score * 2.51} 251" stroke-linecap="round"/>
       </svg>
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-        <span style="font:700 1.5rem 'Space Grotesk',system-ui;color:${debtColor};">${debt.score}</span>
+        <span style="font:var(--md-sys-typescale-headline-medium);color:${debtColor};">${debt.score}</span>
         <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">debt</span>
       </div>
     </div>
@@ -224,7 +224,7 @@ function renderCognitiveDebt(container, escalations) {
   // Show top escalations
   const top = escalations.escalations.slice(0, 5);
   listEl.innerHTML = top.map(e => {
-    const severityColor = e.escalation.severity === 'critical' ? '#ef4444' : e.escalation.severity === 'warn' ? '#f59e0b' : 'var(--md-sys-color-outline)';
+    const severityColor = e.escalation.severity === 'critical' ? 'var(--md-sys-color-error)' : e.escalation.severity === 'warn' ? 'var(--color-analytical)' : 'var(--md-sys-color-outline)';
     return `
       <div class="surface-card" style="padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem;border-left:3px solid ${severityColor};">
         <span style="font-size:1.2rem;">${e.escalation.icon}</span>
@@ -267,13 +267,13 @@ function renderQualityScores(container, quality) {
     return;
   }
 
-  const gradeColors = { A: '#22c55e', B: '#84c616', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
+  const gradeColors = { A: 'var(--color-success)', B: 'var(--md-sys-color-primary)', C: 'var(--color-analytical)', D: 'var(--color-urgency)', F: 'var(--md-sys-color-error)' };
 
   el.innerHTML = quality.scores.slice(0, 8).map(s => {
     const color = gradeColors[s.grade] || 'var(--md-sys-color-outline)';
     return `
       <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 0.9rem 'Space Grotesk',system-ui;color:${color};border:1px solid ${color}33;background:${color}11;">
+        <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:var(--md-sys-typescale-title-medium);color:${color};border:1px solid ${color}33;background:${color}11;">
           ${s.grade}
         </div>
         <div style="flex:1;min-width:0;">
@@ -310,7 +310,7 @@ function renderSocialProof(container, social) {
     <div style="padding:0.75rem;border:1px solid rgba(204,255,0,0.08);border-radius:8px;margin-bottom:0.5rem;">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
         <span style="font-size:1.1rem;">${icons[insight.type] || '📈'}</span>
-        <span style="font:700 1rem 'Space Grotesk',system-ui;color:#ccff00;">${escHtml(insight.stat || '')}</span>
+        <span style="font:var(--md-sys-typescale-title-medium);color:var(--md-sys-color-primary);">${escHtml(insight.stat || '')}</span>
       </div>
       <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);line-height:1.5;">${escHtml(insight.message)}</div>
       ${insight.actionable ? `<div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-primary);margin-top:0.375rem;">→ ${escHtml(insight.actionable)}</div>` : ''}
@@ -339,7 +339,7 @@ function renderForgettingCurve(container, curve) {
 
   el.innerHTML = cats.map(([cat, data]) => {
     const width = (data.halfLifeHours / maxHL) * 100;
-    const color = data.confidence === 'high' ? '#ccff00' : 'rgba(255,255,255,0.3)';
+    const color = data.confidence === 'high' ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)';
     return `
       <div style="margin-bottom:0.5rem;">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
@@ -379,7 +379,7 @@ function renderThoughtChains(container, chains) {
           const isDone = t.status === 'completed' || t.status === 'done';
           return `
             <div style="display:flex;align-items:center;gap:0.5rem;">
-              <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;${isDone ? 'background:rgba(34,197,94,0.2);color:#22c55e;' : 'border:1px solid rgba(255,255,255,0.15);color:var(--md-sys-color-outline);'}">
+              <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:var(--md-sys-typescale-label-small);${isDone ? 'background:var(--color-success-container,rgba(34,197,94,0.2));color:var(--color-success);' : 'border:1px solid var(--md-sys-color-outline-variant);color:var(--md-sys-color-outline);'}">
                 ${isDone ? '✓' : i + 1}
               </div>
               <span style="font:var(--md-sys-typescale-body-small);color:${isDone ? 'var(--md-sys-color-outline)' : 'var(--md-sys-color-on-surface)'};${isDone ? 'text-decoration:line-through;' : ''} overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.content?.substring(0, 50) || '')}</span>
@@ -396,7 +396,7 @@ function renderPatternBreaks(container, data) {
   if (!data?.breaks || data.breaks.length === 0) {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;">
-        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(34,197,94,0.15);color:#22c55e;">✓</div>
+        <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--color-success-container,rgba(34,197,94,0.15));color:var(--color-success);">✓</div>
         <div>
           <div style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface);">All patterns normal</div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">No behavioral anomalies detected</div>
@@ -407,11 +407,11 @@ function renderPatternBreaks(container, data) {
   }
 
   el.innerHTML = data.breaks.map(b => {
-    const severityColor = b.severity >= 0.8 ? '#ef4444' : b.severity >= 0.5 ? '#f59e0b' : '#ccff00';
+    const severityColor = b.severity >= 0.8 ? 'var(--md-sys-color-error)' : b.severity >= 0.5 ? 'var(--color-analytical)' : 'var(--md-sys-color-primary)';
     const severityLabel = b.severity >= 0.8 ? 'ALERT' : b.severity >= 0.5 ? 'WATCH' : 'INFO';
     return `
       <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-left:3px solid ${severityColor};background:rgba(255,255,255,0.02);border-radius:0 8px 8px 0;margin-bottom:0.5rem;">
-        <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 0.7rem 'Space Grotesk',system-ui;color:${severityColor};border:1px solid ${severityColor}33;flex-shrink:0;">
+        <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:var(--md-sys-typescale-label-medium);color:${severityColor};border:1px solid ${severityColor}33;flex-shrink:0;">
           ${severityLabel}
         </div>
         <div style="flex:1;">

@@ -26,7 +26,7 @@ export function Home() {
           <textarea id="quick-capture" class="input-m3" rows="2" placeholder="Drop a thought, commitment, or question here..." style="resize:vertical;min-height:48px;width:100%;"></textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:0.75rem;">
             <button class="btn-m3 btn-filled" id="quick-send-btn">
-              <span style="font:700 13px/1 'Space Grotesk';">PROCESS</span>
+              <span style="font:var(--md-sys-typescale-label-large);">PROCESS</span>
             </button>
           </div>
           <div id="quick-result" style="margin-top:0.75rem;display:none;"></div>
@@ -80,8 +80,8 @@ export function Home() {
           </div>
           <div class="surface-card" style="padding:1.5rem;cursor:pointer;border:1px solid rgba(204,255,0,0.15);" onclick="showPage('smart-dashboard')">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:#ccff00;box-shadow:0 0 12px rgba(204,255,0,0.5);"></span>
-              <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;color:#ccff00;">Smart Dashboard</h2>
+              <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 12px var(--md-sys-color-primary);"></span>
+              <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;color:var(--md-sys-color-primary);">Smart Dashboard</h2>
             </div>
             <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
               7 intelligence engines learning your patterns — energy curves, quality scoring, social proof.
@@ -241,7 +241,7 @@ async function loadHomeStats(container) {
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
         <span style="font-size:1.1rem;">${icons[i.type] || '📈'}</span>
         <div style="flex:1;">
-          <div style="font:700 0.9rem 'Space Grotesk',system-ui;color:#ccff00;">${escHtml(i.stat || '')}</div>
+          <div style="font:var(--md-sys-typescale-title-medium);color:var(--md-sys-color-primary);">${escHtml(i.stat || '')}</div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);">${escHtml(i.message)}</div>
         </div>
       </div>
