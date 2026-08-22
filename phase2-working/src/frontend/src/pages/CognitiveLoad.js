@@ -102,7 +102,7 @@ export function CognitiveLoad() {
       ${predictions.length > 0 ? `
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
           ${predictions.map(p => `
-            <div style="flex:1;min-width:120px;padding:0.75rem;border-radius:var(--md-sys-shape-medium);background:${p.isOverload ? 'rgba(255,138,158,0.1)' : 'rgba(204,255,0,0.05)'};border:1px solid ${p.isOverload ? 'rgba(255,138,158,0.2)' : 'rgba(204,255,0,0.1)'};">
+            <div style="flex:1;min-width:120px;padding:0.75rem;border-radius:var(--md-sys-shape-medium);background:${p.isOverload ? 'rgba(239,68,68,0.1)' : 'rgba(204,255,0,0.05)'};border:1px solid ${p.isOverload ? 'rgba(239,68,68,0.2)' : 'rgba(204,255,0,0.1)'};">
               <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-on-surface-variant);">${p.dayName}</div>
               <div style="font:var(--md-sys-typescale-title-medium);">${p.predictedVolume} thoughts</div>
               <div style="font:var(--md-sys-typescale-body-small);color:${p.isOverload ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-outline)'};">${p.overloadProbability}% overload risk</div>
@@ -132,7 +132,7 @@ export function CognitiveLoad() {
     if (!data) return;
     const score = data.score || 0;
     const level = data.level || 'low';
-    const colors = { low: '#10b981', moderate: '#f59e0b', high: '#ef4444' };
+    const colors = { low: 'var(--brand-tertiary)', moderate: 'var(--brand-secondary)', high: 'var(--brand-error)' };
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:1rem;">
         <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(${colors[level]} ${score * 3.6}deg, var(--md-sys-color-surface-variant) 0deg);display:flex;align-items:center;justify-content:center;">

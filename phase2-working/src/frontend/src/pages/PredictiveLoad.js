@@ -2,9 +2,9 @@
 import api from '../lib/api.js';
 
 const COLORS = {
-  low: '#10b981',
-  moderate: '#f59e0b',
-  high: '#ef4444',
+  low: 'var(--brand-tertiary)',
+  moderate: 'var(--brand-secondary)',
+  high: 'var(--brand-error)',
   primary: 'var(--md-sys-color-primary)',
   tertiary: 'var(--md-sys-color-tertiary)',
   outline: 'var(--md-sys-color-outline)',
@@ -299,9 +299,9 @@ function renderOverdue(el, data) {
   if (overdue === 0) {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:var(--md-sys-shape-medium);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);">
-        <span class="material-symbols-rounded" style="color:#10b981;">check_circle</span>
+        <span class="material-symbols-rounded" style="color:var(--brand-tertiary);">check_circle</span>
         <div>
-          <div style="font:var(--md-sys-typescale-body-medium);color:#10b981;">All clear</div>
+          <div style="font:var(--md-sys-typescale-body-medium);color:var(--brand-tertiary);">All clear</div>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">No overdue items. Your cognitive debt is clean.</div>
         </div>
       </div>`;

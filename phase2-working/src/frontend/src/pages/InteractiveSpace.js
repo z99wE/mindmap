@@ -30,7 +30,7 @@ export function InteractiveSpace() {
       <!-- Input form -->
       <form id="chat-form" class="card-reveal" style="display:flex;gap:0.75rem;align-items:flex-end;">
         <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
-          <div id="attachment-preview" style="display:none;background:rgba(255,255,255,0.05);padding:0.5rem 1rem;border-radius:var(--md-sys-shape-small);font-size:12px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,0.1);">
+          <div id="attachment-preview" style="display:none;background:var(--md-sys-color-surface-container-high);padding:0.5rem 1rem;border-radius:var(--md-sys-shape-small);font-size:12px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--md-sys-color-outline-variant);">
             <span id="attachment-name" style="color:var(--md-sys-color-primary);"></span>
             <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0.2rem 0.5rem;min-width:auto;height:auto;font-size:11px;color:var(--md-sys-color-error);">REMOVE</button>
           </div>
@@ -302,7 +302,7 @@ export function InteractiveSpace() {
         <div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
           <div class="mono-label" style="font-size:9px;color:var(--md-sys-color-outline);text-transform:uppercase;margin-bottom:4px;">SOURCES</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            ${result.sources.slice(0, 4).map(s => `<a href="${escHtml(s.url || '#')}" target="_blank" rel="noopener" style="font:10px/1.3 system-ui;color:var(--md-sys-color-primary);text-decoration:none;background:rgba(204,255,0,0.06);padding:2px 8px;border-radius:var(--md-sys-shape-full);border:1px solid rgba(204,255,0,0.15);">${escHtml(s.title || s.url || 'source').slice(0, 40)}</a>`).join('')}
+            ${result.sources.slice(0, 4).map(s => `<a href="${escHtml(s.url || '#')}" target="_blank" rel="noopener" style="font:10px/1.3 system-ui;color:var(--md-sys-color-primary);text-decoration:none;background:var(--md-sys-color-primary-container);padding:2px 8px;border-radius:var(--md-sys-shape-full);border:1px solid rgba(204,255,0,0.15);">${escHtml(s.title || s.url || 'source').slice(0, 40)}</a>`).join('')}
           </div>
         </div>` : '';
       chatArea.innerHTML += `
