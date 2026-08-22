@@ -11,9 +11,8 @@ export function Credits() {
       <!-- Header -->
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div class="mono-label" style="margin-bottom:0.5rem;color:var(--md-sys-color-primary);">SUBSCRIPTION</div>
-        <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0 0 0.25rem;">Credits &amp; Tiers</h1>
-        <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
-          Choose the plan that fits your workflow. All plans include full cognitive features.
+        <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0 0 0.25rem;">Credits &amp; Tiers</h1>          <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
+          ReMentally is free for everyone. Early Adopter spots unlock higher limits and priority access.
         </p>
       </div>
 
@@ -72,75 +71,32 @@ export function Credits() {
           ${currentTier !== 'free' ? '<button class="btn-m3 btn-outlined" style="width:100%;" onclick="switchTier(\'free\')">Switch to Free</button>' : '<button class="btn-m3 btn-outlined" style="width:100%;opacity:0.5;" disabled>Current Plan</button>'}
         </div>
  
-        <!-- Pro Tier -->
-        <div class="surface-card card-reveal" style="padding:2rem;position:relative;overflow:hidden;${currentTier === 'pro' || currentTier === 'premium' ? 'border-color:rgba(204,255,0,0.5);box-shadow:0 0 30px rgba(204,255,0,0.12);' : ''}">
-          <div style="position:absolute;top:0;right:0;background:var(--md-sys-color-primary);color:#000;font:var(--md-sys-typescale-label-small);padding:4px 14px;border-radius:0 0 0 var(--md-sys-shape-small);letter-spacing:0.08em;">BEST VALUE</div>
-          ${currentTier === 'pro' || currentTier === 'premium' ? '<div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">CURRENT PLAN</div>' : ''}
-          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">PRO</h3>
-          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Cross-device cognitive co-processing</p>
-          <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">$15<span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-outline);">/month</span></div>
+        <!-- Early Adopter Tier -->
+        <div class="surface-card card-reveal" style="padding:2rem;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;right:0;background:var(--md-sys-color-primary);color:#000;font:var(--md-sys-typescale-label-small);padding:4px 14px;border-radius:0 0 0 var(--md-sys-shape-small);letter-spacing:0.08em;">LIMITED SPOTS</div>
+          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Early Adopter</h3>
+          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">Higher limits, priority access, all channels</p>
+          <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">Waitlist</div>
           <ul style="list-style:none;padding:0;margin:1.25rem 0;display:flex;flex-direction:column;gap:0.6rem;">
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
               <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>500 runs/day
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Fallback system keys (no keys needed)
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Shared LLM pool (no keys needed)
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Unlimited server storage (never purged)
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>All 10 integration channels
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Seamless laptop &amp; phone sync
-            </li>
-            <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>All integration channels
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Unlimited server storage
             </li>
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
               <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Live web search (Tavily/Firecrawl)
             </li>
-          </ul>
-          ${import.meta.env.VITE_ENABLE_PAYMENTS === 'true' ? `
-          <!-- PAYMENT STUBS: Razorpay (UPI, Netbanking, Cards) / Lemon Squeezy / RevenueCat -->
-          <!-- Replace this button's onclick with your Razorpay or Lemon Squeezy checkout link -->
-          <button class="btn-m3 btn-filled" style="width:100%;" onclick="window.open('https://your-razorpay-link-here.com', '_blank')">Upgrade with Razorpay</button>
-          ` : `
-          <div id="waitlist-pro-section">
-            <div style="display:flex;gap:0.5rem;">
-              <input type="email" id="waitlist-pro-email" placeholder="your@email.com" style="flex:1;padding:0.6rem 1rem;background:rgba(255,255,255,0.05);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-sys-shape-small);color:var(--md-sys-color-on-surface);font:var(--md-sys-typescale-body-medium);outline:none;" />
-              <button class="btn-m3 btn-outlined" id="btn-pro-waitlist" style="white-space:nowrap;">Join Waitlist</button>
-            </div>
-            <div id="waitlist-pro-status" style="margin-top:0.5rem;"></div>
-          </div>
-          `}
-        </div>
-
-        <!-- Managed Tier (Coming Soon) -->
-        <div class="surface-card card-reveal" style="padding:2rem;opacity:0.85;">
-          <div class="mono-label" style="color:var(--md-sys-color-tertiary);margin-bottom:0.5rem;">COMING SOON</div>
-          <h3 style="font:var(--md-sys-typescale-title-large);margin:0 0 0.25rem;">Managed</h3>
-          <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 1rem;">No API keys needed — we handle everything</p>
-          <div style="font:var(--md-sys-typescale-display-small);color:var(--md-sys-color-on-surface);">TBD</div>
-          <ul style="list-style:none;padding:0;margin:1.25rem 0;display:flex;flex-direction:column;gap:0.6rem;">
             <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Unlimited runs
-            </li>
-            <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>No API keys needed
-            </li>
-            <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Managed LLM infrastructure
-            </li>
-            <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Custom routing
-            </li>
-            <li style="display:flex;align-items:center;gap:0.5rem;font:var(--md-sys-typescale-body-medium);">
-              <span class="dot" style="width:6px;height:6px;background:var(--md-sys-color-tertiary);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>SLA guarantee
+              <span class="dot" style="width:6px;height:6px;background:var(--color-success);box-shadow:0 0 8px rgba(16,185,129,0.3);flex-shrink:0;"></span>Priority support
             </li>
           </ul>
-          ${import.meta.env.VITE_ENABLE_PAYMENTS === 'true' ? `
-          <!-- PAYMENT STUBS for Managed -->
-          <button class="btn-m3 btn-filled" style="width:100%;" onclick="window.open('https://your-razorpay-link-here.com', '_blank')">Subscribe with Razorpay</button>
-          ` : `
           <div id="waitlist-section">
             <div style="display:flex;gap:0.5rem;">
               <input type="email" id="waitlist-email" placeholder="your@email.com" style="flex:1;padding:0.6rem 1rem;background:rgba(255,255,255,0.05);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-sys-shape-small);color:var(--md-sys-color-on-surface);font:var(--md-sys-typescale-body-medium);outline:none;" />
@@ -148,7 +104,6 @@ export function Credits() {
             </div>
             <div id="waitlist-status" style="margin-top:0.5rem;"></div>
           </div>
-          `}
         </div>
       </div>
 
@@ -202,7 +157,7 @@ export function Credits() {
       </div>
     </div>`;
 
-  // Waitlist signup (Managed)
+  // Waitlist signup (Early Adopter)
   const btnWaitlist = container.querySelector('#btn-waitlist');
   if (btnWaitlist) {
     btnWaitlist.addEventListener('click', async () => {
@@ -214,40 +169,15 @@ export function Credits() {
       }
       btnWaitlist.disabled = true;
       btnWaitlist.textContent = 'Joining...';
-      const result = await api.post('/billing/waitlist', { email, tier: 'managed' });
+      const result = await api.post('/billing/waitlist', { email, tier: 'early_adopter' });
       if (result.error) {
         status.innerHTML = `<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">${result.error}</p>`;
         btnWaitlist.disabled = false;
         btnWaitlist.textContent = 'Join Waitlist';
       } else {
-        status.innerHTML = '<p style="color:var(--color-success);font:var(--md-sys-typescale-body-small);">You\'re on the list! We\'ll notify you when Managed is ready.</p>';
+        status.innerHTML = '<p style="color:var(--color-success);font:var(--md-sys-typescale-body-small);">You\'re on the list! We\'ll notify you when Early Adopter spots open.</p>';
         container.querySelector('#waitlist-email').value = '';
         btnWaitlist.textContent = 'Joined';
-      }
-    });
-  }
-
-  // Waitlist signup (PRO)
-  const btnProWaitlist = container.querySelector('#btn-pro-waitlist');
-  if (btnProWaitlist) {
-    btnProWaitlist.addEventListener('click', async () => {
-      const email = container.querySelector('#waitlist-pro-email')?.value?.trim();
-      const status = container.querySelector('#waitlist-pro-status');
-      if (!email || !email.includes('@')) {
-        status.innerHTML = '<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">Please enter a valid email.</p>';
-        return;
-      }
-      btnProWaitlist.disabled = true;
-      btnProWaitlist.textContent = 'Joining...';
-      const result = await api.post('/billing/waitlist', { email, tier: 'pro' });
-      if (result.error) {
-        status.innerHTML = `<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">${result.error}</p>`;
-        btnProWaitlist.disabled = false;
-        btnProWaitlist.textContent = 'Join Waitlist';
-      } else {
-        status.innerHTML = '<p style="color:var(--color-success);font:var(--md-sys-typescale-body-small);">You\'re on the PRO list! We\'ll notify you when PRO is ready.</p>';
-        container.querySelector('#waitlist-pro-email').value = '';
-        btnProWaitlist.textContent = 'Joined';
       }
     });
   }
@@ -317,18 +247,6 @@ export function Credits() {
   loadData();
 
   // Expose global functions for onclick handlers
-  window.subscribePro = async () => {
-    const result = await api.post('/billing/subscribe', { tier: 'pro' });
-    if (result.error) {
-      toast.show(result.error, 'error');
-      return;
-    }
-    toast.show('Upgraded to PRO! Refreshing...', 'success');
-    const me = await api.get('/auth/me');
-    if (me.id) api.setUser(me);
-    window.showPage?.('credits');
-  };
-
   window.buyBooster = async (bundleId) => {
     const result = await api.post('/billing/buy-booster', { bundleId });
     if (result.error) {

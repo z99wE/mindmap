@@ -30,7 +30,6 @@
 - [Quick Start](#quick-start)
 - [Testing](#testing)
 - [Compliance](#compliance)
-- [What's Not Built Yet](#whats-not-built-yet)
 
 ---
 
@@ -157,8 +156,7 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 | **Installable PWA** | ✅ Manifest + service worker with offline caching |
 | **Capacitor iOS** | ✅ Configured. Run `npm run cap:build:ios` to build |
 | **Capacitor Android** | ✅ Configured. Run `npm run cap:build:android` to build |
-| **Published on App Store** | ❌ Not yet — requires Apple Developer account ($99/yr) |
-| **Published on Play Store** | ❌ Not yet — requires Google Play account ($25 one-time) |
+
 
 ### Cross-User Analytics (Admin)
 
@@ -169,26 +167,14 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 
 ---
 
-## Infrastructure Costs
-
-| Component | Strategy | Monthly Cost |
-|-----------|----------|--------------|
-| **Hosting** | Render free tier (sleeps on idle) or $7/mo starter | **$0–7** |
-| **Database** | Render free Postgres (1GB) or $7/mo (8GB) | **$0–7** |
-| **LLM Processing** | Users bring their own API keys ($0 for you). Pro tier uses your shared pool. | **$0 + your API costs for Pro users** |
-| **Notifications** | Users connect their own Telegram/Slack/Discord bots. Zero third-party API costs. | **$0** |
-| **Browser Extension** | Code is ready. Chrome Web Store publisher fee is $5 one-time. | **$5 once** |
-| **Total** | | **$0–14/mo + variable LLM costs** |
-
----
-
 ## Pricing
 
-| Tier | Price | What you get | Why you'd pay |
-|------|-------|-------------|---------------|
-| **Free** | $0 | 10 runs/day, 2 channels, bring your own LLM key | Evaluate the product |
-| **Pro** | **$15/mo** | 500 runs/day, shared LLM key pool (no key needed), all 10 channels, unlimited storage, priority support | Convenience — skip managing your own API keys |
-| **Enterprise** | Custom | Team workspaces, managed LLM infrastructure, SSO, SLA | B2B compliance and scale |
+| Tier | Price | What you get |
+|------|-------|-------------|
+| **Free** | $0 | 10 runs/day, 2 channels, bring your own LLM key, full cognitive features |
+| **Early Adopter** | Waitlist | Higher limits, shared LLM pool, all 10 channels — [join the waitlist](https://rementally.com) |
+
+Early Adopter spots are limited. Drop your email on the Credits page to get notified when spots open.
 
 ---
 
@@ -271,20 +257,6 @@ All tests use mocked HTTP and database layers. No external API keys or running s
 | **GDPR (EU)** | Implemented | Consent logging on registration, breach detection and logging, automated data deletion cron (30-day retention), full data export and account deletion via UI. Grievance submission and tracking system (Art. 77). |
 | **DPDP (India)** | Implemented | Consent logging (Sec. 6), grievance redressal system (Sec. 13), cross-border transfer disclosure (Sec. 16). |
 | **Medical disclaimer** | In place | NOT a medical device. Does not diagnose or treat any cognitive condition. |
-
----
-
-## What's Not Built Yet
-
-These are called out honestly so you know the current state:
-
-| Feature | Status | Why it's missing |
-|---------|--------|-----------------|
-| **Mobile app** | ❌ Not built | Web + browser extension cover desktop. Capacitor config is ready — needs Apple/Google account to publish. |
-| **Browser extension published** | ⏳ Code ready, not submitted | Requires Chrome Web Store account ($5) and submission process. |
-| **Bluesky inbound** | ❌ Not built | Bluesky uses AT Protocol firehose — different architecture from webhooks. |
-| **Team/enterprise workspaces** | ❌ Not built | Collaborative sharing exists for pairs. Multi-user workspaces are next. |
-| **Public API for third-party developers** | ❌ Not built | Internal API exists. Public documentation and rate limiting needed. |
 
 ---
 
