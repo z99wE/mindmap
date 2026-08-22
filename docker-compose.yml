@@ -20,7 +20,7 @@ services:
 
   app:
     build:
-      context: .
+      context: ./phase2-working
       dockerfile: Dockerfile
     container_name: rementally-app
     environment:
@@ -36,8 +36,8 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./src:/app/src
-      - ./features:/app/features
+      - ./phase2-working/src:/app/src
+      - ./phase2-working/features:/app/features
     command: node server.js
 
 volumes:
