@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard.js';
 import { MissionControl } from './pages/MissionControl.js';
 import { BrainFragments } from './pages/BrainFragments.js';
 import { CognitiveLoad } from './pages/CognitiveLoad.js';
+import { PredictiveLoad } from './pages/PredictiveLoad.js';
 import { MemorySegments } from './pages/MemorySegments.js';
 import { Memory } from './pages/Memory.js';
 import { InteractiveSpace } from './pages/InteractiveSpace.js';
@@ -41,6 +42,7 @@ const pageRegistry = {
   commitments:         { title: 'Commitments',     icon: 'task_alt',       auth: true,  section: 'analytics' },
   'brain-fragments':   { title: 'Brain Fragments', icon: 'neurology',      auth: true,  section: 'analytics' },
   'cognitive-load':    { title: 'Cognitive Load',  icon: 'monitoring',     auth: true,  section: 'analytics' },
+  'predictive-load':   { title: 'Predictive Load', icon: 'psychology',     auth: true,  section: 'analytics' },
   archaeology:         { title: 'Archaeology',     icon: 'history_edu',    auth: true,  section: 'analytics' },
   'memory-segments':   { title: 'Memory Segments', icon: 'scatter_plot',   auth: true,  section: 'analytics' },
 
@@ -65,7 +67,7 @@ const pageRegistry = {
 
 const pageFactories = {
   home: Home, auth: Auth, dashboard: Dashboard, 'mission-control': MissionControl,
-  'brain-fragments': BrainFragments, 'cognitive-load': CognitiveLoad,
+  'brain-fragments': BrainFragments, 'cognitive-load': CognitiveLoad, 'predictive-load': PredictiveLoad,
   'memory-segments': MemorySegments, memory: Memory,  'interactive-space': InteractiveSpace,
   'api-keys': APIKeys,
   channels: Channels,
@@ -88,7 +90,7 @@ function buildWheelPages() {
   const order = [
     'home', 'dashboard', 'interactive-space', 'map-my-mind', 'mission-control',
     'how-it-works',
-    'thought-afterlife', 'commitments', 'brain-fragments', 'cognitive-load',
+    'thought-afterlife', 'commitments', 'brain-fragments', 'cognitive-load', 'predictive-load',
     'archaeology', 'memory-segments',
     'memory', 'thought-export', 'api-keys', 'channels', 'credits', 'notifications',
     'legal',
