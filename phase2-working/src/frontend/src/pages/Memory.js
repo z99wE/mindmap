@@ -131,7 +131,7 @@ export function Memory() {
           <div style="flex:1;">
             <p style="font:var(--md-sys-typescale-body-medium);margin-bottom:0.5rem;">${escHtml(m.content)}</p>
             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-              ${m.category ? `<span class="chip">${m.category}</span>` : ''}
+              ${m.category ? `<span class="chip">${esc(m.category)}</span>` : ''}
               ${m.cognitive_load || m.cognitiveLoad ? `<span class="chip chip-primary">${m.cognitive_load || m.cognitiveLoad}</span>` : ''}
               ${m.brain_area || m.brainArea ? `<span class="chip">${m.brain_area || m.brainArea}</span>` : ''}
             </div>

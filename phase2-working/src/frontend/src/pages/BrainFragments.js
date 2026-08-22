@@ -42,11 +42,11 @@ export function BrainFragments() {
       ${areas.map(a => `
         <div style="margin-bottom:0.75rem;">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
-            <span style="font:var(--md-sys-typescale-label-medium);">${a.area}</span>
-            <span style="font:var(--md-sys-typescale-label-medium);color:${colors[a.area] || 'var(--md-sys-color-outline)'};">${a.percentage}%</span>
+            <span style="font:var(--md-sys-typescale-label-medium);">${esc(a.area)}</span>
+            <span style="font:var(--md-sys-typescale-label-medium);color:${colors[a.area] || 'var(--md-sys-color-outline)'};">${esc(a.percentage)}%</span>
           </div>
-          <div class="progress-bar"><span style="width:${a.percentage}%;background:${colors[a.area] || 'var(--md-sys-color-primary)'}"></span></div>
-          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.15rem;">${a.count} thoughts · avg importance ${a.avgImportance}</div>
+          <div class="progress-bar"><span style="width:${esc(a.percentage)}%;background:${colors[a.area] || 'var(--md-sys-color-primary)'}"></span></div>
+          <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-top:0.15rem;">${esc(a.count)} thoughts · avg importance ${esc(a.avgImportance)}</div>
         </div>
       `).join('')}`;
   });
@@ -70,7 +70,7 @@ function renderRadialChart(areas, colors) {
     const path = `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
     startAngle = endAngle;
     return `<path d="${path}" fill="${colors[a.area] || '#d0bcff'}" opacity="0.7" stroke="#141218" stroke-width="2">
-      <title>${a.area}: ${a.percentage}%</title></path>`;
+      <title>${esc(a.area)}: ${esc(a.percentage)}%</title></path>`;
   }).join('') + `<circle cx="${cx}" cy="${cy}" r="35" fill="#1e1c22"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="#e6e0e9" font-size="14" font-weight="600">${total}</text>`;
 }
 

@@ -98,10 +98,10 @@ export function NotificationsLog() {
           </div>
           <div style="flex:1;min-width:0;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-              <span style="font:var(--md-sys-typescale-title-small);${isUnread ? 'color:var(--md-sys-color-on-surface);' : 'color:var(--md-sys-color-on-surface-variant);'}">${formatType(n.type)}</span>
+              <span style="font:var(--md-sys-typescale-title-small);${isUnread ? 'color:var(--md-sys-color-on-surface);' : 'color:var(--md-sys-color-on-surface-variant);'}">${esc(formatType(n.type))}</span>
               <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);white-space:nowrap;">${timeAgo}</span>
             </div>
-            <p style="font:var(--md-sys-typescale-body-medium);margin:0.25rem 0 0;color:var(--md-sys-color-on-surface-variant);">${n.message || ''}</p>
+            <p style="font:var(--md-sys-typescale-body-medium);margin:0.25rem 0 0;color:var(--md-sys-color-on-surface-variant);">${esc(n.message || '')}</p>
             <div style="display:flex;gap:0.5rem;margin-top:0.5rem;align-items:center;">
               ${n.channel ? `<span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);background:var(--md-sys-color-surface-container);padding:1px 6px;border-radius:var(--md-sys-shape-extra-small);">${n.channel}</span>` : ''}
               ${n.delivered

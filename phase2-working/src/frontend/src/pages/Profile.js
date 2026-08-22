@@ -42,9 +42,9 @@ export function Profile() {
         </div>
         <div style="flex:1;min-width:0;">
           <h1 style="font:var(--md-sys-typescale-headline-small);margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="profile-name-display">
-            ${user.firstName ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}` : user.email?.split('@')[0] || 'User'}
+            ${esc(user.firstName ? user.firstName + (user.lastName ? ' ' + user.lastName : '') : user.email?.split('@')[0] || 'User')}
           </h1>
-          <p style="margin:0 0 6px;font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">${user.email || ''}</p>
+          <p style="margin:0 0 6px;font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">${esc(user.email || '')}</p>
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;background:rgba(204,255,0,0.12);border:1px solid rgba(204,255,0,0.3);font:600 11px var(--font-body);color:#ccff00;letter-spacing:0.06em;text-transform:uppercase;">
               <span class="material-symbols-rounded" style="font-size:13px;">verified</span>
@@ -65,7 +65,7 @@ export function Profile() {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
             <div>
               <label style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-on-surface-variant);display:block;margin-bottom:0.35rem;">First Name</label>
-              <input type="text" id="prof-firstname" class="input-m3" value="${user.firstName || ''}" placeholder="Jane">
+              <input type="text" id="prof-firstname" class="input-m3" value="${esc(user.firstName || '')}" placeholder="Jane">
             </div>
             <div>
               <label style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-on-surface-variant);display:block;margin-bottom:0.35rem;">Last Name</label>
@@ -157,11 +157,11 @@ export function Profile() {
         <div style="display:flex;flex-direction:column;gap:0.75rem;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
             <span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">Email</span>
-            <span style="font:var(--md-sys-typescale-body-medium);">${user.email || '—'}</span>
+            <span style="font:var(--md-sys-typescale-body-medium);">${esc(user.email || '—')}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
             <span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">Plan</span>
-            <span style="font:var(--md-sys-typescale-body-medium);text-transform:capitalize;">${user.tier || 'free'}</span>
+            <span style="font:var(--md-sys-typescale-body-medium);text-transform:capitalize;">${esc(user.tier || 'free')}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--md-sys-color-outline-variant);">
             <span style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">Daily runs used</span>
