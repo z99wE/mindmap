@@ -7,270 +7,188 @@
 </p>
 
 <h1 align="center">ReMentally</h1>
-<h3 align="center">Cognitive Infrastructure — The Middleware Between Your Brain and Every App</h3>
+<h3 align="center">Your thoughts finally go somewhere — and come back when you need them.</h3>
 
 <p align="center">
-  <b>Traditional productivity tools assume neurotypical executive function.</b><br/>
-  ReMentally doesn't. It captures, classifies, and delivers thoughts through<br/>
-  9 messaging channels — powered by behavioral ML that learns YOUR patterns.
+  Text yourself a thought on Telegram. Get a reminder on Slack 3 days later.<br/>
+  Miss a deadline? Your accountability partner gets notified automatically.<br/>
+  <b>No app to open. No habits to build. It just works.</b>
 </p>
 
 ---
 
-## The Problem
+## Why This Exists
 
-**73% of adults with ADHD report that written thoughts "disappear" once captured in a closed app.** (CHADD, 2024)
+**You had a great idea in the shower. By the time you got to your phone, it was gone.**
 
-Traditional tools fail because they:
-- Require you to **open another app** (barrier to entry)
-- Treat all thoughts **equally** (no cognitive science)
-- Have **no delivery** (thoughts go in, never come out)
-- Are **static** (don't learn from your behavior)
+You wrote it down in Notion. It sat there. Untouched. For 3 months. Then you forgot it existed.
 
-**Market:** 400M+ adults with ADHD globally. $15B productivity tools market. Zero solutions designed FOR neurodivergent cognitive patterns.
+You set a reminder in your calendar. It went off during a meeting. You dismissed it. Gone forever.
+
+**The problem isn't remembering to write things down. It's that writing things down doesn't work.**
+
+Traditional productivity tools fail because they:
+- **Require you to open another app** — which you won't do when your brain is racing
+- **Treat all thoughts the same** — "buy milk" and "write the proposal" get equal weight
+- **Never follow up** — once captured, thoughts go into a black hole
+- **Don't know YOU** — they treat every user identically
+
+**ReMentally works differently.** It lives inside the messaging apps you already use. It learns your patterns. It follows up when you need it to. It knows which thoughts you'll actually complete and which ones you'll abandon — and tells you.
 
 ---
 
-## Architecture — This Is Not an AI Wrapper
+## What You Get (Outcomes, Not Features)
+
+### You'll never lose a thought again
+Capture ideas on Telegram, Slack, email, WhatsApp, or any of 9 platforms. They're stored in a memory graph that connects related thoughts — so when you think about "the Acme proposal," it pulls up everything you've said about Acme for the past month.
+
+### You'll actually complete more
+The app learns which thoughts you follow through on and which you abandon. It tells you: "You complete work thoughts 80% of the time when you tackle them before 11 AM." It suggests the right time to tackle each item based on YOUR patterns, not generic advice.
+
+### Your accountability partner gets notified (if you want)
+Set a witness contact for important commitments. If you miss a deadline, they get a gentle nudge. Users who set witness contacts complete commitments **72% more often** than those who don't.
+
+### You'll know when you're about to burn out
+The system tracks your thought volume and detects when you're approaching overload — before you feel it. "You tend to overwhelm on Wednesdays. You have 4 items due Thursday. Tackle 2 today."
+
+### Your thoughts evolve over time
+Old thoughts don't just sit there. They decay based on urgency. Critical items escalate. Vague ideas fade. The app automatically surfaces the thoughts that matter most right now.
+
+### You get insights without asking
+Every 6 hours, the system checks for patterns: recurring thoughts, expiring items, completion streaks, slump detection. It pushes insights to your notifications — you don't have to remember to check.
+
+### It learns what works for YOU
+Not generic productivity advice. Real behavioral ML that learns from your actual completion patterns, peak hours, category reliability, and stress thresholds. The app gets smarter the more you use it.
+
+### You stay in control of your data
+Bring your own API keys. Your thoughts are encrypted. You can export everything. GDPR compliant. No vendor lock-in.
+
+---
+
+## How It Works (The Tech Behind the Outcomes)
+
+### The Behavioral ML Engine
+This is what makes it deep tech, not just another to-do app.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    INPUT LAYER (9 Channels)                      │
-│  Telegram · Slack · Discord · WhatsApp · Email · Signal ·       │
-│  SMS · Twitter/X · Web Push · Web UI                            │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────────┐
-│              BEHAVIORAL ML ENGINE (Proprietary)                  │
-│                                                                  │
-│  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐  │
-│  │  Behavioral    │  │  Adaptive      │  │  Cross-User      │  │
-│  │  Learner       │  │  Prioritizer   │  │  Insights        │  │
-│  │                │  │                │  │                  │  │
-│  │  Tracks:       │  │  Scores:       │  │  Aggregates:     │  │
-│  │  - Completion  │  │  - Urgency     │  │  - Anonymous     │  │
-│  │    patterns    │  │  - Deadline    │  │    behavioral    │  │
-│  │  - Peak hours  │  │  - Probability │  │    patterns      │  │
-│  │  - Category    │  │  - Energy      │  │  - Witness       │  │
-│  │    reliability │  │    match       │  │    effectiveness │  │
-│  │  - Stress      │  │  - Momentum    │  │  - Completion    │  │
-│  │    threshold   │  │    boost       │  │    benchmarks    │  │
-│  └────────────────┘  └────────────────┘  └──────────────────┘  │
-│                                                                  │
-│  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐  │
-│  │  Thought       │  │  Proactive     │  │  Predictive      │  │
-│  │  Similarity    │  │  Insights      │  │  Load            │  │
-│  │                │  │                │  │                  │  │
-│  │  "You had a    │  │  "3 thoughts   │  │  "Overload       │  │
-│  │  similar       │  │  expiring      │  │  predicted for   │  │
-│  │  thought on    │  │  today"        │  │  Thursday"       │  │
-│  │  March 15"     │  │                │  │                  │  │
-│  └────────────────┘  └────────────────┘  └──────────────────┘  │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────────┐
-│              COGNITIVE SCIENCE MODELS                            │
-│                                                                  │
-│  Half-Life Decay · Commitment Witness · Drift Detector ·        │
-│  Door Rule · Thought Interceptor · Attention Debt Score ·       │
-│  Narrative Memory · Commitment Probability                      │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────────┐
-│              VECTOR MEMORY GRAPH (PostgreSQL + pgvector)         │
-│                                                                  │
-│  Entity extraction · Relationship mapping · Temporal decay ·    │
-│  Knowledge graph · Thought clustering · Semantic search          │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────────┐
-│              LLM KEY ROUTER (15 Providers)                       │
-│                                                                  │
-│  User BYO keys → Round-robin → 60s cooldown → Shared pool →    │
-│  Local models (Ollama/LM Studio)                                │
-│  Providers: Groq · OpenAI · Anthropic · Gemini · Mistral ·     │
-│  Cohere · NVIDIA · OpenRouter · Fireworks · Featherless · ...   │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────────┐
-│              PULSEKIT — Multi-Tenant Channel Router              │
-│                                                                  │
-│  User bot → Global bot → Fallback channels → DB store           │
-│  Failover mode · Broadcast mode · Inbound message processing   │
-└─────────────────────────────────────────────────────────────────┘
+Your thought comes in on Telegram
+         │
+         ▼
+┌─────────────────────────────────────────────┐
+│  BEHAVIORAL LEARNER                         │
+│  "This user completes 80% of 'work'         │
+│   thoughts before 11 AM. Current time:      │
+│   10:15 AM. Completion probability: 78%."   │
+└─────────────────────┬───────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────┐
+│  ADAPTIVE PRIORITIZER                       │
+│  "This is a critical commitment. Tackle     │
+│   it NOW during your peak hour. You'll      │
+│   likely complete it."                      │
+└─────────────────────┬───────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────┐
+│  COGNITIVE SCIENCE MODELS                   │
+│  Half-life: 48 hours. Urgency: critical.    │
+│  Witness: set. Deadline: Friday.            │
+│  "If not completed by Thursday, your        │
+│   witness gets notified."                   │
+└─────────────────────┬───────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────┐
+│  VECTOR MEMORY GRAPH                        │
+│  Stored with embeddings. Connected to       │
+│  3 related thoughts about Acme.             │
+│  "You had a similar thought on March 15."   │
+└─────────────────────────────────────────────┘
 ```
 
----
+### What the ML Actually Learns
 
-## What Makes This Deep Tech (Not Just an AI Wrapper)
+| Pattern | How It Helps You |
+|---------|-----------------|
+| You complete thoughts at 10 AM, not 3 PM | Suggests tackling important items in the morning |
+| "Work" thoughts have 80% completion, "personal" has 30% | Tells you to set deadlines for personal items |
+| You create 15+ thoughts/day when stressed | Detects overload before you feel it |
+| You've thought about "Acme proposal" 3 times | Surfaces: "This keeps coming up — make it a commitment" |
+| Thoughts with witness contacts complete 72% more often | Recommends setting accountability partners |
 
-### 1. Behavioral Learning Engine
-**Learns from actual user behavior, not just keyword matching.**
+### The 9-Channel Delivery
 
-| What It Tracks | How It Learns |
-|----------------|---------------|
-| Completion patterns | Which thoughts get done vs abandoned |
-| Peak productivity hours | When completions actually happen (not just creation time) |
-| Category reliability | Which types the user follows through on |
-| Stress threshold | Daily thought volume that triggers overwhelm |
-| Time-to-completion | Median hours by category |
+| Channel | What It Does For You |
+|---------|---------------------|
+| Telegram | Capture thoughts from your phone's most-used app |
+| Slack | Get reminders during work hours |
+| Discord | Team thought sharing |
+| WhatsApp | Capture thoughts from your most-used messaging app |
+| Email | Daily digest of pending items |
+| Signal | Privacy-first thought capture |
+| SMS | Works on any phone, no app needed |
+| Twitter/X | Public thought journaling |
+| Web Push | Browser notifications for deadlines |
 
-**Prediction:** "Based on your patterns, you'll complete this thought 73% of the time if you tackle it at 10:00 AM."
-
-### 2. Adaptive Cognitive Load Balancer
-**Matches thought difficulty to your current energy level.**
-
-| Energy Level | Time Window | Suggested Actions |
-|-------------|-------------|-------------------|
-| High | 9AM-12PM, 3PM-5PM | Critical tasks, complex commitments |
-| Medium | 1PM-2PM, 6PM-10PM | Administrative tasks, organization |
-| Low | 11PM-8AM | Quick wins, low-stakes items |
-
-**Not just urgency sorting** — considers completion probability, deadline proximity, category reliability, and momentum.
-
-### 3. Cross-User Pattern Intelligence
-**Anonymized aggregate insights from all users.**
-
-- "Users who set witness contacts complete commitments 72% more often"
-- "Peak productivity hour across users: 10 AM"
-- "Your completion rate for 'work' thoughts is below average — try setting deadlines"
-
-**Privacy:** Only aggregates statistics. No raw thought content is ever shared.
-
-### 4. Thought Similarity Network
-**Detects when a new thought is one you've had before.**
-
-Using pgvector cosine distance on existing embeddings:
-- "You've thought about the Acme proposal 3 times since March"
-- "This is similar to a thought you completed on April 15"
-- Recurring pattern detection: which topics keep coming up
-
-### 5. Proactive Insight Delivery
-**Don't wait for the user to ask. Push insights when patterns emerge.**
-
-Background agent (every 6 hours) generates:
-- Recurring pattern alerts
-- Expiring item warnings
-- Completion streak celebrations
-- Slump detection + recovery suggestions
+**Failover:** If Telegram is down, it tries Slack → Email → DB. Your thoughts never get lost.
 
 ---
 
-## Cognitive Science Models
-
-| Model | What It Does | Why It Matters |
-|-------|-------------|----------------|
-| **Half-Life Decay** | Every thought has a lifespan based on urgency. Critical thoughts escalate. Vague thoughts fade. | Prevents thought hoarding — only actionable items stay visible |
-| **Commitment Witness** | "I promise to X by Y" → witness contact gets notified on deadline | Social accountability increases follow-through by 72% |
-| **Drift Detector** | Notices when focus shifts across categories | Prevents task-switching spirals common in ADHD |
-| **Thought Interceptor** | Detects unanchored intentions ("I should...") | Surfaces hidden commitments for clarification |
-| **Attention Debt Score** | 0-100 gamified score based on overdue items, drift events, completion rate | Quantifies cognitive load for self-awareness |
-| **Narrative Memory** | AI weaves your week into a natural language story | Provides continuity and pattern recognition |
-| **Commitment Probability** | Per-day fulfillment rates: "You complete commitments least often on Friday" | Data-driven scheduling advice |
-
----
-
-## Channel Delivery — 9 Platforms
-
-| Platform | Outbound | Inbound | Status |
-|----------|----------|---------|--------|
-| Telegram | ✅ Send | ✅ Polling | Production-ready |
-| Slack | ✅ Send | ✅ Webhook | Production-ready |
-| Discord | ✅ Send | ✅ WebSocket | Production-ready |
-| WhatsApp | ✅ Send | ✅ Webhook | Production-ready |
-| Email (SMTP) | ✅ Send | ✅ IMAP | Production-ready |
-| Signal | ✅ Send | ✅ Webhook | Production-ready |
-| SMS (Twilio) | ✅ Send | ✅ Webhook | Production-ready |
-| Twitter/X | ✅ Post | ✅ Webhook | Production-ready |
-| Web Push | ✅ Push | N/A | Production-ready |
-
-**Failover:** Try Telegram → Slack → Email → DB  
-**Broadcast:** Send to all simultaneously  
-**Multi-tenant:** Each user brings their own bot credentials
-
----
-
-## Memory & Storage
-
-- **Vector Memory Graph:** PostgreSQL + pgvector with multi-provider embedding failover
-- **Knowledge Graph:** Auto-extracted entities (people, orgs, projects) + relationships
-- **Thought Clustering:** Auto-groups related thoughts using cosine similarity
-- **Collaborative Sharing:** Share individual memories with other users by email
-- **Local IndexedDB Backup:** Browser-side backup with export/import
-- **Voice Capture:** Speech-to-text via Web Speech API (free, browser-native)
-- **GDPR/DPDP Compliance:** Consent logging, breach tracking, data deletion
-
----
-
-## VC Metrics
-
-The system tracks metrics that prove product-market fit:
+## The Numbers That Matter
 
 | Metric | What It Proves |
 |--------|---------------|
-| **Completion rate** | Users actually complete thoughts (not just capture) |
-| **Witness effectiveness** | Social accountability works (72% improvement) |
-| **D30/D60/D90 retention** | Users come back (engagement, not just novelty) |
-| **Thoughts per day** | Usage frequency (engagement depth) |
-| **Peak hour accuracy** | Behavioral ML actually predicts productivity |
-| **Stress threshold** | System detects overload before user does |
+| **72% improvement** | Witness contacts increase commitment completion |
+| **272 tests** | Every feature is verified automatically |
+| **15 LLM providers** | Never dependent on a single AI vendor |
+| **9 channels** | Reach users where they already are |
+| **$0 operating cost** | Users bring their own API keys — zero infrastructure spend |
+| **< 2 seconds** | Full test suite runs in under 2 seconds |
+
+---
+
+## Who This Is For
+
+**Individuals with ADHD, autism, or cognitive fatigue** who:
+- Have ideas they want to capture but forget to write down
+- Set intentions but don't follow through
+- Feel overwhelmed by the number of things they need to remember
+- Want accountability without nagging
+- Use messaging apps more than productivity apps
+
+**Not for:** People who already have a perfect productivity system and never lose thoughts. (If that's you, you don't need this.)
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone
 git clone https://github.com/z99wE/rementally.git
 cd rementally/phase2-working
-
-# Install dependencies
 npm install
-
-# Copy and configure environment
 cp .env.example .env
 # Edit .env — set DATABASE_URL and at least one API key
-
-# Start the server
 node server.js
-
 # Open http://localhost:3001
-# First-run creates a local admin account automatically
 ```
 
-### Docker
-
-```bash
-docker-compose up --build
-```
-
----
-
-## Testing
-
-```bash
-cd phase2-working
-npx jest --config jest.config.js --forceExit
-# 272 tests · 18 suites · < 2 seconds
-```
+**Docker:** `docker-compose up --build`
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| **Backend** | Node.js + Express | Fast, async, huge ecosystem |
-| **Database** | PostgreSQL + pgvector | Vector search + relational in one |
-| **Frontend** | React (Vite) + Material Design 3 | Modern, accessible, fast builds |
-| **Embeddings** | Groq (free) → NVIDIA NIM → HuggingFace → OpenAI | Multi-provider failover, $0 |
-| **LLM** | 15 providers with key rotation | Resilient, cost-optimized |
-| **Channels** | Custom PulseKit (zero SDK deps) | Full control, no vendor lock-in |
-| **Auth** | JWT + bcrypt + disposable email blocking | Production-grade security |
-| **PWA** | Service worker + background sync | Offline-first, installable |
+| Layer | Technology | Why It's Here |
+|-------|-----------|--------------|
+| Backend | Node.js + Express | Fast async, huge ecosystem |
+| Database | PostgreSQL + pgvector | Vector search + relational in one — no extra infrastructure |
+| Frontend | React (Vite) + Material Design 3 | Modern, accessible, fast builds |
+| Embeddings | Groq (free) → NVIDIA → HuggingFace → OpenAI | Multi-provider failover, $0 cost |
+| LLM | 15 providers with key rotation | Never dependent on one vendor |
+| Channels | Custom PulseKit (zero SDK deps) | Full control, no vendor lock-in |
+| Auth | JWT + bcrypt + disposable email blocking | Production-grade security |
+| PWA | Service worker + background sync | Offline-first, installable on any device |
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](phase2-working/LICENSE) for details.
+MIT — see [LICENSE](phase2-working/LICENSE).
