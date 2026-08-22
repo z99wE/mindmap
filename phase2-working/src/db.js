@@ -416,7 +416,7 @@ async function runMigrations(retries = 5) {
       CREATE TABLE IF NOT EXISTS knowledge_mentions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        thought_id INT REFERENCES memory_graph(id) ON DELETE SET NULL,
+        thought_id UUID REFERENCES memory_graph(id) ON DELETE SET NULL,
         entity_id UUID NOT NULL REFERENCES knowledge_entities(id) ON DELETE CASCADE,
         context TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
@@ -445,7 +445,7 @@ async function runMigrations(retries = 5) {
       CREATE TABLE IF NOT EXISTS thought_cluster_assignments (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        thought_id INT NOT NULL REFERENCES memory_graph(id) ON DELETE CASCADE,
+        thought_id UUID NOT NULL REFERENCES memory_graph(id) ON DELETE CASCADE,
         cluster_id UUID NOT NULL REFERENCES knowledge_clusters(id) ON DELETE CASCADE,
         assigned_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(user_id, thought_id, cluster_id)
