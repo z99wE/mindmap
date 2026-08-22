@@ -8,7 +8,7 @@ export function InteractiveSpace() {
     <div class="page-container" style="max-width:900px;">
       <div class="section-header card-reveal">
         <span class="dot" style="width:12px;height:12px;border-radius:50%;background:var(--md-sys-color-primary);box-shadow:0 0 10px rgba(204,255,0,0.4);"></span>
-        <h1 style="font:var(--md-sys-typescale-headline-medium);">UnZonko</h1>
+        <h1 style="font:var(--md-sys-typescale-headline-medium);">Mentally</h1>
       </div>
       <p class="card-reveal" style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin-bottom:1rem;">
         Process thoughts, ask questions, or capture commitments. Every message is classified for half-life, urgency, and commitment detection.

@@ -54,7 +54,7 @@ function generateSBOM() {
     version: 1,
     metadata: {
       timestamp: new Date().toISOString(),
-      tools: [{ name: 'unzonko-sbom-generator', version: '1.0.0' }],
+      tools: [{ name: 'mentally-sbom-generator', version: '1.0.0' }],
       component: {
         type: 'application',
         name: pkg.name,

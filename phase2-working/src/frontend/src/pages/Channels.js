@@ -98,7 +98,7 @@ export function Channels() {
 	        sms: '📟 <b>For SMS (Twilio):</b><br>1. Sign up at <a href="https://twilio.com" target="_blank" style="color:#ccff00;">Twilio</a> (free credits included)<br>2. Get a phone number with SMS capability<br>3. API Key format: <code>ACCOUNT_SID:AUTH_TOKEN</code><br>4. Phone number with country code, e.g. <code>+15551234567</code>',
 	        signal: '🔒 <b>Signal requires a self-hosted gateway:</b><br>1. Install <a href="https://github.com/AsamK/signal-cli" target="_blank" style="color:#ccff00;">signal-cli</a> on a server<br>2. Register your phone number with <code>signal-cli register</code><br>3. Set up the REST API wrapper or use a cloud gateway<br>4. Enter your phone number with country code',
 	        twitter: '🐦 <b>To connect Twitter/X:</b><br>1. Go to <a href="https://developer.twitter.com" target="_blank" style="color:#ccff00;">developer.twitter.com</a><br>2. Create a Project → App → Generate <b>API Key</b> + <b>API Secret</b><br>3. Generate <b>Access Token</b> + <b>Access Token Secret</b> (with Read+Write)<br>4. Free tier allows 500 tweets/month',
-	        bluesky: '🦋 <b>To connect Bluesky:</b><br>1. Create a Bluesky account (free)<br>2. Go to Settings → App Passwords<br>3. Create an App Password for UnZonko<br>4. Enter your <b>handle</b> (e.g. user.bsky.social) and the <b>App Password</b>',
+	        bluesky: '🦋 <b>To connect Bluesky:</b><br>1. Create a Bluesky account (free)<br>2. Go to Settings → App Passwords<br>3. Create an App Password for Mentally<br>4. Enter your <b>handle</b> (e.g. user.bsky.social) and the <b>App Password</b>',
 	      };
 	      if (guideEl) {
 	        if (guides[select.value]) {

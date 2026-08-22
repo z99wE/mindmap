@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/Stack-Node.js_PostgreSQL_React-22c55e?style=for-the-badge" />
 </p>
 
-<h1 align="center">🧠 UnZonko</h1>
+<h1 align="center">🧠 Mentally</h1>
 <h3 align="center">Cognitive Coprocessor — Multi-Agent Memory Graph<br/>with 10-Channel Autonomous Delivery</h3>
 
 <p align="center">
@@ -40,7 +40,7 @@ Traditional productivity tools assume a neurotypical baseline of executive funct
 
 For individuals with ADHD, autism, or cognitive fatigue, once a thought is written down in a closed ecosystem, it disappears from working memory — leading to task abandonment and overwhelm.
 
-**UnZonko works differently.** It operates as an invisible layer that captures, classifies, and escalates thoughts across the messaging platforms you already use — without requiring you to open another app.
+**Mentally works differently.** It operates as an invisible layer that captures, classifies, and escalates thoughts across the messaging platforms you already use — without requiring you to open another app.
 
 ---
 
@@ -196,8 +196,8 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 
 ```bash
 # Clone
-git clone https://github.com/z99wE/mindmap.git
-cd mindmap
+git clone https://github.com/z99wE/mentally.git
+cd mentally
 
 # Docker (recommended for local dev)
 docker compose up -d

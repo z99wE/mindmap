@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: unzonko
+    name: mentally
     env: docker
     plan: free
     region: oregon
@@ -10,7 +10,7 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: unzonko-db
+          name: mentally-db
           property: connectionString
       - key: NODE_ENV
         value: production
@@ -86,7 +86,7 @@ services:
         sync: false
 
 databases:
-  - name: unzonko-db
+  - name: mentally-db
     databaseName: thought_gps
     user: thought_gps_user
     plan: free

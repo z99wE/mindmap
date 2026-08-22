@@ -5,7 +5,7 @@ export function HowItWorks() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;text-align:center;">
         <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">DEMO</div>
-        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0 0 0.5rem;">See UnZonko in Action</h1>
+        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0 0 0.5rem;">See Mentally in Action</h1>
         <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin:0;max-width:600px;margin:0 auto;">
           Your cognitive navigator delivers through the apps you already use. Watch how nudges, briefs, and route updates arrive in real-time.
         </p>
@@ -21,7 +21,7 @@ export function HowItWorks() {
                 <span style="color:#000;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">UnZonko</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">Mentally</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">WhatsApp</div>
               </div>
             </div>
@@ -41,7 +41,7 @@ export function HowItWorks() {
                 <span style="color:#fff;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">UnZonko Bot</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">Mentally Bot</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Telegram</div>
               </div>
             </div>
@@ -58,7 +58,7 @@ export function HowItWorks() {
                 <span style="color:#fff;font:bold 14px/1 system-ui;">#</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">#unzonko</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">#mentally</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Slack</div>
               </div>
             </div>
@@ -67,7 +67,7 @@ export function HowItWorks() {
           </div>
         </div>
 
-        <!-- Phone 4: UnZonko - Navigation Mode -->
+        <!-- Phone 4: Mentally - Navigation Mode -->
         <div class="phone-mockup card-reveal">
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
@@ -75,7 +75,7 @@ export function HowItWorks() {
                 <span style="color:#000;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">UnZonko</div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Mentally</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Navigate</div>
               </div>
             </div>
@@ -84,7 +84,7 @@ export function HowItWorks() {
           </div>
         </div>
 
-        <!-- Phone 5: UnZonko - Geo-fence Departure Alert -->
+        <!-- Phone 5: Mentally - Geo-fence Departure Alert -->
         <div class="phone-mockup card-reveal">
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
@@ -92,7 +92,7 @@ export function HowItWorks() {
                 <span style="color:#fff;font:700 14px/1 'Space Grotesk';">U</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">UnZonko</div>
+                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">Mentally</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Push</div>
               </div>
             </div>
@@ -108,7 +108,7 @@ export function HowItWorks() {
                 <span style="color:#ea4335;font:700 14px/1 'Space Grotesk';">✉️</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">unzonko-email</div>
+                <div style="color:#fff;font:600 14px/1.2 system-ui;">mentally-email</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Email / Browser</div>
               </div>
             </div>
@@ -207,7 +207,7 @@ export function HowItWorks() {
           <div style="width:18px;height:18px;border-radius:4px;background:#611f69;display:grid;place-items:center;">
             <span style="color:#fff;font:700 9px/1 'Space Grotesk';">U</span>
           </div>
-          <span style="font:bold 11px/1 system-ui;color:#111;">UnZonko</span>
+          <span style="font:bold 11px/1 system-ui;color:#111;">Mentally</span>
           <span style="font:9px/1 system-ui;color:#999;">${msg.time}</span>
         </div>
         <div style="font:12px/1.5 system-ui;color:#333;">${msg.text}</div>

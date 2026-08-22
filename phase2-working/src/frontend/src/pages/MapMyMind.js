@@ -1,4 +1,4 @@
-// UnZonko - Navigation-style thought visualization
+// Mentally - Navigation-style thought visualization
 import api from '../lib/api.js';
 import { renderErrorState } from '../components/ErrorState.js';
 

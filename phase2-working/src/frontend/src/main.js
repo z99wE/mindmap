@@ -219,7 +219,7 @@ function renderMobileDrawer() {
     <div class="nav-logo">
       <div class="nav-logo-icon">T</div>
       <div>
-        <div class="nav-logo-text">UnZonko</div>
+        <div class="nav-logo-text">Mentally</div>
         <div class="nav-logo-sub">Cognitive Coprocessor</div>
       </div>
     </div>
@@ -315,7 +315,7 @@ function renderPage(page) {
 
   // Set page title
   const titleEl = document.getElementById('page-title');
-  if (titleEl) titleEl.textContent = pageRegistry[page]?.title || 'UnZonko';
+  if (titleEl) titleEl.textContent = pageRegistry[page]?.title || 'Mentally';
 
   // Render page content
   if (factory) {
@@ -366,8 +366,8 @@ window.handleUserClick = () => {
 };
 
 // Listen for auth events
-window.addEventListener('tg-auth-required', () => renderPage('auth'));
-window.addEventListener('tg-auth-success', (e) => {
+window.addEventListener('mentally-auth-required', () => renderPage('auth'));
+window.addEventListener('mentally-auth-success', (e) => {
   user = e.detail?.user || api.getUser();
   updateUserChip();
   renderPage('dashboard');

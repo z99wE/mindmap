@@ -54,8 +54,8 @@ async function callProvider(provider, apiKey, systemPrompt, message, options = {
   }
 
   if (provider === 'openrouter') {
-    headers['HTTP-Referer'] = 'https://unzonko.local';
-    headers['X-Title'] = 'UnZonko';
+    headers['HTTP-Referer'] = 'https://mentally.local';
+    headers['X-Title'] = 'Mentally';
   }
 
   // Gemini uses a different API format
@@ -140,7 +140,7 @@ async function callLLM(user, message, relatedMemories, intent, liveContext = [],
   const agentInstructions = buildAgentInstructions(agentPrefs);
   const styleGuide = agentInstructions ? `\nUser preferences: ${agentInstructions}` : '';
 
-  const systemPrompt = `You are UnZonko, a cognitive coprocessor for ADHD/neurodiverse users.
+  const systemPrompt = `You are Mentally, a cognitive coprocessor for ADHD/neurodiverse users.
 You help organize thoughts, track commitments, detect patterns, and navigate cognitive load.
 Current intent: ${intent}.${contextStr}${localStr}${liveStr}
 ${liveContext.length > 0 ? '\nIMPORTANT: Real-time search results are provided above. Prioritize this live web context for any current news, status, or date-sensitive facts. Do NOT output outdated facts if the live context contains fresh information.\n' : ''}

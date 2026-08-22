@@ -1,7 +1,7 @@
-// UnZonko Browser Extension — Background Service Worker
+// Mentally Browser Extension — Background Service Worker
 // Checks for unread count, handles auth, manages alarm
 
-const API_BASE = 'https://unzonko.onrender.com/api';
+const API_BASE = 'https://mentally.onrender.com/api';
 
 // Check auth and unread count every 5 minutes
 chrome.alarms.create('heartbeat', { periodInMinutes: 5 });

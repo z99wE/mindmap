@@ -12,8 +12,8 @@ function detectLocalHost() {
 
 class ApiClient {
   constructor() {
-    this.token = localStorage.getItem('tg_token');
-    this.refreshToken = localStorage.getItem('tg_refresh_token');
+    this.token = localStorage.getItem('mentally_token');
+    this.refreshToken = localStorage.getItem('mentally_refresh_token');
     this.isDevInstance = detectLocalHost();
   }
 
@@ -23,18 +23,18 @@ class ApiClient {
   setToken(token, refreshToken) {
     this.token = token;
     this.refreshToken = refreshToken;
-    if (token) localStorage.setItem('tg_token', token);
-    else localStorage.removeItem('tg_token');
-    if (refreshToken) localStorage.setItem('tg_refresh_token', refreshToken);
-    else localStorage.removeItem('tg_refresh_token');
+    if (token) localStorage.setItem('mentally_token', token);
+    else localStorage.removeItem('mentally_token');
+    if (refreshToken) localStorage.setItem('mentally_refresh_token', refreshToken);
+    else localStorage.removeItem('mentally_refresh_token');
   }
 
   clearAuth() {
     this.token = null;
     this.refreshToken = null;
-    localStorage.removeItem('tg_token');
-    localStorage.removeItem('tg_refresh_token');
-    localStorage.removeItem('tg_user');
+    localStorage.removeItem('mentally_token');
+    localStorage.removeItem('mentally_refresh_token');
+    localStorage.removeItem('mentally_user');
   }
 
   isLoggedIn() {
@@ -43,12 +43,12 @@ class ApiClient {
 
   getUser() {
     try {
-      return JSON.parse(localStorage.getItem('tg_user'));
+      return JSON.parse(localStorage.getItem('mentally_user'));
     } catch { return null; }
   }
 
   setUser(user) {
-    localStorage.setItem('tg_user', JSON.stringify(user));
+    localStorage.setItem('mentally_user', JSON.stringify(user));
   }
 
   async request(path, options = {}) {
@@ -81,7 +81,7 @@ class ApiClient {
   async _handleResponse(resp) {
     if (resp.status === 401) {
       this.clearAuth();
-      window.dispatchEvent(new CustomEvent('tg-auth-required'));
+      window.dispatchEvent(new CustomEvent('mentally-auth-required'));
       return { error: 'Authentication required' };
     }
     const data = await resp.json();

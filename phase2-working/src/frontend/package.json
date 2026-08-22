@@ -1,8 +1,8 @@
 {
-  "name": "thought-gps-frontend",
+  "name": "mentally-frontend",
   "version": "1.0.0",
   "type": "module",
-  "description": "Iron Man / Jarvis style sci-fi UI for Thought GPS",
+  "description": "Iron Man / Jarvis style sci-fi UI for Mentally",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

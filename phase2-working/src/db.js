@@ -5,7 +5,7 @@ require('dotenv').config();
 const isProd = process.env.NODE_ENV === 'production' || !process.env.DATABASE_URL?.includes('localhost');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/thought_gps',
+  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/mentally',
   max: isProd ? 3 : 10, // Prevent connection limits during rolling deploys on free tier DBs
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
@@ -455,7 +455,7 @@ async function runMigrations(retries = 5) {
 
 	    // ── User Channel ID mapping (global bot recognition) ────────────────────
 	    // Maps platform-specific user IDs (Telegram chat_id, Discord user_id, etc.)
-	    // to UnZonko user UUIDs so global bots can recognize inbound messages.
+	    // to Mentally user UUIDs so global bots can recognize inbound messages.
 	    await client.query(`
 	      CREATE TABLE IF NOT EXISTS user_channel_ids (
 	        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

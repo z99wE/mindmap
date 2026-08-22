@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  thought-gps-app:
+  mentally-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: thought-gps-container
+    container_name: mentally-container
     ports:
       - "3001:3001"
     env_file:

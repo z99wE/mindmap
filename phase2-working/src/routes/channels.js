@@ -190,7 +190,7 @@ router.post('/:id/test', authMiddleware, async (req, res) => {
     }
 
     // Actual test send: log and store notification
-    const testMessage = `[UnZonko Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
+    const testMessage = `[Mentally Test] This is a test message to your ${channel.platform} channel. If you see this, delivery is working.`;
 
 	    // Use PulseKit for delivery
 	    const pulseKit = req.app.get('pulseKit');
@@ -252,7 +252,7 @@ router.post('/digest', authMiddleware, async (req, res) => {
     const pulseKit = req.app.get('pulseKit');
     if (pulseKit && typeof pulseKit.send === 'function') {
       // Send to their channels
-      await pulseKit.send({ to: req.user.userId, message, title: 'UnZonko Digest' });
+      await pulseKit.send({ to: req.user.userId, message, title: 'Mentally Digest' });
       res.json({ success: true, message: 'Digest dispatched to your channels.' });
     } else {
       res.json({ success: false, message: "No channels are live to send the digest." });

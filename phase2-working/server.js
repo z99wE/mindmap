@@ -1,4 +1,4 @@
-// UnZonko - Server Shell
+// Mentally - Server Shell
 // Thin app shell that mounts route modules
 require('dotenv').config();
 const express = require('express');
@@ -30,7 +30,7 @@ const vapidKeys = process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY
   ? { publicKey: process.env.VAPID_PUBLIC_KEY, privateKey: process.env.VAPID_PRIVATE_KEY }
   : webpush.generateVAPIDKeys();
 webpush.setVapidDetails(
-  process.env.VAPID_EMAIL || 'mailto:admin@thoughtgps.local',
+  process.env.VAPID_EMAIL || 'mailto:admin@mentally.local',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
@@ -267,7 +267,7 @@ app.get('*', (req, res) => {
   // SPA fallback: serve index.html for non-API routes
   if (!req.path.startsWith('/api/')) {
     res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
-      if (err) res.status(200).json({ status: 'UnZonko API running', version: '3.0.0' });
+      if (err) res.status(200).json({ status: 'Mentally API running', version: '3.0.0' });
     });
   } else {
     // Unknown API route → 404 JSON instead of hanging
@@ -397,12 +397,12 @@ async function start() {
       }
     } else {
       // Development warnings for default secrets
-      const defaultJwt = process.env.JWT_SECRET || 'thought-gps-secret-change-in-prod';
-      const defaultEnc = process.env.API_KEY_ENCRYPTION_SECRET || 'thought-gps-encryption-key-change-me';
-      if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'thought-gps-secret-change-in-prod') {
+      const defaultJwt = process.env.JWT_SECRET || 'mentally-secret-change-in-prod';
+      const defaultEnc = process.env.API_KEY_ENCRYPTION_SECRET || 'mentally-encryption-key-change-me';
+      if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'mentally-secret-change-in-prod') {
         console.warn('[SECURITY] Using default JWT_SECRET! Set JWT_SECRET env var in production.');
       }
-      if (!process.env.API_KEY_ENCRYPTION_SECRET || process.env.API_KEY_ENCRYPTION_SECRET === 'thought-gps-encryption-key-change-me') {
+      if (!process.env.API_KEY_ENCRYPTION_SECRET || process.env.API_KEY_ENCRYPTION_SECRET === 'mentally-encryption-key-change-me') {
         console.warn('[SECURITY] Using default API_KEY_ENCRYPTION_SECRET! Set env var in production.');
       }
       if (!process.env.DATABASE_URL) console.warn('[SECURITY] No DATABASE_URL set — using localhost.');
@@ -511,7 +511,7 @@ async function start() {
           }
         } else {
           console.log(`[Inbound] Unknown sender ${from} on ${channel}`);
-          await reply(`UnZonko: I don't recognize this channel/user ID (${from}). Please connect this ID in your Mission Control.`);
+          await reply(`Mentally: I don't recognize this channel/user ID (${from}). Please connect this ID in your Mission Control.`);
         }
       } catch (err) {
         console.error('[Inbound Error]', err.message);
@@ -608,9 +608,9 @@ async function start() {
 	    });
 
 	    app.listen(PORT, () => {
-	      console.log(`[UnZonko] Server running on port ${PORT}`);
-	      console.log(`[UnZonko] Frontend: http://localhost:${PORT}`);
-	      console.log(`[UnZonko] API: http://localhost:${PORT}/api/health`);
+	      console.log(`[Mentally] Server running on port ${PORT}`);
+	      console.log(`[Mentally] Frontend: http://localhost:${PORT}`);
+	      console.log(`[Mentally] API: http://localhost:${PORT}/api/health`);
 
 	      // Render free tier: service sleeps after 15 min of inactivity.
 	      // No self-ping loop — this keeps usage under the 500 free compute hours/month.
@@ -622,26 +622,26 @@ async function start() {
 		      }
 		    });
 		  } catch (err) {
-    console.error('[UnZonko] Startup failed:', err.message);
+    console.error('[Mentally] Startup failed:', err.message);
     if (process.env.NODE_ENV === 'production') {
-      console.error('[UnZonko] Fatal error in production. Exiting.');
+      console.error('[Mentally] Fatal error in production. Exiting.');
       process.exit(1);
     }
     // Start without DB in dev mode
     app.listen(PORT, () => {
-      console.log(`[UnZonko] Server running (no DB) on port ${PORT}`);
+      console.log(`[Mentally] Server running (no DB) on port ${PORT}`);
     });
   }
 }
 
 // Global unhandled promise rejection handler
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('[UnZonko] Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('[Mentally] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('[UnZonko] Shutting down...');
+  console.log('[Mentally] Shutting down...');
   await flush();
   process.exit(0);
 });

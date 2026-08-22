@@ -1,7 +1,7 @@
-# Thought GPS / UnZonko
+# Mentally / Mentally
 **The Cognitive Coprocessor**
 
-UnZonko is an intelligent, omni-channel cognitive coprocessor designed to capture, organize, and synthesize your fragmented thoughts into a cohesive memory graph. It serves as your second brain, processing chaotic inputs from multiple platforms (Telegram, Discord, Slack, etc.) and gracefully organizing them over time.
+Mentally is an intelligent, omni-channel cognitive coprocessor designed to capture, organize, and synthesize your fragmented thoughts into a cohesive memory graph. It serves as your second brain, processing chaotic inputs from multiple platforms (Telegram, Discord, Slack, etc.) and gracefully organizing them over time.
 
 ---
 
@@ -28,7 +28,7 @@ PulseKit replaces heavy third-party messaging wrappers (like Caspian) with nativ
 - Gracefully handles Webhooks for platforms like Slack and WhatsApp.
 
 ### 3. Autonomous Agent Loop
-Instead of importing Langchain or CrewAI, UnZonko ships with a native ReAct loop embedded within the `OrchestratorManager`. 
+Instead of importing Langchain or CrewAI, Mentally ships with a native ReAct loop embedded within the `OrchestratorManager`. 
 - **Operation:** Every 10 minutes, the engine queries the database for users with 3 or more "pending" unstructured thoughts.
 - **Agentic Capability:** It spawns an isolated LLM loop equipped with a tool registry (e.g. `consolidate_memories`, `send_message`).
 - **Cost-Bound:** The loop is hard-capped at 3 iterations to prevent runaway token expenditure.
@@ -74,7 +74,7 @@ Handles the aggregation and round-robin fallback of LLM API keys. Users' persona
 
 ## ☁️ Deployment (Render)
 
-UnZonko is built to be deployed on Render's Free Tier:
+Mentally is built to be deployed on Render's Free Tier:
 - Background loops (`setInterval`) manage polling and memory consolidation without external cron jobs.
 - Self-ping endpoints (`/api/cron/tick`) keep the instance alive.
 - Extremely low memory footprint. 

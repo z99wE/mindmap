@@ -1,6 +1,6 @@
 {
-  "name": "UnZonko — Cognitive Coprocessor",
-  "short_name": "UnZonko",
+  "name": "Mentally — Cognitive Coprocessor",
+  "short_name": "Mentally",
   "description": "Cognitive coprocessor. Multi-agent memory graph with 10-channel delivery.",
   "start_url": "/",
   "display": "standalone",

@@ -1,5 +1,5 @@
 export function renderErrorState(message) {
-  // A beautiful glassmorphic error state matching the "UnZonko" dark UI aesthetic
+  // A beautiful glassmorphic error state matching the "Mentally" dark UI aesthetic
   return `
     <div class="card-reveal surface-card" style="padding:3rem 2rem;text-align:center;border:1px solid rgba(244,67,54,0.2);background:linear-gradient(180deg, rgba(244,67,54,0.05) 0%, transparent 100%);">
       <div style="width:56px;height:56px;border-radius:16px;background:rgba(244,67,54,0.1);display:grid;place-items:center;margin:0 auto 1.25rem;">

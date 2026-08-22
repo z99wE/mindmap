@@ -4,7 +4,7 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_SENDER_EMAIL = process.env.RESEND_SENDER_EMAIL || 'onboarding@resend.dev';
-const RESEND_SENDER_NAME = process.env.RESEND_SENDER_NAME || 'UnZonko';
+const RESEND_SENDER_NAME = process.env.RESEND_SENDER_NAME || 'Mentally';
 const API_URL = 'https://api.resend.com/emails';
 
 async function sendEmail({ to, toName, subject, htmlContent }) {
@@ -34,7 +34,7 @@ async function sendEmail({ to, toName, subject, htmlContent }) {
     console.error('[Mailer] Resend error:', resp.status, data);
     throw new Error(data.message || `Resend API error ${resp.status}`);
   }
-  console.log('[Mailer] Email sent via UnZonko mailer to', to, '| messageId:', data.id);
+  console.log('[Mailer] Email sent via Mentally mailer to', to, '| messageId:', data.id);
   return data;
 }
 
@@ -50,8 +50,8 @@ function waitlistTemplate({ name, plan }) {
     ? `You're subscribed, ${displayName} 🚀`
     : `You're on the list, ${displayName} 🧠`;
   const bodyText = isUpdates
-    ? `Thank you for subscribing to updates and news from <strong style="color:#ccff00;">UnZonko</strong>. We'll keep you in the loop with new features, cognitive science deep-dives, and product releases.`
-    : `We've reserved your spot for <strong style="color:#ccff00;">${planLabel}</strong>. You'll be among the first to experience UnZonko when we open access.`;
+    ? `Thank you for subscribing to updates and news from <strong style="color:#ccff00;">Mentally</strong>. We'll keep you in the loop with new features, cognitive science deep-dives, and product releases.`
+    : `We've reserved your spot for <strong style="color:#ccff00;">${planLabel}</strong>. You'll be among the first to experience Mentally when we open access.`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -63,7 +63,7 @@ function waitlistTemplate({ name, plan }) {
       <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
         <tr><td style="padding-bottom:32px;text-align:center;">
           <span style="display:inline-block;width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#d6ff3e,#ccff00);text-align:center;line-height:40px;font:italic 700 20px Inter,system-ui;color:#000;">U</span>
-          <span style="font:700 18px/40px Inter,system-ui;color:#f0f4ee;letter-spacing:-0.02em;vertical-align:top;margin-left:10px;">UnZonko</span>
+          <span style="font:700 18px/40px Inter,system-ui;color:#f0f4ee;letter-spacing:-0.02em;vertical-align:top;margin-left:10px;">Mentally</span>
         </td></tr>
         <tr><td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:20px;padding:40px 36px;">
           <p style="margin:0 0 8px;font:700 11px/1 Inter;letter-spacing:0.12em;color:#ccff00;text-transform:uppercase;">${eyebrow}</p>
@@ -82,10 +82,10 @@ function waitlistTemplate({ name, plan }) {
           `}
           <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:24px 0;">
           <p style="margin:0 0 20px;font:400 14px/1.5 Inter;color:rgba(240,244,238,0.6);">In the meantime, you can start using the free tier — 10 runs/day, no card required.</p>
-          <a href="https://unzonko.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter,system-ui;padding:14px 28px;border-radius:100px;text-decoration:none;">Try the Free Tier &#x2192;</a>
+          <a href="https://mentally.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter,system-ui;padding:14px 28px;border-radius:100px;text-decoration:none;">Try the Free Tier &#x2192;</a>
         </td></tr>
         <tr><td style="padding-top:24px;text-align:center;">
-          <p style="margin:0;font:400 12px/1.6 Inter;color:rgba(240,244,238,0.3);">UnZonko &#x2014; Your cognitive coprocessor<br>You're receiving this because you joined the waitlist.</p>
+          <p style="margin:0;font:400 12px/1.6 Inter;color:rgba(240,244,238,0.3);">Mentally &#x2014; Your cognitive coprocessor<br>You're receiving this because you joined the waitlist.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -98,7 +98,7 @@ function welcomeTemplate({ firstName, email }) {
   const name = firstName || email.split('@')[0];
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Welcome to UnZonko</title></head>
+<head><meta charset="UTF-8"><title>Welcome to Mentally</title></head>
 <body style="margin:0;padding:0;background:#080a0f;font-family:'Inter',system-ui,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#080a0f;padding:40px 16px;">
     <tr><td align="center">
@@ -109,11 +109,11 @@ function welcomeTemplate({ firstName, email }) {
         <tr><td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:20px;padding:40px 36px;">
           <p style="margin:0 0 8px;font:700 11px/1 Inter;letter-spacing:0.12em;color:#ccff00;text-transform:uppercase;">Welcome</p>
           <h1 style="margin:0 0 16px;font:700 28px/1.2 Inter;color:#f0f4ee;letter-spacing:-0.03em;">Hello, ${name} &#x1F44B;</h1>
-          <p style="margin:0 0 24px;font:400 16px/1.6 Inter;color:rgba(240,244,238,0.7);">Your UnZonko account is ready. Start capturing thoughts and letting your cognitive coprocessor do the heavy lifting.</p>
-          <a href="https://unzonko.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter;padding:14px 28px;border-radius:100px;text-decoration:none;">Open UnZonko &#x2192;</a>
+          <p style="margin:0 0 24px;font:400 16px/1.6 Inter;color:rgba(240,244,238,0.7);">Your Mentally account is ready. Start capturing thoughts and letting your cognitive coprocessor do the heavy lifting.</p>
+          <a href="https://mentally.onrender.com" style="display:inline-block;background:linear-gradient(145deg,#d6ff3e,#ccff00);color:#000;font:700 14px/1 Inter;padding:14px 28px;border-radius:100px;text-decoration:none;">Open Mentally &#x2192;</a>
         </td></tr>
         <tr><td style="padding-top:24px;text-align:center;">
-          <p style="margin:0;font:400 12px/1.6 Inter;color:rgba(240,244,238,0.3);">UnZonko &#x2014; Your cognitive coprocessor</p>
+          <p style="margin:0;font:400 12px/1.6 Inter;color:rgba(240,244,238,0.3);">Mentally &#x2014; Your cognitive coprocessor</p>
         </td></tr>
       </table>
     </td></tr>
@@ -127,7 +127,7 @@ function welcomeTemplate({ firstName, email }) {
 async function sendWaitlistConfirmation({ email, name, plan }) {
   return sendEmail({
     to: email, toName: name,
-    subject: `You're on the UnZonko waitlist 🧠`,
+    subject: `You're on the Mentally waitlist 🧠`,
     htmlContent: waitlistTemplate({ name, plan }),
   });
 }
@@ -135,7 +135,7 @@ async function sendWaitlistConfirmation({ email, name, plan }) {
 async function sendWelcomeEmail({ email, firstName }) {
   return sendEmail({
     to: email, toName: firstName,
-    subject: `Welcome to UnZonko, ${firstName || email.split('@')[0]}!`,
+    subject: `Welcome to Mentally, ${firstName || email.split('@')[0]}!`,
     htmlContent: welcomeTemplate({ firstName, email }),
   });
 }

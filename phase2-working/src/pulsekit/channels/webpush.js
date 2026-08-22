@@ -23,7 +23,7 @@ function createWebPushChannel({ webpush, vapidKeys, pool }) {
      */
     async send({ to, message, title }) {
       const payload = JSON.stringify({
-        title: title || 'UnZonko',
+        title: title || 'Mentally',
         body: message.slice(0, 200),
         icon: '/icons/icon-192.png',
         badge: '/icons/badge-72.png',

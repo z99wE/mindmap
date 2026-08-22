@@ -290,7 +290,7 @@ export function Profile() {
   el.querySelector('#prof-signout').addEventListener('click', () => {
     if (confirm('Are you sure you want to sign out?')) {
       api.clearAuth();
-      window.dispatchEvent(new CustomEvent('tg-auth-required'));
+      window.dispatchEvent(new CustomEvent('mentally-auth-required'));
     }
   });
 

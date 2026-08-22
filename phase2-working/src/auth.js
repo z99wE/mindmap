@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { pool } = require('./db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'thought-gps-secret-change-in-prod';
+const JWT_SECRET = process.env.JWT_SECRET || 'mentally-secret-change-in-prod';
 const JWT_EXPIRY = '7d';
 const REFRESH_EXPIRY = '30d';
 const BCRYPT_ROUNDS = 12;

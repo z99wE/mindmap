@@ -1,7 +1,7 @@
 {
-  "name": "mindmap-phase2",
+  "name": "mentally",
   "version": "2.0.0",
-  "description": "Phase 2: Complete Multimodal Processing with NVIDIA NIM",
+  "description": "Cognitive Coprocessor — Multi-Agent Memory Graph",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

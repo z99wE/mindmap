@@ -8,19 +8,19 @@
   <meta name="theme-color" content="#0a0b0e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="UnZonko">
+  <meta name="apple-mobile-web-app-title" content="Mentally">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <title>UnZonko — Cognitive Coprocessor</title>
-  <meta name="description" content="UnZonko is your personal cognitive coprocessor. A local-first, privacy-focused AI companion for mapping out thoughts, ideas, and tasks with multi-agent workflows.">
-  <meta name="keywords" content="AI, cognitive coprocessor, local-first AI, thought mapping, personal assistant, privacy, LLM, multi-agent, UnZonko">
-  <meta name="author" content="UnZonko">
-  <meta property="og:title" content="UnZonko — Cognitive Coprocessor">
-  <meta property="og:description" content="UnZonko is your personal cognitive coprocessor. A local-first, privacy-focused AI companion for mapping out thoughts, ideas, and tasks.">
+  <title>Mentally — Cognitive Coprocessor</title>
+  <meta name="description" content="Mentally is your personal cognitive coprocessor. A local-first, privacy-focused AI companion for mapping out thoughts, ideas, and tasks with multi-agent workflows.">
+  <meta name="keywords" content="AI, cognitive coprocessor, local-first AI, thought mapping, personal assistant, privacy, LLM, multi-agent, Mentally">
+  <meta name="author" content="Mentally">
+  <meta property="og:title" content="Mentally — Cognitive Coprocessor">
+  <meta property="og:description" content="Mentally is your personal cognitive coprocessor. A local-first, privacy-focused AI companion for mapping out thoughts, ideas, and tasks.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://unzonko.com">
+  <meta property="og:url" content="https://mentally.com">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="UnZonko — Cognitive Coprocessor">
-  <meta name="twitter:description" content="UnZonko is your personal cognitive coprocessor.">
+  <meta name="twitter:title" content="Mentally — Cognitive Coprocessor">
+  <meta name="twitter:description" content="Mentally is your personal cognitive coprocessor.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -619,11 +619,11 @@
 	        if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
 	        fetch('/api/process/message', {
 	          method: 'POST',
-	          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('tg_token') || '') },
+	          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('mentally_token') || '') },
 	          body: JSON.stringify({ message: text, source: 'voice' }),
 	        }).then(r => r.json()).then(data => {
 	          if (data.response) {
-	            const speakPref = localStorage.getItem('unzonko_voice_response');
+	            const speakPref = localStorage.getItem('mentally_voice_response');
 	            if (speakPref !== 'off') {
 	              window.speechSynthesis.cancel();
 	              const utterance = new SpeechSynthesisUtterance(data.response);

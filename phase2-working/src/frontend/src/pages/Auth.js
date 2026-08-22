@@ -32,7 +32,7 @@ export function Auth() {
     <div style="display:flex;align-items:center;justify-content:center;min-height:70vh;padding:1rem 0;">
       <div class="glass-strong card-reveal" style="width:100%;max-width:480px;border-radius:var(--md-sys-shape-extra-large);padding:2.5rem;">
         <div style="text-align:center;margin-bottom:2rem;">
-          <h1 style="font:var(--md-sys-typescale-headline-small);margin-bottom:0.5rem;">Welcome to UnZonko</h1>
+          <h1 style="font:var(--md-sys-typescale-headline-small);margin-bottom:0.5rem;">Welcome to Mentally</h1>
           <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">Your cognitive coprocessor for navigating thoughts</p>
         </div>
 
@@ -209,7 +209,7 @@ export function Auth() {
     // Success
     api.setToken(result.token, result.refreshToken);
     api.setUser(result.user);
-    window.dispatchEvent(new CustomEvent('tg-auth-success', { detail: { user: result.user } }));
+    window.dispatchEvent(new CustomEvent('mentally-auth-success', { detail: { user: result.user } }));
   });
 
   return container;

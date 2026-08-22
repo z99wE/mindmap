@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const request = require('supertest');
 const app = require('./server');
 
-test('UnZonko Core Endpoints', async (t) => {
+test('Mentally Core Endpoints', async (t) => {
   await t.test('GET /api/health returns 200 with status ok', async () => {
     const res = await request(app)
       .get('/api/health')

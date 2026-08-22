@@ -1,7 +1,7 @@
 // Shared encryption utility for API keys and channel credentials
 const CryptoJS = require('crypto-js');
 
-const ENCRYPTION_KEY = process.env.API_KEY_ENCRYPTION_SECRET || 'thought-gps-encryption-key-change-me';
+const ENCRYPTION_KEY = process.env.API_KEY_ENCRYPTION_SECRET || 'mentally-encryption-key-change-me';
 
 function encrypt(text) {
   return CryptoJS.AES.encrypt(text, ENCRYPTION_KEY).toString();
