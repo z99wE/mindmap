@@ -271,9 +271,9 @@ function renderCategories(el, data) {
   const total = entries.reduce((s, [, c]) => s + c, 0) || 1;
 
   const catColors = {
-    general: '#a78bfa', work: '#60a5fa', tasks: '#34d399', personal: '#fbbf24',
-    health: '#f87171', shopping: '#fb923c', commitment: '#c084fc', planning: '#22d3ee',
-    preferences: '#e879f9', thought: '#94a3b8',
+    general: 'var(--md-sys-color-secondary)', work: 'var(--md-sys-color-primary)', tasks: 'var(--color-success)', personal: 'var(--color-analytical)',
+    health: 'var(--md-sys-color-error)', shopping: 'var(--color-urgency)', commitment: 'var(--md-sys-color-tertiary)', planning: 'var(--md-sys-color-primary)',
+    preferences: 'var(--md-sys-color-secondary)', thought: 'var(--md-sys-color-outline)',
   };
 
   el.innerHTML = entries.length > 0 ? `

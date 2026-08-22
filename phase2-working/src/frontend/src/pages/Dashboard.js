@@ -9,7 +9,7 @@ export function Dashboard() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">OVERVIEW</div>
-        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0;">Dashboard</h1>
+        <h1 style="font:var(--md-sys-typescale-headline-large);letter-spacing:-0.06em;margin:0;">Dashboard</h1>
       </div>
 
       <!-- Stat Cards -->
@@ -117,7 +117,7 @@ export function Dashboard() {
         <!-- Narrative Memory -->
         <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(99,102,241,0.15);">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
-            <span class="material-symbols-rounded" style="font-size:18px;color:#818cf8;">auto_stories</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary);">auto_stories</span>
             Narrative Memory
           </h3>
           <div id="narrative-memory" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Generating...</div>
@@ -154,19 +154,19 @@ async function loadDashboard(c) {
     statsEl.innerHTML = `
       <div class="surface-card" style="padding:1.25rem;border-left:3px solid var(--md-sys-color-primary);">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Plan</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-primary);">${tierLabel}</div>
+        <div style="font:var(--md-sys-typescale-headline-small);color:var(--md-sys-color-primary);">${tierLabel}</div>
       </div>
       <div class="surface-card" style="padding:1.25rem;border-left:3px solid var(--md-sys-color-secondary);">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Runs Left</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-secondary);">${billing.dailyRunsRemaining ?? 0}</div>
+        <div style="font:var(--md-sys-typescale-headline-small);color:var(--md-sys-color-secondary);">${billing.dailyRunsRemaining ?? 0}</div>
       </div>
       <div class="surface-card" style="padding:1.25rem;border-left:3px solid var(--md-sys-color-tertiary);">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Credits</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-tertiary);">${billing.totalCredits ?? 0}</div>
+        <div style="font:var(--md-sys-typescale-headline-small);color:var(--md-sys-color-tertiary);">${billing.totalCredits ?? 0}</div>
       </div>
       <div class="surface-card" style="padding:1.25rem;border-left:3px solid var(--md-sys-color-secondary);">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Memories</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-secondary);">${memStats.total || 0}</div>
+        <div style="font:var(--md-sys-typescale-headline-small);color:var(--md-sys-color-secondary);">${memStats.total || 0}</div>
       </div>`;
 
     // Run gauge

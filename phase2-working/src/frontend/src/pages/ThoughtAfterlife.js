@@ -109,7 +109,7 @@ export function ThoughtAfterlife() {
 
     if (filtered.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:2rem;text-align:center;">
-        <p style="font:700 24px/1 'Space Grotesk';opacity:0.2;margin-bottom:0.5rem;">ALL CLEAR</p>
+        <p style="font:var(--md-sys-typescale-headline-medium);opacity:0.2;margin-bottom:0.5rem;">ALL CLEAR</p>
         <p style="color:var(--md-sys-color-outline);margin-top:0.5rem;">No thoughts in this category</p>
       </div>`;
       return;

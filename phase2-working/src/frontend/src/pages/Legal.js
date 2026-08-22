@@ -61,7 +61,7 @@ export function Legal() {
         <!-- 4. GDPR Compliance (EU) -->
         <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(99,102,241,0.3) !important;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;">
-            <span class="material-symbols-rounded" style="font-size:18px;color:#818cf8;">shield</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary);">shield</span>
             GDPR Compliance (EU)
           </h2>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">
@@ -88,7 +88,7 @@ export function Legal() {
         <!-- 5. DPDP Compliance (India) -->
         <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(251,191,36,0.3) !important;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;">
-            <span class="material-symbols-rounded" style="font-size:18px;color:#fbbf24;">gavel</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-analytical);">gavel</span>
             DPDP Act Compliance (India)
           </h2>
           <div style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);line-height:1.7;">

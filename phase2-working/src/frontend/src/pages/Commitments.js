@@ -18,7 +18,7 @@ export function Commitments() {
             </p>
           </div>
           <button class="btn-m3 btn-filled" id="btn-add-commitment">
-            <span style="font:700 14px/1 'Space Grotesk';">+ NEW</span>
+            <span style="font:var(--md-sys-typescale-label-large);">+ NEW</span>
             New Commitment
           </button>
         </div>
@@ -110,7 +110,7 @@ export function Commitments() {
 
     if (commitments.length === 0) {
       list.innerHTML = `<div class="surface-card" style="padding:3rem;text-align:center;">
-        <p style="font:700 28px/1 'Space Grotesk';opacity:0.2;margin-bottom:0.5rem;">NO COMMITMENTS</p>
+        <p style="font:var(--md-sys-typescale-headline-large);opacity:0.2;margin-bottom:0.5rem;">NO COMMITMENTS</p>
         <div class="tg-state"><div class="tg-state-title">No commitments yet</div><div class="tg-state-body">Promises you make in conversation get tracked here, with the context they came from.</div></div>
         <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Add your first commitment to start tracking accountability.</p>
       </div>`;
@@ -170,10 +170,10 @@ export function Commitments() {
           </div>
           <div style="display:flex;gap:0.5rem;">
             ${!isCompleted && !hasWitness ? `<button class="btn-m3 btn-icon" title="Add witness" onclick="addWitness(${c.id})">
-              <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-tertiary);">+W</span>
+              <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-tertiary);">+W</span>
             </button>` : ''}
             ${!isCompleted ? `<button class="btn-m3 btn-icon" title="Mark complete" onclick="completeCommitment(${c.id})">
-              <span style="font:600 11px/1 'Space Grotesk';color:var(--color-success);">DONE</span>
+              <span style="font:var(--md-sys-typescale-label-small);color:var(--color-success);">DONE</span>
             </button>` : ''}
           </div>
         </div>

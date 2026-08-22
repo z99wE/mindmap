@@ -120,7 +120,7 @@ export function Auth() {
         <div style="padding:0.9rem 1rem;border-radius:var(--md-sys-shape-medium);background:rgba(204,255,0,0.07);border:1px solid rgba(204,255,0,0.28);">
           <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
             <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-primary);">admin_panel_settings</span>
-            <span style="font:600 12px/1 var(--font-body);letter-spacing:0.06em;color:#d4ff33;text-transform:uppercase;">Local Admin</span>
+            <span style="font:600 12px/1 var(--font-body);letter-spacing:0.06em;color:var(--md-sys-color-primary);text-transform:uppercase;">Local Admin</span>
           </div>
           <div style="font:500 12px/1.7 var(--font-mono);color:var(--md-sys-color-on-surface-variant);word-break:break-all;">
             ${hint.email}<br>${hint.password}

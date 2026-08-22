@@ -75,7 +75,7 @@ export function HowItWorks() {
                 <span style="color:#000;font:var(--md-sys-typescale-label-large);">R</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">ReMentally</div>
+                <div style="color:#ebebeb;font:var(--md-sys-typescale-body-medium);">ReMentally</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Navigate</div>
               </div>
             </div>
@@ -92,7 +92,7 @@ export function HowItWorks() {
                 <span style="color:#fff;font:var(--md-sys-typescale-label-large);">R</span>
               </div>
               <div>
-                <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">ReMentally</div>
+                <div style="color:#ebebeb;font:var(--md-sys-typescale-body-medium);">ReMentally</div>
                 <div style="color:rgba(235,235,235,.5);font:11px/1 var(--font-mono),monospace;text-transform:uppercase;">Push</div>
               </div>
             </div>
@@ -120,7 +120,7 @@ export function HowItWorks() {
 
       <!-- CTA -->
       <div class="card-reveal surface-card" style="margin-top:2.5rem;text-align:center;padding:2rem;">
-        <h2 style="font:700 1.5rem/1.2 'Space Grotesk',system-ui;letter-spacing:-0.04em;margin:0 0 0.5rem;">Start navigating your thoughts</h2>
+        <h2 style="font:var(--md-sys-typescale-headline-small);letter-spacing:-0.04em;margin:0 0 0.5rem;">Start navigating your thoughts</h2>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0 0 1.5rem;">
           Connect your channels in Mission Control and start receiving cognitive nudges where you already are.
         </p>
@@ -205,7 +205,7 @@ export function HowItWorks() {
       return `<div style="padding:0.5rem 0.6rem;border-left:3px solid #611f69;max-width:90%;">
         <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.25rem;">
           <div style="width:18px;height:18px;border-radius:4px;background:#611f69;display:grid;place-items:center;">
-            <span style="color:#fff;font:700 9px/1 'Space Grotesk';">R</span>
+            <span style="color:#fff;font:var(--md-sys-typescale-label-small);">R</span>
           </div>
           <span style="font:bold 11px/1 system-ui;color:#111;">ReMentally</span>
           <span style="font:9px/1 system-ui;color:#999;">${msg.time}</span>
@@ -228,7 +228,7 @@ export function HowItWorks() {
       return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(204,255,0,0.1);border:1px solid rgba(204,255,0,0.2);">
         <div style="display:flex;align-items:center;gap:0.4rem;">
           <span class="mono-label" style="color:var(--md-sys-color-primary);font-size:9px;">ROUTE</span>
-          <span style="font:600 12px/1.3 'Space Grotesk',system-ui;color:#ebebeb;">${msg.text}</span>
+          <span style="font:var(--md-sys-typescale-body-small);color:#ebebeb;">${msg.text}</span>
         </div>
         <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.4);display:block;margin-top:4px;">${msg.time}</span>
       </div>`;
@@ -263,7 +263,7 @@ export function HowItWorks() {
       return `<div style="padding:0.6rem 0.75rem;border-radius:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);">
         <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:4px;">
           <span class="mono-label" style="color:${msg.color};font-size:9px;">${(msg.icon || 'GEO').toUpperCase()}</span>
-          <span style="font:600 12px/1.3 'Space Grotesk',system-ui;color:#ebebeb;">${msg.title}</span>
+          <span style="font:var(--md-sys-typescale-body-small);color:#ebebeb;">${msg.title}</span>
         </div>
         <div style="font:11px/1.4 system-ui;color:rgba(235,235,235,.6);">${msg.text}</div>
         <span style="font:9px/1 var(--font-mono),monospace;color:rgba(235,235,235,.3);display:block;margin-top:4px;">${msg.time}</span>

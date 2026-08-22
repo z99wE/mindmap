@@ -55,7 +55,7 @@ export function BrainFragments() {
 
 function renderRadialChart(areas, colors) {
   if (areas.length === 0 || areas.every(a => a.count === 0)) {
-    return '<text x="100" y="105" text-anchor="middle" fill="#938d99" font-size="12">No data yet</text>';
+    return '<text x="100" y="105" text-anchor="middle" fill="var(--md-sys-color-outline)" font-size="12">No data yet</text>';
   }
   const total = areas.reduce((s, a) => s + a.count, 0);
   let startAngle = 0;
@@ -69,9 +69,9 @@ function renderRadialChart(areas, colors) {
     const largeArc = angle > 180 ? 1 : 0;
     const path = `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
     startAngle = endAngle;
-    return `<path d="${path}" fill="${colors[a.area] || '#d0bcff'}" opacity="0.7" stroke="#141218" stroke-width="2">
+    return `<path d="${path}" fill="${colors[a.area] || 'var(--md-sys-color-secondary)'}" opacity="0.7" stroke="var(--md-sys-color-surface)" stroke-width="2">
       <title>${esc(a.area)}: ${esc(a.percentage)}%</title></path>`;
-  }).join('') + `<circle cx="${cx}" cy="${cy}" r="35" fill="#1e1c22"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="#e6e0e9" font-size="14" font-weight="600">${total}</text>`;
+  }).join('') + `<circle cx="${cx}" cy="${cy}" r="35" fill="var(--md-sys-color-surface)"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="var(--md-sys-color-on-surface)" font-size="14" font-weight="600">${total}</text>`;
 }
 
 function polarToCartesian(cx, cy, r, angleDeg) {

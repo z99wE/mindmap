@@ -47,8 +47,8 @@ export function MapMyMind() {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
           <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Thought Map</h2>
           <div style="display:flex;gap:0.5rem;">
-            <button class="btn-m3 btn-icon" id="btn-zoom-in" title="Zoom in"><span style="font:700 14px/1 'Space Grotesk';">+</span></button>
-            <button class="btn-m3 btn-icon" id="btn-zoom-out" title="Zoom out"><span style="font:700 14px/1 'Space Grotesk';">-</span></button>
+            <button class="btn-m3 btn-icon" id="btn-zoom-in" title="Zoom in"><span style="font:var(--md-sys-typescale-label-large);">+</span></button>
+            <button class="btn-m3 btn-icon" id="btn-zoom-out" title="Zoom out"><span style="font:var(--md-sys-typescale-label-large);">-</span></button>
           </div>
         </div>
         <div id="mind-map-canvas" style="position:relative;overflow:auto;min-height:350px;">

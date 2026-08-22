@@ -128,21 +128,21 @@ export function Credits() {
           <div class="surface-card" style="padding:1.5rem;text-align:center;border:1px solid rgba(255,255,255,0.06);">
 
             <h4 style="font:var(--md-sys-typescale-title-medium);margin:0;">Compass Pack</h4>
-            <div style="font:700 1.25rem/1.5 'Space Grotesk';color:var(--md-sys-color-primary);margin:0.25rem 0;">50 Runs</div>
+            <div style="font:var(--md-sys-typescale-title-large);color:var(--md-sys-color-primary);margin:0.25rem 0;">50 Runs</div>
             <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">$2.00 (Expires in 15d)</p>
             <button class="btn-m3 btn-tonal" style="width:100%;" onclick="buyBooster('compass')">Activate Pack</button>
           </div>
           <div class="surface-card" style="padding:1.5rem;text-align:center;border:1px solid rgba(255,255,255,0.06);">
 
             <h4 style="font:var(--md-sys-typescale-title-medium);margin:0;">Radar Pack</h4>
-            <div style="font:700 1.25rem/1.5 'Space Grotesk';color:var(--md-sys-color-primary);margin:0.25rem 0;">100 Runs</div>
+            <div style="font:var(--md-sys-typescale-title-large);color:var(--md-sys-color-primary);margin:0.25rem 0;">100 Runs</div>
             <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">$4.00 (Expires in 15d)</p>
             <button class="btn-m3 btn-tonal" style="width:100%;" onclick="buyBooster('radar')">Activate Pack</button>
           </div>
           <div class="surface-card" style="padding:1.5rem;text-align:center;border:1px solid rgba(255,255,255,0.06);">
 
             <h4 style="font:var(--md-sys-typescale-title-medium);margin:0;">Sextant Pack</h4>
-            <div style="font:700 1.25rem/1.5 'Space Grotesk';color:var(--md-sys-color-primary);margin:0.25rem 0;">200 Runs</div>
+            <div style="font:var(--md-sys-typescale-title-large);color:var(--md-sys-color-primary);margin:0.25rem 0;">200 Runs</div>
             <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin-bottom:1rem;">$7.00 (Expires in 15d)</p>
             <button class="btn-m3 btn-tonal" style="width:100%;" onclick="buyBooster('sextant')">Activate Pack</button>
           </div>
