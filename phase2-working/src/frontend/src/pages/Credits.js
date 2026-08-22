@@ -1,6 +1,7 @@
 import api from '../lib/api.js';
 import { toast } from '../lib/toast.js';
 
+function esc(s) { return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 export function Credits() {
   const container = document.createElement('div');
   const user = api.getUser() || {};
@@ -171,7 +172,7 @@ export function Credits() {
       btnWaitlist.textContent = 'Joining...';
       const result = await api.post('/billing/waitlist', { email, tier: 'early_adopter' });
       if (result.error) {
-        status.innerHTML = `<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">${result.error}</p>`;
+        status.innerHTML = `<p style="color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);">${esc(result.error)}</p>`;
         btnWaitlist.disabled = false;
         btnWaitlist.textContent = 'Join Waitlist';
       } else {

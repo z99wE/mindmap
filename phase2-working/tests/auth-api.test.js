@@ -395,9 +395,8 @@ describe('PUT /api/auth/witness-contacts', () => {
 // GET /api/auth/dev-admin-hint
 // ═══════════════════════════════════════════════════════════
 describe('GET /api/auth/dev-admin-hint', () => {
-  test('returns not available when no dev admin seeded', async () => {
+  test('returns 404 (endpoint removed for security)', async () => {
     const res = await request(app).get('/api/auth/dev-admin-hint');
-    expect(res.status).toBe(200);
-    expect(res.body.available).toBe(false);
+    expect(res.status).toBe(404);
   });
 });

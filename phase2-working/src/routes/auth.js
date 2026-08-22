@@ -99,13 +99,11 @@ router.post('/register', registerLimiter, async (req, res) => {
   }
 });
 
-// GET /api/auth/dev-admin-hint — local-network convenience for the seeded dev
-// admin. Returns the credentials on non-production instances, or
-// { available: false } in production (where no admin account exists).
+// GET /api/auth/dev-admin-hint — REMOVED for security.
+// Exposing credentials via an unauthenticated endpoint is a critical vulnerability.
+// Dev admin credentials should be accessed via server logs only.
 router.get('/dev-admin-hint', (req, res) => {
-  const creds = getDevAdminCredentials();
-  if (!creds) return res.json({ available: false });
-  res.json({ available: true, email: creds.email, password: creds.password });
+  res.status(404).json({ error: 'Endpoint removed' });
 });
 
 // POST /api/auth/login

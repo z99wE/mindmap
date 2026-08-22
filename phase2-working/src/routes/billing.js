@@ -8,6 +8,16 @@ const { authMiddleware } = require('../auth');
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 const REVENUECAT_API_KEY = process.env.REVENUECAT_API_KEY;
+
+// Rate limit waitlist submissions: 5 per IP per hour
+const rateLimit = require('express-rate-limit');
+const waitlistLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: { error: 'Too many waitlist submissions. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 const REVENUECAT_WEBHOOK_SECRET = process.env.REVENUECAT_WEBHOOK_SECRET;
 
 // Tier configurations
@@ -175,6 +185,19 @@ router.post('/verify-payment', authMiddleware, async (req, res) => {
 // POST /api/billing/razorpay-webhook - Razorpay webhook handler
 router.post('/razorpay-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
+    // SECURITY: Verify Razorpay webhook signature to prevent spoofed payments
+    const razorpaySecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (razorpaySecret) {
+      const crypto = require('crypto');
+      const signature = req.headers['x-razorpay-signature'];
+      if (!signature) return res.status(401).json({ error: 'Missing signature' });
+      const expectedSig = crypto.createHmac('sha256', razorpaySecret)
+        .update(typeof req.body === 'string' ? req.body : JSON.stringify(req.body))
+        .digest('hex');
+      if (signature !== expectedSig) return res.status(401).json({ error: 'Invalid signature' });
+    } else {
+      console.warn('[Billing] RAZORPAY_WEBHOOK_SECRET not set — webhook signature NOT verified. Set this in production!');
+    }
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const event = body.event;
     const payload = body.payload;
@@ -397,7 +420,7 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
 });
 
 // POST /api/billing/waitlist - join waitlist / newsletter updates
-router.post('/waitlist', async (req, res) => {
+router.post('/waitlist', waitlistLimiter, async (req, res) => {
   try {
     const { email, tier, name, country } = req.body;
     if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
