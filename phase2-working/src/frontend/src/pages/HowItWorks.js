@@ -5,7 +5,7 @@ export function HowItWorks() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;text-align:center;">
         <div class="mono-label" style="color:var(--md-sys-color-primary);margin-bottom:0.5rem;">DEMO</div>
-        <h1 style="font:700 2rem/1.1 'Space Grotesk',system-ui;letter-spacing:-0.06em;margin:0 0 0.5rem;">See ReMentally in Action</h1>
+        <h1 style="font:var(--md-sys-typescale-headline-large);letter-spacing:-0.06em;margin:0 0 0.5rem;">See ReMentally in Action</h1>
         <p style="font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface-variant);margin:0;max-width:600px;margin:0 auto;">
           Your cognitive navigator delivers through the apps you already use. Watch how nudges, briefs, and route updates arrive in real-time.
         </p>
@@ -18,10 +18,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#075e54;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:var(--md-sys-color-primary);display:grid;place-items:center;">
-                <span style="color:#000;font:700 14px/1 'Space Grotesk';">R</span>
+                <span style="color:#000;font:var(--md-sys-typescale-label-large);">R</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">ReMentally</div>
+                <div style="color:#fff;font:var(--md-sys-typescale-body-medium);">ReMentally</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">WhatsApp</div>
               </div>
             </div>
@@ -38,10 +38,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#2b5278;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#0088cc;display:grid;place-items:center;">
-                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">R</span>
+                <span style="color:#fff;font:var(--md-sys-typescale-label-large);">R</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">ReMentally Bot</div>
+                <div style="color:#fff;font:var(--md-sys-typescale-body-medium);">ReMentally Bot</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Telegram</div>
               </div>
             </div>
@@ -58,7 +58,7 @@ export function HowItWorks() {
                 <span style="color:#fff;font:bold 14px/1 system-ui;">#</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">#rementally</div>
+                <div style="color:#fff;font:var(--md-sys-typescale-body-medium);">#rementally</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Slack</div>
               </div>
             </div>
@@ -72,7 +72,7 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:var(--md-sys-color-primary);display:grid;place-items:center;">
-                <span style="color:#000;font:700 14px/1 'Space Grotesk';">R</span>
+                <span style="color:#000;font:var(--md-sys-typescale-label-large);">R</span>
               </div>
               <div>
                 <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">ReMentally</div>
@@ -89,7 +89,7 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:var(--md-sys-color-tertiary);display:grid;place-items:center;">
-                <span style="color:#fff;font:700 14px/1 'Space Grotesk';">R</span>
+                <span style="color:#fff;font:var(--md-sys-typescale-label-large);">R</span>
               </div>
               <div>
                 <div style="color:#ebebeb;font:600 14px/1.2 'Space Grotesk',system-ui;">ReMentally</div>
@@ -105,10 +105,10 @@ export function HowItWorks() {
           <div class="phone-header" style="background:#ea4335;">
             <div style="display:flex;align-items:center;gap:0.5rem;">
               <div style="width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;">
-                <span style="color:#ea4335;font:700 14px/1 'Space Grotesk';">✉️</span>
+                <span style="color:#ea4335;font:var(--md-sys-typescale-label-large);">✉️</span>
               </div>
               <div>
-                <div style="color:#fff;font:600 14px/1.2 system-ui;">rementally-email</div>
+                <div style="color:#fff;font:var(--md-sys-typescale-body-medium);">rementally-email</div>
                 <div style="color:rgba(255,255,255,.7);font:11px/1.2 system-ui;">Email / Browser</div>
               </div>
             </div>

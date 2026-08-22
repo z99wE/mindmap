@@ -35,10 +35,11 @@ export function InteractiveSpace() {
             <button type="button" class="btn-m3 btn-text" id="remove-attach-btn" style="padding:0.2rem 0.5rem;min-width:auto;height:auto;font-size:11px;color:var(--md-sys-color-error);">REMOVE</button>
           </div>
           <textarea id="chat-input" class="input-m3" rows="2" placeholder="Type a thought, question, or commitment..." aria-label="Chat message input" style="resize:vertical;min-height:48px;"></textarea>
-          <!-- Inline Quality Score -->
+          <!-- Inline Quality Score + Sentiment -->
           <div id="quality-indicator" style="display:none;align-items:center;gap:0.5rem;padding:0.375rem 0.625rem;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <div id="quality-grade" style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 0.7rem 'Space Grotesk',system-ui;"></div>
+            <div id="quality-grade" style="width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font:var(--md-sys-typescale-label-small);"></div>
             <div id="quality-tip" style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);flex:1;"></div>
+            <div id="sentiment-indicator" style="display:none;font:var(--md-sys-typescale-label-small);padding:0.15rem 0.4rem;border-radius:4px;"></div>
           </div>
         </div>
         <button type="button" class="btn-m3 btn-tonal" id="dictate-btn" style="height:48px;width:48px;padding:0;display:grid;place-items:center;" title="Voice Dictation" aria-label="Start voice dictation">
@@ -182,17 +183,31 @@ export function InteractiveSpace() {
     }
     qualityDebounce = setTimeout(async () => {
       try {
-        const result = await api.post('/api/smart/score', { content: text });
-        const s = result.score;
-        if (!s) return;
-        const color = gradeColors[s.grade] || 'var(--md-sys-color-outline)';
-        qualityIndicator.style.display = 'flex';
-        qualityGrade.textContent = s.grade;
-        qualityGrade.style.color = color;
-        qualityGrade.style.border = `1px solid ${color}33`;
-        qualityGrade.style.background = `${color}11`;
-        qualityTip.textContent = s.coaching?.[0] || s.label;
-        qualityTip.style.color = s.grade === 'A' || s.grade === 'B' ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)';
+        const [qualityResult, sentimentResult] = await Promise.all([
+          api.post('/api/smart/score', { content: text }),
+          api.post('/api/smart/sentiment', { content: text }).catch(() => null)
+        ]);
+        const s = qualityResult.score;
+        if (s) {
+          const color = gradeColors[s.grade] || 'var(--md-sys-color-outline)';
+          qualityIndicator.style.display = 'flex';
+          qualityGrade.textContent = s.grade;
+          qualityGrade.style.color = color;
+          qualityGrade.style.border = `1px solid ${color}33`;
+          qualityGrade.style.background = `${color}11`;
+          qualityTip.textContent = s.tips?.[0]?.message || s.grade + '/100';
+          qualityTip.style.color = s.grade === 'A' || s.grade === 'B' ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)';
+        }
+        // Show sentiment if available
+        const sentEl = container.querySelector('#sentiment-indicator');
+        const analysis = sentimentResult?.analysis;
+        if (analysis && sentEl) {
+          const sentColors = { positive: 'var(--color-success)', neutral: 'var(--md-sys-color-outline)', negative: 'var(--md-sys-color-error)' };
+          sentEl.style.display = 'inline-block';
+          sentEl.style.color = sentColors[analysis.label] || 'var(--md-sys-color-outline)';
+          sentEl.style.background = (sentColors[analysis.label] || 'var(--md-sys-color-outline)') + '15';
+          sentEl.textContent = analysis.emotional_state ? analysis.emotional_state.replace(/_/g, ' ') : analysis.label;
+        }
       } catch { /* ignore scoring errors */ }
     }, 500);
   });

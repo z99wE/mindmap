@@ -255,23 +255,27 @@ router.post('/escalations/act', authMiddleware, async (req, res) => {
 router.get('/dashboard', authMiddleware, async (req, res) => {
   try {
     const engines = getEngines();
+    const { pool } = require('../db');
 
-    const [curve, chains, breaks, quality, social, energy, escalations] = await Promise.all([
-      engines.forgettingCurve.learnForgettingCurve(req.userId).catch(() => null),
+    const [curve, chains, breaks, quality, social, energy, escalations, overload] = await Promise.all([
+      engines.mlBayesianDecay.getCalibratedCurve(req.userId).catch(() => null),
       engines.thoughtChain.getActiveChains(req.userId).catch(() => []),
-      engines.patternBreak.detectPatternBreaks(req.userId).catch(() => ({ breaks: [] })),
+      engines.mlAnomalyDetector.detectPatternBreaks(req.userId).catch(() => ({ detected_breaks: [] })),
       (async () => {
-        const { pool } = require('../db');
         const result = await pool.query(`
           SELECT id, content, category, urgency_tier, status
           FROM memory_graph WHERE user_id = $1 AND status = 'pending'
           ORDER BY created_at DESC LIMIT 20
         `, [req.userId]);
-        return engines.thoughtQuality.scoreBatchQuality(result.rows);
-      })().catch(() => ({ scores: [], aggregate: {} })),
+        return {
+          thoughts: result.rows.map(t => ({ id: t.id, content: t.content, ...engines.mlThoughtQuality.scoreThought(t.content) })),
+          count: result.rows.length
+        };
+      })().catch(() => ({ thoughts: [], count: 0 })),
       engines.socialProof.getSocialProofInsights(req.userId).catch(() => ({ insights: [] })),
-      engines.energyScheduler.learnEnergyCurve(req.userId).catch(() => ({ curve: {} })),
+      engines.mlEnergyEstimator.detectEnergyPattern(req.userId).catch(() => ({ has_data: false })),
       engines.commitmentEscalation.getEscalations(req.userId).catch(() => ({ escalations: [] })),
+      engines.mlPredictiveOverload.predictOverload(req.userId).catch(() => null),
     ]);
 
     res.json({
@@ -282,6 +286,7 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
       socialProof: social,
       energy,
       escalations,
+      overload,
       generatedAt: new Date().toISOString(),
     });
   } catch (e) {

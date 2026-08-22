@@ -442,13 +442,13 @@ async function loadDashboard(c) {
       
       const res = await api.post('/channels/digest');
       if (res.error) {
-        digestStatus.textContent = '❌ ' + res.error;
+        digestStatus.textContent = '<span class="material-symbols-rounded" style="color:var(--md-sys-color-error);font-size:1rem;">error</span> ' + res.error;
         digestStatus.style.color = 'var(--md-sys-color-error)';
       } else if (res.success) {
         digestStatus.textContent = res.message;
         digestStatus.style.color = 'var(--color-success)';
       } else {
-        digestStatus.textContent = '⚠️ ' + (res.message || 'Digest could not be sent. Connect a channel first.');
+        digestStatus.textContent = '<span class="material-symbols-rounded" style="color:var(--color-analytical);font-size:1rem;">warning</span> ' + (res.message || 'Digest could not be sent. Connect a channel first.');
         digestStatus.style.color = 'var(--md-sys-color-secondary)';
       }
       

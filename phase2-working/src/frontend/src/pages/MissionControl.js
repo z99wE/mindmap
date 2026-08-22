@@ -175,7 +175,7 @@ function channelsPanel() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <h2 style="font:var(--md-sys-typescale-title-medium);margin:0;">Connected Channels</h2>
         <button class="btn-m3 btn-tonal" onclick="document.getElementById('add-channel-dialog').style.display='flex';">
-          <span style="font:700 14px/1 'Space Grotesk';">+</span> Connect
+          <span style="font:var(--md-sys-typescale-label-large);">+</span> Connect
         </button>
       </div>
       <div id="channels-list"><div class="anim-shimmer" style="height:80px;"></div></div>
@@ -206,7 +206,7 @@ function keysPanel() {
           <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.25rem 0 0;">Keys are AES-256 encrypted. Never exposed to the frontend.</p>
         </div>
         <button class="btn-m3 btn-tonal" onclick="document.getElementById('add-key-dialog').style.display='flex';">
-          <span style="font:700 14px/1 'Space Grotesk';">+</span> Add Key
+          <span style="font:var(--md-sys-typescale-label-large);">+</span> Add Key
         </button>
       </div>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 0.9rem;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
@@ -308,7 +308,7 @@ function geofencesPanel() {
           <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.25rem 0 0;">Location-based triggers for departure briefs and task nudges.</p>
         </div>
         <button class="btn-m3 btn-tonal" onclick="document.getElementById('add-geofence-dialog').style.display='flex';">
-          <span style="font:700 14px/1 'Space Grotesk';">+</span> Add
+          <span style="font:var(--md-sys-typescale-label-large);">+</span> Add
         </button>
       </div>
       <div id="geofences-list"><div class="anim-shimmer" style="height:80px;"></div></div>
@@ -341,7 +341,7 @@ async function loadChannels(c) {
           <span style="font:var(--md-sys-typescale-body-small);">${ch.display_name || ch.platform}</span>
         </div>
         <button class="btn-m3 btn-icon" onclick="deleteChannel('${ch.id}')" title="Disconnect">
-          <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
+          <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-error);">DEL</span>
         </button>
       </div>`).join('');
   }
@@ -431,7 +431,7 @@ async function loadKeys(c) {
           </div>
         </div>
         <button class="btn-m3 btn-icon" onclick="deleteKey('${k.provider}','${k.id}')" title="Remove">
-          <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
+          <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-error);">DEL</span>
         </button>
       </div>`).join('');
   }
@@ -526,7 +526,7 @@ async function loadGeofences(c) {
             ${g.linked_tasks?.length ? `<div style="margin-top:0.25rem;font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-secondary);">Tasks: ${g.linked_tasks.join(', ')}</div>` : ''}
           </div>
           <button class="btn-m3 btn-icon" onclick="deleteGeofence('${g.id}')" title="Remove">
-            <span style="font:600 11px/1 'Space Grotesk';color:var(--md-sys-color-error);">DEL</span>
+            <span style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-error);">DEL</span>
           </button>
         </div>
       </div>`).join('');
