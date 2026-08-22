@@ -182,8 +182,8 @@ Early Adopter spots are limited. Drop your email on the Credits page to get noti
 
 ```bash
 # Clone
-git clone https://github.com/z99wE/mindmap.git
-cd mindmap/phase2-working
+git clone https://github.com/z99wE/rementally.git
+cd rementally/phase2-working
 
 # Install dependencies
 npm install
@@ -202,8 +202,8 @@ node server.js
 ### Docker (recommended for local dev)
 
 ```bash
-git clone https://github.com/z99wE/mindmap.git
-cd mindmap
+git clone https://github.com/z99wE/rementally.git
+cd rementally
 docker compose up -d
 # Open http://localhost:3001
 ```
