@@ -62,7 +62,7 @@ function waitlistTemplate({ name, plan }) {
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
         <tr><td style="padding-bottom:32px;text-align:center;">
-          <span style="display:inline-block;width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#d6ff3e,#ccff00);text-align:center;line-height:40px;font:italic 700 20px Inter,system-ui;color:#000;">U</span>
+          <span style="display:inline-block;width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#d6ff3e,#ccff00);text-align:center;line-height:40px;font:italic 700 20px Inter,system-ui;color:#000;">R</span>
           <span style="font:700 18px/40px Inter,system-ui;color:#f0f4ee;letter-spacing:-0.02em;vertical-align:top;margin-left:10px;">ReMentally</span>
         </td></tr>
         <tr><td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:20px;padding:40px 36px;">

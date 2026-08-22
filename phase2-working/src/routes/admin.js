@@ -223,4 +223,58 @@ router.post('/channels/:id/deliver', async (req, res) => {
   }
 });
 
+// ── Waitlist Management ─────────────────────────────────────────────────
+
+// GET /api/admin/waitlist - list all waitlist signups
+router.get('/waitlist', async (req, res) => {
+  try {
+    const { plan, limit: queryLimit } = req.query;
+    const limit = Math.min(parseInt(queryLimit) || 100, 500);
+    let sql = 'SELECT id, email, name, plan, country, email_sent, created_at FROM waitlist';
+    const params = [];
+    if (plan) {
+      sql += ' WHERE plan = $1';
+      params.push(plan);
+    }
+    sql += ' ORDER BY created_at DESC';
+    params.push(limit);
+    sql += ` LIMIT $${params.length}`;
+
+    const result = await pool.query(sql, params);
+    const countResult = await pool.query('SELECT COUNT(*)::int as total FROM waitlist');
+    const byPlan = await pool.query('SELECT plan, COUNT(*)::int as count FROM waitlist GROUP BY plan ORDER BY count DESC');
+
+    res.json({
+      waitlist: result.rows,
+      total: countResult.rows[0].total,
+      byPlan: byPlan.rows,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/waitlist/export - export waitlist as CSV
+router.get('/waitlist/export', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT email, name, plan, country, email_sent, created_at FROM waitlist ORDER BY created_at DESC'
+    );
+
+    const header = 'email,name,plan,country,email_sent,signed_up_at';
+    const rows = result.rows.map(r =>
+      [r.email, r.name || '', r.plan || '', r.country || '', r.email_sent || false, r.created_at?.toISOString() || '']
+        .map(v => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+    const csv = [header, ...rows].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="waitlist-export.csv"');
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

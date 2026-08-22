@@ -419,7 +419,27 @@ router.post('/waitlist', async (req, res) => {
       [email.toLowerCase(), name || null, requestedTier, country || null]
     );
 
-    // Send confirmation email via Brevo (non-blocking)
+    // Admin notification (console + optional in-app)
+    const isNewSignup = !insertResult.rows[0]?.email_sent;
+    console.log(`[Waitlist] ${isNewSignup ? 'NEW' : 'UPDATE'}: ${email} → ${requestedTier}` + (name ? ` (${name})` : ''));
+
+    // Store admin notification so it shows in the notifications feed
+    try {
+      const adminUser = await pool.query("SELECT id FROM users WHERE is_admin = true LIMIT 1");
+      if (adminUser.rows.length > 0) {
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, title, message, channel, metadata)
+           VALUES ($1, 'waitlist_signup', 'New Waitlist Signup', $2, 'admin', $3)`,
+          [
+            adminUser.rows[0].id,
+            `${requestedTier.replace('_', ' ')}: ${email}` + (name ? ` (${name})` : ''),
+            JSON.stringify({ email, name, tier: requestedTier, country }),
+          ]
+        );
+      }
+    } catch { /* notifications table may not exist */ }
+
+    // Send confirmation email via Resend (non-blocking)
     if (!insertResult.rows[0]?.email_sent) {
       try {
         const { sendWaitlistConfirmation } = require('../mailer');

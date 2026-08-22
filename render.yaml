@@ -58,7 +58,9 @@ services:
       - key: RESEND_SENDER_EMAIL
         sync: false
       - key: RESEND_SENDER_NAME
-        sync: false
+        value: ReMentally
+      - key: RESEND_SENDER_EMAIL
+        value: noreply@rementally.onrender.com
 
       # PulseKit — Native Multi-Channel Messaging
       - key: TELEGRAM_BOT_TOKEN
