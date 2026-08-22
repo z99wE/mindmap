@@ -5,11 +5,11 @@ import RippleGrid from './RippleGrid';
 /**
  * Brand sign-off — a liquid-glass footer that consistently spans the full
  * viewport width. No mask shenanigans, no fixed height, no side-effect
- * distortion. Rides a subtle ripple grid and the UnZonko wordmark.
+ * distortion. Rides a subtle ripple grid and the ReMentally wordmark.
  */
 export default function Footer() {
   return (
-    <footer className="brand-signoff" aria-label="UnZonko footer">
+    <footer className="brand-signoff" aria-label="ReMentally footer">
       {/* Ripple grid backdrop — always fills the footer */}
       <div className="brand-signoff-grid">
         <RippleGrid
@@ -32,7 +32,7 @@ export default function Footer() {
       <div className="brand-signoff-content">
         <div className="brand-signoff-mark">
           <ShinyText
-            text="UnZonko"
+            text="ReMentally"
             speed={2}
             color="#b5b5b5"
             shineColor="#ffffff"

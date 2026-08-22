@@ -181,7 +181,7 @@ function channelsPanel() {
       <div id="channels-list"><div class="anim-shimmer" style="height:80px;"></div></div>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0.9rem 0 0;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
         <span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
-        <span>Connectivity and delivery depend on the channel provider you connect and your current usage limits with that provider — they do not depend on how Mentally functions.</span>
+        <span>Connectivity and delivery depend on the channel provider you connect and your current usage limits with that provider — they do not depend on how ReMentally functions.</span>
       </p>
     </div>
     <div class="surface-card card-reveal" style="padding:1.5rem;margin-top:1rem;">
@@ -211,7 +211,7 @@ function keysPanel() {
       </div>
       <p style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);margin:0 0 0.9rem;line-height:1.5;display:flex;gap:0.5rem;align-items:flex-start;">
         <span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;color:var(--md-sys-color-primary);flex-shrink:0;">info</span>
-        <span>Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how Mentally functions.</span>
+        <span>Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how ReMentally functions.</span>
       </p>
       <div id="keys-list"><div class="anim-shimmer" style="height:80px;"></div></div>
     </div>
@@ -639,7 +639,7 @@ function setupSaveHandlers(c) {
         smtp_port: 587,
         smtp_user: token,       // email address
         smtp_pass: channelId,   // app password
-        smtp_from: `Mentally <${token}>`,
+        smtp_from: `ReMentally <${token}>`,
         recipient_id: token,    // deliver to the same address
       };
     } else {
@@ -720,7 +720,7 @@ function setupSaveHandlers(c) {
     const data = await api.get('/memory/export?format=json');
     if (!data.error) {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mentally-export.json'; a.click();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rementally-export.json'; a.click();
     }
   });
 

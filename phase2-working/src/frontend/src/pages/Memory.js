@@ -64,7 +64,7 @@ export function Memory() {
     </div>`;
 
   function renderBackupWarning() {
-    const lastBackup = localStorage.getItem('mentally_last_backup');
+    const lastBackup = localStorage.getItem('rementally_last_backup');
     const warningEl = container.querySelector('#backup-warning');
     if (!warningEl) return;
 
@@ -184,14 +184,14 @@ export function Memory() {
       try {
         const { saveLocalMemories } = await import('../lib/indexedDb.js');
         await saveLocalMemories(data.memories || []);
-        localStorage.setItem('mentally_last_backup', new Date().toISOString());
+        localStorage.setItem('rementally_last_backup', new Date().toISOString());
         renderBackupWarning();
       } catch (e) {
         console.error('IndexedDB backup failed:', e);
       }
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mentally-memories.json'; a.click();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rementally-memories.json'; a.click();
     }
   });
 

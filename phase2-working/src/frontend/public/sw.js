@@ -1,7 +1,7 @@
-// Mentally — Service Worker
+// ReMentally — Service Worker
 // Cache versioning: bump CACHE_VERSION to force re-cache all assets
 const CACHE_VERSION = 1;
-const CACHE = `mentally-v${CACHE_VERSION}`;
+const CACHE = `rementally-v${CACHE_VERSION}`;
 const ASSETS = ['/', '/icon.svg', '/manifest.json'];
 
 // Skip waiting so the new SW activates immediately
@@ -20,7 +20,7 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter((key) => key !== CACHE && key.startsWith('mentally-'))
+          .filter((key) => key !== CACHE && key.startsWith('rementally-'))
           .map((key) => caches.delete(key))
       );
     })
@@ -70,7 +70,7 @@ self.addEventListener('fetch', (e) => {
 
 // Push notifications
 self.addEventListener('push', (e) => {
-  let data = { title: 'Mentally', body: 'New notification', icon: '/icon.svg' };
+  let data = { title: 'ReMentally', body: 'New notification', icon: '/icon.svg' };
   if (e.data) {
     try {
       data = { ...data, ...e.data.json() };
@@ -82,7 +82,7 @@ self.addEventListener('push', (e) => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon,
-      tag: 'mentally',
+      tag: 'rementally',
       data: { url: data.url || '/' },
     })
   );

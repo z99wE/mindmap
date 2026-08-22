@@ -216,12 +216,9 @@ function renderMobileDrawer() {
     </div>`;
   }).join('');
   content.innerHTML = `
-    <div class="nav-logo">
-      <div class="nav-logo-icon">T</div>
-      <div>
-        <div class="nav-logo-text">Mentally</div>
-        <div class="nav-logo-sub">Cognitive Coprocessor</div>
-      </div>
+    <div class="nav-logo" style="flex-direction:column;gap:0.35rem;text-align:center;padding:1rem 0.75rem;">
+      <div style="display:inline-block;font:italic 800 17px/1 var(--font-heading);letter-spacing:0.04em;color:#b5b5b5;">ReMentally</div>
+      <div style="font:400 8px/1 var(--font-body);letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.2);">Cognitive Coprocessor</div>
     </div>
     ${items}`;
 }
@@ -315,7 +312,7 @@ function renderPage(page) {
 
   // Set page title
   const titleEl = document.getElementById('page-title');
-  if (titleEl) titleEl.textContent = pageRegistry[page]?.title || 'Mentally';
+  if (titleEl) titleEl.textContent = pageRegistry[page]?.title || 'ReMentally';
 
   // Render page content
   if (factory) {
@@ -366,8 +363,8 @@ window.handleUserClick = () => {
 };
 
 // Listen for auth events
-window.addEventListener('mentally-auth-required', () => renderPage('auth'));
-window.addEventListener('mentally-auth-success', (e) => {
+window.addEventListener('rementally-auth-required', () => renderPage('auth'));
+window.addEventListener('rementally-auth-success', (e) => {
   user = e.detail?.user || api.getUser();
   updateUserChip();
   renderPage('dashboard');

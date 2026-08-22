@@ -46,7 +46,7 @@ const PROVIDER_REGISTRY = [
 // availability depends on the provider and the user's own usage limits, NOT on
 // how the app itself functions.
 const USAGE_DISCLAIMER =
-  'Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how Mentally functions.';
+  'Connectivity and response limits depend on the provider you choose and your current usage limits with that provider — they do not depend on how ReMentally functions.';
 
 // Max keys per provider — intentionally high ("hundreds"). No meaningful app
 // limit; providers enforce their own quotas.

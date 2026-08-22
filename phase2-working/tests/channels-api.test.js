@@ -324,7 +324,7 @@ describe('POST /api/channels/digest', () => {
     expect(mockPulseKit.send).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'test-user-uuid',
-        title: 'Mentally Digest',
+        title: 'ReMentally Digest',
       })
     );
   });

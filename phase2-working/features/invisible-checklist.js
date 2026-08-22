@@ -152,7 +152,7 @@ async function buildChecklistMessage(db, userId, storeType, storeName) {
   // Mark items as prompted
   await markItemsAsPrompted(db, userId, storeType);
   
-  return `🔍 ${storeType.toUpperCase()} CHECKLIST\n\nStore: ${storeName}\n\n${checklist}\n\nMark items complete in Mentally after purchase.`;
+  return `🔍 ${storeType.toUpperCase()} CHECKLIST\n\nStore: ${storeName}\n\n${checklist}\n\nMark items complete in ReMentally after purchase.`;
 }
 
 /**

@@ -1,5 +1,5 @@
 // Client-Side IndexedDB Storage manager for local memory caching and search
-const DB_NAME = 'mentally_local_db';
+const DB_NAME = 'rementally_local_db';
 const DB_VERSION = 1;
 const STORE_NAME = 'memories';
 

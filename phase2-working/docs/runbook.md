@@ -1,4 +1,4 @@
-# Runbook — Mentally Operations Guide
+# Runbook — ReMentally Operations Guide
 
 ## 1. Startup Failure
 
@@ -149,19 +149,19 @@ curl -sI http://localhost:3001/api/health | grep -i ratelimit
 ### Backup (Postgres)
 ```bash
 # Create backup
-pg_dump $DATABASE_URL > mentally_backup_$(date +%Y%m%d).sql
+pg_dump $DATABASE_URL > rementally_backup_$(date +%Y%m%d).sql
 
 # Compress
-gzip mentally_backup_*.sql
+gzip rementally_backup_*.sql
 ```
 
 ### Restore
 ```bash
 # Create a fresh database first
-createdb mentally_restore
+createdb rementally_restore
 
 # Restore
-gunzip -c backup_file.sql.gz | psql mentally_restore
+gunzip -c backup_file.sql.gz | psql rementally_restore
 ```
 
 ### Render Postgres
@@ -172,7 +172,7 @@ Use Render's built-in backup feature from the Dashboard → PostgreSQL → Backu
 ## 8. Deployment Rollback
 
 ### Render
-1. Go to Render Dashboard → mentally → Deploys
+1. Go to Render Dashboard → rementally → Deploys
 2. Find the last known-good deploy
 3. Click "Deploy" on that version
 4. Verify with `/api/health` endpoint
@@ -199,7 +199,7 @@ If the entire database is lost:
 3. **Users will need to re-register**: No user data can be recovered without backup
 4. **Prevention**: Schedule daily backups:
    ```cron
-   0 3 * * * pg_dump $DATABASE_URL > /backups/mentally_$(date +\%Y\%m\%d).sql
+   0 3 * * * pg_dump $DATABASE_URL > /backups/rementally_$(date +\%Y\%m\%d).sql
    ```
 
 ---
@@ -209,7 +209,7 @@ If the entire database is lost:
 | Role | Contact |
 |------|---------|
 | Developer | Set in Render dashboard → Project settings |
-| DPO (Data Protection) | admin@mentally.local (configurable via env) |
+| DPO (Data Protection) | admin@rementally.local (configurable via env) |
 | Incident Response | Documented in this runbook |
 
 ---

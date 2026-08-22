@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Mentally — branded presentation layer
+// ReMentally — branded presentation layer
 //
 // Everything in this file is presentation only: light, depth, motion. It adds
 // no behaviour to the app and never changes data, routing or API calls.

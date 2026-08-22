@@ -1,7 +1,7 @@
-// Mentally Browser Extension — Background Service Worker
+// ReMentally Browser Extension — Background Service Worker
 // Checks for unread count, handles auth, manages alarm
 
-const API_BASE = 'https://mentally.onrender.com/api';
+const API_BASE = 'https://rementally.onrender.com/api';
 
 // Check auth and unread count every 5 minutes
 chrome.alarms.create('heartbeat', { periodInMinutes: 5 });

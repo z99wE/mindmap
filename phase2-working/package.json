@@ -1,5 +1,5 @@
 {
-  "name": "mentally",
+  "name": "rementally",
   "version": "2.0.0",
   "description": "Cognitive Coprocessor — Multi-Agent Memory Graph",
   "main": "server.js",

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Mentally is a cognitive coprocessor — a middleware layer between the user's brain and every application they use. It captures thoughts from multiple channels, processes them through an AI pipeline, stores them in a vector memory graph, and delivers insights back through the same channels.
+ReMentally is a cognitive coprocessor — a middleware layer between the user's brain and every application they use. It captures thoughts from multiple channels, processes them through an AI pipeline, stores them in a vector memory graph, and delivers insights back through the same channels.
 
 ## High-Level Architecture
 

@@ -1,4 +1,4 @@
-// Mentally - Navigation-style thought visualization
+// ReMentally - Navigation-style thought visualization
 import api from '../lib/api.js';
 import { renderErrorState } from '../components/ErrorState.js';
 

@@ -81,7 +81,7 @@ export function ThoughtExport() {
     if (category) params.set('category', category);
     if (status) params.set('status', status);
 
-    const token = localStorage.getItem('mentally_token');
+    const token = localStorage.getItem('rementally_token');
     
     // For CSV and Markdown, download directly via fetch
     if (format === 'csv' || format === 'markdown') {
@@ -92,7 +92,7 @@ export function ThoughtExport() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `mentally-export.${format === 'markdown' ? 'md' : 'csv'}`;
+      a.download = `rementally-export.${format === 'markdown' ? 'md' : 'csv'}`;
       a.click();
       URL.revokeObjectURL(url);
     } else {
@@ -103,7 +103,7 @@ export function ThoughtExport() {
         return;
       }
       
-      const fileName = format === 'vortex' ? 'mentally-vortex-map.json' : 'mentally-export.json';
+      const fileName = format === 'vortex' ? 'rementally-vortex-map.json' : 'rementally-export.json';
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

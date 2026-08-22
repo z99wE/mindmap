@@ -362,7 +362,7 @@ function classifyIntent(text) {
 }
 
 function buildSystemPrompt(state) {
-  let prompt = `You are Mentally, a cognitive coprocessor that helps users organize thoughts, identify patterns, and surface insights.
+  let prompt = `You are ReMentally, a cognitive coprocessor that helps users organize thoughts, identify patterns, and surface insights.
 
 Your role:
 - Analyze the user's input and provide thoughtful, actionable responses

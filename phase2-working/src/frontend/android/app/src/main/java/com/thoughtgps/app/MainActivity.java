@@ -1,4 +1,4 @@
-package com.thoughtgps.app;
+package com.rementally.app;
 
 import com.getcapacitor.BridgeActivity;
 

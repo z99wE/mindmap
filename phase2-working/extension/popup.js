@@ -1,6 +1,6 @@
-// Mentally Browser Extension — Popup Script
+// ReMentally Browser Extension — Popup Script
 
-const API_BASE = 'https://mentally.onrender.com/api';
+const API_BASE = 'https://rementally.onrender.com/api';
 let token = null;
 
 // Load token and refresh view
@@ -15,7 +15,7 @@ chrome.storage.local.get(['token', 'email'], async (data) => {
     document.querySelector('.dot').className = 'dot offline';
     document.getElementById('statusText').textContent = 'Not signed in';
     document.getElementById('activities').innerHTML =
-      '<div class="empty"><a href="https://mentally.onrender.com" target="_blank" style="color:#ccff00;">Sign in to Mentally</a></div>';
+      '<div class="empty"><a href="https://rementally.onrender.com" target="_blank" style="color:#ccff00;">Sign in to ReMentally</a></div>';
   }
 });
 

@@ -38,7 +38,7 @@ function createEmailChannel({ host, port = 587, secure = false, user, pass, from
       await transporter.sendMail({
         from: from || user,
         to,
-        subject: title || 'ThoughtGPS — New Nudge',
+        subject: title || 'ReMentally — New Nudge',
         text: message,
         html: html || `<p>${message.replace(/\n/g, '<br/>')}</p>`,
       });
@@ -88,7 +88,7 @@ function createEmailChannel({ host, port = 587, secure = false, user, pass, from
               if (body && header) {
                 const parsed = await simpleParser(body.body);
                 // Simple filter: Only ingest if from the user's own email (note-to-self) 
-                // or if it's a direct reply to ThoughtGPS.
+                // or if it's a direct reply to ReMentally.
                 const sender = (parsed.from && parsed.from.value && parsed.from.value[0]) ? parsed.from.value[0].address : '';
                 
                 if (sender === user) {

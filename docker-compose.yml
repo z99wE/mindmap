@@ -3,17 +3,17 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: unzonko-db
+    container_name: rementally-db
     environment:
-      POSTGRES_DB: thought_gps
-      POSTGRES_USER: thought_gps_user
-      POSTGRES_PASSWORD: thought_gps_pass
+      POSTGRES_DB: rementally
+      POSTGRES_USER: rementally_user
+      POSTGRES_PASSWORD: rementally_pass
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U thought_gps_user -d thought_gps"]
+      test: ["CMD-SHELL", "pg_isready -U rementally_user -d rementally"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,11 +22,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: unzonko-app
+    container_name: rementally-app
     environment:
       NODE_ENV: development
       PORT: 3001
-      DATABASE_URL: postgresql://thought_gps_user:thought_gps_pass@postgres:5432/thought_gps
+      DATABASE_URL: postgresql://rementally_user:rementally_pass@postgres:5432/rementally
       JWT_SECRET: dev-jwt-secret-change-in-production
       API_KEY_ENCRYPTION_SECRET: dev-encryption-secret-32chars!!
       FRONTEND_URL: http://localhost:3001

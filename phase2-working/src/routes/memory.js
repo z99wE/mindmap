@@ -171,12 +171,12 @@ router.get('/export', authMiddleware, async (req, res) => {
         `"${r.id}","${(r.content || '').replace(/"/g, '""')}","${r.category || ''}",${r.half_life_hours || ''},"${r.urgency_tier || ''}","${r.status || ''}","${r.created_at}"`
       ).join('\n');
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename=mentally-export.csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=rementally-export.csv');
       return res.send(header + rows);
     }
     
     if (format === 'markdown') {
-      let md = '# Mentally Export\n\n';
+      let md = '# ReMentally Export\n\n';
       md += `*Exported on ${new Date().toLocaleString()}*\n\n`;
       result.rows.forEach(r => {
         md += `## ${r.category ? r.category.toUpperCase() : 'GENERAL'}\n`;
@@ -184,7 +184,7 @@ router.get('/export', authMiddleware, async (req, res) => {
         md += `> ${r.content}\n\n---\n\n`;
       });
       res.setHeader('Content-Type', 'text/markdown');
-      res.setHeader('Content-Disposition', 'attachment; filename=mentally-export.md');
+      res.setHeader('Content-Disposition', 'attachment; filename=rementally-export.md');
       return res.send(md);
     }
     
@@ -276,7 +276,7 @@ router.get('/export-all', authMiddleware, async (req, res) => {
       pool.query('SELECT id, tier, daily_runs_limit, total_credits, notification_prefs, witness_contacts, subscription_status, created_at FROM users WHERE id = $1', [userId]),
     ]);
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename=mentally-full-export.json');
+    res.setHeader('Content-Disposition', 'attachment; filename=rementally-full-export.json');
     res.json({
       exportedAt: new Date().toISOString(),
       user: user.rows[0] || null,

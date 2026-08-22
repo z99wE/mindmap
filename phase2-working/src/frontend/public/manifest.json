@@ -1,6 +1,6 @@
 {
-  "name": "Mentally — Cognitive Coprocessor",
-  "short_name": "Mentally",
+  "name": "ReMentally — Cognitive Coprocessor",
+  "short_name": "ReMentally",
   "description": "Cognitive coprocessor. Multi-agent memory graph with 10-channel delivery.",
   "start_url": "/",
   "display": "standalone",

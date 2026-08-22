@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════╗
- * ║  PULSEKIT  —  ThoughtGPS Native Communication Kernel                ║
+ * ║  PULSEKIT  —  ReMentally Native Communication Kernel                ║
  * ║                                                                      ║
  * ║  A zero-dependency, self-owned replacement for Caspian SDK.          ║
  * ║  Every user gets delivery. No third-party SDK can take it down.      ║

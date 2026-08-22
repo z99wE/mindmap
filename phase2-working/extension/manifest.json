@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Mentally — Cognitive Coprocessor",
+  "name": "ReMentally — Cognitive Coprocessor",
   "version": "1.0.0",
   "description": "Capture thoughts, track commitments, and stay focused — without leaving your browser.",
   "permissions": ["storage", "alarms"],
-  "host_permissions": ["https://mentally.onrender.com/*"],
+  "host_permissions": ["https://rementally.onrender.com/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.svg"

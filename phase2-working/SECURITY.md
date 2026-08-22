@@ -12,7 +12,7 @@
 
 **Do NOT report security vulnerabilities in public GitHub issues.**
 
-Instead, email: [admin@mentally.local](mailto:admin@mentally.local)
+Instead, email: [admin@rementally.local](mailto:admin@rementally.local)
 
 You should receive a response within 48 hours. If you don't, follow up via the same channel.
 
@@ -94,4 +94,4 @@ It is NOT designed for:
 
 ## Contact
 
-For security questions: [admin@mentally.local](mailto:admin@mentally.local)
+For security questions: [admin@rementally.local](mailto:admin@rementally.local)
