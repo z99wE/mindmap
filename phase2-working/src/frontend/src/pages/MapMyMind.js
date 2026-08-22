@@ -133,7 +133,7 @@ export function MapMyMind() {
     }
 
     const themeColors = {};
-    const colorPalette = ['#ccff00', '#a3e635', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4', '#84cc16', '#f97316'];
+    const colorPalette = ['var(--md-sys-color-primary)', 'var(--md-sys-color-secondary)', 'var(--md-sys-color-tertiary)', 'var(--md-sys-color-tertiary)', 'var(--md-sys-color-secondary)', 'var(--color-analytical)', 'var(--md-sys-color-error)', 'var(--md-sys-color-tertiary)', 'var(--md-sys-color-primary)', 'var(--color-urgency)'];
     themes.forEach((t, i) => { themeColors[t.theme] = colorPalette[i % colorPalette.length]; });
 
     // Simple node-based layout

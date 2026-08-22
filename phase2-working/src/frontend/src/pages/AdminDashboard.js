@@ -22,7 +22,7 @@ export function AdminDashboard() {
     <div class="page-shell">
       <div class="surface-card card-reveal" style="padding:2rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-          <span class="dot" style="width:10px;height:10px;background:#ccff00;box-shadow:0 0 12px rgba(204,255,0,0.5);"></span>
+          <span class="dot" style="width:10px;height:10px;background:var(--md-sys-color-primary);box-shadow:0 0 12px var(--md-sys-color-primary);"></span>
           <h1 style="font:var(--md-sys-typescale-headline-medium);margin:0;">Admin Console</h1>
         </div>
         <p style="font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);margin:0;">
@@ -40,15 +40,15 @@ export function AdminDashboard() {
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Total Users</div>
-          <div id="stat-users" style="font:var(--md-sys-typescale-headline-large);color:#ccff00;">—</div>
+          <div id="stat-users" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-primary);">—</div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">Memory Nodes</div>
-          <div id="stat-memory" style="font:var(--md-sys-typescale-headline-large);color:#a3e635;">—</div>
+          <div id="stat-memory" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-secondary);">—</div>
         </div>
         <div class="surface-card card-reveal" style="padding:1.25rem;text-align:center;">
           <div style="font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-outline);">API Keys Active</div>
-          <div id="stat-keys" style="font:var(--md-sys-typescale-headline-large);color:#10b981;">—</div>
+          <div id="stat-keys" style="font:var(--md-sys-typescale-headline-large);color:var(--md-sys-color-tertiary);">—</div>
         </div>
       </div>
 
@@ -141,11 +141,11 @@ export function AdminDashboard() {
         <div id="channel-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-bottom:1.5rem;">
           <div class="surface-card" style="padding:0.75rem;text-align:center;">
             <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Total Channels</div>
-            <div id="ch-total" style="font:var(--md-sys-typescale-title-large);color:#ccff00;">—</div>
+            <div id="ch-total" style="font:var(--md-sys-typescale-title-large);color:var(--md-sys-color-primary);">—</div>
           </div>
           <div class="surface-card" style="padding:0.75rem;text-align:center;">
             <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">Active</div>
-            <div id="ch-active" style="font:var(--md-sys-typescale-title-large);color:#a3e635;">—</div>
+            <div id="ch-active" style="font:var(--md-sys-typescale-title-large);color:var(--md-sys-color-secondary);">—</div>
           </div>
           <div class="surface-card" style="padding:0.75rem;text-align:center;">
             <div style="font:var(--md-sys-typescale-label-small);color:var(--md-sys-color-outline);">PulseKit Global</div>
@@ -325,7 +325,7 @@ export function AdminDashboard() {
             <tbody>
               ${users.users.map(u => `
                 <tr style="border-bottom:1px solid var(--md-sys-color-outline-variant);">
-                  <td style="padding:0.5rem;">${u.email || u.id?.slice(0, 8) || '—'}${u.is_admin ? ' <span style="color:#ccff00;font-size:11px;font-weight:600;">ADMIN</span>' : ''}</td>
+                  <td style="padding:0.5rem;">${u.email || u.id?.slice(0, 8) || '—'}${u.is_admin ? ' <span style="color:var(--md-sys-color-primary);font-size:11px;font-weight:600;">ADMIN</span>' : ''}</td>
                   <td style="padding:0.5rem;"><span style="background:var(--md-sys-color-surface-container);padding:2px 8px;border-radius:var(--md-sys-shape-full);font-size:11px;">${u.tier || 'free'}</span></td>
                   <td style="padding:0.5rem;">${u.daily_runs_used || 0}</td>
                   <td style="padding:0.5rem;">${u.total_credits || 0}</td>
@@ -352,7 +352,7 @@ export function AdminDashboard() {
 	          <div style="font:var(--md-sys-typescale-title-small);margin-bottom:0.5rem;color:var(--md-sys-color-outline);">By Platform</div>
 	          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
 	            ${chStats.byPlatform.map(p => `
-	              <span class="chip-m3" style="background:rgba(132,204,22,0.1);border:1px solid rgba(132,204,22,0.2);color:#ccff00;padding:0.25rem 0.75rem;border-radius:var(--md-sys-shape-full);font:var(--md-sys-typescale-label-small);">
+	              <span class="chip-m3" style="background:rgba(132,204,22,0.1);border:1px solid rgba(132,204,22,0.2);color:var(--md-sys-color-primary);padding:0.25rem 0.75rem;border-radius:var(--md-sys-shape-full);font:var(--md-sys-typescale-label-small);">
 	                ${esc(p.platform)} <strong>${p.count}</strong>
 	              </span>
 	            `).join('')}

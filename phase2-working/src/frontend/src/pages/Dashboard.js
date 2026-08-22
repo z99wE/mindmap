@@ -108,7 +108,7 @@ export function Dashboard() {
         <!-- Attention Debt Score -->
         <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(251,191,36,0.15);">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
-            <span class="material-symbols-rounded" style="font-size:18px;color:#f59e0b;">score</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--color-analytical);">score</span>
             Attention Debt Score
           </h3>
           <div id="debt-score" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Calculating...</div>
@@ -126,7 +126,7 @@ export function Dashboard() {
         <!-- Commitment Probability -->
         <div class="surface-card card-reveal" style="padding:1.5rem;border:1px solid rgba(16,185,129,0.15);">
           <h3 style="font:var(--md-sys-typescale-title-medium);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
-            <span class="material-symbols-rounded" style="font-size:18px;color:#10b981;">fact_check</span>
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary);">fact_check</span>
             Commitment Probability
           </h3>
           <div id="commitment-prob" style="font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-outline);">Computing...</div>
@@ -160,13 +160,13 @@ async function loadDashboard(c) {
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Runs Left</div>
         <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-secondary);">${billing.dailyRunsRemaining ?? 0}</div>
       </div>
-      <div class="surface-card" style="padding:1.25rem;border-left:3px solid #10b981;">
+      <div class="surface-card" style="padding:1.25rem;border-left:3px solid var(--md-sys-color-tertiary);">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Credits</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:#10b981;">${billing.totalCredits ?? 0}</div>
+        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-tertiary);">${billing.totalCredits ?? 0}</div>
       </div>
-      <div class="surface-card" style="padding:1.25rem;border-left:3px solid #a3e635;">
+      <div class="surface-card" style="padding:1.25rem;border-left:3px solid var(--md-sys-color-secondary);">
         <div class="mono-label" style="color:var(--md-sys-color-outline);font-size:10px;text-transform:uppercase;margin-bottom:0.35rem;">Memories</div>
-        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:#a3e635;">${memStats.total || 0}</div>
+        <div style="font:700 1.5rem/1 'Space Grotesk',system-ui;color:var(--md-sys-color-secondary);">${memStats.total || 0}</div>
       </div>`;
 
     // Run gauge
@@ -182,7 +182,7 @@ async function loadDashboard(c) {
 
   // Cognitive Load
   if (!cogData.error && cogData.distribution?.length > 0) {
-    const loadColors = { critical: '#f44336', high: '#ff9800', medium: '#ccff00', low: '#10b981' };
+    const loadColors = { critical: 'var(--md-sys-color-error)', high: 'var(--color-analytical)', medium: 'var(--md-sys-color-primary)', low: 'var(--md-sys-color-tertiary)' };
     c.querySelector('#cog-load').innerHTML = cogData.distribution.map(d => `
       <div>
         <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
@@ -258,7 +258,7 @@ async function loadDashboard(c) {
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
         <span style="font-size:12px;color:var(--md-sys-color-outline);">Task Drift Prediction</span>
-        <span style="font-size:12px;color:#ff9800;font-weight:bold;">${predictionStr}</span>
+        <span style="font-size:12px;color:var(--color-analytical);font-weight:bold;">${predictionStr}</span>
       </div>
       <p style="font-size:11px;line-height:1.4;margin-top:0.5rem;color:var(--md-sys-color-on-surface-variant);background:rgba(204,255,0,0.03);padding:0.5rem;border-radius:4px;border:1px dashed rgba(204,255,0,0.15);">
         <strong>Futurism Trend:</strong> ${trendStr}
@@ -357,7 +357,7 @@ async function loadDashboard(c) {
 	      const fc = await api.get('/cognitive/forecast');
 	      const el = c.querySelector('#load-forecast');
 	      if (fc.currentLoad !== undefined) {
-	        const color = fc.currentLoad < 30 ? '#22c55e' : fc.currentLoad < 60 ? '#84cc16' : fc.currentLoad < 80 ? '#f59e0b' : '#ef4444';
+	        const color = fc.currentLoad < 30 ? 'var(--color-success)' : fc.currentLoad < 60 ? 'var(--md-sys-color-primary)' : fc.currentLoad < 80 ? 'var(--color-analytical)' : 'var(--md-sys-color-error)';
 	        el.innerHTML = `
 	          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
 	            <div style="font:700 2rem/1 var(--font-heading);color:${color};">${fc.currentLoad}</div>
@@ -370,7 +370,7 @@ async function loadDashboard(c) {
 	          <p style="margin:0;font-size:12px;line-height:1.5;">${fc.insight || ''}</p>
 	          ${fc.forecast ? `<div style="display:flex;gap:3px;margin-top:0.5rem;align-items:flex-end;height:32px;">${fc.forecast.map(d =>
 	            `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-	              <div style="width:100%;height:${(d.load / 100) * 28}px;border-radius:2px;background:${d.severity === 'critical' ? '#ef4444' : d.severity === 'high' ? '#f59e0b' : d.severity === 'medium' ? '#84cc16' : '#22c55e'};opacity:0.7;"></div>
+	              <div style="width:100%;height:${(d.load / 100) * 28}px;border-radius:2px;background:${d.severity === 'critical' ? 'var(--md-sys-color-error)' : d.severity === 'high' ? 'var(--color-analytical)' : d.severity === 'medium' ? 'var(--md-sys-color-primary)' : 'var(--color-success)'};opacity:0.7;"></div>
 	              <span style="font:7px var(--font-mono);color:var(--md-sys-color-outline);margin-top:2px;">${d.day.slice(0,2)}</span>
 	            </div>`).join('')}</div>` : ''}
 	        `;
@@ -417,7 +417,7 @@ async function loadDashboard(c) {
 	      const cp = await api.get('/cognitive/commitment-probability');
 	      const el = c.querySelector('#commitment-prob');
 	      if (cp.overallFulfillmentRate !== undefined) {
-	        const color = cp.overallFulfillmentRate >= 70 ? '#22c55e' : cp.overallFulfillmentRate >= 40 ? '#f59e0b' : '#ef4444';
+	        const color = cp.overallFulfillmentRate >= 70 ? 'var(--color-success)' : cp.overallFulfillmentRate >= 40 ? 'var(--color-analytical)' : 'var(--md-sys-color-error)';
 	        el.innerHTML = `
 	          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
 	            <div style="font:700 2rem/1 var(--font-heading);color:${color};">${cp.overallFulfillmentRate}%</div>

@@ -46,7 +46,7 @@ export function Profile() {
           </h1>
           <p style="margin:0 0 6px;font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant);">${esc(user.email || '')}</p>
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;background:rgba(204,255,0,0.12);border:1px solid rgba(204,255,0,0.3);font:600 11px var(--font-body);color:#ccff00;letter-spacing:0.06em;text-transform:uppercase;">
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;background:rgba(204,255,0,0.12);border:1px solid rgba(204,255,0,0.3);font:600 11px var(--font-body);color:var(--md-sys-color-primary);letter-spacing:0.06em;text-transform:uppercase;">
               <span class="material-symbols-rounded" style="font-size:13px;">verified</span>
               ${(user.tier || 'free').toUpperCase()}
             </span>
@@ -208,7 +208,7 @@ export function Profile() {
       msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:rgba(255,138,158,.1);color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);margin-bottom:0;';
       msg.textContent = result.error;
     } else {
-      msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:rgba(204,255,0,.08);color:#ccff00;font:var(--md-sys-typescale-body-small);margin-bottom:0;';
+      msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:var(--md-sys-color-primary-container);color:var(--md-sys-color-primary);font:var(--md-sys-typescale-body-small);margin-bottom:0;';
       msg.textContent = '✓ Profile saved';
       // Update local user cache
       const updatedUser = { ...api.getUser(), ...result };
@@ -280,7 +280,7 @@ export function Profile() {
       msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:rgba(255,138,158,.1);color:var(--md-sys-color-error);font:var(--md-sys-typescale-body-small);';
       msg.textContent = result.error;
     } else {
-      msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:rgba(204,255,0,.08);color:#ccff00;font:var(--md-sys-typescale-body-small);';
+      msg.style.cssText = 'display:block;padding:0.75rem;border-radius:8px;background:var(--md-sys-color-primary-container);color:var(--md-sys-color-primary);font:var(--md-sys-typescale-body-small);';
       msg.textContent = '✓ Agent preferences saved';
       setTimeout(() => { msg.style.display = 'none'; }, 3000);
     }
