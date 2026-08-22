@@ -5,14 +5,14 @@
   <img src="https://img.shields.io/badge/Stack-Node.js_PostgreSQL_React-22c55e?style=for-the-badge" />
 </p>
 
-<h1 align="center">🧠 ReMentally</h1>
-<h3 align="center">Cognitive Coprocessor — Multi-Agent Memory Graph<br/>with 10-Channel Autonomous Delivery</h3>
+<h1 align="center">ReMentally</h1>
+<h3 align="center">Cognitive Coprocessor — Multi-Agent Memory Graph<br/>with 9-Channel Autonomous Delivery</h3>
 
 <p align="center">
   <b>Middleware between your brain and every app you use.</b><br/>
   Captures thoughts from web, Telegram, Slack, email, or browser extension.<br/>
   Routes through a multi-agent AI pipeline. Stores in a vector memory graph with automatic decay.<br/>
-  Delivers insights to any device through 10 messaging channels.
+  Delivers insights to any device through 9 messaging channels.
 </p>
 
 ---
@@ -25,7 +25,6 @@
 - [Channel Delivery](#channel-delivery)
 - [AI & Agents](#ai--agents)
 - [Cognitive Models](#cognitive-models)
-- [Infrastructure Costs](#infrastructure-costs)
 - [Pricing](#pricing)
 - [Quick Start](#quick-start)
 - [Testing](#testing)
@@ -78,7 +77,7 @@ User Input (Web UI / Telegram / Slack / Email / Browser Extension)
 ┌─────────────────────────────────────────────────────────────┐
 │  PULSEKIT — Multi-Tenant Channel Router                     │
 │  User's bot → Global bot → Fallback channels → DB store     │
-│  10 platforms: Telegram, Slack, Discord, WhatsApp, Signal,   │
+│  9 platforms: Telegram, Slack, Discord, WhatsApp, Signal,    │
 │  Email, SMS, Twitter/X, Web Push                           │
 └─────────────────────────────────────────────────────────────┘
         │
@@ -89,9 +88,9 @@ User Input (Web UI / Telegram / Slack / Email / Browser Extension)
 ### Key Design Decisions
 
 | Layer | Decision | Rationale |
-|-------|----------|-----------| 
+|-------|----------|-----------|
 | **Channels** | Bring Your Own Credentials | Zero notification cost. Users own their bot tokens. |
-| **LLM** | Bring Your Own Keys + shared fallback | Zero LLM cost for you. Users pay their own API bills. |
+| **LLM** | Bring Your Own Keys (per-user, never shared) | Each user's API keys are encrypted and isolated. Zero cost for you. |
 | **Memory** | PostgreSQL + pgvector | No additional infrastructure. One database for everything. |
 | **Agents** | Collaborative, persistent memory | Each agent remembers past findings. No stateless chatbot. |
 | **Delivery** | User bot → Global bot → Fallback → DB | Three layers of reliability before falling back to in-app. |
@@ -100,7 +99,7 @@ User Input (Web UI / Telegram / Slack / Email / Browser Extension)
 
 ## Features
 
-### Channel Delivery — 10 Platforms
+### Channel Delivery — 9 Platforms
 
 | Platform | Outbound | Inbound | Credentials Required |
 |----------|----------|---------|---------------------|
@@ -171,7 +170,7 @@ All channels support **failover mode** (try Telegram → Slack → Email → DB)
 | Tier | Price | What you get |
 |------|-------|-------------|
 | **Free** | $0 | 10 runs/day, 2 channels, bring your own LLM key, full cognitive features |
-| **Early Adopter** | Waitlist | Higher limits, shared LLM pool, all 10 channels — [join the waitlist](https://rementally.com) |
+| **Early Adopter** | Waitlist | Higher limits, shared LLM pool, all 9 channels — [join the waitlist](https://rementally.com) |
 
 Early Adopter spots are limited. Drop your email on the Credits page to get notified when spots open.
 

@@ -12,6 +12,18 @@ const { classifyHalfLife } = require('./features/thought-half-life');
 const { detectCommitment } = require('./features/commitment-witness');
 const { detectIntent, detectUnanchored, applyRevivalHours, scheduleRevival } = require('./features/thought-interceptor');
 const { inferClassification } = require('./features/thought-classification');
+const { callProvider: callProviderRaw } = require('./src/llm-provider');
+
+// Wrapper to match the orchestrator's expected return format
+// The shared callProvider returns just a string; this wraps it into { content, model, usage }
+async function callProvider(provider, apiKey, systemPrompt, message, options = {}) {
+  try {
+    const content = await callProviderRaw(provider, apiKey, systemPrompt, message, options);
+    return { content, model: options.model || provider, usage: null };
+  } catch (e) {
+    return { error: e.message, status: e.status || 500 };
+  }
+}
 
 // ============================================
 // 1. WORKFLOW NODE
@@ -402,75 +414,8 @@ Response style: Concise, empathetic, analytical. Use bullet points for clarity.
   return prompt;
 }
 
-async function callProvider(provider, apiKey, systemPrompt, message) {
-  const https = require('https');
-
-  const configs = {
-    groq: {
-      hostname: 'api.groq.com',
-      path: '/openai/v1/chat/completions',
-      model: 'llama-3.3-70b-versatile',
-      maxTokens: 1024,
-    },
-    openai: {
-      hostname: 'api.openai.com',
-      path: '/v1/chat/completions',
-      model: 'gpt-4o-mini',
-      maxTokens: 1024,
-    },
-  };
-
-  const config = configs[provider] || configs.groq;
-
-  const body = JSON.stringify({
-    model: config.model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: message },
-    ],
-    max_tokens: config.maxTokens,
-    temperature: 0.7,
-  });
-
-  return new Promise((resolve) => {
-    const req = https.request({
-      hostname: config.hostname,
-      path: config.path,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Length': Buffer.byteLength(body),
-      },
-    }, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.choices?.[0]?.message?.content) {
-            resolve({
-              content: parsed.choices[0].message.content,
-              model: parsed.model || config.model,
-              usage: parsed.usage,
-            });
-          } else if (parsed.error) {
-            resolve({ error: parsed.error.message || 'LLM error', status: res.statusCode });
-          } else {
-            resolve({ error: 'Unexpected response format', status: res.statusCode });
-          }
-        } catch {
-          resolve({ error: 'Failed to parse LLM response', status: res.statusCode });
-        }
-      });
-    });
-
-    req.on('error', (err) => resolve({ error: err.message }));
-    req.setTimeout(30000, () => { req.destroy(); resolve({ error: 'LLM timeout' }); });
-    req.write(body);
-    req.end();
-  });
-}
+// callProvider is imported from src/llm-provider.js (single source of truth)
+// The shared version supports 15+ providers with proper error handling and retry
 
 // ============================================
 // 5. ORCHESTRATOR MANAGER

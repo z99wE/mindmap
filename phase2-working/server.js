@@ -9,6 +9,7 @@ const pino = require('pino');
 const pinoHttp = require('pino-http');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { version: APP_VERSION } = require('./package.json');
 
 const { runMigrations, pool } = require('./src/db');
 const { ensureDevAdmin } = require('./src/dev-admin');
@@ -224,7 +225,7 @@ app.get('/api/health', async (req, res) => {
 
   res.status(httpStatus).json({
     status: allOk ? 'ok' : 'degraded',
-    version: '3.0.0',
+    version: APP_VERSION,
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     env: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -267,7 +268,7 @@ app.get('*', (req, res) => {
   // SPA fallback: serve index.html for non-API routes
   if (!req.path.startsWith('/api/')) {
     res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
-      if (err) res.status(200).json({ status: 'ReMentally API running', version: '3.0.0' });
+      if (err) res.status(200).json({ status: 'ReMentally API running', version: APP_VERSION });
     });
   } else {
     // Unknown API route → 404 JSON instead of hanging

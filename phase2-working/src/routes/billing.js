@@ -340,9 +340,9 @@ router.get('/history', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/billing/subscribe - upgrade/downgrade tier (demo flow)
-// NOTE: In production this must go through create-order + verify-payment, otherwise
-// anyone can claim a paid tier for free. We hard-gate paid tiers unless payment is configured.
+// POST /api/billing/subscribe - upgrade/downgrade tier
+// Paid tiers require a completed Razorpay payment (create-order → verify-payment flow).
+// Direct tier switching is ONLY allowed for downgrades (paid → free).
 router.post('/subscribe', authMiddleware, async (req, res) => {
   try {
     const { tier } = req.body;
@@ -351,9 +351,31 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
 
     const tierConfig = TIERS[tier];
     const isPaidUpgrade = tier === 'pro';
-    // Paid tier requires real payment (Razorpay configured). Free/downgrade is always allowed.
-    if (isPaidUpgrade && !RAZORPAY_KEY_ID) {
-      return res.status(403).json({ error: 'Paid tiers require a completed payment. Use the checkout flow to upgrade.' });
+
+    // Check current user tier
+    const currentUser = await pool.query('SELECT tier FROM users WHERE id = $1', [req.user.userId]);
+    const currentTier = currentUser.rows[0]?.tier || 'free';
+
+    // Downgrades are always allowed (paid → free)
+    if (currentTier !== 'free' && tier === 'free') {
+      // Allow downgrade — skip payment check
+    } else if (isPaidUpgrade) {
+      // Upgrading to a paid tier requires a completed payment transaction
+      if (!RAZORPAY_KEY_ID) {
+        return res.status(403).json({ error: 'Payment system not configured. Contact the administrator.' });
+      }
+      // Verify there's a completed payment for this user in the last hour
+      const recentPayment = await pool.query(
+        `SELECT id FROM billing_transactions
+         WHERE user_id = $1 AND type = 'subscription' AND status = 'completed'
+         AND created_at > NOW() - INTERVAL '1 hour' LIMIT 1`,
+        [req.user.userId]
+      );
+      if (recentPayment.rows.length === 0) {
+        return res.status(403).json({ error: 'Paid tiers require a completed payment. Use the checkout flow to upgrade.' });
+      }
+    } else {
+      return res.status(403).json({ error: 'Invalid tier transition. Use the checkout flow to upgrade.' });
     }
     const result = await pool.query(
       `UPDATE users SET tier = $1, daily_runs_limit = $2, subscription_status = $3, updated_at = NOW()
